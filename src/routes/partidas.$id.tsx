@@ -101,7 +101,7 @@ function Page() {
                 ["passes_accurate", "Passes certos"],
                 ["saves", "Defesas"],
               ].map(([k, l]) => (
-                <StatRow key={k} label={l} home={homeStats?.[k]} away={awayStats?.[k]} />
+                <StatRow key={k} label={l} home={(homeStats as any)?.[k]} away={(awayStats as any)?.[k]} />
               ))}
             </div>
           )}

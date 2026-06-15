@@ -117,7 +117,7 @@ function MatchesAdmin() {
       <button onClick={() => setEditing({ phase: "group", status: "scheduled", home_score: 0, away_score: 0, kickoff_at: new Date().toISOString().slice(0,16) })} className="inline-flex h-10 items-center gap-2 rounded-lg bg-pitch px-4 text-sm font-bold text-primary-foreground">
         <Plus className="h-4 w-4" /> Nova partida
       </button>
-      {editing && <MatchForm initial={editing} teams={teams} onCancel={() => setEditing(null)} onSave={(d) => save.mutate(d)} saving={save.isPending} />}
+      {editing && <MatchForm initial={editing} teams={teams} onCancel={() => setEditing(null)} onSave={(d: any) => save.mutate(d)} saving={save.isPending} />}
       <div className="rounded-xl border border-border bg-card divide-y divide-border">
         {matches.map((m: any) => (
           <div key={m.id} className="p-3 grid grid-cols-[1fr_auto] items-center gap-3">
@@ -140,16 +140,16 @@ function MatchForm({ initial, teams, onCancel, onSave, saving }: any) {
   const [f, setF] = useState(initial);
   return (
     <form onSubmit={(e) => { e.preventDefault(); onSave({ ...f, kickoff_at: new Date(f.kickoff_at).toISOString(), home_score: Number(f.home_score), away_score: Number(f.away_score) }); }} className="rounded-xl border border-border bg-card p-4 grid gap-3 sm:grid-cols-2">
-      <Sel label="Mandante" value={f.home_team_id} onChange={(v) => setF({ ...f, home_team_id: v })}>
+      <Sel label="Mandante" value={f.home_team_id} onChange={(v: string) => setF({ ...f, home_team_id: v })}>
         <option value="">—</option>{teams.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
       </Sel>
-      <Sel label="Visitante" value={f.away_team_id} onChange={(v) => setF({ ...f, away_team_id: v })}>
+      <Sel label="Visitante" value={f.away_team_id} onChange={(v: string) => setF({ ...f, away_team_id: v })}>
         <option value="">—</option>{teams.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
       </Sel>
-      <Sel label="Fase" value={f.phase} onChange={(v) => setF({ ...f, phase: v })}>
+      <Sel label="Fase" value={f.phase} onChange={(v: string) => setF({ ...f, phase: v })}>
         {["group","round_of_16","quarter","semi","third_place","final"].map(p => <option key={p} value={p}>{p}</option>)}
       </Sel>
-      <Sel label="Status" value={f.status} onChange={(v) => setF({ ...f, status: v })}>
+      <Sel label="Status" value={f.status} onChange={(v: string) => setF({ ...f, status: v })}>
         {["scheduled","live","finished","postponed","cancelled"].map(s => <option key={s} value={s}>{s}</option>)}
       </Sel>
       <Field label="Início"><input required type="datetime-local" value={f.kickoff_at} onChange={(e) => setF({ ...f, kickoff_at: e.target.value })} className="input" /></Field>
@@ -185,7 +185,7 @@ function TeamsAdmin() {
           <Field label="Confederação"><input value={editing.confederation ?? ""} onChange={(e) => setEditing({ ...editing, confederation: e.target.value })} className="input" /></Field>
           <Field label="Técnico"><input value={editing.coach_name ?? ""} onChange={(e) => setEditing({ ...editing, coach_name: e.target.value })} className="input" /></Field>
           <Field label="Ranking FIFA"><input type="number" value={editing.fifa_rank ?? ""} onChange={(e) => setEditing({ ...editing, fifa_rank: e.target.value })} className="input" /></Field>
-          <Sel label="Grupo" value={editing.group_id ?? ""} onChange={(v) => setEditing({ ...editing, group_id: v || null })}>
+          <Sel label="Grupo" value={editing.group_id ?? ""} onChange={(v: string) => setEditing({ ...editing, group_id: v || null })}>
             <option value="">Sem grupo</option>{(g?.groups ?? []).map((gr: any) => <option key={gr.id} value={gr.id}>Grupo {gr.name}</option>)}
           </Sel>
           <Field label="URL da bandeira"><input value={editing.flag_url ?? ""} onChange={(e) => setEditing({ ...editing, flag_url: e.target.value })} className="input" /></Field>
