@@ -9,38 +9,214 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SelecoesRouteImport } from './routes/selecoes'
+import { Route as MataMataRouteImport } from './routes/mata-mata'
+import { Route as GruposRouteImport } from './routes/grupos'
+import { Route as EstatisticasRouteImport } from './routes/estatisticas'
+import { Route as CalendarioRouteImport } from './routes/calendario'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SelecoesIdRouteImport } from './routes/selecoes.$id'
+import { Route as PartidasIdRouteImport } from './routes/partidas.$id'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
+const SelecoesRoute = SelecoesRouteImport.update({
+  id: '/selecoes',
+  path: '/selecoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MataMataRoute = MataMataRouteImport.update({
+  id: '/mata-mata',
+  path: '/mata-mata',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GruposRoute = GruposRouteImport.update({
+  id: '/grupos',
+  path: '/grupos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EstatisticasRoute = EstatisticasRouteImport.update({
+  id: '/estatisticas',
+  path: '/estatisticas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarioRoute = CalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SelecoesIdRoute = SelecoesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => SelecoesRoute,
+} as any)
+const PartidasIdRoute = PartidasIdRouteImport.update({
+  id: '/partidas/$id',
+  path: '/partidas/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/calendario': typeof CalendarioRoute
+  '/estatisticas': typeof EstatisticasRoute
+  '/grupos': typeof GruposRoute
+  '/mata-mata': typeof MataMataRoute
+  '/selecoes': typeof SelecoesRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
+  '/partidas/$id': typeof PartidasIdRoute
+  '/selecoes/$id': typeof SelecoesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/calendario': typeof CalendarioRoute
+  '/estatisticas': typeof EstatisticasRoute
+  '/grupos': typeof GruposRoute
+  '/mata-mata': typeof MataMataRoute
+  '/selecoes': typeof SelecoesRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
+  '/partidas/$id': typeof PartidasIdRoute
+  '/selecoes/$id': typeof SelecoesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/calendario': typeof CalendarioRoute
+  '/estatisticas': typeof EstatisticasRoute
+  '/grupos': typeof GruposRoute
+  '/mata-mata': typeof MataMataRoute
+  '/selecoes': typeof SelecoesRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/partidas/$id': typeof PartidasIdRoute
+  '/selecoes/$id': typeof SelecoesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/calendario'
+    | '/estatisticas'
+    | '/grupos'
+    | '/mata-mata'
+    | '/selecoes'
+    | '/admin'
+    | '/partidas/$id'
+    | '/selecoes/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/calendario'
+    | '/estatisticas'
+    | '/grupos'
+    | '/mata-mata'
+    | '/selecoes'
+    | '/admin'
+    | '/partidas/$id'
+    | '/selecoes/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/calendario'
+    | '/estatisticas'
+    | '/grupos'
+    | '/mata-mata'
+    | '/selecoes'
+    | '/_authenticated/admin'
+    | '/partidas/$id'
+    | '/selecoes/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  CalendarioRoute: typeof CalendarioRoute
+  EstatisticasRoute: typeof EstatisticasRoute
+  GruposRoute: typeof GruposRoute
+  MataMataRoute: typeof MataMataRoute
+  SelecoesRoute: typeof SelecoesRouteWithChildren
+  PartidasIdRoute: typeof PartidasIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/selecoes': {
+      id: '/selecoes'
+      path: '/selecoes'
+      fullPath: '/selecoes'
+      preLoaderRoute: typeof SelecoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mata-mata': {
+      id: '/mata-mata'
+      path: '/mata-mata'
+      fullPath: '/mata-mata'
+      preLoaderRoute: typeof MataMataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/grupos': {
+      id: '/grupos'
+      path: '/grupos'
+      fullPath: '/grupos'
+      preLoaderRoute: typeof GruposRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/estatisticas': {
+      id: '/estatisticas'
+      path: '/estatisticas'
+      fullPath: '/estatisticas'
+      preLoaderRoute: typeof EstatisticasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendario': {
+      id: '/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof CalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +224,64 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/selecoes/$id': {
+      id: '/selecoes/$id'
+      path: '/$id'
+      fullPath: '/selecoes/$id'
+      preLoaderRoute: typeof SelecoesIdRouteImport
+      parentRoute: typeof SelecoesRoute
+    }
+    '/partidas/$id': {
+      id: '/partidas/$id'
+      path: '/partidas/$id'
+      fullPath: '/partidas/$id'
+      preLoaderRoute: typeof PartidasIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface SelecoesRouteChildren {
+  SelecoesIdRoute: typeof SelecoesIdRoute
+}
+
+const SelecoesRouteChildren: SelecoesRouteChildren = {
+  SelecoesIdRoute: SelecoesIdRoute,
+}
+
+const SelecoesRouteWithChildren = SelecoesRoute._addFileChildren(
+  SelecoesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  CalendarioRoute: CalendarioRoute,
+  EstatisticasRoute: EstatisticasRoute,
+  GruposRoute: GruposRoute,
+  MataMataRoute: MataMataRoute,
+  SelecoesRoute: SelecoesRouteWithChildren,
+  PartidasIdRoute: PartidasIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
