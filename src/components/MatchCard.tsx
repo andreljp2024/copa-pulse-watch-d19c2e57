@@ -39,7 +39,7 @@ export function MatchCard({ m }: { m: MatchLike }) {
       className="block rounded-xl border border-border bg-card p-4 card-elevated hover:border-pitch/40 transition-colors"
     >
       <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-        <span>{format(new Date(m.kickoff_at), "EEE, dd MMM • HH:mm", { locale: ptBR })}</span>
+        <span suppressHydrationWarning>{format(new Date(m.kickoff_at), "EEE, dd MMM • HH:mm", { locale: ptBR })}</span>
         {isLive && (
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-live/10 text-live font-bold">
             <span className="live-dot h-2 w-2 rounded-full" /> AO VIVO
