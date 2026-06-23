@@ -24,6 +24,23 @@ type Stats = {
 function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [copied, setCopied] = useState(false);
+  const [computing, setComputing] = useState(false);
+  const compute = useServerFn(computarGanhadores);
+
+  async function runCompute() {
+    setComputing(true);
+    try {
+      const r = await compute();
+      alert(`Ganhadores: ${r.inserted} novos (de ${r.total_candidates} candidatos).`);
+      await load();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro ao computar ganhadores");
+    } finally {
+      setComputing(false);
+    }
+  }
+
+
 
   useEffect(() => { void load(); }, []);
 
