@@ -49,8 +49,6 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --font-display: "Bebas Neue", Anton, system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
-  --color-gold: var(--gold);
-  --color-pitch: var(--pitch);
 }
 
 /* Dark-first design system (matches bolaoai.lovable.app) */
