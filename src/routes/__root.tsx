@@ -105,4 +105,3 @@ function RealtimeBridge() {
   useRealtimeMatches();
   return null;
 }
-}
