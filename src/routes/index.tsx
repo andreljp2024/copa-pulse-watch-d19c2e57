@@ -137,7 +137,7 @@ function Dashboard() {
           </div>
 
           {/* Stats bar */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 py-10 border-y border-border">
+          <div className="mt-10 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 py-6 sm:py-10 border-y border-border">
             {[
               { v: "48", l: "Seleções" },
               { v: "104", l: "Partidas" },
@@ -145,8 +145,8 @@ function Dashboard() {
               { v: "01", l: "Campeão" },
             ].map((s) => (
               <div key={s.l} className="text-center">
-                <p className="font-display text-4xl md:text-5xl text-gold">{s.v}</p>
-                <p className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.l}</p>
+                <p className="font-display text-3xl sm:text-4xl md:text-5xl text-gold">{s.v}</p>
+                <p className="mt-1 text-[10px] sm:text-xs uppercase tracking-widest text-muted-foreground">{s.l}</p>
               </div>
             ))}
           </div>
