@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, publicBolaoUrl } from "@/lib/saas";
-import { Users, ListChecks, CheckCircle2, Clock, DollarSign, Trophy, Copy, ExternalLink } from "lucide-react";
+import { computarGanhadores } from "@/lib/ganhadores.functions";
+import { Users, ListChecks, CheckCircle2, Clock, DollarSign, Trophy, Copy, ExternalLink, Sparkles, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: Dashboard,
