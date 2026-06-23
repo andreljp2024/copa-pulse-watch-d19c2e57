@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify, DEFAULT_TEMPLATES } from "@/lib/saas";
-import { maskPhone, maskCpfCnpj, maskCep, onlyDigits, fetchCep } from "@/lib/masks";
+import { maskPhone, maskCpfCnpj, maskCep, onlyDigits, fetchCep, isValidCpfCnpj, isValidPhoneBR } from "@/lib/masks";
 import { Check, ChevronRight, Loader2, Search } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
@@ -26,6 +26,10 @@ function Onboarding() {
     cpf_cnpj: "",
     whatsapp: "",
     cep: "",
+    logradouro: "",
+    numero: "",
+    bairro: "",
+    complemento: "",
     cidade: "",
     estado: "",
   });
@@ -39,7 +43,13 @@ function Onboarding() {
     const r = await fetchCep(raw);
     setCepLoading(false);
     if (!r) { setCepErr("CEP não encontrado."); return; }
-    setS1((v) => ({ ...v, cidade: r.localidade, estado: r.uf }));
+    setS1((v) => ({
+      ...v,
+      cidade: r.localidade,
+      estado: r.uf,
+      logradouro: r.logradouro ?? v.logradouro,
+      bairro: r.bairro ?? v.bairro,
+    }));
   }
   // Step 2
   const [s2, setS2] = useState({
@@ -79,7 +89,12 @@ function Onboarding() {
   }, [navigate]);
 
   async function saveStep1() {
-    setLoading(true); setError(null);
+    setError(null);
+    if (!isValidCpfCnpj(s1.cpf_cnpj)) { setError("CPF ou CNPJ inválido."); return; }
+    if (!isValidPhoneBR(s1.whatsapp)) { setError("WhatsApp inválido — informe DDD + número."); return; }
+    if (onlyDigits(s1.cep).length !== 8) { setError("CEP inválido."); return; }
+    if (!s1.numero.trim()) { setError("Informe o número do endereço."); return; }
+    setLoading(true);
     try {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Sessão expirada");
@@ -160,11 +175,11 @@ function Onboarding() {
             <Form title="Dados do responsável / estabelecimento" onSubmit={saveStep1} loading={loading}>
               <Input label="Nome do responsável" value={s1.nome_responsavel} onChange={(v) => setS1({ ...s1, nome_responsavel: v })} required />
               <Input label="Nome do estabelecimento ou bolão" value={s1.nome_estabelecimento} onChange={(v) => setS1({ ...s1, nome_estabelecimento: v })} required />
-              <Input label="CPF ou CNPJ" value={s1.cpf_cnpj} onChange={(v) => setS1({ ...s1, cpf_cnpj: maskCpfCnpj(v) })} placeholder="000.000.000-00" inputMode="numeric" />
+              <Input label="CPF ou CNPJ" value={s1.cpf_cnpj} onChange={(v) => setS1({ ...s1, cpf_cnpj: maskCpfCnpj(v) })} placeholder="000.000.000-00" inputMode="numeric" required />
               <Input label="WhatsApp (com DDD)" value={s1.whatsapp} onChange={(v) => setS1({ ...s1, whatsapp: maskPhone(v) })} placeholder="(11) 99999-9999" inputMode="tel" required />
               <div>
                 <label className="block">
-                  <span className="text-sm font-medium">CEP</span>
+                  <span className="text-sm font-medium">CEP<span className="text-red-500">*</span></span>
                   <div className="mt-1 flex gap-2">
                     <input
                       value={s1.cep}
@@ -172,6 +187,7 @@ function Onboarding() {
                       onBlur={(e) => lookupCep(e.target.value)}
                       placeholder="00000-000"
                       inputMode="numeric"
+                      required
                       className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pitch/40"
                     />
                     <button type="button" onClick={() => lookupCep(s1.cep)} disabled={cepLoading} className="inline-flex h-10 items-center gap-1 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted disabled:opacity-60">
@@ -180,6 +196,14 @@ function Onboarding() {
                   </div>
                   {cepErr && <span className="text-xs text-red-600">{cepErr}</span>}
                 </label>
+              </div>
+              <div className="grid grid-cols-[1fr_120px] gap-3">
+                <Input label="Logradouro (rua, avenida)" value={s1.logradouro} onChange={(v) => setS1({ ...s1, logradouro: v })} />
+                <Input label="Número" value={s1.numero} onChange={(v) => setS1({ ...s1, numero: v })} required />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Bairro" value={s1.bairro} onChange={(v) => setS1({ ...s1, bairro: v })} />
+                <Input label="Complemento" value={s1.complemento} onChange={(v) => setS1({ ...s1, complemento: v })} />
               </div>
               <div className="grid grid-cols-[1fr_100px] gap-3">
                 <Input label="Cidade" value={s1.cidade} onChange={(v) => setS1({ ...s1, cidade: v })} />

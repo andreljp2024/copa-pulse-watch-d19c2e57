@@ -960,16 +960,20 @@ export type Database = {
       }
       tenants: {
         Row: {
+          bairro: string | null
           cep: string | null
           cidade: string | null
+          complemento: string | null
           cpf_cnpj: string | null
           created_at: string
           email: string
           estado: string | null
           id: string
           logo_url: string | null
+          logradouro: string | null
           nome_estabelecimento: string
           nome_responsavel: string
+          numero: string | null
           owner_user_id: string
           plano: string
           status: string
@@ -977,16 +981,20 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          bairro?: string | null
           cep?: string | null
           cidade?: string | null
+          complemento?: string | null
           cpf_cnpj?: string | null
           created_at?: string
           email: string
           estado?: string | null
           id?: string
           logo_url?: string | null
+          logradouro?: string | null
           nome_estabelecimento: string
           nome_responsavel: string
+          numero?: string | null
           owner_user_id: string
           plano?: string
           status?: string
@@ -994,16 +1002,20 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          bairro?: string | null
           cep?: string | null
           cidade?: string | null
+          complemento?: string | null
           cpf_cnpj?: string | null
           created_at?: string
           email?: string
           estado?: string | null
           id?: string
           logo_url?: string | null
+          logradouro?: string | null
           nome_estabelecimento?: string
           nome_responsavel?: string
+          numero?: string | null
           owner_user_id?: string
           plano?: string
           status?: string
