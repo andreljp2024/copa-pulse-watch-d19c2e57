@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppShell } from "../components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeMatches } from "@/hooks/useRealtimeMatches";
 
 function NotFoundComponent() {
   return (
