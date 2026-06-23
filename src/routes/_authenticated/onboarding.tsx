@@ -26,6 +26,10 @@ function Onboarding() {
     cpf_cnpj: "",
     whatsapp: "",
     cep: "",
+    logradouro: "",
+    numero: "",
+    bairro: "",
+    complemento: "",
     cidade: "",
     estado: "",
   });
@@ -39,7 +43,13 @@ function Onboarding() {
     const r = await fetchCep(raw);
     setCepLoading(false);
     if (!r) { setCepErr("CEP não encontrado."); return; }
-    setS1((v) => ({ ...v, cidade: r.localidade, estado: r.uf }));
+    setS1((v) => ({
+      ...v,
+      cidade: r.localidade,
+      estado: r.uf,
+      logradouro: r.logradouro ?? v.logradouro,
+      bairro: r.bairro ?? v.bairro,
+    }));
   }
   // Step 2
   const [s2, setS2] = useState({
