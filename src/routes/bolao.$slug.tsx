@@ -1,37 +1,12 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
 import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
 import { buildPixPayload } from "@/lib/pix";
 import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered } from "lucide-react";
-
-export const Route = createFileRoute("/bolao/$slug")({
-  loader: async ({ params }) => {
-    const { data: bolao } = await supabase.from("boloes").select("*").eq("slug", params.slug).eq("status", "active").maybeSingle();
-    if (!bolao) throw notFound();
-    return { bolao };
-  },
-  head: ({ loaderData }) => ({
-    meta: loaderData ? [
-      { title: `${loaderData.bolao.nome} — Bolão Copa 2026` },
-      { name: "description", content: loaderData.bolao.descricao ?? `Participe do ${loaderData.bolao.nome}.` },
-      { property: "og:title", content: loaderData.bolao.nome },
-      { property: "og:description", content: loaderData.bolao.descricao ?? "Faça seu palpite e concorra." },
-      ...(loaderData.bolao.logo_url ? [{ property: "og:image", content: loaderData.bolao.logo_url }] : []),
-    ] : [],
-  }),
-  component: PublicBolao,
-  notFoundComponent: () => (
-    <div className="min-h-screen grid place-items-center p-8 text-center">
-      <div>
-        <h1 className="text-3xl font-black">Bolão não encontrado</h1>
-        <Link to="/" className="mt-4 inline-block text-pitch font-semibold">Voltar</Link>
-      </div>
-    </div>
-  ),
-});
 
 type Match = {
   id: string;
@@ -43,31 +18,96 @@ type Match = {
   away_score: number | null;
 };
 
+type TeamLite = { name: string; code: string; flag_url: string | null };
+
+const bolaoPublicOpts = (slug: string) =>
+  queryOptions({
+    queryKey: ["bolao", slug, "public"],
+    queryFn: async () => {
+      const { data: bolao, error } = await supabase
+        .from("boloes")
+        .select("*")
+        .eq("slug", slug)
+        .eq("status", "active")
+        .maybeSingle();
+      if (error) throw error;
+      if (!bolao) throw notFound();
+
+      const [m, t, p, w] = await Promise.all([
+        supabase
+          .from("matches")
+          .select("id, home_team_id, away_team_id, kickoff_at, status, home_score, away_score")
+          .order("kickoff_at", { ascending: true }),
+        supabase.from("teams").select("id, name, code, flag_url"),
+        supabase
+          .from("tenant_pix_config")
+          .select("nome_recebedor, chave_pix, banco, valor_padrao_palpite")
+          .eq("tenant_id", bolao.tenant_id)
+          .maybeSingle(),
+        supabase
+          .from("tenant_whatsapp_config")
+          .select("numero_whatsapp, mensagem_novo_palpite")
+          .eq("tenant_id", bolao.tenant_id)
+          .maybeSingle(),
+      ]);
+
+      return {
+        bolao,
+        matches: (m.data ?? []) as Match[],
+        teams: new Map<string, TeamLite>(
+          (t.data ?? []).map((x) => [x.id, { name: x.name, code: x.code, flag_url: x.flag_url }]),
+        ),
+        pix: p.data
+          ? { ...p.data, valor_padrao_palpite: Number(p.data.valor_padrao_palpite) }
+          : null,
+        wa: w.data,
+      };
+    },
+    staleTime: 30_000,
+  });
+
+export const Route = createFileRoute("/bolao/$slug")({
+  loader: ({ context, params }) => context.queryClient.ensureQueryData(bolaoPublicOpts(params.slug)),
+  head: ({ loaderData }) => ({
+    meta: loaderData
+      ? [
+          { title: `${loaderData.bolao.nome} — Bolão Copa 2026` },
+          { name: "description", content: loaderData.bolao.descricao ?? `Participe do ${loaderData.bolao.nome}.` },
+          { property: "og:title", content: loaderData.bolao.nome },
+          { property: "og:description", content: loaderData.bolao.descricao ?? "Faça seu palpite e concorra." },
+          ...(loaderData.bolao.logo_url ? [{ property: "og:image", content: loaderData.bolao.logo_url }] : []),
+        ]
+      : [],
+  }),
+  component: PublicBolao,
+  errorComponent: ({ error }) => (
+    <div className="min-h-screen grid place-items-center p-8 text-center">
+      <div>
+        <h1 className="text-2xl font-bold">Não foi possível carregar o bolão</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <Link to="/" className="mt-4 inline-block text-pitch font-semibold">Voltar</Link>
+      </div>
+    </div>
+  ),
+  notFoundComponent: () => (
+    <div className="min-h-screen grid place-items-center p-8 text-center">
+      <div>
+        <h1 className="text-3xl font-black">Bolão não encontrado</h1>
+        <Link to="/" className="mt-4 inline-block text-pitch font-semibold">Voltar</Link>
+      </div>
+    </div>
+  ),
+});
+
 function PublicBolao() {
-  const { bolao } = Route.useLoaderData();
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [teams, setTeams] = useState<Map<string, { name: string; code: string; flag_url: string | null }>>(new Map());
-  const [pix, setPix] = useState<{ nome_recebedor: string; chave_pix: string; banco: string | null; valor_padrao_palpite: number } | null>(null);
-  const [wa, setWa] = useState<{ numero_whatsapp: string; mensagem_novo_palpite: string | null } | null>(null);
+  const { slug } = Route.useParams();
+  const { data } = useSuspenseQuery(bolaoPublicOpts(slug));
+  const { bolao, matches, teams, pix, wa } = data;
   const [selected, setSelected] = useState<Match | null>(null);
   const [form, setForm] = useState({ nome: "", whatsapp: "", palpite_a: 0, palpite_b: 0 });
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<string | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      const [m, t, p, w] = await Promise.all([
-        supabase.from("matches").select("id, home_team_id, away_team_id, kickoff_at, status, home_score, away_score").order("kickoff_at", { ascending: true }),
-        supabase.from("teams").select("id, name, code, flag_url"),
-        supabase.from("tenant_pix_config").select("nome_recebedor, chave_pix, banco, valor_padrao_palpite").eq("tenant_id", bolao.tenant_id).maybeSingle(),
-        supabase.from("tenant_whatsapp_config").select("numero_whatsapp, mensagem_novo_palpite").eq("tenant_id", bolao.tenant_id).maybeSingle(),
-      ]);
-      setMatches((m.data ?? []) as Match[]);
-      setTeams(new Map((t.data ?? []).map((x) => [x.id, { name: x.name, code: x.code, flag_url: x.flag_url }])));
-      if (p.data) setPix({ ...p.data, valor_padrao_palpite: Number(p.data.valor_padrao_palpite) });
-      setWa(w.data);
-    })();
-  }, [bolao.tenant_id]);
 
   const palpiteAberto = useMemo(() => {
     if (!bolao.data_limite_palpite) return true;
