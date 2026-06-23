@@ -36,8 +36,8 @@ type Match = {
   away_team_id: string | null;
   kickoff_at: string | null;
   status: string;
-  score_home: number | null;
-  score_away: number | null;
+  home_score: number | null;
+  away_score: number | null;
 };
 
 function PublicBolao() {
@@ -54,7 +54,7 @@ function PublicBolao() {
   useEffect(() => {
     (async () => {
       const [m, t, p, w] = await Promise.all([
-        supabase.from("matches").select("id, home_team_id, away_team_id, kickoff_at, status, score_home, score_away").order("kickoff_at", { ascending: true }),
+        supabase.from("matches").select("id, home_team_id, away_team_id, kickoff_at, status, home_score, away_score").order("kickoff_at", { ascending: true }),
         supabase.from("teams").select("id, name, code, flag_url"),
         supabase.from("tenant_pix_config").select("nome_recebedor, chave_pix, banco, valor_padrao_palpite").eq("tenant_id", bolao.tenant_id).maybeSingle(),
         supabase.from("tenant_whatsapp_config").select("numero_whatsapp, mensagem_novo_palpite").eq("tenant_id", bolao.tenant_id).maybeSingle(),
@@ -150,7 +150,7 @@ function PublicBolao() {
                     {away?.flag_url && <img src={away.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
                   </div>
                   {m.status === "finished" ? (
-                    <span className="text-sm font-bold">{m.score_home} x {m.score_away}</span>
+                    <span className="text-sm font-bold">{m.home_score} x {m.away_score}</span>
                   ) : palpiteAberto ? (
                     <button onClick={() => { setSelected(m); setForm({ nome: "", whatsapp: "", palpite_a: 0, palpite_b: 0 }); setDone(null); }} className="text-sm font-semibold text-pitch hover:underline">Fazer palpite →</button>
                   ) : (

@@ -16,7 +16,7 @@ function TorcedoresPage() {
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
-      const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user!.id).single();
+      const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user!.id).single(); if (!t) return;
       const { data } = await supabase.from("torcedores").select("id, nome, whatsapp, created_at").eq("tenant_id", t.id).order("created_at", { ascending: false });
       setList(data ?? []);
       setLoading(false);

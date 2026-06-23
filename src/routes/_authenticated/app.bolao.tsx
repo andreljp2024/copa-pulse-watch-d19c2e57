@@ -21,7 +21,7 @@ function BolaoConfigPage() {
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
-      const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user!.id).single();
+      const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user!.id).single(); if (!t) return;
       const { data: b } = await supabase.from("boloes").select("*").eq("tenant_id", t.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
       if (b) {
         setBolaoId(b.id);

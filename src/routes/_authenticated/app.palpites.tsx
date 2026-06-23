@@ -26,7 +26,7 @@ function PalpitesPage() {
 
   async function load() {
     const { data: u } = await supabase.auth.getUser();
-    const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user!.id).single();
+    const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user!.id).single(); if (!t) return;
     const [{ data: pals }, { data: ts }] = await Promise.all([
       supabase.from("palpites").select("id, palpite_a, palpite_b, valor, status_pagamento, created_at, torcedores(nome, whatsapp), matches(home_team_id, away_team_id, kickoff_at)").eq("tenant_id", t.id).order("created_at", { ascending: false }),
       supabase.from("teams").select("id, name"),

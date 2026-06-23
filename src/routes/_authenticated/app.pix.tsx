@@ -24,7 +24,7 @@ function PixConfigPage() {
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
-      const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user!.id).single();
+      const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user!.id).single(); if (!t) return;
       setTenantId(t.id);
       const { data: pix } = await supabase.from("tenant_pix_config").select("*").eq("tenant_id", t.id).maybeSingle();
       if (pix) setForm({
