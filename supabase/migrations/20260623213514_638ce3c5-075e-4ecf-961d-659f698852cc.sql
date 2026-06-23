@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS ganhadores_palpite_id_key ON public.ganhadores(palpite_id);
