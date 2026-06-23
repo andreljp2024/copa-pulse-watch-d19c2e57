@@ -206,3 +206,58 @@ function PublicBolao() {
     </div>
   );
 }
+
+function SuccessPanel({
+  waLink,
+  pix,
+  valor,
+  onClose,
+}: {
+  waLink: string;
+  pix: { nome_recebedor: string; chave_pix: string; banco: string | null };
+  valor: number;
+  onClose: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  const payload = useMemo(
+    () => buildPixPayload({ chave: pix.chave_pix, nomeRecebedor: pix.nome_recebedor, valor }),
+    [pix.chave_pix, pix.nome_recebedor, valor],
+  );
+
+  async function copyPix() {
+    try {
+      await navigator.clipboard.writeText(payload);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* noop */
+    }
+  }
+
+  return (
+    <div className="text-center space-y-4">
+      <div className="text-4xl">🎉</div>
+      <h3 className="text-xl font-black">Palpite registrado!</h3>
+      <p className="text-sm text-muted-foreground">Pague o Pix e envie o comprovante pelo WhatsApp.</p>
+
+      <div className="bg-white p-3 rounded-xl border border-border inline-block">
+        <QRCodeSVG value={payload} size={180} />
+      </div>
+      <div className="text-xs text-muted-foreground">{pix.nome_recebedor} • {brl(valor)}</div>
+
+      <button
+        type="button"
+        onClick={copyPix}
+        className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-xl border border-border bg-background font-semibold text-sm"
+      >
+        {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+        {copied ? "Copiado!" : "Copiar Pix copia e cola"}
+      </button>
+
+      <a href={waLink} target="_blank" rel="noopener noreferrer" className="w-full inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-green-600 px-5 font-bold text-white">
+        <MessageCircle className="h-5 w-5" /> Abrir WhatsApp
+      </a>
+      <button onClick={onClose} className="block w-full text-sm text-muted-foreground hover:underline">Fechar</button>
+    </div>
+  );
+}
