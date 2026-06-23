@@ -1,8 +1,11 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
+import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
-import { Trophy, MessageCircle, Loader2 } from "lucide-react";
+import { buildPixPayload } from "@/lib/pix";
+import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered } from "lucide-react";
 
 export const Route = createFileRoute("/bolao/$slug")({
   loader: async ({ params }) => {
