@@ -25,9 +25,22 @@ function Onboarding() {
     nome_estabelecimento: "",
     cpf_cnpj: "",
     whatsapp: "",
+    cep: "",
     cidade: "",
     estado: "",
   });
+  const [cepLoading, setCepLoading] = useState(false);
+  const [cepErr, setCepErr] = useState<string | null>(null);
+
+  async function lookupCep(raw: string) {
+    setCepErr(null);
+    if (onlyDigits(raw).length !== 8) return;
+    setCepLoading(true);
+    const r = await fetchCep(raw);
+    setCepLoading(false);
+    if (!r) { setCepErr("CEP não encontrado."); return; }
+    setS1((v) => ({ ...v, cidade: r.localidade, estado: r.uf }));
+  }
   // Step 2
   const [s2, setS2] = useState({
     nome_recebedor: "",
