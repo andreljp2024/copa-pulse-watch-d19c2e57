@@ -115,8 +115,8 @@ function Onboarding() {
         setTenantId(data.id);
       }
       setStep(2);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Erro ao salvar");
+    } catch (e: any) {
+      setError(e?.message || e?.error_description || e?.hint || "Erro ao salvar");
     } finally { setLoading(false); }
   }
 
