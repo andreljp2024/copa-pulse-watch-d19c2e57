@@ -16,6 +16,7 @@ type Stats = {
   arrecadado: number;
   ganhadores: number;
   bolao: { id: string; nome: string; slug: string; valor_palpite: number } | null;
+  serie: { dia: string; total: number }[];
 };
 
 function Dashboard() {
