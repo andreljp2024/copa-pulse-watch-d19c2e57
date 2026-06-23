@@ -960,6 +960,7 @@ export type Database = {
       }
       tenants: {
         Row: {
+          cep: string | null
           cidade: string | null
           cpf_cnpj: string | null
           created_at: string
@@ -976,6 +977,7 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          cep?: string | null
           cidade?: string | null
           cpf_cnpj?: string | null
           created_at?: string
@@ -992,6 +994,7 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          cep?: string | null
           cidade?: string | null
           cpf_cnpj?: string | null
           created_at?: string
