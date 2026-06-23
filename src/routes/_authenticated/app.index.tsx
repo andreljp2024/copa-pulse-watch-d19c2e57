@@ -100,9 +100,19 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-black">Dashboard</h1>
-        {stats.bolao && <p className="text-sm text-muted-foreground">Bolão ativo: <strong>{stats.bolao.nome}</strong></p>}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-black">Dashboard</h1>
+          {stats.bolao && <p className="text-sm text-muted-foreground">Bolão ativo: <strong>{stats.bolao.nome}</strong></p>}
+        </div>
+        <button
+          onClick={runCompute}
+          disabled={computing}
+          className="inline-flex h-10 items-center gap-2 rounded-lg bg-pitch px-4 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+        >
+          {computing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+          Computar ganhadores
+        </button>
       </div>
 
       {stats.bolao && (
