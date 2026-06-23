@@ -27,14 +27,16 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const { data } = useSuspenseQuery(dashboardOpts);
-  const groupsMap = new Map<string, typeof data.standings>();
-  for (const row of data.standings) {
-    if (!row.group_id) continue;
-    const arr = groupsMap.get(row.group_id) ?? [];
-    arr.push(row);
-    groupsMap.set(row.group_id, arr);
-  }
-  const firstTwoGroups = [...groupsMap.entries()].slice(0, 2);
+  const firstTwoGroups = useMemo(() => {
+    const groupsMap = new Map<string, typeof data.standings>();
+    for (const row of data.standings) {
+      if (!row.group_id) continue;
+      const arr = groupsMap.get(row.group_id) ?? [];
+      arr.push(row);
+      groupsMap.set(row.group_id, arr);
+    }
+    return [...groupsMap.entries()].slice(0, 2);
+  }, [data.standings]);
 
   return (
     <AppShell>
