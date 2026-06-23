@@ -238,13 +238,13 @@ function Form({ title, children, onSubmit, loading }: { title: string; children:
   );
 }
 
-function Input(p: { label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; prefix?: string }) {
+function Input(p: { label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; prefix?: string; placeholder?: string; inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"] }) {
   return (
     <label className="block">
       <span className="text-sm font-medium">{p.label}{p.required && <span className="text-red-500">*</span>}</span>
       <div className="mt-1 flex rounded-lg border border-border bg-background focus-within:ring-2 focus-within:ring-pitch/40">
         {p.prefix && <span className="px-3 py-2 text-sm text-muted-foreground border-r border-border">{p.prefix}</span>}
-        <input type={p.type ?? "text"} required={p.required} value={p.value} onChange={(e) => p.onChange(e.target.value)} className="w-full bg-transparent px-3 py-2 text-sm outline-none" />
+        <input type={p.type ?? "text"} required={p.required} placeholder={p.placeholder} inputMode={p.inputMode} value={p.value} onChange={(e) => p.onChange(e.target.value)} className="w-full bg-transparent px-3 py-2 text-sm outline-none" />
       </div>
     </label>
   );
