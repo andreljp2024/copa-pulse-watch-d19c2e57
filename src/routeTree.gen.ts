@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SelecoesRouteImport } from './routes/selecoes'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as MataMataRouteImport } from './routes/mata-mata'
 import { Route as GruposRouteImport } from './routes/grupos'
@@ -36,6 +37,11 @@ import { Route as AuthenticatedAppBolaoRouteImport } from './routes/_authenticat
 const SelecoesRoute = SelecoesRouteImport.update({
   id: '/selecoes',
   path: '/selecoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlanosRoute = PlanosRouteImport.update({
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/grupos': typeof GruposRoute
   '/mata-mata': typeof MataMataRoute
   '/planos': typeof PlanosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/selecoes': typeof SelecoesRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
@@ -184,6 +191,7 @@ export interface FileRoutesByTo {
   '/grupos': typeof GruposRoute
   '/mata-mata': typeof MataMataRoute
   '/planos': typeof PlanosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/selecoes': typeof SelecoesRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -209,6 +217,7 @@ export interface FileRoutesById {
   '/grupos': typeof GruposRoute
   '/mata-mata': typeof MataMataRoute
   '/planos': typeof PlanosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/selecoes': typeof SelecoesRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
@@ -235,6 +244,7 @@ export interface FileRouteTypes {
     | '/grupos'
     | '/mata-mata'
     | '/planos'
+    | '/reset-password'
     | '/selecoes'
     | '/admin'
     | '/app'
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/grupos'
     | '/mata-mata'
     | '/planos'
+    | '/reset-password'
     | '/selecoes'
     | '/admin'
     | '/onboarding'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/grupos'
     | '/mata-mata'
     | '/planos'
+    | '/reset-password'
     | '/selecoes'
     | '/_authenticated/admin'
     | '/_authenticated/app'
@@ -309,6 +321,7 @@ export interface RootRouteChildren {
   GruposRoute: typeof GruposRoute
   MataMataRoute: typeof MataMataRoute
   PlanosRoute: typeof PlanosRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SelecoesRoute: typeof SelecoesRouteWithChildren
   BolaoSlugRoute: typeof BolaoSlugRouteWithChildren
   PartidasIdRoute: typeof PartidasIdRoute
@@ -321,6 +334,13 @@ declare module '@tanstack/react-router' {
       path: '/selecoes'
       fullPath: '/selecoes'
       preLoaderRoute: typeof SelecoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/planos': {
@@ -550,6 +570,7 @@ const rootRouteChildren: RootRouteChildren = {
   GruposRoute: GruposRoute,
   MataMataRoute: MataMataRoute,
   PlanosRoute: PlanosRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SelecoesRoute: SelecoesRouteWithChildren,
   BolaoSlugRoute: BolaoSlugRouteWithChildren,
   PartidasIdRoute: PartidasIdRoute,

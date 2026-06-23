@@ -22,12 +22,13 @@ const signupSchema = signinSchema.extend({
 
 function Page() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
@@ -42,6 +43,24 @@ function Page() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setInfo(null);
+
+    if (mode === "forgot") {
+      const parsed = z.object({ email: z.string().trim().email("Informe um e-mail válido.").max(255) }).safeParse({ email });
+      if (!parsed.success) { setError(parsed.error.issues[0]?.message ?? "E-mail inválido."); return; }
+      setLoading(true);
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+          redirectTo: window.location.origin + "/reset-password",
+        });
+        if (error) throw error;
+        setInfo("Enviamos um link de recuperação para o seu e-mail.");
+      } catch (err) {
+        setError(friendlyError(err, "Não foi possível enviar o e-mail de recuperação."));
+      } finally { setLoading(false); }
+      return;
+    }
+
     const parsed = (mode === "signup" ? signupSchema : signinSchema).safeParse({ email, pwd, name });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "Dados inválidos.");
@@ -56,14 +75,15 @@ function Page() {
           options: { emailRedirectTo: window.location.origin + "/admin", data: { name: (parsed.data as any).name } },
         });
         if (error) throw error;
+        setInfo("Conta criada! Verifique seu e-mail para confirmar antes de entrar.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: parsed.data.email,
           password: parsed.data.pwd,
         });
         if (error) throw error;
+        navigate({ to: "/admin" });
       }
-      navigate({ to: "/admin" });
     } catch (err) {
       setError(friendlyError(err, "Não foi possível autenticar."));
     } finally {
@@ -88,34 +108,48 @@ function Page() {
           <div className="grid h-10 w-10 place-items-center rounded-xl bg-pitch text-primary-foreground"><Trophy className="h-5 w-5" /></div>
           <div>
             <h1 className="text-2xl font-black">Entrar no CopaHub</h1>
-            <p className="text-sm text-muted-foreground">Acesse o painel administrativo</p>
+            <p className="text-sm text-muted-foreground">Acesse seu bolão</p>
           </div>
         </div>
         <div className="rounded-xl border border-border bg-card p-6 card-elevated">
           <div className="flex gap-1 rounded-lg bg-muted p-1 mb-5">
             {(["signin", "signup"] as const).map((m) => (
-              <button key={m} onClick={() => setMode(m)} className={`flex-1 py-2 rounded-md text-sm font-semibold ${mode === m ? "bg-card shadow" : "text-muted-foreground"}`}>
+              <button key={m} type="button" onClick={() => { setMode(m); setError(null); setInfo(null); }} className={`flex-1 py-2 rounded-md text-sm font-semibold ${mode === m ? "bg-card shadow" : "text-muted-foreground"}`}>
                 {m === "signin" ? "Entrar" : "Criar conta"}
               </button>
             ))}
           </div>
-          <button onClick={google} className="w-full h-11 mb-4 rounded-lg border border-border bg-background font-semibold hover:bg-muted">
+          <button type="button" onClick={google} className="w-full h-11 mb-4 rounded-lg border border-border bg-background font-semibold hover:bg-muted">
             Continuar com Google
           </button>
           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4"><div className="flex-1 h-px bg-border" />ou<div className="flex-1 h-px bg-border" /></div>
           <form onSubmit={submit} className="space-y-3">
             {mode === "signup" && (
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" className="w-full h-11 rounded-lg border border-border bg-background px-3" />
+              <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" className="w-full h-11 rounded-lg border border-border bg-background px-3" />
             )}
             <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@exemplo.com" className="w-full h-11 rounded-lg border border-border bg-background px-3" />
-            <input required type="password" minLength={6} value={pwd} onChange={(e) => setPwd(e.target.value)} placeholder="Senha (mínimo 6 caracteres)" className="w-full h-11 rounded-lg border border-border bg-background px-3" />
+            {mode !== "forgot" && (
+              <input required type="password" minLength={6} value={pwd} onChange={(e) => setPwd(e.target.value)} placeholder="Senha (mínimo 6 caracteres)" className="w-full h-11 rounded-lg border border-border bg-background px-3" />
+            )}
             {error && <p className="text-sm text-destructive">{error}</p>}
+            {info && <p className="text-sm text-pitch font-medium">{info}</p>}
             <button disabled={loading} className="w-full h-11 rounded-lg bg-pitch text-primary-foreground font-bold hover:opacity-90 disabled:opacity-50">
-              {loading ? "Aguarde…" : mode === "signin" ? "Entrar" : "Criar conta"}
+              {loading ? "Aguarde…" : mode === "signin" ? "Entrar" : mode === "signup" ? "Criar conta" : "Enviar link de recuperação"}
             </button>
+            {mode === "signin" && (
+              <button type="button" onClick={() => { setMode("forgot"); setError(null); setInfo(null); }} className="w-full text-xs text-muted-foreground hover:text-pitch underline-offset-4 hover:underline">
+                Esqueci minha senha
+              </button>
+            )}
+            {mode === "forgot" && (
+              <button type="button" onClick={() => { setMode("signin"); setError(null); setInfo(null); }} className="w-full text-xs text-muted-foreground hover:text-pitch underline-offset-4 hover:underline">
+                Voltar para entrar
+              </button>
+            )}
           </form>
         </div>
       </div>
     </AppShell>
   );
 }
+
