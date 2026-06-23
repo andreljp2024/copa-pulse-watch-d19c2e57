@@ -102,7 +102,7 @@ function Dashboard() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-black">Dashboard</h1>
+          <h1 className="text-2xl font-black">Painel</h1>
           {stats.bolao && <p className="text-sm text-muted-foreground">Bolão ativo: <strong>{stats.bolao.nome}</strong></p>}
         </div>
         <button
