@@ -35,28 +35,97 @@ function Dashboard() {
   return (
     <AppShell>
       <section className="relative overflow-hidden bg-hero">
-        <div className="absolute inset-0 pitch-lines opacity-60" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
-        <div className="relative mx-auto max-w-7xl px-6 pb-24 pt-16 sm:pt-24">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-4 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur">
-            <Trophy className="h-3.5 w-3.5 text-gold" /> CopaHub · Copa do Mundo 2026
+        <div
+          className="absolute inset-0 opacity-10 pointer-events-none"
+          style={{ backgroundImage: "radial-gradient(circle at 2px 2px, hsl(var(--gold)) 1px, transparent 0)", backgroundSize: "40px 40px" }}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background pointer-events-none" aria-hidden="true" />
+
+        <div className="relative mx-auto max-w-7xl px-6 py-12 lg:py-24">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-gold">
+                <span className="h-2 w-2 rounded-full bg-gold animate-pulse" aria-hidden="true" />
+                Rumo ao Hexa · 2026
+              </div>
+              <h1 className="font-display text-6xl md:text-8xl lg:text-9xl leading-[0.9] uppercase bg-gradient-to-b from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
+                A Experiência <br />
+                <span className="text-gradient-gold">Definitiva</span>
+              </h1>
+              <p className="max-w-md text-base md:text-lg leading-relaxed text-muted-foreground">
+                Acompanhe cada lance, simule resultados e dispute o topo do ranking no maior portal da Copa do Mundo 2026.
+              </p>
+              <div className="flex flex-wrap gap-4 pt-2">
+                <Link
+                  to="/criar-bolao"
+                  className="inline-flex h-12 items-center rounded-sm bg-gradient-gold px-8 text-sm font-black uppercase tracking-tight text-gold-foreground shadow-gold transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  Criar Meu Bolão
+                </Link>
+                <Link
+                  to="/calendario"
+                  className="inline-flex h-12 items-center rounded-sm border border-border bg-card/40 px-8 text-sm font-black uppercase tracking-tight text-foreground backdrop-blur transition-colors hover:bg-card/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                >
+                  <CalendarDays className="mr-2 h-4 w-4" aria-hidden="true" /> Ver Calendário
+                </Link>
+              </div>
+            </div>
+
+            {/* Bento grid */}
+            <div className="grid grid-cols-2 gap-4 h-[420px] sm:h-[500px]">
+              <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 flex flex-col justify-between">
+                <div className="absolute -right-4 -top-4 h-32 w-32 rounded-full bg-gold/10 blur-3xl" aria-hidden="true" />
+                <h3 className="font-display text-3xl text-gold">Jogos</h3>
+                <div>
+                  <p className="text-3xl font-black italic uppercase tracking-tight">
+                    {data.live.length > 0 ? "AO VIVO" : "EM BREVE"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Acompanhe em tempo real</p>
+                </div>
+              </div>
+              <Link
+                to="/criar-bolao"
+                className="relative overflow-hidden row-span-2 rounded-2xl bg-gradient-gold p-6 flex flex-col justify-end transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                <h3 className="font-display text-5xl sm:text-6xl leading-none text-gold-foreground mb-4">
+                  TOP<br />BOLÃO
+                </h3>
+                <p className="text-xs font-bold uppercase tracking-widest text-gold-foreground/80">
+                  Prêmios exclusivos
+                </p>
+              </Link>
+              <Link
+                to="/grupos"
+                className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 flex flex-col justify-between transition-colors hover:border-gold/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+              >
+                <h3 className="font-display text-3xl text-foreground/50">Grupos</h3>
+                <div className="flex -space-x-2" aria-hidden="true">
+                  <div className="h-8 w-8 rounded-full bg-pitch border-2 border-card" />
+                  <div className="h-8 w-8 rounded-full bg-gold border-2 border-card" />
+                  <div className="h-8 w-8 rounded-full bg-live border-2 border-card" />
+                </div>
+              </Link>
+            </div>
           </div>
-          <h1 className="mt-6 font-display text-5xl leading-[0.95] tracking-tight md:text-7xl lg:text-8xl max-w-4xl">
-            A Copa em <span className="text-gradient-gold">tempo real</span>,<br />num só lugar.
-          </h1>
-          <p className="mt-6 max-w-2xl text-base text-muted-foreground md:text-lg">
-            Tabela, calendário, escalações, estatísticas e artilharia — atualizado automaticamente.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/calendario" className="inline-flex h-12 items-center rounded-full bg-gradient-gold px-6 text-sm font-bold text-gold-foreground shadow-gold hover:opacity-95">
-              <CalendarDays className="h-4 w-4 mr-2" /> Ver calendário
-            </Link>
-            <Link to="/grupos" className="inline-flex h-12 items-center rounded-full border border-border bg-card/60 px-6 text-sm font-bold text-foreground backdrop-blur hover:bg-card">
-              Classificação
-            </Link>
+
+          {/* Stats bar */}
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 py-10 border-y border-border">
+            {[
+              { v: "48", l: "Seleções" },
+              { v: "104", l: "Partidas" },
+              { v: "16", l: "Cidades Sede" },
+              { v: "01", l: "Campeão" },
+            ].map((s) => (
+              <div key={s.l} className="text-center">
+                <p className="font-display text-4xl md:text-5xl text-gold">{s.v}</p>
+                <p className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.l}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
+
 
 
       <div className="mx-auto max-w-7xl px-4 py-10 space-y-12">
