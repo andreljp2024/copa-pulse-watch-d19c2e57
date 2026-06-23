@@ -8,14 +8,14 @@ export const Route = createFileRoute("/_authenticated/app")({
   component: AppLayout,
 });
 
-const nav = [
+const nav: { to: "/app" | "/app/bolao" | "/app/pix" | "/app/whatsapp" | "/app/torcedores" | "/app/palpites"; label: string; icon: typeof LayoutDashboard; exact?: boolean }[] = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/app/bolao", label: "Meu bolão", icon: Settings },
   { to: "/app/pix", label: "Pix", icon: CreditCard },
   { to: "/app/whatsapp", label: "WhatsApp", icon: MessageCircle },
   { to: "/app/torcedores", label: "Torcedores", icon: Users },
   { to: "/app/palpites", label: "Palpites", icon: ListChecks },
-] as const;
+];
 
 function AppLayout() {
   const navigate = useNavigate();
