@@ -31,10 +31,17 @@ export function useRealtimeMatches() {
         schedule(["matches"]);
         schedule(["dashboard"]);
         schedule(["groups"]);
+        schedule(["bolao"]);
         const id =
           (payload.new as { id?: string } | null)?.id ??
           (payload.old as { id?: string } | null)?.id;
         if (id) schedule(["match", id]);
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "palpites" }, () => {
+        schedule(["bolao"]);
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "torcedores" }, () => {
+        schedule(["bolao"]);
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "match_events" }, (payload) => {
         const id =
