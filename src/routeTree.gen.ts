@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SelecoesRouteImport } from './routes/selecoes'
+import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as MataMataRouteImport } from './routes/mata-mata'
 import { Route as GruposRouteImport } from './routes/grupos'
 import { Route as EstatisticasRouteImport } from './routes/estatisticas'
@@ -35,6 +36,11 @@ import { Route as AuthenticatedAppBolaoRouteImport } from './routes/_authenticat
 const SelecoesRoute = SelecoesRouteImport.update({
   id: '/selecoes',
   path: '/selecoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanosRoute = PlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MataMataRoute = MataMataRouteImport.update({
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/estatisticas': typeof EstatisticasRoute
   '/grupos': typeof GruposRoute
   '/mata-mata': typeof MataMataRoute
+  '/planos': typeof PlanosRoute
   '/selecoes': typeof SelecoesRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
@@ -176,6 +183,7 @@ export interface FileRoutesByTo {
   '/estatisticas': typeof EstatisticasRoute
   '/grupos': typeof GruposRoute
   '/mata-mata': typeof MataMataRoute
+  '/planos': typeof PlanosRoute
   '/selecoes': typeof SelecoesRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -200,6 +208,7 @@ export interface FileRoutesById {
   '/estatisticas': typeof EstatisticasRoute
   '/grupos': typeof GruposRoute
   '/mata-mata': typeof MataMataRoute
+  '/planos': typeof PlanosRoute
   '/selecoes': typeof SelecoesRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
@@ -225,6 +234,7 @@ export interface FileRouteTypes {
     | '/estatisticas'
     | '/grupos'
     | '/mata-mata'
+    | '/planos'
     | '/selecoes'
     | '/admin'
     | '/app'
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/estatisticas'
     | '/grupos'
     | '/mata-mata'
+    | '/planos'
     | '/selecoes'
     | '/admin'
     | '/onboarding'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/estatisticas'
     | '/grupos'
     | '/mata-mata'
+    | '/planos'
     | '/selecoes'
     | '/_authenticated/admin'
     | '/_authenticated/app'
@@ -296,6 +308,7 @@ export interface RootRouteChildren {
   EstatisticasRoute: typeof EstatisticasRoute
   GruposRoute: typeof GruposRoute
   MataMataRoute: typeof MataMataRoute
+  PlanosRoute: typeof PlanosRoute
   SelecoesRoute: typeof SelecoesRouteWithChildren
   BolaoSlugRoute: typeof BolaoSlugRouteWithChildren
   PartidasIdRoute: typeof PartidasIdRoute
@@ -308,6 +321,13 @@ declare module '@tanstack/react-router' {
       path: '/selecoes'
       fullPath: '/selecoes'
       preLoaderRoute: typeof SelecoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planos': {
+      id: '/planos'
+      path: '/planos'
+      fullPath: '/planos'
+      preLoaderRoute: typeof PlanosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mata-mata': {
@@ -529,6 +549,7 @@ const rootRouteChildren: RootRouteChildren = {
   EstatisticasRoute: EstatisticasRoute,
   GruposRoute: GruposRoute,
   MataMataRoute: MataMataRoute,
+  PlanosRoute: PlanosRoute,
   SelecoesRoute: SelecoesRouteWithChildren,
   BolaoSlugRoute: BolaoSlugRouteWithChildren,
   PartidasIdRoute: PartidasIdRoute,
