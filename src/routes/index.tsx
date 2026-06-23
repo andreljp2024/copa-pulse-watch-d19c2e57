@@ -37,7 +37,7 @@ function Dashboard() {
       <section className="relative overflow-hidden bg-hero">
         <div
           className="absolute inset-0 opacity-10 pointer-events-none"
-          style={{ backgroundImage: "radial-gradient(circle at 2px 2px, hsl(var(--gold)) 1px, transparent 0)", backgroundSize: "40px 40px" }}
+          style={{ backgroundImage: "radial-gradient(circle at 2px 2px, var(--gold) 1px, transparent 0)", backgroundSize: "40px 40px" }}
           aria-hidden="true"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background pointer-events-none" aria-hidden="true" />
