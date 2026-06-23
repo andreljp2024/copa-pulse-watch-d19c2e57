@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { memo } from "react";
 
 export type TeamLite = { id?: string; name: string; code: string; flag_url?: string | null };
 
