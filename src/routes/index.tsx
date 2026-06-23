@@ -34,27 +34,30 @@ function Dashboard() {
 
   return (
     <AppShell>
-      <section className="bg-hero text-primary-foreground">
-        <div className="mx-auto max-w-7xl px-4 py-14 sm:py-20">
-          <div className="flex items-center gap-2 text-sm font-semibold text-primary-foreground/80">
-            <Trophy className="h-4 w-4" /> CopaHub • Edição Atual
+      <section className="relative overflow-hidden bg-hero">
+        <div className="absolute inset-0 pitch-lines opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
+        <div className="relative mx-auto max-w-7xl px-6 pb-24 pt-16 sm:pt-24">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-4 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur">
+            <Trophy className="h-3.5 w-3.5 text-gold" /> CopaHub · Copa do Mundo 2026
           </div>
-          <h1 className="mt-3 text-4xl sm:text-6xl font-black tracking-tight max-w-3xl">
-            A Copa do Mundo em tempo real, num só lugar.
+          <h1 className="mt-6 font-display text-5xl leading-[0.95] tracking-tight md:text-7xl lg:text-8xl max-w-4xl">
+            A Copa em <span className="text-gradient-gold">tempo real</span>,<br />num só lugar.
           </h1>
-          <p className="mt-4 text-base sm:text-lg text-primary-foreground/85 max-w-2xl">
+          <p className="mt-6 max-w-2xl text-base text-muted-foreground md:text-lg">
             Tabela, calendário, escalações, estatísticas e artilharia — atualizado automaticamente.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/calendario" className="inline-flex h-11 items-center rounded-xl bg-gold px-5 text-sm font-bold text-accent-foreground hover:opacity-90">
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link to="/calendario" className="inline-flex h-12 items-center rounded-full bg-gradient-gold px-6 text-sm font-bold text-gold-foreground shadow-gold hover:opacity-95">
               <CalendarDays className="h-4 w-4 mr-2" /> Ver calendário
             </Link>
-            <Link to="/grupos" className="inline-flex h-11 items-center rounded-xl bg-background/15 backdrop-blur px-5 text-sm font-bold text-primary-foreground hover:bg-background/25">
+            <Link to="/grupos" className="inline-flex h-12 items-center rounded-full border border-border bg-card/60 px-6 text-sm font-bold text-foreground backdrop-blur hover:bg-card">
               Classificação
             </Link>
           </div>
         </div>
       </section>
+
 
       <div className="mx-auto max-w-7xl px-4 py-10 space-y-12">
         {data.live.length > 0 && (
