@@ -85,7 +85,7 @@ function LandingPage() {
 
 
       <section className="mx-auto max-w-7xl px-4 py-16">
-        <h2 className="text-2xl sm:text-3xl font-black text-center">Tudo o que você precisa</h2>
+        <h2 className="font-display text-4xl sm:text-5xl tracking-tight text-center">Tudo o que você precisa</h2>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {benefits.map(({ icon: Icon, title, desc }) => (
             <div key={title} className="rounded-2xl border border-border bg-card p-6 hover:shadow-md transition-shadow">
@@ -99,7 +99,7 @@ function LandingPage() {
 
       <section id="planos" className="bg-muted/30 py-16">
         <div className="mx-auto max-w-7xl px-4">
-          <h2 className="text-2xl sm:text-3xl font-black text-center">Planos para todo bolão</h2>
+          <h2 className="font-display text-4xl sm:text-5xl tracking-tight text-center">Planos para todo bolão</h2>
           <p className="mt-2 text-center text-muted-foreground">Comece grátis. Faça upgrade quando seu bolão crescer.</p>
           <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {plans.map((p) => (
@@ -122,7 +122,7 @@ function LandingPage() {
       </section>
 
       <section className="mx-auto max-w-3xl px-4 py-16">
-        <h2 className="text-2xl sm:text-3xl font-black text-center">Perguntas frequentes</h2>
+        <h2 className="font-display text-4xl sm:text-5xl tracking-tight text-center">Perguntas frequentes</h2>
         <div className="mt-8 space-y-3">
           {faq.map((f) => (
             <details key={f.q} className="rounded-xl border border-border bg-card p-4">
