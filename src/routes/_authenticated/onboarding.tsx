@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify, DEFAULT_TEMPLATES } from "@/lib/saas";
-import { maskPhone, maskCpfCnpj, maskCep, onlyDigits, fetchCep } from "@/lib/masks";
+import { maskPhone, maskCpfCnpj, maskCep, onlyDigits, fetchCep, isValidCpfCnpj, isValidPhoneBR } from "@/lib/masks";
 import { Check, ChevronRight, Loader2, Search } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
