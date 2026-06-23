@@ -16,6 +16,7 @@ type Stats = {
   arrecadado: number;
   ganhadores: number;
   bolao: { id: string; nome: string; slug: string; valor_palpite: number } | null;
+  serie: { dia: string; total: number }[];
 };
 
 function Dashboard() {
@@ -30,14 +31,24 @@ function Dashboard() {
     const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user.id).maybeSingle();
     if (!t) return;
     const { data: bo } = await supabase.from("boloes").select("id, nome, slug, valor_palpite").eq("tenant_id", t.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
-    const [tor, pal, gan] = await Promise.all([
+    const [tor, pal, gan, serieRows] = await Promise.all([
       supabase.from("torcedores").select("id", { count: "exact", head: true }).eq("tenant_id", t.id),
       supabase.from("palpites").select("status_pagamento, valor", { count: "exact" }).eq("tenant_id", t.id),
       supabase.from("ganhadores").select("id", { count: "exact", head: true }).eq("tenant_id", t.id),
+      supabase.from("palpites").select("created_at").eq("tenant_id", t.id).gte("created_at", new Date(Date.now() - 13 * 86400000).toISOString()),
     ]);
     const palpites = pal.data ?? [];
     const pagos = palpites.filter((p) => p.status_pagamento === "pago").length;
     const arrecadado = palpites.filter((p) => p.status_pagamento === "pago").reduce((s, p) => s + Number(p.valor ?? 0), 0);
+    const buckets = new Map<string, number>();
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+      buckets.set(d, 0);
+    }
+    for (const r of serieRows.data ?? []) {
+      const d = String(r.created_at).slice(0, 10);
+      if (buckets.has(d)) buckets.set(d, (buckets.get(d) ?? 0) + 1);
+    }
     setStats({
       torcedores: tor.count ?? 0,
       palpites: pal.count ?? 0,
@@ -46,6 +57,7 @@ function Dashboard() {
       arrecadado,
       ganhadores: gan.count ?? 0,
       bolao: bo ? { id: bo.id, nome: bo.nome, slug: bo.slug, valor_palpite: Number(bo.valor_palpite) } : null,
+      serie: [...buckets.entries()].map(([dia, total]) => ({ dia, total })),
     });
   }
 
@@ -100,6 +112,39 @@ function Dashboard() {
           </div>
         ))}
       </div>
+
+      <Sparkline serie={stats.serie} />
+    </div>
+  );
+}
+
+function Sparkline({ serie }: { serie: { dia: string; total: number }[] }) {
+  const max = Math.max(1, ...serie.map((s) => s.total));
+  const w = 600;
+  const h = 140;
+  const pad = 24;
+  const bw = (w - pad * 2) / serie.length;
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <h2 className="font-bold mb-3">Palpites nos últimos 14 dias</h2>
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-40">
+        {serie.map((s, i) => {
+          const bh = ((h - pad * 2) * s.total) / max;
+          return (
+            <g key={s.dia}>
+              <rect x={pad + i * bw + 2} y={h - pad - bh} width={bw - 4} height={bh} rx={3} className="fill-pitch/80" />
+              <text x={pad + i * bw + bw / 2} y={h - 6} textAnchor="middle" className="fill-muted-foreground" fontSize="9">
+                {s.dia.slice(5)}
+              </text>
+              {s.total > 0 && (
+                <text x={pad + i * bw + bw / 2} y={h - pad - bh - 4} textAnchor="middle" className="fill-foreground" fontSize="10" fontWeight="700">
+                  {s.total}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
     </div>
   );
 }
