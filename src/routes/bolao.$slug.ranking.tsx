@@ -25,48 +25,19 @@ const rankingOpts = (slug: string) =>
       if (error) throw error;
       if (!bolao) throw notFound();
 
-      const [palpitesRes, torcedoresRes, matchesRes] = await Promise.all([
-        supabase
-          .from("palpites")
-          .select("id, torcedor_id, match_id, palpite_a, palpite_b")
-          .eq("bolao_id", bolao.id),
-        supabase.from("torcedores").select("id, nome").eq("bolao_id", bolao.id),
-        supabase.from("matches").select("id, home_score, away_score, status").eq("status", "finished"),
-      ]);
+      const { data: ranking, error: rErr } = await supabase.rpc("get_bolao_ranking", {
+        p_slug: slug,
+      });
+      if (rErr) throw rErr;
 
-      const matchMap = new Map((matchesRes.data ?? []).map((m) => [m.id, m]));
-      const torMap = new Map((torcedoresRes.data ?? []).map((t) => [t.id, t.nome]));
-      const agg = new Map<string, Row>();
-
-      for (const p of palpitesRes.data ?? []) {
-        const m = matchMap.get(p.match_id);
-        if (!m || m.home_score == null || m.away_score == null) continue;
-        const row =
-          agg.get(p.torcedor_id) ?? {
-            torcedor_id: p.torcedor_id,
-            nome: torMap.get(p.torcedor_id) ?? "?",
-            acertos_exatos: 0,
-            acertos_resultado: 0,
-            total: 0,
-            pontos: 0,
-          };
-        row.total += 1;
-        const exato = p.palpite_a === m.home_score && p.palpite_b === m.away_score;
-        const resultadoReal = Math.sign(m.home_score - m.away_score);
-        const resultadoPalpite = Math.sign(p.palpite_a - p.palpite_b);
-        if (exato) {
-          row.acertos_exatos += 1;
-          row.pontos += 10;
-        } else if (resultadoReal === resultadoPalpite) {
-          row.acertos_resultado += 1;
-          row.pontos += 5;
-        }
-        agg.set(p.torcedor_id, row);
-      }
-
-      const rows = [...agg.values()].sort(
-        (a, b) => b.pontos - a.pontos || b.acertos_exatos - a.acertos_exatos,
-      );
+      const rows: Row[] = (ranking ?? []).map((r: any) => ({
+        torcedor_id: r.torcedor_id,
+        nome: r.nome,
+        acertos_exatos: Number(r.acertos_exatos ?? 0),
+        acertos_resultado: Number(r.acertos_resultado ?? 0),
+        total: Number(r.total ?? 0),
+        pontos: Number(r.pontos ?? 0),
+      }));
       return { bolao, rows };
     },
     staleTime: 30_000,
