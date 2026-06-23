@@ -5,8 +5,11 @@ import { MatchCard, TeamBadge } from "@/components/MatchCard";
 import { StandingsTable } from "@/components/StandingsTable";
 import { getDashboard } from "@/lib/copa.functions";
 import { Trophy, Goal, CalendarDays, Flame } from "lucide-react";
+import heroStadium from "@/assets/hero-stadium.jpg";
+import heroTrophy from "@/assets/hero-trophy.jpg";
 
 const dashboardOpts = queryOptions({ queryKey: ["dashboard"], queryFn: () => getDashboard() });
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
