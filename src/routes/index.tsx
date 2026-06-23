@@ -224,12 +224,17 @@ function Dashboard() {
 
 function SectionTitle({ icon, children, action }: { icon: React.ReactNode; children: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <div className="mb-4 flex items-end justify-between gap-2">
-      <h2 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2">{icon}{children}</h2>
+    <div className="mb-6 flex items-end justify-between gap-2 border-b border-border/60 pb-3">
+      <h2 className="font-display text-2xl sm:text-3xl uppercase tracking-wide flex items-center gap-3">
+        <span className="inline-block h-6 w-1 bg-gradient-gold rounded-sm" aria-hidden="true" />
+        {icon}
+        {children}
+      </h2>
       {action}
     </div>
   );
 }
+
 function Empty({ text }: { text: string }) {
   return <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">{text}</div>;
 }
