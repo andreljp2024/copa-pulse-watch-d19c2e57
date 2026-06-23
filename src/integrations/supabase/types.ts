@@ -660,6 +660,7 @@ export type Database = {
         | "substitution"
       match_phase:
         | "group"
+        | "round_of_32"
         | "round_of_16"
         | "quarter"
         | "semi"
@@ -809,6 +810,7 @@ export const Constants = {
       ],
       match_phase: [
         "group",
+        "round_of_32",
         "round_of_16",
         "quarter",
         "semi",
