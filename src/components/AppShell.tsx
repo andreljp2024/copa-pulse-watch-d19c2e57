@@ -38,7 +38,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat opacity-[0.12] dark:opacity-25 pointer-events-none"
+        style={{ backgroundImage: `url(${bgPattern})` }}
+      />
+      <div aria-hidden className="fixed inset-0 -z-10 bg-gradient-to-b from-background/80 via-background/95 to-background pointer-events-none" />
       <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 h-16 flex items-center gap-4">
           <Link to="/" className="flex items-center gap-2 shrink-0">
