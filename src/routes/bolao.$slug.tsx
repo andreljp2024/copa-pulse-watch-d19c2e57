@@ -128,6 +128,14 @@ function PublicBolao() {
         </div>
       </header>
 
+      <div className="mx-auto max-w-5xl px-4 pt-4">
+        <Link to="/bolao/$slug/ranking" params={{ slug: bolao.slug }} className="inline-flex items-center gap-2 text-sm font-semibold text-pitch hover:underline">
+          <ListOrdered className="h-4 w-4" /> Ver ranking
+        </Link>
+      </div>
+
+
+
       <main className="mx-auto max-w-5xl px-4 py-8 space-y-8">
         {bolao.regras && (
           <section className="rounded-2xl border border-border bg-card p-5">
