@@ -89,7 +89,12 @@ function Onboarding() {
   }, [navigate]);
 
   async function saveStep1() {
-    setLoading(true); setError(null);
+    setError(null);
+    if (!isValidCpfCnpj(s1.cpf_cnpj)) { setError("CPF ou CNPJ inválido."); return; }
+    if (!isValidPhoneBR(s1.whatsapp)) { setError("WhatsApp inválido — informe DDD + número."); return; }
+    if (onlyDigits(s1.cep).length !== 8) { setError("CEP inválido."); return; }
+    if (!s1.numero.trim()) { setError("Informe o número do endereço."); return; }
+    setLoading(true);
     try {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Sessão expirada");
