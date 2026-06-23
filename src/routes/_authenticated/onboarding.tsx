@@ -83,7 +83,14 @@ function Onboarding() {
     try {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Sessão expirada");
-      const payload = { ...s1, owner_user_id: u.user.id, email: u.user.email ?? "" };
+      const payload = {
+        ...s1,
+        whatsapp: onlyDigits(s1.whatsapp),
+        cpf_cnpj: onlyDigits(s1.cpf_cnpj),
+        cep: onlyDigits(s1.cep),
+        owner_user_id: u.user.id,
+        email: u.user.email ?? "",
+      };
       if (tenantId) {
         const { error } = await supabase.from("tenants").update(payload).eq("id", tenantId);
         if (error) throw error;
