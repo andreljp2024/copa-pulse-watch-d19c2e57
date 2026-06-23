@@ -112,6 +112,39 @@ function Dashboard() {
           </div>
         ))}
       </div>
+
+      <Sparkline serie={stats.serie} />
+    </div>
+  );
+}
+
+function Sparkline({ serie }: { serie: { dia: string; total: number }[] }) {
+  const max = Math.max(1, ...serie.map((s) => s.total));
+  const w = 600;
+  const h = 140;
+  const pad = 24;
+  const bw = (w - pad * 2) / serie.length;
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <h2 className="font-bold mb-3">Palpites nos últimos 14 dias</h2>
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-40">
+        {serie.map((s, i) => {
+          const bh = ((h - pad * 2) * s.total) / max;
+          return (
+            <g key={s.dia}>
+              <rect x={pad + i * bw + 2} y={h - pad - bh} width={bw - 4} height={bh} rx={3} className="fill-pitch/80" />
+              <text x={pad + i * bw + bw / 2} y={h - 6} textAnchor="middle" className="fill-muted-foreground" fontSize="9">
+                {s.dia.slice(5)}
+              </text>
+              {s.total > 0 && (
+                <text x={pad + i * bw + bw / 2} y={h - pad - bh - 4} textAnchor="middle" className="fill-foreground" fontSize="10" fontWeight="700">
+                  {s.total}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
     </div>
   );
 }
