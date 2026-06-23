@@ -44,6 +44,185 @@ export type Database = {
         }
         Relationships: []
       }
+      assinaturas: {
+        Row: {
+          created_at: string
+          data_fim: string | null
+          data_inicio: string
+          gateway_pagamento: string | null
+          id: string
+          plano_id: string
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          gateway_pagamento?: string | null
+          id?: string
+          plano_id: string
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          gateway_pagamento?: string | null
+          id?: string
+          plano_id?: string
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assinaturas_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assinaturas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      boloes: {
+        Row: {
+          cor_primaria: string | null
+          cor_secundaria: string | null
+          created_at: string
+          data_limite_palpite: string | null
+          descricao: string | null
+          id: string
+          logo_url: string | null
+          nome: string
+          permitir_ganhadores_publico: boolean
+          permitir_ranking_publico: boolean
+          regras: string | null
+          slug: string
+          status: string
+          tenant_id: string
+          updated_at: string
+          valor_palpite: number
+        }
+        Insert: {
+          cor_primaria?: string | null
+          cor_secundaria?: string | null
+          created_at?: string
+          data_limite_palpite?: string | null
+          descricao?: string | null
+          id?: string
+          logo_url?: string | null
+          nome: string
+          permitir_ganhadores_publico?: boolean
+          permitir_ranking_publico?: boolean
+          regras?: string | null
+          slug: string
+          status?: string
+          tenant_id: string
+          updated_at?: string
+          valor_palpite?: number
+        }
+        Update: {
+          cor_primaria?: string | null
+          cor_secundaria?: string | null
+          created_at?: string
+          data_limite_palpite?: string | null
+          descricao?: string | null
+          id?: string
+          logo_url?: string | null
+          nome?: string
+          permitir_ganhadores_publico?: boolean
+          permitir_ranking_publico?: boolean
+          regras?: string | null
+          slug?: string
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          valor_palpite?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boloes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ganhadores: {
+        Row: {
+          bolao_id: string
+          created_at: string
+          id: string
+          match_id: string
+          palpite_id: string
+          tenant_id: string
+          torcedor_id: string
+        }
+        Insert: {
+          bolao_id: string
+          created_at?: string
+          id?: string
+          match_id: string
+          palpite_id: string
+          tenant_id: string
+          torcedor_id: string
+        }
+        Update: {
+          bolao_id?: string
+          created_at?: string
+          id?: string
+          match_id?: string
+          palpite_id?: string
+          tenant_id?: string
+          torcedor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ganhadores_bolao_id_fkey"
+            columns: ["bolao_id"]
+            isOneToOne: false
+            referencedRelation: "boloes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ganhadores_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ganhadores_palpite_id_fkey"
+            columns: ["palpite_id"]
+            isOneToOne: false
+            referencedRelation: "palpites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ganhadores_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ganhadores_torcedor_id_fkey"
+            columns: ["torcedor_id"]
+            isOneToOne: false
+            referencedRelation: "torcedores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       groups: {
         Row: {
           created_at: string
@@ -399,6 +578,128 @@ export type Database = {
           },
         ]
       }
+      palpites: {
+        Row: {
+          bolao_id: string
+          comprovante_url: string | null
+          created_at: string
+          id: string
+          match_id: string
+          palpite_a: number
+          palpite_b: number
+          status_pagamento: string
+          status_palpite: string
+          tenant_id: string
+          torcedor_id: string
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          bolao_id: string
+          comprovante_url?: string | null
+          created_at?: string
+          id?: string
+          match_id: string
+          palpite_a: number
+          palpite_b: number
+          status_pagamento?: string
+          status_palpite?: string
+          tenant_id: string
+          torcedor_id: string
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          bolao_id?: string
+          comprovante_url?: string | null
+          created_at?: string
+          id?: string
+          match_id?: string
+          palpite_a?: number
+          palpite_b?: number
+          status_pagamento?: string
+          status_palpite?: string
+          tenant_id?: string
+          torcedor_id?: string
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "palpites_bolao_id_fkey"
+            columns: ["bolao_id"]
+            isOneToOne: false
+            referencedRelation: "boloes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "palpites_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "palpites_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "palpites_torcedor_id_fkey"
+            columns: ["torcedor_id"]
+            isOneToOne: false
+            referencedRelation: "torcedores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planos: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          limite_boloes: number | null
+          limite_palpites: number | null
+          limite_torcedores: number | null
+          nome: string
+          permite_dominio_personalizado: boolean
+          permite_exportacao: boolean
+          permite_logo: boolean
+          permite_whatsapp_api: boolean
+          preco: number
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          limite_boloes?: number | null
+          limite_palpites?: number | null
+          limite_torcedores?: number | null
+          nome: string
+          permite_dominio_personalizado?: boolean
+          permite_exportacao?: boolean
+          permite_logo?: boolean
+          permite_whatsapp_api?: boolean
+          preco?: number
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          limite_boloes?: number | null
+          limite_palpites?: number | null
+          limite_torcedores?: number | null
+          nome?: string
+          permite_dominio_personalizado?: boolean
+          permite_exportacao?: boolean
+          permite_logo?: boolean
+          permite_whatsapp_api?: boolean
+          preco?: number
+        }
+        Relationships: []
+      }
       players: {
         Row: {
           created_at: string
@@ -563,6 +864,196 @@ export type Database = {
           },
         ]
       }
+      tenant_pix_config: {
+        Row: {
+          banco: string | null
+          chave_pix: string
+          cidade: string | null
+          created_at: string
+          id: string
+          instrucoes_pagamento: string | null
+          nome_recebedor: string
+          tenant_id: string
+          tipo_chave_pix: string
+          updated_at: string
+          valor_padrao_palpite: number
+        }
+        Insert: {
+          banco?: string | null
+          chave_pix: string
+          cidade?: string | null
+          created_at?: string
+          id?: string
+          instrucoes_pagamento?: string | null
+          nome_recebedor: string
+          tenant_id: string
+          tipo_chave_pix: string
+          updated_at?: string
+          valor_padrao_palpite?: number
+        }
+        Update: {
+          banco?: string | null
+          chave_pix?: string
+          cidade?: string | null
+          created_at?: string
+          id?: string
+          instrucoes_pagamento?: string | null
+          nome_recebedor?: string
+          tenant_id?: string
+          tipo_chave_pix?: string
+          updated_at?: string
+          valor_padrao_palpite?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_pix_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_whatsapp_config: {
+        Row: {
+          created_at: string
+          id: string
+          mensagem_confirmacao_pagamento: string | null
+          mensagem_ganhador: string | null
+          mensagem_lembrete_pagamento: string | null
+          mensagem_novo_palpite: string | null
+          numero_whatsapp: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mensagem_confirmacao_pagamento?: string | null
+          mensagem_ganhador?: string | null
+          mensagem_lembrete_pagamento?: string | null
+          mensagem_novo_palpite?: string | null
+          numero_whatsapp: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mensagem_confirmacao_pagamento?: string | null
+          mensagem_ganhador?: string | null
+          mensagem_lembrete_pagamento?: string | null
+          mensagem_novo_palpite?: string | null
+          numero_whatsapp?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_whatsapp_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenants: {
+        Row: {
+          cidade: string | null
+          cpf_cnpj: string | null
+          created_at: string
+          email: string
+          estado: string | null
+          id: string
+          logo_url: string | null
+          nome_estabelecimento: string
+          nome_responsavel: string
+          owner_user_id: string
+          plano: string
+          status: string
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          cidade?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string
+          email: string
+          estado?: string | null
+          id?: string
+          logo_url?: string | null
+          nome_estabelecimento: string
+          nome_responsavel: string
+          owner_user_id: string
+          plano?: string
+          status?: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          cidade?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string
+          email?: string
+          estado?: string | null
+          id?: string
+          logo_url?: string | null
+          nome_estabelecimento?: string
+          nome_responsavel?: string
+          owner_user_id?: string
+          plano?: string
+          status?: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      torcedores: {
+        Row: {
+          bolao_id: string
+          created_at: string
+          id: string
+          nome: string
+          tenant_id: string
+          token_acesso: string
+          whatsapp: string
+        }
+        Insert: {
+          bolao_id: string
+          created_at?: string
+          id?: string
+          nome: string
+          tenant_id: string
+          token_acesso?: string
+          whatsapp: string
+        }
+        Update: {
+          bolao_id?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          tenant_id?: string
+          token_acesso?: string
+          whatsapp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "torcedores_bolao_id_fkey"
+            columns: ["bolao_id"]
+            isOneToOne: false
+            referencedRelation: "boloes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "torcedores_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -641,6 +1132,7 @@ export type Database = {
       }
     }
     Functions: {
+      current_tenant_id: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
