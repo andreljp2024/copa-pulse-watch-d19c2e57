@@ -25,6 +25,7 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as BolaoSlugRankingRouteImport } from './routes/bolao.$slug.ranking'
 import { Route as AuthenticatedAppWhatsappRouteImport } from './routes/_authenticated/app.whatsapp'
 import { Route as AuthenticatedAppTorcedoresRouteImport } from './routes/_authenticated/app.torcedores'
 import { Route as AuthenticatedAppPixRouteImport } from './routes/_authenticated/app.pix'
@@ -110,6 +111,11 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const BolaoSlugRankingRoute = BolaoSlugRankingRouteImport.update({
+  id: '/ranking',
+  path: '/ranking',
+  getParentRoute: () => BolaoSlugRoute,
+} as any)
 const AuthenticatedAppWhatsappRoute =
   AuthenticatedAppWhatsappRouteImport.update({
     id: '/whatsapp',
@@ -151,7 +157,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
-  '/bolao/$slug': typeof BolaoSlugRoute
+  '/bolao/$slug': typeof BolaoSlugRouteWithChildren
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
   '/app/bolao': typeof AuthenticatedAppBolaoRoute
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/app/pix': typeof AuthenticatedAppPixRoute
   '/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
   '/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
+  '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesByTo {
@@ -172,7 +179,7 @@ export interface FileRoutesByTo {
   '/selecoes': typeof SelecoesRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
-  '/bolao/$slug': typeof BolaoSlugRoute
+  '/bolao/$slug': typeof BolaoSlugRouteWithChildren
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
   '/app/bolao': typeof AuthenticatedAppBolaoRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/app/pix': typeof AuthenticatedAppPixRoute
   '/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
   '/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
+  '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/app': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesById {
@@ -196,7 +204,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
-  '/bolao/$slug': typeof BolaoSlugRoute
+  '/bolao/$slug': typeof BolaoSlugRouteWithChildren
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
   '/_authenticated/app/bolao': typeof AuthenticatedAppBolaoRoute
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/_authenticated/app/pix': typeof AuthenticatedAppPixRoute
   '/_authenticated/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
   '/_authenticated/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
+  '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRouteTypes {
@@ -228,6 +237,7 @@ export interface FileRouteTypes {
     | '/app/pix'
     | '/app/torcedores'
     | '/app/whatsapp'
+    | '/bolao/$slug/ranking'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -249,6 +259,7 @@ export interface FileRouteTypes {
     | '/app/pix'
     | '/app/torcedores'
     | '/app/whatsapp'
+    | '/bolao/$slug/ranking'
     | '/app'
   id:
     | '__root__'
@@ -272,6 +283,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/pix'
     | '/_authenticated/app/torcedores'
     | '/_authenticated/app/whatsapp'
+    | '/bolao/$slug/ranking'
     | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
 }
@@ -285,7 +297,7 @@ export interface RootRouteChildren {
   GruposRoute: typeof GruposRoute
   MataMataRoute: typeof MataMataRoute
   SelecoesRoute: typeof SelecoesRouteWithChildren
-  BolaoSlugRoute: typeof BolaoSlugRoute
+  BolaoSlugRoute: typeof BolaoSlugRouteWithChildren
   PartidasIdRoute: typeof PartidasIdRoute
 }
 
@@ -403,6 +415,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/bolao/$slug/ranking': {
+      id: '/bolao/$slug/ranking'
+      path: '/ranking'
+      fullPath: '/bolao/$slug/ranking'
+      preLoaderRoute: typeof BolaoSlugRankingRouteImport
+      parentRoute: typeof BolaoSlugRoute
+    }
     '/_authenticated/app/whatsapp': {
       id: '/_authenticated/app/whatsapp'
       path: '/whatsapp'
@@ -489,6 +508,18 @@ const SelecoesRouteWithChildren = SelecoesRoute._addFileChildren(
   SelecoesRouteChildren,
 )
 
+interface BolaoSlugRouteChildren {
+  BolaoSlugRankingRoute: typeof BolaoSlugRankingRoute
+}
+
+const BolaoSlugRouteChildren: BolaoSlugRouteChildren = {
+  BolaoSlugRankingRoute: BolaoSlugRankingRoute,
+}
+
+const BolaoSlugRouteWithChildren = BolaoSlugRoute._addFileChildren(
+  BolaoSlugRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -499,7 +530,7 @@ const rootRouteChildren: RootRouteChildren = {
   GruposRoute: GruposRoute,
   MataMataRoute: MataMataRoute,
   SelecoesRoute: SelecoesRouteWithChildren,
-  BolaoSlugRoute: BolaoSlugRoute,
+  BolaoSlugRoute: BolaoSlugRouteWithChildren,
   PartidasIdRoute: PartidasIdRoute,
 }
 export const routeTree = rootRouteImport

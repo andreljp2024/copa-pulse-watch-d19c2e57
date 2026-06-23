@@ -1,8 +1,11 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
+import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
-import { Trophy, MessageCircle, Loader2 } from "lucide-react";
+import { buildPixPayload } from "@/lib/pix";
+import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered } from "lucide-react";
 
 export const Route = createFileRoute("/bolao/$slug")({
   loader: async ({ params }) => {
@@ -101,6 +104,7 @@ function PublicBolao() {
         chave_pix: pix.chave_pix,
       });
       setDone(buildWhatsAppLink(wa.numero_whatsapp, msg));
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
       void pal;
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erro ao enviar palpite");
@@ -124,6 +128,14 @@ function PublicBolao() {
           </div>
         </div>
       </header>
+
+      <div className="mx-auto max-w-5xl px-4 pt-4">
+        <Link to="/bolao/$slug/ranking" params={{ slug: bolao.slug }} className="inline-flex items-center gap-2 text-sm font-semibold text-pitch hover:underline">
+          <ListOrdered className="h-4 w-4" /> Ver ranking
+        </Link>
+      </div>
+
+
 
       <main className="mx-auto max-w-5xl px-4 py-8 space-y-8">
         {bolao.regras && (
@@ -167,15 +179,7 @@ function PublicBolao() {
         <div className="fixed inset-0 z-50 bg-black/50 grid place-items-center p-4" onClick={() => setSelected(null)}>
           <div className="bg-card rounded-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
             {done ? (
-              <div className="text-center space-y-4">
-                <div className="text-5xl">🎉</div>
-                <h3 className="text-xl font-black">Palpite registrado!</h3>
-                <p className="text-sm text-muted-foreground">Para confirmar, envie a mensagem pelo WhatsApp e faça o Pix.</p>
-                <a href={done} target="_blank" rel="noopener noreferrer" className="inline-flex h-12 items-center gap-2 rounded-xl bg-green-600 px-5 font-bold text-white">
-                  <MessageCircle className="h-5 w-5" /> Abrir WhatsApp
-                </a>
-                <button onClick={() => setSelected(null)} className="block w-full text-sm text-muted-foreground hover:underline">Fechar</button>
-              </div>
+              <SuccessPanel waLink={done} pix={pix!} valor={Number(bolao.valor_palpite)} onClose={() => setSelected(null)} />
             ) : (
               <form onSubmit={submitPalpite} className="space-y-3">
                 <h3 className="text-xl font-black">Seu palpite</h3>
@@ -199,6 +203,61 @@ function PublicBolao() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function SuccessPanel({
+  waLink,
+  pix,
+  valor,
+  onClose,
+}: {
+  waLink: string;
+  pix: { nome_recebedor: string; chave_pix: string; banco: string | null };
+  valor: number;
+  onClose: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  const payload = useMemo(
+    () => buildPixPayload({ chave: pix.chave_pix, nomeRecebedor: pix.nome_recebedor, valor }),
+    [pix.chave_pix, pix.nome_recebedor, valor],
+  );
+
+  async function copyPix() {
+    try {
+      await navigator.clipboard.writeText(payload);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* noop */
+    }
+  }
+
+  return (
+    <div className="text-center space-y-4">
+      <div className="text-4xl">🎉</div>
+      <h3 className="text-xl font-black">Palpite registrado!</h3>
+      <p className="text-sm text-muted-foreground">Pague o Pix e envie o comprovante pelo WhatsApp.</p>
+
+      <div className="bg-white p-3 rounded-xl border border-border inline-block">
+        <QRCodeSVG value={payload} size={180} />
+      </div>
+      <div className="text-xs text-muted-foreground">{pix.nome_recebedor} • {brl(valor)}</div>
+
+      <button
+        type="button"
+        onClick={copyPix}
+        className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-xl border border-border bg-background font-semibold text-sm"
+      >
+        {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+        {copied ? "Copiado!" : "Copiar Pix copia e cola"}
+      </button>
+
+      <a href={waLink} target="_blank" rel="noopener noreferrer" className="w-full inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-green-600 px-5 font-bold text-white">
+        <MessageCircle className="h-5 w-5" /> Abrir WhatsApp
+      </a>
+      <button onClick={onClose} className="block w-full text-sm text-muted-foreground hover:underline">Fechar</button>
     </div>
   );
 }
