@@ -1,13 +1,23 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { z } from "zod";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
+import { friendlyError } from "@/lib/errors";
 import { Trophy } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Entrar — CopaHub" }] }),
   component: Page,
+});
+
+const signinSchema = z.object({
+  email: z.string().trim().email("Informe um e-mail válido.").max(255),
+  pwd: z.string().min(6, "A senha precisa ter ao menos 6 caracteres.").max(72),
+});
+const signupSchema = signinSchema.extend({
+  name: z.string().trim().min(2, "Informe seu nome.").max(100),
 });
 
 function Page() {
@@ -20,33 +30,55 @@ function Page() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => { if (data.user) navigate({ to: "/admin" }); });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (session?.user) navigate({ to: "/admin" });
+    });
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session?.user) navigate({ to: "/admin" });
+    });
+    return () => sub.subscription.unsubscribe();
   }, [navigate]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true); setError(null);
+    setError(null);
+    const parsed = (mode === "signup" ? signupSchema : signinSchema).safeParse({ email, pwd, name });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "Dados inválidos.");
+      return;
+    }
+    setLoading(true);
     try {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
-          email, password: pwd,
-          options: { emailRedirectTo: window.location.origin + "/admin", data: { name } },
+          email: parsed.data.email,
+          password: parsed.data.pwd,
+          options: { emailRedirectTo: window.location.origin + "/admin", data: { name: (parsed.data as any).name } },
         });
         if (error) throw error;
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password: pwd });
+        const { error } = await supabase.auth.signInWithPassword({
+          email: parsed.data.email,
+          password: parsed.data.pwd,
+        });
         if (error) throw error;
       }
       navigate({ to: "/admin" });
-    } catch (err: any) {
-      setError(err.message ?? "Erro ao autenticar");
-    } finally { setLoading(false); }
+    } catch (err) {
+      setError(friendlyError(err, "Não foi possível autenticar."));
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function google() {
     setError(null);
-    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/admin" });
-    if (res.error) setError((res.error as any).message ?? "Erro no Google");
+    try {
+      const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/admin" });
+      if (res.error) throw res.error;
+    } catch (err) {
+      setError(friendlyError(err, "Falha ao entrar com Google."));
+    }
   }
 
   return (
