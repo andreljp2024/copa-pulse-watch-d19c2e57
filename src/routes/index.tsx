@@ -5,8 +5,11 @@ import { MatchCard, TeamBadge } from "@/components/MatchCard";
 import { StandingsTable } from "@/components/StandingsTable";
 import { getDashboard } from "@/lib/copa.functions";
 import { Trophy, Goal, CalendarDays, Flame } from "lucide-react";
+import heroStadium from "@/assets/hero-stadium.jpg";
+import heroTrophy from "@/assets/hero-trophy.jpg";
 
 const dashboardOpts = queryOptions({ queryKey: ["dashboard"], queryFn: () => getDashboard() });
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -35,12 +38,21 @@ function Dashboard() {
   return (
     <AppShell>
       <section className="relative overflow-hidden bg-hero">
+        <img
+          src={heroStadium}
+          alt=""
+          aria-hidden="true"
+          width={1920}
+          height={1280}
+          className="absolute inset-0 h-full w-full object-cover opacity-40 pointer-events-none select-none"
+        />
         <div
           className="absolute inset-0 opacity-10 pointer-events-none"
           style={{ backgroundImage: "radial-gradient(circle at 2px 2px, var(--gold) 1px, transparent 0)", backgroundSize: "40px 40px" }}
           aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background pointer-events-none" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background pointer-events-none" aria-hidden="true" />
+
 
         <div className="relative mx-auto max-w-7xl px-6 py-12 lg:py-24">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -86,15 +98,26 @@ function Dashboard() {
               </div>
               <Link
                 to="/criar-bolao"
-                className="relative overflow-hidden row-span-2 rounded-2xl bg-gradient-gold p-6 flex flex-col justify-end transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="group relative overflow-hidden row-span-2 rounded-2xl bg-gradient-gold p-6 flex flex-col justify-end transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
-                <h3 className="font-display text-5xl sm:text-6xl leading-none text-gold-foreground mb-4">
+                <img
+                  src={heroTrophy}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  width={1280}
+                  height={1280}
+                  className="absolute inset-0 h-full w-full object-cover mix-blend-multiply opacity-70 pointer-events-none select-none transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-gold/80 via-gold/20 to-transparent pointer-events-none" aria-hidden="true" />
+                <h3 className="relative font-display text-5xl sm:text-6xl leading-none text-gold-foreground mb-4">
                   TOP<br />BOLÃO
                 </h3>
-                <p className="text-xs font-bold uppercase tracking-widest text-gold-foreground/80">
+                <p className="relative text-xs font-bold uppercase tracking-widest text-gold-foreground/80">
                   Prêmios exclusivos
                 </p>
               </Link>
+
               <Link
                 to="/grupos"
                 className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 flex flex-col justify-between transition-colors hover:border-gold/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
