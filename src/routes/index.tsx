@@ -89,19 +89,19 @@ function Dashboard() {
 
             {/* Bento grid */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4 h-[320px] sm:h-[500px]">
-              <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 flex flex-col justify-between">
+              <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-6 flex flex-col justify-between">
                 <div className="absolute -right-4 -top-4 h-32 w-32 rounded-full bg-gold/10 blur-3xl" aria-hidden="true" />
-                <h3 className="font-display text-3xl text-gold">Jogos</h3>
+                <h3 className="font-display text-2xl sm:text-3xl text-gold">Jogos</h3>
                 <div>
-                  <p className="text-3xl font-black italic uppercase tracking-tight">
+                  <p className="text-xl sm:text-3xl font-black italic uppercase tracking-tight">
                     {data.live.length > 0 ? "AO VIVO" : "EM BREVE"}
                   </p>
-                  <p className="text-sm text-muted-foreground">Acompanhe em tempo real</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Acompanhe em tempo real</p>
                 </div>
               </div>
               <Link
                 to="/criar-bolao"
-                className="group relative overflow-hidden row-span-2 rounded-2xl bg-gradient-gold p-6 flex flex-col justify-end transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="group relative overflow-hidden row-span-2 rounded-2xl bg-gradient-gold p-4 sm:p-6 flex flex-col justify-end transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <img
                   src={heroTrophy}
@@ -113,13 +113,14 @@ function Dashboard() {
                   className="absolute inset-0 h-full w-full object-cover mix-blend-multiply opacity-70 pointer-events-none select-none transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-gold/80 via-gold/20 to-transparent pointer-events-none" aria-hidden="true" />
-                <h3 className="relative font-display text-5xl sm:text-6xl leading-none text-gold-foreground mb-4">
+                <h3 className="relative font-display text-4xl sm:text-6xl leading-none text-gold-foreground mb-3 sm:mb-4">
                   TOP<br />BOLÃO
                 </h3>
-                <p className="relative text-xs font-bold uppercase tracking-widest text-gold-foreground/80">
+                <p className="relative text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gold-foreground/80">
                   Prêmios exclusivos
                 </p>
               </Link>
+
 
               <Link
                 to="/grupos"
