@@ -38,12 +38,21 @@ function Dashboard() {
   return (
     <AppShell>
       <section className="relative overflow-hidden bg-hero">
+        <img
+          src={heroStadium}
+          alt=""
+          aria-hidden="true"
+          width={1920}
+          height={1280}
+          className="absolute inset-0 h-full w-full object-cover opacity-40 pointer-events-none select-none"
+        />
         <div
           className="absolute inset-0 opacity-10 pointer-events-none"
           style={{ backgroundImage: "radial-gradient(circle at 2px 2px, var(--gold) 1px, transparent 0)", backgroundSize: "40px 40px" }}
           aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background pointer-events-none" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background pointer-events-none" aria-hidden="true" />
+
 
         <div className="relative mx-auto max-w-7xl px-6 py-12 lg:py-24">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
