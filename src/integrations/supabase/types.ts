@@ -1133,12 +1133,34 @@ export type Database = {
     }
     Functions: {
       current_tenant_id: { Args: never; Returns: string }
+      get_bolao_ranking: {
+        Args: { p_slug: string }
+        Returns: {
+          acertos_exatos: number
+          acertos_resultado: number
+          nome: string
+          pontos: number
+          torcedor_id: string
+          total: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      submit_palpite: {
+        Args: {
+          p_bolao_id: string
+          p_match_id: string
+          p_nome: string
+          p_palpite_a: number
+          p_palpite_b: number
+          p_whatsapp: string
+        }
+        Returns: string
       }
     }
     Enums: {

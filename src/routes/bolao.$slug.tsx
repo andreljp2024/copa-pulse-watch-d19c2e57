@@ -124,25 +124,15 @@ function PublicBolao() {
     }
     setSubmitting(true);
     try {
-      const { data: tor, error: e1 } = await supabase
-        .from("torcedores")
-        .upsert(
-          { tenant_id: bolao.tenant_id, bolao_id: bolao.id, nome: form.nome.trim(), whatsapp },
-          { onConflict: "bolao_id,whatsapp" },
-        )
-        .select("id")
-        .single();
-      if (e1) throw e1;
-      const { error: e2 } = await supabase.from("palpites").insert({
-        tenant_id: bolao.tenant_id,
-        bolao_id: bolao.id,
-        torcedor_id: tor.id,
-        match_id: selected.id,
-        palpite_a: form.palpite_a,
-        palpite_b: form.palpite_b,
-        valor: Number(bolao.valor_palpite),
+      const { error: rErr } = await supabase.rpc("submit_palpite", {
+        p_bolao_id: bolao.id,
+        p_nome: form.nome.trim(),
+        p_whatsapp: whatsapp,
+        p_match_id: selected.id,
+        p_palpite_a: form.palpite_a,
+        p_palpite_b: form.palpite_b,
       });
-      if (e2) throw e2;
+      if (rErr) throw rErr;
       const home = teams.get(selected.home_team_id ?? "");
       const away = teams.get(selected.away_team_id ?? "");
       const msg = interpolate(wa.mensagem_novo_palpite ?? "", {
