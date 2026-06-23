@@ -34,31 +34,31 @@ function Page() {
 
   return (
     <AppShell>
-      <div className="bg-hero text-primary-foreground">
+      <div className="bg-hero text-white">
         <div className="mx-auto max-w-5xl px-4 py-10">
-          <div className="flex items-center justify-between text-xs font-semibold uppercase text-primary-foreground/80">
+          <div className="flex items-center justify-between text-xs font-semibold uppercase text-white/80">
             <span>{m.phase === "group" ? `Fase de grupos${m.group?.name ? ` • Grupo ${m.group.name}` : ""}` : m.phase}</span>
-            {isLive && <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-live text-primary-foreground">
+            {isLive && <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-live text-white">
               <span className="live-dot h-2 w-2 rounded-full bg-white" /> AO VIVO
             </span>}
           </div>
           <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
             <div className="text-center sm:text-right">
               {home.flag_url && <img src={home.flag_url} alt={home.name} className="mx-auto sm:ml-auto sm:mr-0 h-16 w-24 object-cover rounded-md ring-2 ring-white/30" />}
-              <div className="mt-2 text-lg sm:text-2xl font-black">{home.name}</div>
-              <div className="text-xs text-primary-foreground/70">Técnico: {home.coach_name ?? "—"}</div>
+              <div className="mt-2 text-lg sm:text-2xl font-black text-white">{home.name}</div>
+              <div className="text-xs text-white/70">Técnico: {home.coach_name ?? "—"}</div>
             </div>
-            <div className="text-5xl sm:text-7xl font-black tabular-nums text-center">
-              {showScore ? `${m.home_score} : ${m.away_score}` : <span className="text-2xl">vs</span>}
+            <div className="text-5xl sm:text-7xl font-black tabular-nums text-center text-white">
+              {showScore ? `${m.home_score} : ${m.away_score}` : <span className="text-2xl text-white">vs</span>}
             </div>
             <div className="text-center sm:text-left">
               {away.flag_url && <img src={away.flag_url} alt={away.name} className="mx-auto sm:mr-auto sm:ml-0 h-16 w-24 object-cover rounded-md ring-2 ring-white/30" />}
-              <div className="mt-2 text-lg sm:text-2xl font-black">{away.name}</div>
-              <div className="text-xs text-primary-foreground/70">Técnico: {away.coach_name ?? "—"}</div>
+              <div className="mt-2 text-lg sm:text-2xl font-black text-white">{away.name}</div>
+              <div className="text-xs text-white/70">Técnico: {away.coach_name ?? "—"}</div>
             </div>
           </div>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-primary-foreground/85">
-            <span>{format(new Date(m.kickoff_at), "EEEE, dd 'de' MMMM • HH:mm", { locale: ptBR })}</span>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white/85">
+            <span suppressHydrationWarning>{format(new Date(m.kickoff_at), "EEEE, dd 'de' MMMM • HH:mm", { locale: ptBR })}</span>
             {m.stadium && <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{m.stadium.name}{m.stadium.city ? `, ${m.stadium.city}` : ""}</span>}
             {m.referee?.name && <span className="inline-flex items-center gap-1"><User className="h-3.5 w-3.5" />{m.referee.name}</span>}
           </div>
