@@ -100,7 +100,7 @@ function LandingPage() {
         <div className="mx-auto max-w-7xl px-4">
           <h2 className="font-display text-4xl sm:text-5xl tracking-tight text-center">Planos para todo bolão</h2>
           <p className="mt-2 text-center text-muted-foreground">Comece grátis. Faça upgrade quando seu bolão crescer.</p>
-          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid gap-4 md:grid-cols-3 max-w-5xl mx-auto">
             {plans.map((p) => (
               <div key={p.nome} className={`rounded-2xl border bg-card p-6 flex flex-col ${p.destaque ? "border-pitch ring-2 ring-pitch/30" : "border-border"}`}>
                 {p.destaque && <span className="self-start mb-2 rounded-full bg-pitch px-2 py-0.5 text-xs font-bold text-primary-foreground">Mais popular</span>}
