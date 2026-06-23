@@ -65,4 +65,4 @@ export const MatchCard = memo(function MatchCard({ m }: { m: MatchLike }) {
       )}
     </Link>
   );
-}
+});
