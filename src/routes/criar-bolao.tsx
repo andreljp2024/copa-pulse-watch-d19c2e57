@@ -24,10 +24,9 @@ const benefits = [
 ];
 
 const plans = [
-  { nome: "Grátis", preco: "R$ 0", destaque: false, items: ["1 bolão ativo", "Até 50 torcedores", "Até 100 palpites", "Marca da plataforma visível"] },
-  { nome: "Básico", preco: "R$ 29,90", destaque: false, items: ["1 bolão ativo", "Até 300 torcedores", "Até 1.000 palpites", "Exportação CSV", "Logo personalizado"] },
-  { nome: "Pro", preco: "R$ 79,90", destaque: true, items: ["Bolões ilimitados", "Torcedores ilimitados", "Palpites ilimitados", "Relatórios avançados", "Página personalizada"] },
-  { nome: "Premium", preco: "R$ 149,90", destaque: false, items: ["Tudo do Pro", "Domínio personalizado", "WhatsApp API", "QR Code Pix", "Suporte prioritário"] },
+  { nome: "Grátis", preco: "R$ 0", destaque: false, items: ["Até 50 palpites", "1 bolão ativo", "Pix por WhatsApp", "Resultados automáticos"] },
+  { nome: "Intermediário", preco: "R$ 99,90", destaque: true, items: ["Até 100 palpites", "Bolões ilimitados", "Logo personalizada", "Exportação CSV", "Ranking de ganhadores"] },
+  { nome: "Ilimitado", preco: "R$ 149,90", destaque: false, items: ["Palpites ilimitados", "Bolões ilimitados", "WhatsApp API", "Domínio personalizado", "Suporte prioritário"] },
 ];
 
 const faq = [
@@ -101,7 +100,7 @@ function LandingPage() {
         <div className="mx-auto max-w-7xl px-4">
           <h2 className="font-display text-4xl sm:text-5xl tracking-tight text-center">Planos para todo bolão</h2>
           <p className="mt-2 text-center text-muted-foreground">Comece grátis. Faça upgrade quando seu bolão crescer.</p>
-          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid gap-4 md:grid-cols-3 max-w-5xl mx-auto">
             {plans.map((p) => (
               <div key={p.nome} className={`rounded-2xl border bg-card p-6 flex flex-col ${p.destaque ? "border-pitch ring-2 ring-pitch/30" : "border-border"}`}>
                 {p.destaque && <span className="self-start mb-2 rounded-full bg-pitch px-2 py-0.5 text-xs font-bold text-primary-foreground">Mais popular</span>}
