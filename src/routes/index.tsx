@@ -57,30 +57,30 @@ function Dashboard() {
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background pointer-events-none" aria-hidden="true" />
 
 
-        <div className="relative mx-auto max-w-7xl px-6 py-12 lg:py-24">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-gold">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12 lg:py-24">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="space-y-5 sm:space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gold">
                 <span className="h-2 w-2 rounded-full bg-gold animate-pulse" aria-hidden="true" />
                 Rumo ao Hexa · 2026
               </div>
-              <h1 className="font-display text-6xl md:text-8xl lg:text-9xl leading-[0.9] uppercase bg-gradient-to-b from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
+              <h1 className="font-display text-4xl sm:text-6xl md:text-8xl lg:text-9xl leading-[0.9] uppercase bg-gradient-to-b from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
                 A Experiência <br />
                 <span className="text-gradient-gold">Definitiva</span>
               </h1>
-              <p className="max-w-md text-base md:text-lg leading-relaxed text-muted-foreground">
+              <p className="max-w-md text-sm sm:text-base md:text-lg leading-relaxed text-muted-foreground">
                 Acompanhe cada lance, simule resultados e dispute o topo do ranking no maior portal da Copa do Mundo 2026.
               </p>
-              <div className="flex flex-wrap gap-4 pt-2">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-2">
                 <Link
                   to="/criar-bolao"
-                  className="inline-flex h-12 items-center rounded-sm bg-gradient-gold px-8 text-sm font-black uppercase tracking-tight text-gold-foreground shadow-gold transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  className="inline-flex h-12 items-center justify-center rounded-sm bg-gradient-gold px-6 sm:px-8 text-sm font-black uppercase tracking-tight text-gold-foreground shadow-gold transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   Criar Meu Bolão
                 </Link>
                 <Link
                   to="/calendario"
-                  className="inline-flex h-12 items-center rounded-sm border border-border bg-card/40 px-8 text-sm font-black uppercase tracking-tight text-foreground backdrop-blur transition-colors hover:bg-card/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                  className="inline-flex h-12 items-center justify-center rounded-sm border border-border bg-card/40 px-6 sm:px-8 text-sm font-black uppercase tracking-tight text-foreground backdrop-blur transition-colors hover:bg-card/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                 >
                   <CalendarDays className="mr-2 h-4 w-4" aria-hidden="true" /> Ver Calendário
                 </Link>
@@ -88,7 +88,7 @@ function Dashboard() {
             </div>
 
             {/* Bento grid */}
-            <div className="grid grid-cols-2 gap-4 h-[420px] sm:h-[500px]">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 h-[320px] sm:h-[500px]">
               <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 flex flex-col justify-between">
                 <div className="absolute -right-4 -top-4 h-32 w-32 rounded-full bg-gold/10 blur-3xl" aria-hidden="true" />
                 <h3 className="font-display text-3xl text-gold">Jogos</h3>
