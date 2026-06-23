@@ -160,11 +160,30 @@ function Onboarding() {
             <Form title="Dados do responsável / estabelecimento" onSubmit={saveStep1} loading={loading}>
               <Input label="Nome do responsável" value={s1.nome_responsavel} onChange={(v) => setS1({ ...s1, nome_responsavel: v })} required />
               <Input label="Nome do estabelecimento ou bolão" value={s1.nome_estabelecimento} onChange={(v) => setS1({ ...s1, nome_estabelecimento: v })} required />
-              <Input label="CPF ou CNPJ" value={s1.cpf_cnpj} onChange={(v) => setS1({ ...s1, cpf_cnpj: v })} />
-              <Input label="WhatsApp (com DDD)" value={s1.whatsapp} onChange={(v) => setS1({ ...s1, whatsapp: v })} required />
-              <div className="grid grid-cols-2 gap-3">
+              <Input label="CPF ou CNPJ" value={s1.cpf_cnpj} onChange={(v) => setS1({ ...s1, cpf_cnpj: maskCpfCnpj(v) })} placeholder="000.000.000-00" inputMode="numeric" />
+              <Input label="WhatsApp (com DDD)" value={s1.whatsapp} onChange={(v) => setS1({ ...s1, whatsapp: maskPhone(v) })} placeholder="(11) 99999-9999" inputMode="tel" required />
+              <div>
+                <label className="block">
+                  <span className="text-sm font-medium">CEP</span>
+                  <div className="mt-1 flex gap-2">
+                    <input
+                      value={s1.cep}
+                      onChange={(e) => { const m = maskCep(e.target.value); setS1((v) => ({ ...v, cep: m })); if (onlyDigits(m).length === 8) lookupCep(m); }}
+                      onBlur={(e) => lookupCep(e.target.value)}
+                      placeholder="00000-000"
+                      inputMode="numeric"
+                      className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pitch/40"
+                    />
+                    <button type="button" onClick={() => lookupCep(s1.cep)} disabled={cepLoading} className="inline-flex h-10 items-center gap-1 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted disabled:opacity-60">
+                      {cepLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />} Buscar
+                    </button>
+                  </div>
+                  {cepErr && <span className="text-xs text-red-600">{cepErr}</span>}
+                </label>
+              </div>
+              <div className="grid grid-cols-[1fr_100px] gap-3">
                 <Input label="Cidade" value={s1.cidade} onChange={(v) => setS1({ ...s1, cidade: v })} />
-                <Input label="Estado" value={s1.estado} onChange={(v) => setS1({ ...s1, estado: v })} />
+                <Input label="UF" value={s1.estado} onChange={(v) => setS1({ ...s1, estado: v.toUpperCase().slice(0, 2) })} />
               </div>
             </Form>
           )}
