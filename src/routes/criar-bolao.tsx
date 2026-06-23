@@ -45,37 +45,44 @@ function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
+      <header className="border-b border-border/60 bg-background/70 backdrop-blur sticky top-0 z-30">
         <div className="mx-auto max-w-7xl px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-pitch text-primary-foreground"><Trophy className="h-5 w-5" /></div>
-            <span className="font-black tracking-tight">CopaHub SaaS</span>
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-pitch shadow-glow">
+              <Trophy className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <span className="font-display text-xl tracking-wide">CopaHub <span className="text-gold">SaaS</span></span>
           </Link>
-          <Link to={ctaTo} className="inline-flex h-9 items-center rounded-lg bg-pitch px-4 text-sm font-semibold text-primary-foreground">
+          <Link to={ctaTo} className="inline-flex h-10 items-center rounded-full bg-gradient-gold px-5 text-sm font-bold text-gold-foreground shadow-gold">
             Criar meu bolão
           </Link>
         </div>
       </header>
 
-      <section className="bg-gradient-to-br from-pitch to-pitch/80 text-primary-foreground">
-        <div className="mx-auto max-w-5xl px-4 py-20 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold">
-            <Trophy className="h-3.5 w-3.5" /> Copa 2026
+      <section className="relative overflow-hidden bg-hero">
+        <div className="absolute inset-0 pitch-lines opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
+        <div className="relative mx-auto max-w-5xl px-4 pt-20 pb-28 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-4 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur">
+            <Trophy className="h-3.5 w-3.5 text-gold" /> Plataforma oficial multiempresa · Copa do Mundo 2026
           </span>
-          <h1 className="mt-4 text-4xl sm:text-5xl font-black leading-tight">Crie seu Bolão da Copa 2026 em minutos</h1>
-          <p className="mt-4 text-lg text-primary-foreground/90 max-w-2xl mx-auto">
-            Cadastre participantes, receba Pix, controle palpites e descubra ganhadores automaticamente.
+          <h1 className="mt-6 font-display text-5xl leading-[0.95] tracking-tight md:text-7xl lg:text-8xl">
+            Crie seu <span className="text-gradient-gold">Bolão da Copa</span><br />em minutos
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-base text-muted-foreground md:text-lg">
+            Cadastre participantes, receba via Pix, controle palpites pelo WhatsApp e descubra os ganhadores automaticamente.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to={ctaTo} className="inline-flex h-12 items-center rounded-xl bg-white px-6 text-base font-bold text-pitch hover:bg-white/95">
+          <div className="mt-10 flex flex-wrap justify-center gap-3">
+            <Link to={ctaTo} className="inline-flex h-12 items-center rounded-full bg-gradient-gold px-7 text-base font-bold text-gold-foreground shadow-gold hover:opacity-95">
               Criar meu bolão grátis
             </Link>
-            <a href="#planos" className="inline-flex h-12 items-center rounded-xl border border-white/30 px-6 text-base font-semibold text-white">
+            <a href="#planos" className="inline-flex h-12 items-center rounded-full border border-border bg-card/60 px-7 text-base font-semibold backdrop-blur hover:bg-card">
               Ver planos
             </a>
           </div>
         </div>
       </section>
+
 
       <section className="mx-auto max-w-7xl px-4 py-16">
         <h2 className="text-2xl sm:text-3xl font-black text-center">Tudo o que você precisa</h2>
