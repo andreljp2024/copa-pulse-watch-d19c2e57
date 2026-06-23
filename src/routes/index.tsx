@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { AppShell } from "@/components/AppShell";
 import { MatchCard, TeamBadge } from "@/components/MatchCard";
 import { StandingsTable } from "@/components/StandingsTable";
