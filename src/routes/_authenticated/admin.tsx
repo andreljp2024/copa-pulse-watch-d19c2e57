@@ -33,8 +33,11 @@ function AdminPage() {
   });
   const claimMut = useMutation({
     mutationFn: () => claim(),
-    onSuccess: () => { refetchAdmin(); setMsg("Você agora é administrador."); },
-    onError: (e: any) => setMsg(e.message),
+    onSuccess: (r) => {
+      if (r.ok) { refetchAdmin(); setMsg(r.alreadyAdmin ? "Você já é administrador." : "Você agora é administrador."); }
+      else setMsg(r.message);
+    },
+    onError: (e: any) => setMsg(e?.message ?? "Falha ao reivindicar admin."),
   });
 
   async function signOut() {

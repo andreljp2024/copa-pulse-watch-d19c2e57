@@ -23,11 +23,17 @@ export const claimFirstAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const sb = await admin();
+    // Já é admin? idempotente.
+    const { data: already } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (already) return { ok: true, alreadyAdmin: true as const };
+
     const { count } = await sb.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "admin");
-    if ((count ?? 0) > 0) throw new Error("Admin já existe — peça promoção a um administrador.");
+    if ((count ?? 0) > 0) {
+      return { ok: false as const, message: "Já existe um administrador. Peça promoção a um administrador existente." };
+    }
     const { error } = await sb.from("user_roles").insert({ user_id: context.userId, role: "admin" });
-    if (error) throw error;
-    return { ok: true };
+    if (error) return { ok: false as const, message: "Não foi possível conceder acesso de administrador." };
+    return { ok: true as const, alreadyAdmin: false };
   });
 
 const matchSchema = z.object({
