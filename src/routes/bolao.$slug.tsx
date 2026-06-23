@@ -179,15 +179,7 @@ function PublicBolao() {
         <div className="fixed inset-0 z-50 bg-black/50 grid place-items-center p-4" onClick={() => setSelected(null)}>
           <div className="bg-card rounded-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
             {done ? (
-              <div className="text-center space-y-4">
-                <div className="text-5xl">🎉</div>
-                <h3 className="text-xl font-black">Palpite registrado!</h3>
-                <p className="text-sm text-muted-foreground">Para confirmar, envie a mensagem pelo WhatsApp e faça o Pix.</p>
-                <a href={done} target="_blank" rel="noopener noreferrer" className="inline-flex h-12 items-center gap-2 rounded-xl bg-green-600 px-5 font-bold text-white">
-                  <MessageCircle className="h-5 w-5" /> Abrir WhatsApp
-                </a>
-                <button onClick={() => setSelected(null)} className="block w-full text-sm text-muted-foreground hover:underline">Fechar</button>
-              </div>
+              <SuccessPanel waLink={done} pix={pix!} valor={Number(bolao.valor_palpite)} onClose={() => setSelected(null)} />
             ) : (
               <form onSubmit={submitPalpite} className="space-y-3">
                 <h3 className="text-xl font-black">Seu palpite</h3>
