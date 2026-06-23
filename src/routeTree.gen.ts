@@ -13,13 +13,23 @@ import { Route as SelecoesRouteImport } from './routes/selecoes'
 import { Route as MataMataRouteImport } from './routes/mata-mata'
 import { Route as GruposRouteImport } from './routes/grupos'
 import { Route as EstatisticasRouteImport } from './routes/estatisticas'
+import { Route as CriarBolaoRouteImport } from './routes/criar-bolao'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SelecoesIdRouteImport } from './routes/selecoes.$id'
 import { Route as PartidasIdRouteImport } from './routes/partidas.$id'
+import { Route as BolaoSlugRouteImport } from './routes/bolao.$slug'
+import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppWhatsappRouteImport } from './routes/_authenticated/app.whatsapp'
+import { Route as AuthenticatedAppTorcedoresRouteImport } from './routes/_authenticated/app.torcedores'
+import { Route as AuthenticatedAppPixRouteImport } from './routes/_authenticated/app.pix'
+import { Route as AuthenticatedAppPalpitesRouteImport } from './routes/_authenticated/app.palpites'
+import { Route as AuthenticatedAppBolaoRouteImport } from './routes/_authenticated/app.bolao'
 
 const SelecoesRoute = SelecoesRouteImport.update({
   id: '/selecoes',
@@ -39,6 +49,11 @@ const GruposRoute = GruposRouteImport.update({
 const EstatisticasRoute = EstatisticasRouteImport.update({
   id: '/estatisticas',
   path: '/estatisticas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CriarBolaoRoute = CriarBolaoRouteImport.update({
+  id: '/criar-bolao',
+  path: '/criar-bolao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalendarioRoute = CalendarioRouteImport.update({
@@ -70,35 +85,102 @@ const PartidasIdRoute = PartidasIdRouteImport.update({
   path: '/partidas/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BolaoSlugRoute = BolaoSlugRouteImport.update({
+  id: '/bolao/$slug',
+  path: '/bolao/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppWhatsappRoute =
+  AuthenticatedAppWhatsappRouteImport.update({
+    id: '/whatsapp',
+    path: '/whatsapp',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppTorcedoresRoute =
+  AuthenticatedAppTorcedoresRouteImport.update({
+    id: '/torcedores',
+    path: '/torcedores',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppPixRoute = AuthenticatedAppPixRouteImport.update({
+  id: '/pix',
+  path: '/pix',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppPalpitesRoute =
+  AuthenticatedAppPalpitesRouteImport.update({
+    id: '/palpites',
+    path: '/palpites',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppBolaoRoute = AuthenticatedAppBolaoRouteImport.update({
+  id: '/bolao',
+  path: '/bolao',
+  getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/calendario': typeof CalendarioRoute
+  '/criar-bolao': typeof CriarBolaoRoute
   '/estatisticas': typeof EstatisticasRoute
   '/grupos': typeof GruposRoute
   '/mata-mata': typeof MataMataRoute
   '/selecoes': typeof SelecoesRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
+  '/app': typeof AuthenticatedAppRouteWithChildren
+  '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/bolao/$slug': typeof BolaoSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
+  '/app/bolao': typeof AuthenticatedAppBolaoRoute
+  '/app/palpites': typeof AuthenticatedAppPalpitesRoute
+  '/app/pix': typeof AuthenticatedAppPixRoute
+  '/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
+  '/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/calendario': typeof CalendarioRoute
+  '/criar-bolao': typeof CriarBolaoRoute
   '/estatisticas': typeof EstatisticasRoute
   '/grupos': typeof GruposRoute
   '/mata-mata': typeof MataMataRoute
   '/selecoes': typeof SelecoesRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/bolao/$slug': typeof BolaoSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
+  '/app/bolao': typeof AuthenticatedAppBolaoRoute
+  '/app/palpites': typeof AuthenticatedAppPalpitesRoute
+  '/app/pix': typeof AuthenticatedAppPixRoute
+  '/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
+  '/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
+  '/app': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -106,13 +188,23 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/calendario': typeof CalendarioRoute
+  '/criar-bolao': typeof CriarBolaoRoute
   '/estatisticas': typeof EstatisticasRoute
   '/grupos': typeof GruposRoute
   '/mata-mata': typeof MataMataRoute
   '/selecoes': typeof SelecoesRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/bolao/$slug': typeof BolaoSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
+  '/_authenticated/app/bolao': typeof AuthenticatedAppBolaoRoute
+  '/_authenticated/app/palpites': typeof AuthenticatedAppPalpitesRoute
+  '/_authenticated/app/pix': typeof AuthenticatedAppPixRoute
+  '/_authenticated/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
+  '/_authenticated/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,38 +212,67 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/calendario'
+    | '/criar-bolao'
     | '/estatisticas'
     | '/grupos'
     | '/mata-mata'
     | '/selecoes'
     | '/admin'
+    | '/app'
+    | '/onboarding'
+    | '/bolao/$slug'
     | '/partidas/$id'
     | '/selecoes/$id'
+    | '/app/bolao'
+    | '/app/palpites'
+    | '/app/pix'
+    | '/app/torcedores'
+    | '/app/whatsapp'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/calendario'
+    | '/criar-bolao'
     | '/estatisticas'
     | '/grupos'
     | '/mata-mata'
     | '/selecoes'
     | '/admin'
+    | '/onboarding'
+    | '/bolao/$slug'
     | '/partidas/$id'
     | '/selecoes/$id'
+    | '/app/bolao'
+    | '/app/palpites'
+    | '/app/pix'
+    | '/app/torcedores'
+    | '/app/whatsapp'
+    | '/app'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/calendario'
+    | '/criar-bolao'
     | '/estatisticas'
     | '/grupos'
     | '/mata-mata'
     | '/selecoes'
     | '/_authenticated/admin'
+    | '/_authenticated/app'
+    | '/_authenticated/onboarding'
+    | '/bolao/$slug'
     | '/partidas/$id'
     | '/selecoes/$id'
+    | '/_authenticated/app/bolao'
+    | '/_authenticated/app/palpites'
+    | '/_authenticated/app/pix'
+    | '/_authenticated/app/torcedores'
+    | '/_authenticated/app/whatsapp'
+    | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -159,10 +280,12 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   CalendarioRoute: typeof CalendarioRoute
+  CriarBolaoRoute: typeof CriarBolaoRoute
   EstatisticasRoute: typeof EstatisticasRoute
   GruposRoute: typeof GruposRoute
   MataMataRoute: typeof MataMataRoute
   SelecoesRoute: typeof SelecoesRouteWithChildren
+  BolaoSlugRoute: typeof BolaoSlugRoute
   PartidasIdRoute: typeof PartidasIdRoute
 }
 
@@ -194,6 +317,13 @@ declare module '@tanstack/react-router' {
       path: '/estatisticas'
       fullPath: '/estatisticas'
       preLoaderRoute: typeof EstatisticasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/criar-bolao': {
+      id: '/criar-bolao'
+      path: '/criar-bolao'
+      fullPath: '/criar-bolao'
+      preLoaderRoute: typeof CriarBolaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calendario': {
@@ -238,6 +368,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PartidasIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bolao/$slug': {
+      id: '/bolao/$slug'
+      path: '/bolao/$slug'
+      fullPath: '/bolao/$slug'
+      preLoaderRoute: typeof BolaoSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/onboarding': {
+      id: '/_authenticated/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app': {
+      id: '/_authenticated/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -245,15 +396,82 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/whatsapp': {
+      id: '/_authenticated/app/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/app/whatsapp'
+      preLoaderRoute: typeof AuthenticatedAppWhatsappRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/torcedores': {
+      id: '/_authenticated/app/torcedores'
+      path: '/torcedores'
+      fullPath: '/app/torcedores'
+      preLoaderRoute: typeof AuthenticatedAppTorcedoresRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/pix': {
+      id: '/_authenticated/app/pix'
+      path: '/pix'
+      fullPath: '/app/pix'
+      preLoaderRoute: typeof AuthenticatedAppPixRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/palpites': {
+      id: '/_authenticated/app/palpites'
+      path: '/palpites'
+      fullPath: '/app/palpites'
+      preLoaderRoute: typeof AuthenticatedAppPalpitesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/bolao': {
+      id: '/_authenticated/app/bolao'
+      path: '/bolao'
+      fullPath: '/app/bolao'
+      preLoaderRoute: typeof AuthenticatedAppBolaoRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
+interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppBolaoRoute: typeof AuthenticatedAppBolaoRoute
+  AuthenticatedAppPalpitesRoute: typeof AuthenticatedAppPalpitesRoute
+  AuthenticatedAppPixRoute: typeof AuthenticatedAppPixRoute
+  AuthenticatedAppTorcedoresRoute: typeof AuthenticatedAppTorcedoresRoute
+  AuthenticatedAppWhatsappRoute: typeof AuthenticatedAppWhatsappRoute
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+}
+
+const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppBolaoRoute: AuthenticatedAppBolaoRoute,
+  AuthenticatedAppPalpitesRoute: AuthenticatedAppPalpitesRoute,
+  AuthenticatedAppPixRoute: AuthenticatedAppPixRoute,
+  AuthenticatedAppTorcedoresRoute: AuthenticatedAppTorcedoresRoute,
+  AuthenticatedAppWhatsappRoute: AuthenticatedAppWhatsappRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+}
+
+const AuthenticatedAppRouteWithChildren =
+  AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
+  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -276,10 +494,12 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   CalendarioRoute: CalendarioRoute,
+  CriarBolaoRoute: CriarBolaoRoute,
   EstatisticasRoute: EstatisticasRoute,
   GruposRoute: GruposRoute,
   MataMataRoute: MataMataRoute,
   SelecoesRoute: SelecoesRouteWithChildren,
+  BolaoSlugRoute: BolaoSlugRoute,
   PartidasIdRoute: PartidasIdRoute,
 }
 export const routeTree = rootRouteImport

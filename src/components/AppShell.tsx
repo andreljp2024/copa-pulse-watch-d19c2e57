@@ -63,9 +63,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             <button onClick={toggleTheme} aria-label="Alternar tema" className="grid h-9 w-9 place-items-center rounded-lg border border-border hover:bg-muted">
               {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
+            <Link to="/criar-bolao" className="hidden sm:inline-flex h-9 items-center rounded-lg border border-pitch text-pitch px-3 text-sm font-semibold hover:bg-pitch/5">
+              Criar meu bolão
+            </Link>
             {email ? (
-              <Link to="/admin" className="hidden sm:inline-flex h-9 items-center rounded-lg bg-pitch px-3 text-sm font-semibold text-primary-foreground hover:opacity-90">
-                Admin
+              <Link to="/app" className="hidden sm:inline-flex h-9 items-center rounded-lg bg-pitch px-3 text-sm font-semibold text-primary-foreground hover:opacity-90">
+                Meu painel
               </Link>
             ) : (
               <Link to="/auth" className="hidden sm:inline-flex h-9 items-center rounded-lg bg-pitch px-3 text-sm font-semibold text-primary-foreground hover:opacity-90">
@@ -85,8 +88,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                   {n.label}
                 </Link>
               ))}
-              <Link to={email ? "/admin" : "/auth"} onClick={() => setOpen(false)} className="px-3 py-3 rounded-lg text-sm font-semibold text-pitch">
-                {email ? "Admin" : "Entrar"}
+              <Link to="/criar-bolao" onClick={() => setOpen(false)} className="px-3 py-3 rounded-lg text-sm font-semibold">
+                Criar meu bolão
+              </Link>
+              <Link to={email ? "/app" : "/auth"} onClick={() => setOpen(false)} className="px-3 py-3 rounded-lg text-sm font-semibold text-pitch">
+                {email ? "Meu painel" : "Entrar"}
               </Link>
             </div>
           </div>
