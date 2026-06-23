@@ -1,6 +1,6 @@
 ---
-name: Design Trends 2026
-description: Tendências premiadas de web design: motion, tipografia expressiva, dark mode, scroll storytelling (Awwwards/CSSDA).
+name: design-trends-2026
+description: "Tendências premiadas de web design: motion, tipografia expressiva, dark mode, scroll storytelling (Awwwards/CSSDA)."
 ---
 
 Review this project against current award-winning design trends (Q1/Q2 2026) from Awwwards, CSSDA, Godly, and SiteInspire.
