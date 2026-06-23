@@ -30,7 +30,7 @@ type MatchLike = {
   stadium?: { name: string; city?: string | null } | null;
 };
 
-export function MatchCard({ m }: { m: MatchLike }) {
+export const MatchCard = memo(function MatchCard({ m }: { m: MatchLike }) {
   const isLive = m.status === "live";
   const isFinished = m.status === "finished";
   return (
