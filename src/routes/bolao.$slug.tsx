@@ -104,6 +104,7 @@ function PublicBolao() {
         chave_pix: pix.chave_pix,
       });
       setDone(buildWhatsAppLink(wa.numero_whatsapp, msg));
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
       void pal;
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erro ao enviar palpite");
