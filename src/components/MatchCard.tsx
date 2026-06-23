@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { memo } from "react";
 
 export type TeamLite = { id?: string; name: string; code: string; flag_url?: string | null };
 
@@ -29,7 +30,7 @@ type MatchLike = {
   stadium?: { name: string; city?: string | null } | null;
 };
 
-export function MatchCard({ m }: { m: MatchLike }) {
+export const MatchCard = memo(function MatchCard({ m }: { m: MatchLike }) {
   const isLive = m.status === "live";
   const isFinished = m.status === "finished";
   return (
@@ -64,4 +65,4 @@ export function MatchCard({ m }: { m: MatchLike }) {
       )}
     </Link>
   );
-}
+});
