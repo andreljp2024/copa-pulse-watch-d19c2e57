@@ -117,23 +117,38 @@ function PublicBolao() {
   async function submitPalpite(e: React.FormEvent) {
     e.preventDefault();
     if (!selected || !wa || !pix) return;
+    const whatsapp = onlyDigits(form.whatsapp);
+    if (whatsapp.length < 10) {
+      alert("Informe um WhatsApp válido com DDD.");
+      return;
+    }
     setSubmitting(true);
     try {
-      const { data: tor, error: e1 } = await supabase.from("torcedores").insert({
-        tenant_id: bolao.tenant_id, bolao_id: bolao.id, nome: form.nome, whatsapp: form.whatsapp,
-      }).select("id").single();
+      const { data: tor, error: e1 } = await supabase
+        .from("torcedores")
+        .upsert(
+          { tenant_id: bolao.tenant_id, bolao_id: bolao.id, nome: form.nome.trim(), whatsapp },
+          { onConflict: "bolao_id,whatsapp" },
+        )
+        .select("id")
+        .single();
       if (e1) throw e1;
-      const { data: pal, error: e2 } = await supabase.from("palpites").insert({
-        tenant_id: bolao.tenant_id, bolao_id: bolao.id, torcedor_id: tor.id, match_id: selected.id,
-        palpite_a: form.palpite_a, palpite_b: form.palpite_b, valor: Number(bolao.valor_palpite),
-      }).select("id").single();
+      const { error: e2 } = await supabase.from("palpites").insert({
+        tenant_id: bolao.tenant_id,
+        bolao_id: bolao.id,
+        torcedor_id: tor.id,
+        match_id: selected.id,
+        palpite_a: form.palpite_a,
+        palpite_b: form.palpite_b,
+        valor: Number(bolao.valor_palpite),
+      });
       if (e2) throw e2;
       const home = teams.get(selected.home_team_id ?? "");
       const away = teams.get(selected.away_team_id ?? "");
       const msg = interpolate(wa.mensagem_novo_palpite ?? "", {
         nome_bolao: bolao.nome,
         nome_torcedor: form.nome,
-        whatsapp_torcedor: form.whatsapp,
+        whatsapp_torcedor: whatsapp,
         selecao_a: home?.name ?? "",
         selecao_b: away?.name ?? "",
         palpite_a: form.palpite_a,
@@ -145,13 +160,13 @@ function PublicBolao() {
       });
       setDone(buildWhatsAppLink(wa.numero_whatsapp, msg));
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
-      void pal;
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erro ao enviar palpite");
     } finally {
       setSubmitting(false);
     }
   }
+
 
   return (
     <div className="min-h-screen bg-muted/20">
