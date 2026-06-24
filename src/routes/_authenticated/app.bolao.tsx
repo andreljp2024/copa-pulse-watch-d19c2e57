@@ -439,7 +439,7 @@ function BolaoConfigPage() {
       )}
 
       {/* SAVE BAR */}
-      {tab === "config" && (
+      {(tab === "config" || tab === "divulgar") && (
         <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-30 transition-all ${dirty || msg ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}>
           <div className="flex items-center gap-3 rounded-full border border-border bg-card/95 backdrop-blur px-4 py-2 shadow-lg">
             {msg ? (
