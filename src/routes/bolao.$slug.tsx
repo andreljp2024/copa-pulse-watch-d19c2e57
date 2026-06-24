@@ -226,12 +226,17 @@ function PublicBolao() {
         linhas.push(`• ${ptTeamName(home?.name)} ${it.palpite_a} x ${it.palpite_b} ${ptTeamName(away?.name)}  (${protocolo})`);
       }
 
+      const dataHora = format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+      const protocoloPrincipal = protocolos[0] ?? "—";
       const msg =
         `*${bolao.nome}*\n` +
+        `🧾 Aposta: *${protocoloPrincipal}*${protocolos.length > 1 ? ` (+${protocolos.length - 1})` : ""}\n` +
+        `📅 ${dataHora}\n` +
         `Torcedor: ${form.nome} (${maskPhone(whatsapp)})\n\n` +
         `*Palpites (${items.length})*\n${linhas.join("\n")}\n\n` +
         `*Total a pagar:* ${brl(valorTotal)}\n` +
-        `Pix: ${pix.chave_pix} — ${pix.nome_recebedor}`;
+        `Pix: ${pix.chave_pix} — ${pix.nome_recebedor}\n\n` +
+        `✅ Pix realizado — comprovante em anexo.`;
       setDone({ link: buildWhatsAppLink(wa.numero_whatsapp, msg), protocolos, valorTotal });
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
     } catch (err) {
