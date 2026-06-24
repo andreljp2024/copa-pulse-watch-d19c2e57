@@ -502,7 +502,7 @@ function SuccessPanel({
 }: {
   waLink: string;
   protocolos: string[];
-  pix: { nome_recebedor: string; chave_pix: string; banco: string | null };
+  pix: { nome_recebedor: string | null; chave_pix: string; banco: string | null };
   valor: number;
   onClose: () => void;
 }) {
