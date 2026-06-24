@@ -374,3 +374,145 @@ function SuccessPanel({
     </div>
   );
 }
+
+function useCountdown(target: string | null) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!target) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [target]);
+  if (!target) return null;
+  const diff = new Date(target).getTime() - now;
+  if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0, live: true };
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  return { d, h, m, s, live: false };
+}
+
+function FeaturedMatchCard({
+  match,
+  home,
+  away,
+  valor,
+  palpiteAberto,
+  onPalpitar,
+}: {
+  match: Match;
+  home?: TeamLite;
+  away?: TeamLite;
+  valor: number;
+  palpiteAberto: boolean;
+  onPalpitar: () => void;
+}) {
+  const cd = useCountdown(match.kickoff_at);
+  const isLive = match.status === "live";
+  const podePalpitar = palpiteAberto && !isLive && match.status !== "finished";
+
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-gold/30 bg-gradient-card shadow-gold ring-conic">
+      {/* Background flags */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.12]" aria-hidden="true">
+        {home?.flag_url && (
+          <img src={home.flag_url} alt="" className="absolute -left-10 top-1/2 -translate-y-1/2 h-[140%] w-auto blur-sm" />
+        )}
+        {away?.flag_url && (
+          <img src={away.flag_url} alt="" className="absolute -right-10 top-1/2 -translate-y-1/2 h-[140%] w-auto blur-sm" />
+        )}
+      </div>
+      <div
+        aria-hidden="true"
+        className="absolute -top-24 left-1/2 -translate-x-1/2 h-72 w-72 rounded-full opacity-30 blur-3xl"
+        style={{ backgroundImage: "var(--gradient-conic-gold)" }}
+      />
+
+      <div className="relative p-5 sm:p-7">
+        <div className="flex items-center justify-between gap-3 flex-wrap mb-5">
+          <div className="inline-flex items-center gap-2 rounded-full bg-gold/15 border border-gold/30 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-gold">
+            <Flame className="h-3 w-3" /> Próximo jogo em destaque
+          </div>
+          {isLive ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-live/15 border border-live/40 text-live text-[10px] font-black uppercase">
+              <span className="live-dot h-2 w-2 rounded-full" /> Ao vivo
+            </span>
+          ) : (
+            match.kickoff_at && (
+              <span className="text-[11px] text-muted-foreground inline-flex items-center gap-1.5">
+                <Clock className="h-3 w-3" />
+                {format(new Date(match.kickoff_at), "EEE, dd MMM • HH:mm", { locale: ptBR })}
+              </span>
+            )
+          )}
+        </div>
+
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
+          <div className="flex flex-col items-center gap-2 text-center min-w-0">
+            {home?.flag_url ? (
+              <img src={home.flag_url} alt={home.name} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
+            ) : (
+              <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-md bg-muted grid place-items-center font-black text-xl">{home?.code ?? "?"}</div>
+            )}
+            <div className="font-display font-black uppercase text-sm sm:text-base truncate w-full">{home?.name ?? "—"}</div>
+          </div>
+
+          <div className="text-center">
+            <div className="font-display text-3xl sm:text-5xl font-black text-gradient-samba leading-none">VS</div>
+            <div className="mt-2 text-[10px] uppercase tracking-widest text-muted-foreground">Copa 2026</div>
+          </div>
+
+          <div className="flex flex-col items-center gap-2 text-center min-w-0">
+            {away?.flag_url ? (
+              <img src={away.flag_url} alt={away.name} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
+            ) : (
+              <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-md bg-muted grid place-items-center font-black text-xl">{away?.code ?? "?"}</div>
+            )}
+            <div className="font-display font-black uppercase text-sm sm:text-base truncate w-full">{away?.name ?? "—"}</div>
+          </div>
+        </div>
+
+        {/* Countdown */}
+        {cd && !cd.live && !isLive && match.status !== "finished" && (
+          <div className="mt-6 grid grid-cols-4 gap-2 max-w-md mx-auto">
+            {[
+              { v: cd.d, l: "dias" },
+              { v: cd.h, l: "horas" },
+              { v: cd.m, l: "min" },
+              { v: cd.s, l: "seg" },
+            ].map((b) => (
+              <div key={b.l} className="rounded-xl bg-background/60 border border-gold/20 backdrop-blur py-2 text-center">
+                <div className="font-display text-xl sm:text-2xl font-black tabular-nums text-gold">{String(b.v).padStart(2, "0")}</div>
+                <div className="text-[9px] uppercase tracking-widest text-muted-foreground">{b.l}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* CTA & stats */}
+        <div className="mt-6 grid sm:grid-cols-[1fr_auto] items-center gap-4">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+            <span className="inline-flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-gold" /> Aposta única: <strong className="text-gold">{brl(valor)}</strong>
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 text-gold" /> Mundial FIFA
+            </span>
+          </div>
+          {podePalpitar ? (
+            <button
+              onClick={onPalpitar}
+              className="h-12 px-6 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.03]"
+            >
+              <Trophy className="h-4 w-4" /> Fazer meu palpite
+            </button>
+          ) : (
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              {isLive ? "Jogo em andamento" : "Palpites encerrados"}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
