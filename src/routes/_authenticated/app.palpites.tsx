@@ -40,7 +40,7 @@ function PalpitesPage() {
       supabase
         .from("palpites")
         .select(
-          "id, codigo, bolao_id, palpite_a, palpite_b, valor, status_pagamento, created_at, torcedores(nome, whatsapp), matches(home_team_id, away_team_id, kickoff_at), boloes(nome)",
+          "id, codigo, bolao_id, palpite_a, palpite_b, valor, status_pagamento, created_at, torcedores(nome, whatsapp), matches(home_team_id, away_team_id, kickoff_at), boloes(nome, slug)",
         )
         .eq("tenant_id", t.id)
         .order("created_at", { ascending: false }),
