@@ -30,7 +30,7 @@ function PalpitesPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [teams, setTeams] = useState<Map<string, string>>(new Map());
-  const [waTpl, setWaTpl] = useState<string>("");
+  
 
   async function load() {
     const { data: u } = await supabase.auth.getUser();
