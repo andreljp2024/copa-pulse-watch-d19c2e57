@@ -229,7 +229,7 @@ function PublicBolao() {
         <div className="fixed inset-0 z-50 bg-black/50 grid place-items-center p-4" onClick={() => setSelected(null)}>
           <div className="bg-card rounded-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
             {done ? (
-              <SuccessPanel waLink={done} pix={pix!} valor={Number(bolao.valor_palpite)} onClose={() => setSelected(null)} />
+              <SuccessPanel waLink={done.link} protocolo={done.protocolo} pix={pix!} valor={Number(bolao.valor_palpite)} onClose={() => setSelected(null)} />
             ) : (
               <form onSubmit={submitPalpite} className="space-y-3">
                 <h3 className="text-xl font-black">Seu palpite</h3>
