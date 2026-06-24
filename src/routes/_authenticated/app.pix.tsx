@@ -1,19 +1,79 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Save, CreditCard } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
-
+import { buildPixPayload } from "@/lib/pix";
+import { brl } from "@/lib/saas";
+import {
+  maskCpfCnpj,
+  maskPhone,
+  onlyDigits,
+  isValidCpf,
+  isValidCnpj,
+  isValidPhoneBR,
+} from "@/lib/masks";
+import {
+  Loader2,
+  Save,
+  CreditCard,
+  Copy,
+  Check,
+  QrCode,
+  ShieldCheck,
+  AlertCircle,
+  Eye,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/pix")({
   component: PixConfigPage,
 });
 
+type TipoChave = "cpf" | "cnpj" | "email" | "telefone" | "aleatoria";
+
+const TIPOS: { value: TipoChave; label: string; hint: string }[] = [
+  { value: "cpf", label: "CPF", hint: "000.000.000-00" },
+  { value: "cnpj", label: "CNPJ", hint: "00.000.000/0000-00" },
+  { value: "email", label: "E-mail", hint: "voce@email.com" },
+  { value: "telefone", label: "Telefone", hint: "(11) 99999-9999" },
+  { value: "aleatoria", label: "Aleatória", hint: "chave UUID gerada pelo banco" },
+];
+
+function formatChave(tipo: TipoChave, raw: string): string {
+  if (tipo === "cpf" || tipo === "cnpj") return maskCpfCnpj(raw);
+  if (tipo === "telefone") return maskPhone(raw);
+  return raw.trim();
+}
+
+function validateChave(tipo: TipoChave, raw: string): string | null {
+  const v = raw.trim();
+  if (!v) return "Informe a chave Pix";
+  if (tipo === "cpf") return isValidCpf(v) ? null : "CPF inválido";
+  if (tipo === "cnpj") return isValidCnpj(v) ? null : "CNPJ inválido";
+  if (tipo === "telefone") return isValidPhoneBR(v) ? null : "Telefone inválido";
+  if (tipo === "email") return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? null : "E-mail inválido";
+  if (tipo === "aleatoria")
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v)
+      ? null
+      : "Chave aleatória deve ser um UUID";
+  return null;
+}
+
+/** Devolve a chave no formato aceito pelo BR Code (BACEN). */
+function chaveForPayload(tipo: TipoChave, raw: string): string {
+  const v = raw.trim();
+  if (tipo === "cpf" || tipo === "cnpj") return onlyDigits(v);
+  if (tipo === "telefone") return `+55${onlyDigits(v)}`;
+  return v;
+}
+
 function PixConfigPage() {
   const [tenantId, setTenantId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
     nome_recebedor: "",
-    tipo_chave_pix: "cpf",
+    tipo_chave_pix: "cpf" as TipoChave,
     chave_pix: "",
     banco: "",
     cidade: "",
@@ -21,65 +81,368 @@ function PixConfigPage() {
     instrucoes_pagamento: "",
   });
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [copiedCode, setCopiedCode] = useState(false);
 
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
-      const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user!.id).single(); if (!t) return;
+      if (!u.user) return;
+      const { data: t } = await supabase
+        .from("tenants")
+        .select("id")
+        .eq("owner_user_id", u.user.id)
+        .single();
+      if (!t) {
+        setLoading(false);
+        return;
+      }
       setTenantId(t.id);
-      const { data: pix } = await supabase.from("tenant_pix_config").select("*").eq("tenant_id", t.id).maybeSingle();
-      if (pix) setForm({
-        nome_recebedor: pix.nome_recebedor,
-        tipo_chave_pix: pix.tipo_chave_pix,
-        chave_pix: pix.chave_pix,
-        banco: pix.banco ?? "",
-        cidade: pix.cidade ?? "",
-        valor_padrao_palpite: Number(pix.valor_padrao_palpite),
-        instrucoes_pagamento: pix.instrucoes_pagamento ?? "",
-      });
+      const { data: pix } = await supabase
+        .from("tenant_pix_config")
+        .select("*")
+        .eq("tenant_id", t.id)
+        .maybeSingle();
+      if (pix) {
+        setForm({
+          nome_recebedor: pix.nome_recebedor ?? "",
+          tipo_chave_pix: (pix.tipo_chave_pix as TipoChave) ?? "cpf",
+          chave_pix: pix.chave_pix ?? "",
+          banco: pix.banco ?? "",
+          cidade: pix.cidade ?? "",
+          valor_padrao_palpite: Number(pix.valor_padrao_palpite ?? 10),
+          instrucoes_pagamento: pix.instrucoes_pagamento ?? "",
+        });
+      }
+      setLoading(false);
     })();
   }, []);
+
+  const chaveError = useMemo(
+    () => (form.chave_pix ? validateChave(form.tipo_chave_pix, form.chave_pix) : null),
+    [form.tipo_chave_pix, form.chave_pix],
+  );
+
+  const canPreview =
+    !!form.nome_recebedor && !!form.chave_pix && !chaveError;
+
+  const payload = useMemo(() => {
+    if (!canPreview) return "";
+    try {
+      return buildPixPayload({
+        chave: chaveForPayload(form.tipo_chave_pix, form.chave_pix),
+        nomeRecebedor: form.nome_recebedor,
+        cidade: form.cidade || "BRASIL",
+        valor: Number(form.valor_padrao_palpite) || 0,
+        descricao: "Palpite",
+      });
+    } catch {
+      return "";
+    }
+  }, [canPreview, form]);
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!tenantId) return;
-    setSaving(true); setMsg(null);
-    const { error } = await supabase.from("tenant_pix_config").upsert({ tenant_id: tenantId, ...form }, { onConflict: "tenant_id" });
+    if (chaveError) {
+      toast.error(chaveError);
+      return;
+    }
+    setSaving(true);
+    // Normaliza para armazenamento (sem máscara em CPF/CNPJ/telefone).
+    const normalized = {
+      ...form,
+      chave_pix:
+        form.tipo_chave_pix === "cpf" ||
+        form.tipo_chave_pix === "cnpj" ||
+        form.tipo_chave_pix === "telefone"
+          ? onlyDigits(form.chave_pix)
+          : form.chave_pix.trim(),
+    };
+    const { error } = await supabase
+      .from("tenant_pix_config")
+      .upsert({ tenant_id: tenantId, ...normalized }, { onConflict: "tenant_id" });
     setSaving(false);
-    setMsg(error ? `Erro: ${error.message}` : "Salvo!");
+    if (error) toast.error(`Erro ao salvar: ${error.message}`);
+    else toast.success("Configuração Pix salva com sucesso!");
+  }
+
+  async function copyCode() {
+    if (!payload) return;
+    await navigator.clipboard.writeText(payload);
+    setCopiedCode(true);
+    toast.success("Código Pix copiado");
+    setTimeout(() => setCopiedCode(false), 1800);
+  }
+
+  const tipoHint = TIPOS.find((t) => t.value === form.tipo_chave_pix)?.hint;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="h-6 w-6 animate-spin text-gold" />
+      </div>
+    );
   }
 
   return (
-    <form onSubmit={save} className="max-w-2xl space-y-4">
+    <div className="space-y-6">
       <PageHeader
         title="Configuração do Pix"
-        subtitle="Dados usados nas mensagens automáticas para os torcedores."
+        subtitle="Dados usados nas mensagens automáticas, na página pública e no QR Code de cobrança."
         icon={<CreditCard className="h-5 w-5" />}
       />
-      <Field label="Nome do recebedor"><input required value={form.nome_recebedor} onChange={(e) => setForm({ ...form, nome_recebedor: e.target.value })} className={inputCss} /></Field>
 
-      <Field label="Tipo de chave">
-        <select value={form.tipo_chave_pix} onChange={(e) => setForm({ ...form, tipo_chave_pix: e.target.value })} className={inputCss}>
-          <option value="cpf">CPF</option><option value="cnpj">CNPJ</option><option value="email">E-mail</option><option value="telefone">Telefone</option><option value="aleatoria">Aleatória</option>
-        </select>
-      </Field>
-      <Field label="Chave Pix"><input required value={form.chave_pix} onChange={(e) => setForm({ ...form, chave_pix: e.target.value })} className={inputCss} /></Field>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Banco"><input value={form.banco} onChange={(e) => setForm({ ...form, banco: e.target.value })} className={inputCss} /></Field>
-        <Field label="Cidade"><input value={form.cidade} onChange={(e) => setForm({ ...form, cidade: e.target.value })} className={inputCss} /></Field>
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        {/* Formulário */}
+        <form onSubmit={save} className="space-y-6">
+          <Section
+            title="Recebedor"
+            description="Como você aparece para o pagador."
+            icon={<ShieldCheck className="h-4 w-4 text-gold" />}
+          >
+            <Field label="Nome do recebedor" required>
+              <input
+                required
+                maxLength={25}
+                value={form.nome_recebedor}
+                onChange={(e) => setForm({ ...form, nome_recebedor: e.target.value })}
+                className={inputCss}
+                placeholder="Ex.: João da Silva"
+              />
+              <Hint>Até 25 caracteres (limite do padrão BR Code).</Hint>
+            </Field>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Banco">
+                <input
+                  value={form.banco}
+                  onChange={(e) => setForm({ ...form, banco: e.target.value })}
+                  className={inputCss}
+                  placeholder="Ex.: Nubank"
+                />
+              </Field>
+              <Field label="Cidade">
+                <input
+                  maxLength={15}
+                  value={form.cidade}
+                  onChange={(e) => setForm({ ...form, cidade: e.target.value })}
+                  className={inputCss}
+                  placeholder="Ex.: São Paulo"
+                />
+              </Field>
+            </div>
+          </Section>
+
+          <Section
+            title="Chave Pix"
+            description="Tipo da chave e valor padrão usado na cobrança."
+            icon={<QrCode className="h-4 w-4 text-gold" />}
+          >
+            <Field label="Tipo de chave" required>
+              <select
+                value={form.tipo_chave_pix}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    tipo_chave_pix: e.target.value as TipoChave,
+                    chave_pix: "",
+                  })
+                }
+                className={inputCss}
+              >
+                {TIPOS.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
+
+            <Field label="Chave Pix" required>
+              <input
+                required
+                value={form.chave_pix}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    chave_pix: formatChave(form.tipo_chave_pix, e.target.value),
+                  })
+                }
+                className={`${inputCss} ${chaveError ? "border-destructive/60 focus:ring-destructive/40" : ""}`}
+                placeholder={tipoHint}
+                inputMode={
+                  form.tipo_chave_pix === "cpf" ||
+                  form.tipo_chave_pix === "cnpj" ||
+                  form.tipo_chave_pix === "telefone"
+                    ? "numeric"
+                    : "text"
+                }
+              />
+              {chaveError ? (
+                <p className="mt-1 inline-flex items-center gap-1 text-xs text-destructive">
+                  <AlertCircle className="h-3 w-3" /> {chaveError}
+                </p>
+              ) : (
+                <Hint>Formato esperado: {tipoHint}</Hint>
+              )}
+            </Field>
+
+            <Field label="Valor padrão do palpite">
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                  R$
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={form.valor_padrao_palpite}
+                  onChange={(e) =>
+                    setForm({ ...form, valor_padrao_palpite: Number(e.target.value) })
+                  }
+                  className={`${inputCss} pl-9`}
+                />
+              </div>
+              <Hint>Usado para gerar a cobrança Pix com valor pré-preenchido.</Hint>
+            </Field>
+          </Section>
+
+          <Section
+            title="Mensagem ao pagador"
+            description="Texto exibido na página pública do bolão."
+          >
+            <Field label="Instruções de pagamento">
+              <textarea
+                rows={4}
+                value={form.instrucoes_pagamento}
+                onChange={(e) => setForm({ ...form, instrucoes_pagamento: e.target.value })}
+                className={inputCss}
+                placeholder="Ex.: Após o pagamento, envie o comprovante no WhatsApp para confirmação."
+              />
+            </Field>
+          </Section>
+
+          <div className="flex items-center gap-3">
+            <button
+              disabled={saving || !!chaveError}
+              className="inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-gold px-5 font-semibold text-gold-foreground shadow-gold disabled:opacity-60"
+            >
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Salvar configuração
+            </button>
+          </div>
+        </form>
+
+        {/* Pré-visualização */}
+        <aside className="lg:sticky lg:top-6 self-start">
+          <div className="rounded-2xl border border-gold/30 bg-gradient-card p-5 card-elevated">
+            <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gold">
+              <Eye className="h-3.5 w-3.5" /> Pré-visualização
+            </div>
+            <h3 className="mt-1 font-display text-lg font-bold">QR Code & Copia e Cola</h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              É exatamente isso que o torcedor verá na página pública.
+            </p>
+
+            {canPreview && payload ? (
+              <>
+                <div className="mt-4 flex justify-center rounded-xl bg-white p-4">
+                  <QRCodeSVG value={payload} size={200} level="M" includeMargin={false} />
+                </div>
+                <div className="mt-4 space-y-1 text-sm">
+                  <p>
+                    <span className="text-muted-foreground">Recebedor:</span>{" "}
+                    <strong>{form.nome_recebedor}</strong>
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Valor:</span>{" "}
+                    <strong className="text-gold">
+                      {brl(Number(form.valor_padrao_palpite) || 0)}
+                    </strong>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={copyCode}
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold hover:border-gold/40 transition-colors"
+                >
+                  {copiedCode ? (
+                    <>
+                      <Check className="h-4 w-4 text-pitch" /> Copiado!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4" /> Copiar código Pix
+                    </>
+                  )}
+                </button>
+              </>
+            ) : (
+              <div className="mt-4 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                Preencha nome do recebedor e uma chave Pix válida para gerar o QR Code.
+              </div>
+            )}
+          </div>
+        </aside>
       </div>
-      <Field label="Valor padrão do palpite (R$)"><input type="number" value={form.valor_padrao_palpite} onChange={(e) => setForm({ ...form, valor_padrao_palpite: Number(e.target.value) })} className={inputCss} /></Field>
-      <Field label="Instruções de pagamento"><textarea rows={3} value={form.instrucoes_pagamento} onChange={(e) => setForm({ ...form, instrucoes_pagamento: e.target.value })} className={inputCss} /></Field>
-      <button disabled={saving} className="inline-flex h-11 items-center gap-2 rounded-xl bg-pitch px-5 font-semibold text-primary-foreground disabled:opacity-60">
-        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Salvar
-      </button>
-      {msg && <p className="text-sm">{msg}</p>}
-    </form>
+    </div>
   );
 }
 
-const inputCss = "mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pitch/40";
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <label className="block"><span className="text-sm font-medium">{label}</span>{children}</label>;
+const inputCss =
+  "mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gold/40 transition-shadow";
+
+function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="text-sm font-medium">
+        {label}
+        {required && <span className="ml-0.5 text-destructive">*</span>}
+      </span>
+      {children}
+    </label>
+  );
+}
+
+function Hint({ children }: { children: React.ReactNode }) {
+  return <p className="mt-1 text-xs text-muted-foreground">{children}</p>;
+}
+
+function Section({
+  title,
+  description,
+  icon,
+  children,
+}: {
+  title: string;
+  description?: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-2xl border border-border bg-gradient-card p-5 card-elevated space-y-4">
+      <header className="flex items-start gap-3">
+        {icon && (
+          <div className="grid h-9 w-9 place-items-center rounded-lg border border-gold/30 bg-card">
+            {icon}
+          </div>
+        )}
+        <div>
+          <h3 className="font-display text-base font-bold">{title}</h3>
+          {description && (
+            <p className="text-xs text-muted-foreground">{description}</p>
+          )}
+        </div>
+      </header>
+      <div className="space-y-4">{children}</div>
+    </section>
+  );
 }
