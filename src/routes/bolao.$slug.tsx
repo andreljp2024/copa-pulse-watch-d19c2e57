@@ -150,6 +150,23 @@ function PublicBolao() {
   const [items, setItems] = useState<Array<{ match_id: string; palpite_a: number; palpite_b: number }>>([]);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ link: string; protocolos: string[]; valorTotal: number } | null>(null);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"abertos" | "ao_vivo" | "encerrados" | "todos">("abertos");
+  const [shareCopied, setShareCopied] = useState(false);
+
+  const ranking = useQuery({
+    queryKey: ["bolao", slug, "ranking"],
+    queryFn: async () => {
+      const { data: r } = await supabase.rpc("get_bolao_ranking", { p_slug: slug });
+      return (r ?? []) as Array<{ torcedor_id: string; nome: string; pontos: number; acertos_exatos: number; total: number }>;
+    },
+    enabled: bolao.permitir_ranking_publico !== false,
+    staleTime: 60_000,
+  });
+
+  const valorUnit = Number(bolao.valor_palpite) || 0;
+  const arrecadado = totalPalpites * valorUnit;
+  const premioEstimado = arrecadado * 0.9;
 
   const openMatches = useMemo(() => {
     const now = Date.now();
@@ -158,6 +175,27 @@ function PublicBolao() {
       return !kickoffPassed && m.status !== "live" && m.status !== "finished";
     });
   }, [matches]);
+
+  const filteredMatches = useMemo(() => {
+    const now = Date.now();
+    const q = query.trim().toLowerCase();
+    return matches.filter((m) => {
+      const home = teams.get(m.home_team_id ?? "");
+      const away = teams.get(m.away_team_id ?? "");
+      const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= now : false;
+      const isOpen = !kickoffPassed && m.status !== "live" && m.status !== "finished";
+      const isLive = m.status === "live";
+      const isFinished = m.status === "finished" || kickoffPassed;
+      if (statusFilter === "abertos" && !isOpen) return false;
+      if (statusFilter === "ao_vivo" && !isLive) return false;
+      if (statusFilter === "encerrados" && !isFinished) return false;
+      if (q) {
+        const hay = `${ptTeamName(home?.name)} ${ptTeamName(away?.name)} ${home?.code ?? ""} ${away?.code ?? ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [matches, teams, query, statusFilter]);
 
   const valorUnit = Number(bolao.valor_palpite) || 0;
   const valorTotal = items.length * valorUnit;
