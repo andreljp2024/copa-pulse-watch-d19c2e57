@@ -810,8 +810,8 @@ function FeaturedMatchCard({
 
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
           <div className="flex flex-col items-center gap-2 text-center min-w-0">
-            {home?.flag_url ? (
-              <img src={home.flag_url} alt={ptTeamName(home.name)} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
+            {flagUrl(home?.code, home?.flag_url) ? (
+              <img src={flagUrl(home?.code, home?.flag_url)!} alt={ptTeamName(home?.name)} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
             ) : (
               <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-md bg-muted grid place-items-center font-black text-xl">{home?.code ?? "?"}</div>
             )}
