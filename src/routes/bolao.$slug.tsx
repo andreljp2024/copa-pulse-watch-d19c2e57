@@ -494,7 +494,7 @@ function FeaturedMatchCard({
             ) : (
               <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-md bg-muted grid place-items-center font-black text-xl">{away?.code ?? "?"}</div>
             )}
-            <div className="font-display font-black uppercase text-sm sm:text-base truncate w-full">{away?.name ?? "—"}</div>
+            <div className="font-display font-black uppercase text-sm sm:text-base truncate w-full">{ptTeamName(away?.name) || "—"}</div>
           </div>
         </div>
 
