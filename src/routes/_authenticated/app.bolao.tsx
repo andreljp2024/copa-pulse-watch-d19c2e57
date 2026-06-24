@@ -40,6 +40,9 @@ function BolaoConfigPage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [teams, setTeams] = useState<Map<string, Team>>(new Map());
   const [loadingGames, setLoadingGames] = useState(false);
+  const [selectedMatchIds, setSelectedMatchIds] = useState<Set<string>>(new Set());
+  const [divulgCopied, setDivulgCopied] = useState(false);
+
 
   const shareUrl = useMemo(() => (form.slug ? publicBolaoUrl(form.slug) : ""), [form.slug]);
 
