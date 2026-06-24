@@ -350,18 +350,70 @@ function PublicBolao() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-5xl px-4 pt-4 flex items-center justify-between gap-3 flex-wrap">
-        <Link to="/bolao/$slug/ranking" params={{ slug: bolao.slug }} className="inline-flex items-center gap-2 text-sm font-semibold text-gold hover:underline">
-          <ListOrdered className="h-4 w-4" /> Ver ranking
-        </Link>
+      <div className="mx-auto max-w-5xl px-4 pt-4 flex items-center justify-between gap-3 flex-wrap print:hidden">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link to="/bolao/$slug/ranking" params={{ slug: bolao.slug }} className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-gold/30 bg-card text-sm font-semibold text-gold hover:border-gold/60 transition-colors">
+            <ListOrdered className="h-4 w-4" /> Ranking
+          </Link>
+          <button type="button" onClick={copyShare} className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-card text-sm font-semibold hover:border-gold/40 transition-colors" aria-label="Copiar link do bolão">
+            {shareCopied ? <Check className="h-4 w-4 text-pitch" /> : <LinkIcon className="h-4 w-4" />}
+            {shareCopied ? "Copiado!" : "Copiar link"}
+          </button>
+          <a href={shareWa} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-card text-sm font-semibold hover:border-gold/40 transition-colors">
+            <Share2 className="h-4 w-4" /> Compartilhar
+          </a>
+          <button type="button" onClick={() => window.print()} className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-card text-sm font-semibold hover:border-gold/40 transition-colors" aria-label="Baixar como PDF">
+            <Printer className="h-4 w-4" /> PDF
+          </button>
+        </div>
         <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
           <Users className="h-3.5 w-3.5 text-gold" />
           <span><strong className="text-foreground">{totalPalpites}</strong> palpites registrados</span>
         </div>
       </div>
 
+      {/* Prêmio estimado + ranking ao vivo */}
+      <section className="mx-auto max-w-5xl px-4 pt-6 grid gap-4 md:grid-cols-2">
+        <div className="rounded-2xl border border-gold/30 bg-gradient-card p-5 card-elevated">
+          <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gold">
+            <Coins className="h-3.5 w-3.5" /> Prêmio estimado
+          </div>
+          <div className="mt-2 font-display text-3xl sm:text-4xl font-black text-gradient-samba">{brl(premioEstimado)}</div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            Arrecadação atual: <strong className="text-foreground">{brl(arrecadado)}</strong> · {totalPalpites} palpite(s) · 90% para premiação
+          </div>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-5 card-elevated">
+          <div className="flex items-center justify-between mb-3">
+            <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gold">
+              <Medal className="h-3.5 w-3.5" /> Ranking ao vivo
+            </div>
+            <Link to="/bolao/$slug/ranking" params={{ slug: bolao.slug }} className="text-[11px] font-semibold text-gold hover:underline">Ver tudo →</Link>
+          </div>
+          {bolao.permitir_ranking_publico === false ? (
+            <p className="text-xs text-muted-foreground">Ranking não disponível publicamente.</p>
+          ) : ranking.isLoading ? (
+            <p className="text-xs text-muted-foreground inline-flex items-center gap-2"><Loader2 className="h-3 w-3 animate-spin" /> Calculando…</p>
+          ) : (ranking.data ?? []).length === 0 ? (
+            <p className="text-xs text-muted-foreground">Sem pontuações ainda. Seja o primeiro a acertar!</p>
+          ) : (
+            <ol className="space-y-1.5">
+              {(ranking.data ?? []).slice(0, 5).map((r, i) => (
+                <li key={r.torcedor_id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="inline-flex items-center gap-2 min-w-0">
+                    <span className={`h-6 w-6 rounded-full grid place-items-center text-[10px] font-black ${i === 0 ? "bg-gradient-gold text-gold-foreground" : "bg-muted text-foreground"}`}>{i + 1}</span>
+                    <span className="truncate">{r.nome}</span>
+                  </span>
+                  <span className="font-black tabular-nums text-gold">{r.pontos} pts</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      </section>
+
       {featured && (
-        <section className="mx-auto max-w-5xl px-4 pt-6">
+        <section className="mx-auto max-w-5xl px-4 pt-6 print:hidden">
           <FeaturedMatchCard
             match={featured}
             home={teams.get(featured.home_team_id ?? "")}
