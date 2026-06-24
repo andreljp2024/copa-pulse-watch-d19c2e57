@@ -5,19 +5,48 @@ import { memo } from "react";
 
 export type TeamLite = { id?: string; name: string; code: string; flag_url?: string | null };
 
+const TEAM_NAME_PT: Record<string, string> = {
+  Brazil: "Brasil", Argentina: "Argentina", Uruguay: "Uruguai", Paraguay: "Paraguai",
+  Colombia: "Colômbia", Ecuador: "Equador", Peru: "Peru", Bolivia: "Bolívia",
+  Chile: "Chile", Venezuela: "Venezuela",
+  Mexico: "México", "United States": "Estados Unidos", USA: "Estados Unidos",
+  Canada: "Canadá", "Costa Rica": "Costa Rica", Panama: "Panamá", Jamaica: "Jamaica",
+  Honduras: "Honduras",
+  England: "Inglaterra", France: "França", Germany: "Alemanha", Spain: "Espanha",
+  Portugal: "Portugal", Italy: "Itália", Netherlands: "Países Baixos", Holland: "Países Baixos",
+  Belgium: "Bélgica", Croatia: "Croácia", Switzerland: "Suíça", Denmark: "Dinamarca",
+  Sweden: "Suécia", Norway: "Noruega", Poland: "Polônia", Austria: "Áustria",
+  Serbia: "Sérvia", Türkiye: "Turquia", Turkey: "Turquia", "Czech Republic": "Tchéquia", Czechia: "Tchéquia",
+  Scotland: "Escócia", Wales: "País de Gales", Ireland: "Irlanda", Hungary: "Hungria",
+  Greece: "Grécia", Romania: "Romênia", Ukraine: "Ucrânia", Russia: "Rússia",
+  Morocco: "Marrocos", Senegal: "Senegal", Tunisia: "Tunísia", Algeria: "Argélia",
+  Egypt: "Egito", Nigeria: "Nigéria", Cameroon: "Camarões", Ghana: "Gana",
+  "Ivory Coast": "Costa do Marfim", "Côte d'Ivoire": "Costa do Marfim", "South Africa": "África do Sul",
+  Japan: "Japão", "South Korea": "Coreia do Sul", "Korea Republic": "Coreia do Sul",
+  Australia: "Austrália", "Saudi Arabia": "Arábia Saudita", Iran: "Irã", Qatar: "Catar",
+  "United Arab Emirates": "Emirados Árabes Unidos", Iraq: "Iraque", "New Zealand": "Nova Zelândia",
+};
+
+export function ptTeamName(name?: string | null) {
+  if (!name) return "";
+  return TEAM_NAME_PT[name] ?? name;
+}
+
 export function TeamBadge({ team, size = "md", className = "" }: { team: TeamLite; size?: "sm" | "md" | "lg"; className?: string }) {
   const sz = size === "lg" ? "h-10 w-14" : size === "sm" ? "h-5 w-7" : "h-7 w-10";
+  const displayName = ptTeamName(team.name);
   return (
     <div className={`flex items-center gap-2 min-w-0 ${className}`}>
       {team.flag_url ? (
-        <img src={team.flag_url} alt={team.name} className={`${sz} object-cover rounded-sm shrink-0 ring-1 ring-border`} loading="lazy" />
+        <img src={team.flag_url} alt={displayName} className={`${sz} object-cover rounded-sm shrink-0 ring-1 ring-border`} loading="lazy" />
       ) : (
         <div className={`${sz} rounded-sm bg-muted grid place-items-center text-[10px] font-bold shrink-0`}>{team.code}</div>
       )}
-      <span className="truncate font-semibold">{team.name}</span>
+      <span className="truncate font-semibold">{displayName}</span>
     </div>
   );
 }
+
 
 type MatchLike = {
   id: string;

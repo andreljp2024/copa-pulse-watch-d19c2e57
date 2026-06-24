@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
-import { TeamBadge, MatchCard } from "@/components/MatchCard";
+import { TeamBadge, MatchCard, ptTeamName } from "@/components/MatchCard";
 import { getTeam } from "@/lib/copa.functions";
 
 const opts = (id: string) => queryOptions({ queryKey: ["team", id], queryFn: () => getTeam({ data: { id } }) });
@@ -37,10 +37,10 @@ function Page() {
     <AppShell>
       <div className="bg-hero text-primary-foreground">
         <div className="mx-auto max-w-7xl px-4 py-10 flex flex-wrap items-center gap-6">
-          {t.flag_url && <img src={t.flag_url} alt={t.name} className="h-20 w-28 object-cover rounded-md ring-2 ring-white/30" />}
+          {t.flag_url && <img src={t.flag_url} alt={ptTeamName(t.name)} className="h-20 w-28 object-cover rounded-md ring-2 ring-white/30" />}
           <div className="min-w-0">
             <div className="text-sm font-semibold text-primary-foreground/80">{(t.confederation && CONFED_PT[t.confederation]) || t.confederation || ""}{t.group?.name ? ` • Grupo ${t.group.name}` : ""}</div>
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight">{t.name}</h1>
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight">{ptTeamName(t.name)}</h1>
             <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-primary-foreground/85">
               <span>Técnico: <span className="font-semibold text-primary-foreground">{t.coach_name ?? "—"}</span></span>
               <span>Ranking FIFA: <span className="font-semibold text-primary-foreground">{t.fifa_rank ?? "—"}</span></span>
