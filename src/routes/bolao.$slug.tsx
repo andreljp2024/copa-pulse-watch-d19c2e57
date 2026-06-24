@@ -5,6 +5,7 @@ import { QRCodeSVG } from "qrcode.react";
 import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
+import { maskPhone } from "@/lib/masks";
 import { buildPixPayload } from "@/lib/pix";
 import { ptTeamName } from "@/components/MatchCard";
 import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered, Clock, Users, Flame, Sparkles, MapPin } from "lucide-react";
@@ -328,7 +329,7 @@ function PublicBolao() {
                   {ptTeamName(teams.get(selected.home_team_id ?? "")?.name)} x {ptTeamName(teams.get(selected.away_team_id ?? "")?.name)}
                 </p>
                 <input required placeholder="Seu nome" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
-                <input required placeholder="WhatsApp (com DDD)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: onlyDigits(e.target.value) })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
+                <input required inputMode="tel" placeholder="(11) 99999-9999" value={maskPhone(form.whatsapp)} onChange={(e) => setForm({ ...form, whatsapp: onlyDigits(e.target.value).slice(0, 11) })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
                 <div className="flex items-end gap-3 justify-center">
                   <label className="flex flex-col items-center gap-1">
                     <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground max-w-[6rem] truncate">{ptTeamName(teams.get(selected.home_team_id ?? "")?.name)}</span>
