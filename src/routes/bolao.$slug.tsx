@@ -197,7 +197,6 @@ function PublicBolao() {
     });
   }, [matches, teams, query, statusFilter]);
 
-  const valorUnit = Number(bolao.valor_palpite) || 0;
   const valorTotal = items.length * valorUnit;
 
   function openModal(match: Match | null) {
