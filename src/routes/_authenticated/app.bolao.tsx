@@ -373,8 +373,8 @@ function BolaoConfigPage() {
 
           {/* DIVULGAÇÃO EM MASSA */}
           <Card
-            title="Convite com jogos da rodada"
-            desc="Selecione jogos e gere um texto pronto para WhatsApp com link e detalhes."
+            title="Jogos deste bolão"
+            desc="Marque os confrontos que farão parte deste link. O criativo público e a prévia do WhatsApp usam exatamente esses jogos. Lembre de Salvar."
             action={
               <div className="flex items-center gap-3">
                 {matches.length > 0 && (
