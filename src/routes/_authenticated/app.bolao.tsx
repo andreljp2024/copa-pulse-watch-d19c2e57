@@ -82,6 +82,10 @@ function BolaoConfigPage() {
           data_limite_palpite: b.data_limite_palpite ? b.data_limite_palpite.slice(0, 16) : "",
         };
         setForm(next); setInitialForm(next);
+        const { data: bm } = await supabase.from("bolao_matches").select("match_id").eq("bolao_id", b.id);
+        const ids = new Set<string>((bm ?? []).map((r: any) => r.match_id));
+        setSelectedMatchIds(ids);
+        setInitialSelectedIds(ids);
       }
       await loadMatches();
     })();
