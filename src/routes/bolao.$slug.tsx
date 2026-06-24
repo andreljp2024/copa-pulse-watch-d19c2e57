@@ -1,12 +1,14 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
 import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
 import { buildPixPayload } from "@/lib/pix";
-import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered } from "lucide-react";
+import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered, Clock, Users, Flame, Sparkles, MapPin } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 type Match = {
   id: string;
