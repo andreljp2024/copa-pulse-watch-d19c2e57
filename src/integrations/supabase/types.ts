@@ -614,6 +614,7 @@ export type Database = {
       palpites: {
         Row: {
           bolao_id: string
+          codigo: number
           comprovante_url: string | null
           created_at: string
           id: string
@@ -629,6 +630,7 @@ export type Database = {
         }
         Insert: {
           bolao_id: string
+          codigo?: number
           comprovante_url?: string | null
           created_at?: string
           id?: string
@@ -644,6 +646,7 @@ export type Database = {
         }
         Update: {
           bolao_id?: string
+          codigo?: number
           comprovante_url?: string | null
           created_at?: string
           id?: string
