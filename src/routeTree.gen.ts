@@ -33,6 +33,7 @@ import { Route as AuthenticatedAppWhatsappRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppTorcedoresRouteImport } from './routes/_authenticated/app.torcedores'
 import { Route as AuthenticatedAppPixRouteImport } from './routes/_authenticated/app.pix'
 import { Route as AuthenticatedAppPalpitesRouteImport } from './routes/_authenticated/app.palpites'
+import { Route as AuthenticatedAppGanhadoresRouteImport } from './routes/_authenticated/app.ganhadores'
 import { Route as AuthenticatedAppBolaoRouteImport } from './routes/_authenticated/app.bolao'
 import { Route as ApiPublicHooksSyncFootballRouteImport } from './routes/api/public/hooks/sync-football'
 
@@ -158,6 +159,12 @@ const AuthenticatedAppPalpitesRoute =
     path: '/palpites',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppGanhadoresRoute =
+  AuthenticatedAppGanhadoresRouteImport.update({
+    id: '/ganhadores',
+    path: '/ganhadores',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppBolaoRoute = AuthenticatedAppBolaoRouteImport.update({
   id: '/bolao',
   path: '/bolao',
@@ -189,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
   '/app/bolao': typeof AuthenticatedAppBolaoRoute
+  '/app/ganhadores': typeof AuthenticatedAppGanhadoresRoute
   '/app/palpites': typeof AuthenticatedAppPalpitesRoute
   '/app/pix': typeof AuthenticatedAppPixRoute
   '/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
@@ -215,6 +223,7 @@ export interface FileRoutesByTo {
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
   '/app/bolao': typeof AuthenticatedAppBolaoRoute
+  '/app/ganhadores': typeof AuthenticatedAppGanhadoresRoute
   '/app/palpites': typeof AuthenticatedAppPalpitesRoute
   '/app/pix': typeof AuthenticatedAppPixRoute
   '/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
@@ -244,6 +253,7 @@ export interface FileRoutesById {
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
   '/_authenticated/app/bolao': typeof AuthenticatedAppBolaoRoute
+  '/_authenticated/app/ganhadores': typeof AuthenticatedAppGanhadoresRoute
   '/_authenticated/app/palpites': typeof AuthenticatedAppPalpitesRoute
   '/_authenticated/app/pix': typeof AuthenticatedAppPixRoute
   '/_authenticated/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
@@ -273,6 +283,7 @@ export interface FileRouteTypes {
     | '/partidas/$id'
     | '/selecoes/$id'
     | '/app/bolao'
+    | '/app/ganhadores'
     | '/app/palpites'
     | '/app/pix'
     | '/app/torcedores'
@@ -299,6 +310,7 @@ export interface FileRouteTypes {
     | '/partidas/$id'
     | '/selecoes/$id'
     | '/app/bolao'
+    | '/app/ganhadores'
     | '/app/palpites'
     | '/app/pix'
     | '/app/torcedores'
@@ -327,6 +339,7 @@ export interface FileRouteTypes {
     | '/partidas/$id'
     | '/selecoes/$id'
     | '/_authenticated/app/bolao'
+    | '/_authenticated/app/ganhadores'
     | '/_authenticated/app/palpites'
     | '/_authenticated/app/pix'
     | '/_authenticated/app/torcedores'
@@ -524,6 +537,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppPalpitesRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/ganhadores': {
+      id: '/_authenticated/app/ganhadores'
+      path: '/ganhadores'
+      fullPath: '/app/ganhadores'
+      preLoaderRoute: typeof AuthenticatedAppGanhadoresRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/bolao': {
       id: '/_authenticated/app/bolao'
       path: '/bolao'
@@ -543,6 +563,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppBolaoRoute: typeof AuthenticatedAppBolaoRoute
+  AuthenticatedAppGanhadoresRoute: typeof AuthenticatedAppGanhadoresRoute
   AuthenticatedAppPalpitesRoute: typeof AuthenticatedAppPalpitesRoute
   AuthenticatedAppPixRoute: typeof AuthenticatedAppPixRoute
   AuthenticatedAppTorcedoresRoute: typeof AuthenticatedAppTorcedoresRoute
@@ -552,6 +573,7 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppBolaoRoute: AuthenticatedAppBolaoRoute,
+  AuthenticatedAppGanhadoresRoute: AuthenticatedAppGanhadoresRoute,
   AuthenticatedAppPalpitesRoute: AuthenticatedAppPalpitesRoute,
   AuthenticatedAppPixRoute: AuthenticatedAppPixRoute,
   AuthenticatedAppTorcedoresRoute: AuthenticatedAppTorcedoresRoute,
