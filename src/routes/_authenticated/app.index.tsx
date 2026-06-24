@@ -102,6 +102,8 @@ function Dashboard() {
     { label: "Palpites pagos", value: stats.pagos, icon: CheckCircle2 },
     { label: "Pendentes", value: stats.pendentes, icon: Clock },
     { label: "Arrecadado", value: brl(stats.arrecadado), icon: DollarSign },
+    { label: `Taxa admin (${stats.bolao?.percentual_admin ?? 30}%)`, value: brl(stats.taxa_admin), icon: DollarSign },
+    { label: "Prêmio aos torcedores", value: brl(stats.premio_torcedores), icon: Trophy },
     { label: "Ganhadores", value: stats.ganhadores, icon: Trophy },
   ];
 
