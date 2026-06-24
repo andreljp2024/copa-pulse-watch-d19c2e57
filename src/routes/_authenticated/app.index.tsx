@@ -17,7 +17,9 @@ type Stats = {
   pendentes: number;
   arrecadado: number;
   ganhadores: number;
-  bolao: { id: string; nome: string; slug: string; valor_palpite: number } | null;
+  taxa_admin: number;
+  premio_torcedores: number;
+  bolao: { id: string; nome: string; slug: string; valor_palpite: number; percentual_admin: number } | null;
   serie: { dia: string; total: number }[];
 };
 
@@ -49,7 +51,7 @@ function Dashboard() {
     if (!u.user) return;
     const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user.id).maybeSingle();
     if (!t) return;
-    const { data: bo } = await supabase.from("boloes").select("id, nome, slug, valor_palpite").eq("tenant_id", t.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
+    const { data: bo } = await supabase.from("boloes").select("id, nome, slug, valor_palpite, percentual_admin").eq("tenant_id", t.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
     const [tor, pal, gan, serieRows] = await Promise.all([
       supabase.from("torcedores").select("id", { count: "exact", head: true }).eq("tenant_id", t.id),
       supabase.from("palpites").select("status_pagamento, valor", { count: "exact" }).eq("tenant_id", t.id),
@@ -59,6 +61,9 @@ function Dashboard() {
     const palpites = pal.data ?? [];
     const pagos = palpites.filter((p) => p.status_pagamento === "pago").length;
     const arrecadado = palpites.filter((p) => p.status_pagamento === "pago").reduce((s, p) => s + Number(p.valor ?? 0), 0);
+    const pct = Number((bo as any)?.percentual_admin ?? 30);
+    const taxa_admin = arrecadado * (pct / 100);
+    const premio_torcedores = arrecadado - taxa_admin;
     const buckets = new Map<string, number>();
     for (let i = 13; i >= 0; i--) {
       const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
@@ -75,7 +80,9 @@ function Dashboard() {
       pendentes: (pal.count ?? 0) - pagos,
       arrecadado,
       ganhadores: gan.count ?? 0,
-      bolao: bo ? { id: bo.id, nome: bo.nome, slug: bo.slug, valor_palpite: Number(bo.valor_palpite) } : null,
+      taxa_admin,
+      premio_torcedores,
+      bolao: bo ? { id: bo.id, nome: bo.nome, slug: bo.slug, valor_palpite: Number(bo.valor_palpite), percentual_admin: pct } : null,
       serie: [...buckets.entries()].map(([dia, total]) => ({ dia, total })),
     });
   }
@@ -95,6 +102,8 @@ function Dashboard() {
     { label: "Palpites pagos", value: stats.pagos, icon: CheckCircle2 },
     { label: "Pendentes", value: stats.pendentes, icon: Clock },
     { label: "Arrecadado", value: brl(stats.arrecadado), icon: DollarSign },
+    { label: `Taxa admin (${stats.bolao?.percentual_admin ?? 30}%)`, value: brl(stats.taxa_admin), icon: DollarSign },
+    { label: "Prêmio aos torcedores", value: brl(stats.premio_torcedores), icon: Trophy },
     { label: "Ganhadores", value: stats.ganhadores, icon: Trophy },
   ];
 
