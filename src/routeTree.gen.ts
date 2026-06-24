@@ -22,6 +22,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SelecoesIdRouteImport } from './routes/selecoes.$id'
 import { Route as PartidasIdRouteImport } from './routes/partidas.$id'
+import { Route as MeusPalpitesSlugRouteImport } from './routes/meus-palpites.$slug'
 import { Route as BolaoSlugRouteImport } from './routes/bolao.$slug'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
@@ -97,6 +98,11 @@ const SelecoesIdRoute = SelecoesIdRouteImport.update({
 const PartidasIdRoute = PartidasIdRouteImport.update({
   id: '/partidas/$id',
   path: '/partidas/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeusPalpitesSlugRoute = MeusPalpitesSlugRouteImport.update({
+  id: '/meus-palpites/$slug',
+  path: '/meus-palpites/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BolaoSlugRoute = BolaoSlugRouteImport.update({
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/bolao/$slug': typeof BolaoSlugRouteWithChildren
+  '/meus-palpites/$slug': typeof MeusPalpitesSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
   '/app/bolao': typeof AuthenticatedAppBolaoRoute
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/bolao/$slug': typeof BolaoSlugRouteWithChildren
+  '/meus-palpites/$slug': typeof MeusPalpitesSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
   '/app/bolao': typeof AuthenticatedAppBolaoRoute
@@ -232,6 +240,7 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/bolao/$slug': typeof BolaoSlugRouteWithChildren
+  '/meus-palpites/$slug': typeof MeusPalpitesSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
   '/_authenticated/app/bolao': typeof AuthenticatedAppBolaoRoute
@@ -260,6 +269,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/onboarding'
     | '/bolao/$slug'
+    | '/meus-palpites/$slug'
     | '/partidas/$id'
     | '/selecoes/$id'
     | '/app/bolao'
@@ -285,6 +295,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/onboarding'
     | '/bolao/$slug'
+    | '/meus-palpites/$slug'
     | '/partidas/$id'
     | '/selecoes/$id'
     | '/app/bolao'
@@ -312,6 +323,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/_authenticated/onboarding'
     | '/bolao/$slug'
+    | '/meus-palpites/$slug'
     | '/partidas/$id'
     | '/selecoes/$id'
     | '/_authenticated/app/bolao'
@@ -337,6 +349,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SelecoesRoute: typeof SelecoesRouteWithChildren
   BolaoSlugRoute: typeof BolaoSlugRouteWithChildren
+  MeusPalpitesSlugRoute: typeof MeusPalpitesSlugRoute
   PartidasIdRoute: typeof PartidasIdRoute
   ApiPublicHooksSyncFootballRoute: typeof ApiPublicHooksSyncFootballRoute
 }
@@ -432,6 +445,13 @@ declare module '@tanstack/react-router' {
       path: '/partidas/$id'
       fullPath: '/partidas/$id'
       preLoaderRoute: typeof PartidasIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meus-palpites/$slug': {
+      id: '/meus-palpites/$slug'
+      path: '/meus-palpites/$slug'
+      fullPath: '/meus-palpites/$slug'
+      preLoaderRoute: typeof MeusPalpitesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bolao/$slug': {
@@ -594,6 +614,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SelecoesRoute: SelecoesRouteWithChildren,
   BolaoSlugRoute: BolaoSlugRouteWithChildren,
+  MeusPalpitesSlugRoute: MeusPalpitesSlugRoute,
   PartidasIdRoute: PartidasIdRoute,
   ApiPublicHooksSyncFootballRoute: ApiPublicHooksSyncFootballRoute,
 }

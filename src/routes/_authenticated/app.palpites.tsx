@@ -19,7 +19,7 @@ type Row = {
   created_at: string;
   torcedores: { nome: string; whatsapp: string } | null;
   matches: { home_team_id: string | null; away_team_id: string | null; kickoff_at: string | null } | null;
-  boloes: { nome: string } | null;
+  boloes: { nome: string; slug: string } | null;
 };
 
 function fmtProtocolo(c: number | null) {
