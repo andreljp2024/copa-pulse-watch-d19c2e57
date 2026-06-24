@@ -191,7 +191,7 @@ function BolaoConfigPage() {
             <RefreshCw className={`h-3 w-3 ${loadingGames ? "animate-spin" : ""}`} /> Atualizar
           </button>
         </div>
-        <p className="text-xs text-muted-foreground">Tabela oficial sincronizada pela API. Os torcedores podem palpitar em qualquer jogo aberto na <Link to="/bolao/$slug" params={{ slug: form.slug || "_" }} className="text-pitch font-semibold hover:underline">página pública</Link>.</p>
+        <p className="text-xs text-muted-foreground">Apenas jogos agendados (ainda não iniciados) são listados. Não é possível criar palpites em jogos já encerrados. Os torcedores palpitam na <Link to="/bolao/$slug" params={{ slug: form.slug || "_" }} className="text-pitch font-semibold hover:underline">página pública</Link>.</p>
         {loadingGames ? (
           <div className="py-6 text-center text-sm text-muted-foreground"><Loader2 className="inline h-4 w-4 animate-spin" /></div>
         ) : matchesByDate.length === 0 ? (
