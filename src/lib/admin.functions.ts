@@ -19,22 +19,10 @@ export const isAdmin = createServerFn({ method: "GET" })
     return { isAdmin: !!data };
   });
 
-export const claimFirstAdmin = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const sb = await admin();
-    // Já é admin? idempotente.
-    const { data: already } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-    if (already) return { ok: true, alreadyAdmin: true as const };
+// claimFirstAdmin removed: bootstrap admin is hard-coded via migration.
+// Any need to grant admin must go through a privileged path (DB migration
+// or an existing admin promoting another user) — never self-claim from the UI.
 
-    const { count } = await sb.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "admin");
-    if ((count ?? 0) > 0) {
-      return { ok: false as const, message: "Já existe um administrador. Peça promoção a um administrador existente." };
-    }
-    const { error } = await sb.from("user_roles").insert({ user_id: context.userId, role: "admin" });
-    if (error) return { ok: false as const, message: "Não foi possível conceder acesso de administrador." };
-    return { ok: true as const, alreadyAdmin: false };
-  });
 
 const matchSchema = z.object({
   id: z.string().uuid().optional(),
