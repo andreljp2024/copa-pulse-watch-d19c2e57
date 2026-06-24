@@ -101,9 +101,24 @@ function BolaoConfigPage() {
       data_limite_palpite: form.data_limite_palpite ? new Date(form.data_limite_palpite).toISOString() : null,
     };
     const { error } = await supabase.from("boloes").update(payload).eq("id", bolaoId);
+    if (error) { setSaving(false); setMsg({ kind: "err", text: error.message }); return; }
+
+    // Persistir jogos vinculados ao bolão
+    const toRemove = [...initialSelectedIds].filter((id) => !selectedMatchIds.has(id));
+    const toAdd = [...selectedMatchIds].filter((id) => !initialSelectedIds.has(id));
+    if (toRemove.length) {
+      const { error: delErr } = await supabase.from("bolao_matches").delete().eq("bolao_id", bolaoId).in("match_id", toRemove);
+      if (delErr) { setSaving(false); setMsg({ kind: "err", text: delErr.message }); return; }
+    }
+    if (toAdd.length) {
+      const { error: insErr } = await supabase.from("bolao_matches").insert(toAdd.map((match_id) => ({ bolao_id: bolaoId, match_id })));
+      if (insErr) { setSaving(false); setMsg({ kind: "err", text: insErr.message }); return; }
+    }
     setSaving(false);
-    if (error) setMsg({ kind: "err", text: error.message });
-    else { setMsg({ kind: "ok", text: "Alterações salvas." }); setInitialForm(form); setTimeout(() => setMsg(null), 2500); }
+    setMsg({ kind: "ok", text: "Alterações salvas." });
+    setInitialForm(form);
+    setInitialSelectedIds(new Set(selectedMatchIds));
+    setTimeout(() => setMsg(null), 2500);
   }
 
   async function copyShare() {
