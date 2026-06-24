@@ -63,7 +63,7 @@ function AppLayout() {
       {/* Sidebar (desktop) */}
       <aside className="w-64 hidden md:flex flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground sticky top-0 h-screen">
         <BrandLink />
-        <SidebarNav />
+        <SidebarNav items={nav} />
         <SidebarFooter onLogout={logout} />
       </aside>
 
@@ -73,7 +73,7 @@ function AppLayout() {
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
           <aside className="relative w-72 max-w-[85%] h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col">
             <BrandLink onClick={() => setMobileOpen(false)} />
-            <SidebarNav />
+            <SidebarNav items={nav} />
             <SidebarFooter onLogout={logout} />
           </aside>
         </div>
