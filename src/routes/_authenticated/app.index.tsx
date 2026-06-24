@@ -17,7 +17,9 @@ type Stats = {
   pendentes: number;
   arrecadado: number;
   ganhadores: number;
-  bolao: { id: string; nome: string; slug: string; valor_palpite: number } | null;
+  taxa_admin: number;
+  premio_torcedores: number;
+  bolao: { id: string; nome: string; slug: string; valor_palpite: number; percentual_admin: number } | null;
   serie: { dia: string; total: number }[];
 };
 
