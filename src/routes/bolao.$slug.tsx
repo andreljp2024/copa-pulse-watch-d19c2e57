@@ -109,12 +109,20 @@ export const Route = createFileRoute("/bolao/$slug")({
 function PublicBolao() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(bolaoPublicOpts(slug));
-  const { bolao, matches, teams, pix, wa } = data;
+  const { bolao, matches, teams, pix, wa, totalPalpites } = data;
   const [selected, setSelected] = useState<Match | null>(null);
   const [form, setForm] = useState({ nome: "", whatsapp: "", palpite_a: 0, palpite_b: 0 });
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ link: string; protocolo: string } | null>(null);
 
+  const featured = useMemo(() => {
+    const now = Date.now();
+    return (
+      matches.find((m) => m.status !== "finished" && m.kickoff_at && new Date(m.kickoff_at).getTime() > now) ??
+      matches.find((m) => m.status !== "finished") ??
+      null
+    );
+  }, [matches]);
 
   const palpiteAberto = useMemo(() => {
     if (!bolao.data_limite_palpite) return true;
