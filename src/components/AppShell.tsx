@@ -51,7 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-pitch text-primary-foreground">
               <Trophy className="h-5 w-5" />
             </div>
-            <span className="text-lg font-black tracking-tight">CopaHub</span>
+            <span className="text-lg font-black tracking-tight">BolaoAI</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 ml-4">
             {nav.map((n) => (
@@ -108,7 +108,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="flex-1">{children}</main>
       <footer className="border-t border-border mt-12">
         <div className="mx-auto max-w-7xl px-4 py-6 text-sm text-muted-foreground flex flex-wrap items-center justify-between gap-2">
-          <span>© CopaHub — Acompanhe a Copa do Mundo em tempo real.</span>
+          <span>© BolaoAI — Acompanhe a Copa do Mundo em tempo real.</span>
           <span className="text-xs">Estrutura pronta para integração com API externa.</span>
         </div>
       </footer>

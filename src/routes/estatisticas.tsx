@@ -7,7 +7,7 @@ import { listTopScorers } from "@/lib/copa.functions";
 const opts = queryOptions({ queryKey: ["scorers"], queryFn: () => listTopScorers() });
 
 export const Route = createFileRoute("/estatisticas")({
-  head: () => ({ meta: [{ title: "Estatísticas — CopaHub" }, { name: "description", content: "Artilharia e estatísticas da Copa do Mundo." }] }),
+  head: () => ({ meta: [{ title: "Estatísticas — BolaoAI" }, { name: "description", content: "Artilharia e estatísticas da Copa do Mundo." }] }),
   loader: ({ context }) => { context.queryClient.ensureQueryData(opts); },
   component: Page,
 });
