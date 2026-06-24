@@ -217,13 +217,28 @@ function PublicBolao() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-5xl px-4 pt-4">
+      <div className="mx-auto max-w-5xl px-4 pt-4 flex items-center justify-between gap-3 flex-wrap">
         <Link to="/bolao/$slug/ranking" params={{ slug: bolao.slug }} className="inline-flex items-center gap-2 text-sm font-semibold text-gold hover:underline">
           <ListOrdered className="h-4 w-4" /> Ver ranking
         </Link>
+        <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+          <Users className="h-3.5 w-3.5 text-gold" />
+          <span><strong className="text-foreground">{totalPalpites}</strong> palpites registrados</span>
+        </div>
       </div>
 
-
+      {featured && (
+        <section className="mx-auto max-w-5xl px-4 pt-6">
+          <FeaturedMatchCard
+            match={featured}
+            home={teams.get(featured.home_team_id ?? "")}
+            away={teams.get(featured.away_team_id ?? "")}
+            valor={Number(bolao.valor_palpite)}
+            palpiteAberto={palpiteAberto}
+            onPalpitar={() => { setSelected(featured); setForm({ nome: "", whatsapp: "", palpite_a: 0, palpite_b: 0 }); setDone(null); }}
+          />
+        </section>
+      )}
 
       <main className="mx-auto max-w-5xl px-4 py-8 space-y-8">
         {bolao.regras && (
