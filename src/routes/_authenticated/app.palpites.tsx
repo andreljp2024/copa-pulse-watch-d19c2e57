@@ -235,12 +235,53 @@ function PalpitesPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-black">Palpites</h1>
-        <button onClick={exportCsv} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold">
-          <Download className="h-4 w-4" /> Exportar CSV
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button onClick={() => setShowFilters((v) => !v)} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold">
+            <Filter className="h-4 w-4" /> Filtros
+          </button>
+          <button onClick={exportCsv} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold">
+            <Download className="h-4 w-4" /> CSV
+          </button>
+          <button onClick={exportPdf} className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-pitch px-3 text-sm font-semibold text-primary-foreground">
+            <FileText className="h-4 w-4" /> Relatório PDF
+          </button>
+        </div>
       </div>
+
+      {showFilters && (
+        <div className="rounded-2xl border border-border bg-card p-4 grid gap-3 sm:grid-cols-5">
+          <label className="text-xs font-semibold flex flex-col gap-1">Status
+            <select value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })} className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal">
+              <option value="todos">Todos</option>
+              <option value="pendente">Pendente</option>
+              <option value="pago">Pago</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </label>
+          <label className="text-xs font-semibold flex flex-col gap-1">Bolão
+            <select value={filters.bolaoSlug} onChange={(e) => setFilters({ ...filters, bolaoSlug: e.target.value })} className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal">
+              <option value="todos">Todos</option>
+              {boloesUnicos.map((b) => <option key={b.slug} value={b.slug}>{b.nome}</option>)}
+            </select>
+          </label>
+          <label className="text-xs font-semibold flex flex-col gap-1">De
+            <input type="date" value={filters.dataDe} onChange={(e) => setFilters({ ...filters, dataDe: e.target.value })} className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal" />
+          </label>
+          <label className="text-xs font-semibold flex flex-col gap-1">Até
+            <input type="date" value={filters.dataAte} onChange={(e) => setFilters({ ...filters, dataAte: e.target.value })} className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal" />
+          </label>
+          <label className="text-xs font-semibold flex flex-col gap-1">Buscar
+            <input type="text" placeholder="Nome, WhatsApp ou protocolo" value={filters.search} onChange={(e) => setFilters({ ...filters, search: e.target.value })} className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal" />
+          </label>
+          <div className="sm:col-span-5 flex items-center justify-between text-xs text-muted-foreground">
+            <span>{filtered.length} de {rows.length} palpites · Arrecadado (pagos): <strong className="text-foreground">{brl(totals.arrecadado)}</strong></span>
+            <button onClick={() => setFilters({ status: "todos", bolaoSlug: "todos", search: "", dataDe: "", dataAte: "" })} className="font-semibold hover:underline">Limpar filtros</button>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <p className="text-sm text-muted-foreground">Carregando…</p>
       ) : rows.length === 0 ? (
@@ -260,7 +301,7 @@ function PalpitesPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
+              {filtered.map((r) => (
                 <tr key={r.id} className="border-t border-border">
                   <td className="px-4 py-2 font-mono text-xs font-bold">{fmtProtocolo(r.codigo)}</td>
                   <td className="px-4 py-2">
