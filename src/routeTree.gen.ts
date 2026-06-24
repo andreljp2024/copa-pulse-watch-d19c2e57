@@ -33,6 +33,7 @@ import { Route as AuthenticatedAppTorcedoresRouteImport } from './routes/_authen
 import { Route as AuthenticatedAppPixRouteImport } from './routes/_authenticated/app.pix'
 import { Route as AuthenticatedAppPalpitesRouteImport } from './routes/_authenticated/app.palpites'
 import { Route as AuthenticatedAppBolaoRouteImport } from './routes/_authenticated/app.bolao'
+import { Route as ApiPublicHooksSyncFootballRouteImport } from './routes/api/public/hooks/sync-football'
 
 const SelecoesRoute = SelecoesRouteImport.update({
   id: '/selecoes',
@@ -156,6 +157,12 @@ const AuthenticatedAppBolaoRoute = AuthenticatedAppBolaoRouteImport.update({
   path: '/bolao',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const ApiPublicHooksSyncFootballRoute =
+  ApiPublicHooksSyncFootballRouteImport.update({
+    id: '/api/public/hooks/sync-football',
+    path: '/api/public/hooks/sync-football',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -181,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
   '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/api/public/hooks/sync-football': typeof ApiPublicHooksSyncFootballRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -205,6 +213,7 @@ export interface FileRoutesByTo {
   '/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
   '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/api/public/hooks/sync-football': typeof ApiPublicHooksSyncFootballRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -232,6 +241,7 @@ export interface FileRoutesById {
   '/_authenticated/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
   '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/api/public/hooks/sync-football': typeof ApiPublicHooksSyncFootballRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/app/whatsapp'
     | '/bolao/$slug/ranking'
     | '/app/'
+    | '/api/public/hooks/sync-football'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/app/whatsapp'
     | '/bolao/$slug/ranking'
     | '/app'
+    | '/api/public/hooks/sync-football'
   id:
     | '__root__'
     | '/'
@@ -309,6 +321,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/whatsapp'
     | '/bolao/$slug/ranking'
     | '/_authenticated/app/'
+    | '/api/public/hooks/sync-football'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -325,6 +338,7 @@ export interface RootRouteChildren {
   SelecoesRoute: typeof SelecoesRouteWithChildren
   BolaoSlugRoute: typeof BolaoSlugRouteWithChildren
   PartidasIdRoute: typeof PartidasIdRoute
+  ApiPublicHooksSyncFootballRoute: typeof ApiPublicHooksSyncFootballRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -497,6 +511,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBolaoRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/api/public/hooks/sync-football': {
+      id: '/api/public/hooks/sync-football'
+      path: '/api/public/hooks/sync-football'
+      fullPath: '/api/public/hooks/sync-football'
+      preLoaderRoute: typeof ApiPublicHooksSyncFootballRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -574,6 +595,7 @@ const rootRouteChildren: RootRouteChildren = {
   SelecoesRoute: SelecoesRouteWithChildren,
   BolaoSlugRoute: BolaoSlugRouteWithChildren,
   PartidasIdRoute: PartidasIdRoute,
+  ApiPublicHooksSyncFootballRoute: ApiPublicHooksSyncFootballRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
