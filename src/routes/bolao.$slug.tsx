@@ -390,10 +390,30 @@ function PublicBolao() {
                 <h3 className="font-display text-2xl font-black uppercase">Seu palpite</h3>
                 <p className="text-sm text-muted-foreground">Comece com seus dados. Em seguida você escolhe quantos palpites quer fazer.</p>
                 <input required placeholder="Seu nome" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
-                <input required inputMode="tel" placeholder="(11) 99999-9999" value={maskPhone(form.whatsapp)} onChange={(e) => setForm({ ...form, whatsapp: onlyDigits(e.target.value).slice(0, 11) })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
-                <button className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.02]">
+                <div>
+                  <input
+                    required
+                    inputMode="tel"
+                    placeholder="(11) 99999-9999"
+                    value={maskPhone(form.whatsapp)}
+                    onChange={(e) => setForm({ ...form, whatsapp: onlyDigits(e.target.value).slice(0, 11) })}
+                    aria-invalid={form.whatsapp.length > 0 && !isValidWhatsAppBR(form.whatsapp)}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold aria-[invalid=true]:border-destructive"
+                  />
+                  {form.whatsapp.length > 0 && !isValidWhatsAppBR(form.whatsapp) && (
+                    <p className="mt-1 text-xs text-destructive">WhatsApp inválido — use DDD + 9 + número.</p>
+                  )}
+                  {isValidWhatsAppBR(form.whatsapp) && (
+                    <p className="mt-1 text-xs text-primary">✓ WhatsApp válido</p>
+                  )}
+                </div>
+                <button
+                  disabled={!isValidWhatsAppBR(form.whatsapp) || !form.nome.trim()}
+                  className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                >
                   Continuar →
                 </button>
+
                 <button type="button" onClick={() => setSelected(null)} className="block w-full text-sm text-muted-foreground hover:underline">Cancelar</button>
               </form>
             ) : (
