@@ -273,11 +273,11 @@ function Input(p: { label: string; value: string; onChange: (v: string) => void;
     </label>
   );
 }
-function Textarea(p: { label: string; value: string; onChange: (v: string) => void; rows?: number }) {
+function Textarea(p: { label: string; value: string; onChange: (v: string) => void; rows?: number; placeholder?: string }) {
   return (
     <label className="block">
       <span className="text-sm font-medium">{p.label}</span>
-      <textarea rows={p.rows ?? 3} value={p.value} onChange={(e) => p.onChange(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pitch/40" />
+      <textarea rows={p.rows ?? 3} value={p.value} placeholder={p.placeholder} onChange={(e) => p.onChange(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pitch/40" />
     </label>
   );
 }
