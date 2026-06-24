@@ -135,6 +135,67 @@ bun run dev          # Vite em http://localhost:8080
 
 ---
 
+## 6.1. Deploy no Coolify (Docker self-hosted)
+
+[Coolify](https://coolify.io) é uma alternativa open-source ao Vercel/Heroku que
+roda na sua própria VPS. O repositório já inclui um `Dockerfile` e um
+`.dockerignore` prontos — Coolify só precisa apontar para o repositório do
+GitHub.
+
+### Passo a passo
+
+1. **Conecte o GitHub ao Coolify** (Sources → GitHub App) e selecione o repo
+   do projeto.
+2. Em **Projects → + New Resource → Application**, escolha o repositório e o
+   branch (`main` em geral).
+3. Em **Build Pack**, selecione **Dockerfile** (o Coolify detecta o arquivo
+   na raiz automaticamente).
+4. **Porta exposta**: `3000` (já configurada no `Dockerfile`).
+5. **Build Variables** (necessárias no momento do build, pois são bakadas no
+   bundle do client):
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_PUBLISHABLE_KEY`
+   - `VITE_SUPABASE_PROJECT_ID`
+6. **Environment Variables** (runtime — usadas pelas server functions):
+   - `SUPABASE_URL`
+   - `SUPABASE_PUBLISHABLE_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY` *(marque como secret)*
+   - `FOOTBALL_API_KEY` *(secret)*
+   - `LOVABLE_API_KEY` *(secret, se usar Lovable AI Gateway)*
+7. **Healthcheck** (opcional, recomendado): `GET /` na porta `3000`.
+8. Clique em **Deploy**. Em pushes futuros para `main`, o Coolify faz redeploy
+   automático via webhook.
+
+### Como o Dockerfile funciona
+
+| Stage     | Imagem            | O que faz                                                                     |
+| --------- | ----------------- | ----------------------------------------------------------------------------- |
+| `deps`    | `oven/bun:1.1`    | `bun install` com cache de camada                                             |
+| `build`   | `oven/bun:1.1`    | Roda `bun run build` com `NITRO_PRESET=node-server` e VITE_* injetadas        |
+| `runtime` | `node:20-alpine`  | Executa `node .output/server/index.mjs` na porta `3000`                       |
+
+> O preset padrão do Nitro neste template é `cloudflare`. O Dockerfile força
+> `NITRO_PRESET=node-server` no build para gerar um servidor Node compatível
+> com Docker/Coolify/VPS.
+
+### Domínio e SSL no Coolify
+
+1. Em **Application → Domains**, adicione `meubolao.com.br`.
+2. Aponte o DNS (`A` ou `CNAME`) para o IP do servidor Coolify.
+3. Ative **Generate SSL Certificate** (Let's Encrypt automático).
+
+### Troubleshooting Coolify
+
+| Sintoma                                       | Causa                                          | Ação                                                                |
+| --------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------- |
+| `VITE_SUPABASE_URL is undefined` no client    | Var. setada como runtime, não build            | Mova para **Build Variables** e refaça o deploy                     |
+| `Cannot find module '.output/server/...'`     | Preset Nitro errado                            | Confirme `NITRO_PRESET=node-server` no Dockerfile                   |
+| `EADDRINUSE` / app não responde               | Outra app na porta 3000                        | Mude `PORT` env + porta exposta no Coolify                          |
+| 502 após deploy                               | Healthcheck falhando antes da app subir        | Aumente o grace period em **Advanced → Healthcheck**                |
+
+---
+
+
 ## 7. Domínio personalizado
 
 1. **Project Settings → Domains → Connect Domain**.
