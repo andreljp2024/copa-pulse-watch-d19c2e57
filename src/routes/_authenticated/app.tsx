@@ -1,9 +1,12 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { isSuperAdmin } from "@/lib/gestores.functions";
 import {
   LayoutDashboard, CreditCard, MessageCircle, Users, ListChecks, Settings,
-  ExternalLink, LogOut, Trophy, Menu, X,
+  ExternalLink, LogOut, Trophy, Menu, X, Shield,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -11,12 +14,14 @@ export const Route = createFileRoute("/_authenticated/app")({
   component: AppLayout,
 });
 
-const nav: {
-  to: "/app" | "/app/bolao" | "/app/pix" | "/app/whatsapp" | "/app/torcedores" | "/app/palpites" | "/app/ganhadores";
+type NavItem = {
+  to: "/app" | "/app/bolao" | "/app/pix" | "/app/whatsapp" | "/app/torcedores" | "/app/palpites" | "/app/ganhadores" | "/app/gestores";
   label: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
-}[] = [
+};
+
+const baseNav: NavItem[] = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/app/bolao", label: "Meu bolão", icon: Settings },
   { to: "/app/pix", label: "Pix", icon: CreditCard },
@@ -30,6 +35,11 @@ function AppLayout() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const checkSuper = useServerFn(isSuperAdmin);
+  const { data: superCheck } = useQuery({ queryKey: ["isSuperAdmin"], queryFn: () => checkSuper() });
+  const nav: NavItem[] = superCheck?.isSuperAdmin
+    ? [...baseNav, { to: "/app/gestores", label: "Gestores", icon: Shield }]
+    : baseNav;
   const currentLabel = nav.find((n) => (n.exact ? pathname === n.to : pathname.startsWith(n.to)))?.label ?? "Painel";
 
   useEffect(() => {
@@ -53,7 +63,7 @@ function AppLayout() {
       {/* Sidebar (desktop) */}
       <aside className="w-64 hidden md:flex flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground sticky top-0 h-screen">
         <BrandLink />
-        <SidebarNav />
+        <SidebarNav items={nav} />
         <SidebarFooter onLogout={logout} />
       </aside>
 
@@ -63,7 +73,7 @@ function AppLayout() {
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
           <aside className="relative w-72 max-w-[85%] h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col">
             <BrandLink onClick={() => setMobileOpen(false)} />
-            <SidebarNav />
+            <SidebarNav items={nav} />
             <SidebarFooter onLogout={logout} />
           </aside>
         </div>
@@ -115,11 +125,11 @@ function BrandLink({ onClick }: { onClick?: () => void }) {
   );
 }
 
-function SidebarNav() {
+function SidebarNav({ items }: { items: NavItem[] }) {
   return (
     <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
       <p className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-sidebar-foreground/50">Menu</p>
-      {nav.map(({ to, label, icon: Icon, exact }) => (
+      {items.map(({ to, label, icon: Icon, exact }) => (
         <Link
           key={to}
           to={to}
