@@ -50,7 +50,7 @@ function LandingPage() {
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-pitch shadow-glow">
               <Trophy className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="font-display text-xl tracking-wide">BolaoAI <span className="text-gold">SaaS</span></span>
+            <span className="font-display text-xl tracking-wide">Bolão AI <span className="text-gold">SaaS</span></span>
           </Link>
           <Link to={ctaTo} className="inline-flex h-10 items-center rounded-full bg-gradient-gold px-5 text-sm font-bold text-gold-foreground shadow-gold">
             Criar meu bolão
@@ -138,7 +138,7 @@ function LandingPage() {
       </section>
 
       <footer className="border-t border-border py-6 text-center text-sm text-muted-foreground">
-        © BolaoAI SaaS — Bolão Copa 2026.
+        © Bolão AI SaaS — Bolão Copa 2026.
       </footer>
     </div>
   );

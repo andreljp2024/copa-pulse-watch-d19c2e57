@@ -7,7 +7,7 @@ import { friendlyError } from "@/lib/errors";
 import { KeyRound } from "lucide-react";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({ meta: [{ title: "Redefinir senha — BolaoAI" }] }),
+  head: () => ({ meta: [{ title: "Redefinir senha — Bolão AI" }] }),
   component: Page,
 });
 

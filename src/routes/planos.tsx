@@ -9,9 +9,9 @@ const planosOpts = queryOptions({ queryKey: ["planos-publicos"], queryFn: () => 
 export const Route = createFileRoute("/planos")({
   head: () => ({
     meta: [
-      { title: "Planos — BolaoAI" },
+      { title: "Planos — Bolão AI" },
       { name: "description", content: "Escolha o plano ideal para o seu bolão da Copa 2026: Grátis, Intermediário ou Ilimitado." },
-      { property: "og:title", content: "Planos BolaoAI" },
+      { property: "og:title", content: "Planos Bolão AI" },
       { property: "og:description", content: "Planos a partir de R$ 0 — até 50 palpites grátis." },
     ],
   }),
@@ -34,7 +34,7 @@ function Planos() {
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background pointer-events-none" aria-hidden="true" />
         <div className="relative mx-auto max-w-7xl px-6 py-16 lg:py-24 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-gold">
-            <Trophy className="h-3.5 w-3.5" aria-hidden="true" /> Planos BolaoAI
+            <Trophy className="h-3.5 w-3.5" aria-hidden="true" /> Planos Bolão AI
           </div>
           <h1 className="mt-6 font-display text-5xl md:text-7xl uppercase leading-[0.95]">
             Escolha o plano <span className="text-gradient-gold">do seu bolão</span>
