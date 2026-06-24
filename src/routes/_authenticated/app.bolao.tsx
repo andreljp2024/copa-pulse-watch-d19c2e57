@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { slugify, publicBolaoUrl } from "@/lib/saas";
 import {
   Loader2, Save, Copy, Check, ExternalLink, Share2, Wand2, Calendar, RefreshCw,
-  Settings, Megaphone, Trophy, DollarSign, Clock, Eye,
+  Settings, Megaphone, Trophy, DollarSign, Clock, Eye, ChevronRight,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/bolao")({
@@ -23,7 +23,7 @@ const SUGESTAO_REGRAS = `• Valor do palpite: R$ 10 por jogo.
 
 type Match = { id: string; kickoff_at: string; status: string; home_team_id: string; away_team_id: string };
 type Team = { id: string; name: string; code: string; flag_url: string | null };
-type TabId = "config" | "divulgacao" | "jogos";
+type TabId = "config" | "divulgar";
 
 function BolaoConfigPage() {
   const [bolaoId, setBolaoId] = useState<string | null>(null);
@@ -93,7 +93,7 @@ function BolaoConfigPage() {
     const { error } = await supabase.from("boloes").update(payload).eq("id", bolaoId);
     setSaving(false);
     if (error) setMsg({ kind: "err", text: error.message });
-    else { setMsg({ kind: "ok", text: "Alterações salvas." }); setInitialForm(form); }
+    else { setMsg({ kind: "ok", text: "Alterações salvas." }); setInitialForm(form); setTimeout(() => setMsg(null), 2500); }
   }
 
   async function copyShare() {
@@ -153,18 +153,25 @@ function BolaoConfigPage() {
     window.open(`https://wa.me/?text=${encodeURIComponent(divulgacaoTexto)}`, "_blank");
   }
 
-  const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
-    { id: "config", label: "Configuração", icon: <Settings className="h-4 w-4" /> },
-    { id: "divulgacao", label: "Divulgação", icon: <Megaphone className="h-4 w-4" /> },
-    { id: "jogos", label: "Jogos & Divulgação em massa", icon: <Calendar className="h-4 w-4" /> },
+  // ---- Checklist de prontidão ----
+  const checks = [
+    { ok: !!form.nome, label: "Nome do bolão" },
+    { ok: !!form.slug, label: "Link público (slug)" },
+    { ok: !!form.regras, label: "Regras definidas" },
+    { ok: Number(form.valor_palpite) > 0, label: "Valor do palpite" },
+    { ok: !!form.data_limite_palpite, label: "Data limite" },
   ];
+  const checksOk = checks.filter((c) => c.ok).length;
+  const ready = checksOk === checks.length;
 
   return (
-    <div className="max-w-4xl space-y-6 pb-24">
+    <div className="max-w-5xl space-y-6 pb-32">
       {/* HEADER */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground"><Trophy className="h-3.5 w-3.5 text-pitch" /> Meu bolão</div>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <Trophy className="h-3.5 w-3.5 text-pitch" /> Meu bolão
+          </div>
           <h1 className="mt-1 text-3xl font-black leading-tight">{form.nome || "Sem nome ainda"}</h1>
           {shareUrl && (
             <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-pitch">
@@ -179,20 +186,52 @@ function BolaoConfigPage() {
         </div>
       </header>
 
-      {/* TABS */}
-      <nav className="flex gap-1 border-b border-border overflow-x-auto">
-        {tabs.map((t) => (
+      {/* CHECKLIST DE PRONTIDÃO */}
+      {!ready && (
+        <div className="rounded-2xl border border-pitch/30 bg-pitch/5 p-4">
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="flex items-center gap-2">
+              <div className="grid h-7 w-7 place-items-center rounded-full bg-pitch text-primary-foreground text-xs font-black">{checksOk}/{checks.length}</div>
+              <div>
+                <div className="text-sm font-bold">Termine de configurar para divulgar</div>
+                <div className="text-xs text-muted-foreground">Falta(m) {checks.length - checksOk} item(ns) abaixo.</div>
+              </div>
+            </div>
+            <button onClick={() => setTab("config")} className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-pitch hover:underline">
+              Ir para configuração <ChevronRight className="h-3 w-3" />
+            </button>
+          </div>
+          <ul className="grid gap-1 sm:grid-cols-2 text-xs">
+            {checks.map((c) => (
+              <li key={c.label} className={`flex items-center gap-2 ${c.ok ? "text-muted-foreground line-through" : "text-foreground"}`}>
+                <span className={`grid h-4 w-4 place-items-center rounded-full ${c.ok ? "bg-green-600 text-white" : "border border-border bg-background"}`}>
+                  {c.ok && <Check className="h-2.5 w-2.5" />}
+                </span>
+                {c.label}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* TABS — 2 only */}
+      <nav className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-muted/40 p-1">
+        {([
+          { id: "config" as TabId, label: "Configurar", icon: <Settings className="h-4 w-4" />, desc: "Identidade, regras e prazos" },
+          { id: "divulgar" as TabId, label: "Divulgar", icon: <Megaphone className="h-4 w-4" />, desc: "Link público e WhatsApp" },
+        ]).map((t) => (
           <button key={t.id} type="button" onClick={() => setTab(t.id)}
-            className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap ${tab === t.id ? "border-pitch text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
-            {t.icon} {t.label}
+            className={`flex flex-col items-start gap-0.5 rounded-lg px-4 py-2.5 text-left transition-all ${tab === t.id ? "bg-card shadow-sm ring-1 ring-border" : "hover:bg-card/50"}`}>
+            <span className={`inline-flex items-center gap-1.5 text-sm font-bold ${tab === t.id ? "text-foreground" : "text-muted-foreground"}`}>{t.icon} {t.label}</span>
+            <span className="text-[11px] text-muted-foreground hidden sm:block">{t.desc}</span>
           </button>
         ))}
       </nav>
 
-      {/* TAB: CONFIGURAÇÃO */}
+      {/* TAB: CONFIGURAR */}
       {tab === "config" && (
         <form onSubmit={save} className="space-y-5">
-          <Card title="Identidade" desc="Como o bolão aparece para os torcedores.">
+          <Card title="1. Identidade" desc="Como o bolão aparece para os torcedores.">
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Nome do bolão"><input required value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className={inputCss} placeholder="Ex.: Bolão da firma" /></Field>
               <Field label="Slug (link público)" hint={shareUrl ? `/${form.slug}` : "Aparece em /bolao/..."}>
@@ -202,7 +241,7 @@ function BolaoConfigPage() {
             <Field label="Descrição curta"><textarea rows={2} value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} className={inputCss} placeholder="Aparece no topo da página pública." /></Field>
           </Card>
 
-          <Card title="Regras" desc="Defina pontuação, premiação e condições. Texto livre.">
+          <Card title="2. Regras" desc="Defina pontuação, premiação e condições. Texto livre.">
             <div className="flex items-center justify-end -mt-2 mb-1">
               <button type="button" onClick={() => setForm({ ...form, regras: SUGESTAO_REGRAS })} className="inline-flex items-center gap-1 text-xs font-semibold text-pitch hover:underline">
                 <Wand2 className="h-3 w-3" /> Usar sugestão (editável)
@@ -211,7 +250,7 @@ function BolaoConfigPage() {
             <textarea rows={10} value={form.regras} onChange={(e) => setForm({ ...form, regras: e.target.value })} className={inputCss} placeholder={SUGESTAO_REGRAS} />
           </Card>
 
-          <Card title="Apostas & prazos">
+          <Card title="3. Apostas & prazos">
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Valor do palpite (R$)"><input type="number" min={0} step="0.01" value={form.valor_palpite} onChange={(e) => setForm({ ...form, valor_palpite: Number(e.target.value) })} className={inputCss} /></Field>
               <Field label="Data limite para palpite">
@@ -225,106 +264,132 @@ function BolaoConfigPage() {
             </div>
           </Card>
 
-          <Card title="Visibilidade pública">
+          <Card title="4. Visibilidade pública">
             <div className="space-y-2">
               <Toggle checked={form.permitir_ranking_publico} onChange={(v) => setForm({ ...form, permitir_ranking_publico: v })} label="Ranking público" desc="Qualquer pessoa com o link vê o ranking." />
               <Toggle checked={form.permitir_ganhadores_publico} onChange={(v) => setForm({ ...form, permitir_ganhadores_publico: v })} label="Lista de ganhadores pública" desc="Mostrar histórico de premiados na página pública." />
             </div>
           </Card>
+
+          {ready && (
+            <div className="rounded-2xl border border-green-600/30 bg-green-600/5 p-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm">
+                <Check className="h-4 w-4 text-green-600" />
+                <span className="font-semibold">Tudo pronto! Bora divulgar?</span>
+              </div>
+              <button type="button" onClick={() => setTab("divulgar")} className="inline-flex h-9 items-center gap-1 rounded-full bg-pitch px-4 text-sm font-bold text-primary-foreground">
+                Ir para divulgar <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </form>
       )}
 
-      {/* TAB: DIVULGAÇÃO */}
-      {tab === "divulgacao" && (
-        <Card title="Link público" desc="Compartilhe este link para receber palpites.">
-          {shareUrl ? (
-            <>
-              <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm font-mono break-all">{shareUrl}</div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button type="button" onClick={copyShare} className={btnSecondary}>
-                  {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />} {copied ? "Copiado!" : "Copiar link"}
-                </button>
-                <button type="button" onClick={shareWhatsApp} className={btnWhats}>
-                  <Share2 className="h-4 w-4" /> WhatsApp
-                </button>
-                <a href={shareUrl} target="_blank" rel="noopener noreferrer" className={btnSecondary}>
-                  <ExternalLink className="h-4 w-4" /> Abrir página pública
-                </a>
+      {/* TAB: DIVULGAR */}
+      {tab === "divulgar" && (
+        <div className="space-y-5">
+          {/* HERO — preview do link */}
+          <section className="relative overflow-hidden rounded-2xl border border-pitch/30 bg-gradient-to-br from-pitch/10 via-card to-card p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-pitch">Seu link público</div>
+                <div className="mt-1 text-lg font-black truncate">{form.nome || "—"}</div>
+                {shareUrl ? (
+                  <div className="mt-2 inline-flex max-w-full items-center gap-2 rounded-lg border border-border bg-background/80 px-3 py-1.5 text-xs font-mono break-all">
+                    <ExternalLink className="h-3 w-3 shrink-0 text-muted-foreground" />
+                    <span className="truncate">{shareUrl}</span>
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm text-muted-foreground">Defina um <b>slug</b> na aba Configurar para gerar o link.</p>
+                )}
               </div>
-            </>
-          ) : (
-            <p className="text-sm text-muted-foreground">Defina um <b>slug</b> na aba Configuração para gerar o link público.</p>
-          )}
-        </Card>
-      )}
-
-      {/* TAB: JOGOS */}
-      {tab === "jogos" && (
-        <Card
-          title="Jogos agendados"
-          desc="Selecione jogos para montar uma divulgação rica em WhatsApp. Apenas jogos não iniciados são listados."
-          action={
-            <div className="flex items-center gap-3">
-              {matches.length > 0 && (
-                <button type="button" onClick={toggleAllVisible} className="text-xs font-semibold text-muted-foreground hover:text-foreground">
-                  {matches.every((m) => selectedMatchIds.has(m.id)) ? "Limpar" : "Selecionar todos"}
-                </button>
-              )}
-              <button type="button" onClick={loadMatches} disabled={loadingGames} className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground">
-                <RefreshCw className={`h-3 w-3 ${loadingGames ? "animate-spin" : ""}`} /> Atualizar
-              </button>
-            </div>
-          }
-        >
-          {loadingGames ? (
-            <div className="py-8 text-center text-sm text-muted-foreground"><Loader2 className="inline h-4 w-4 animate-spin" /></div>
-          ) : matchesByDate.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nenhum jogo agendado.</p>
-          ) : (
-            <div className="space-y-4 max-h-[28rem] overflow-y-auto pr-1">
-              {matchesByDate.map(([date, ms]) => (
-                <div key={date}>
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">{date}</div>
-                  <div className="space-y-1.5">
-                    {ms.map((m) => {
-                      const home = teams.get(m.home_team_id);
-                      const away = teams.get(m.away_team_id);
-                      const checked = selectedMatchIds.has(m.id);
-                      return (
-                        <label key={m.id} className={`flex items-center gap-3 text-sm rounded-lg border px-3 py-2.5 cursor-pointer transition-colors ${checked ? "border-pitch bg-pitch/5" : "border-border bg-background hover:border-pitch/40"}`}>
-                          <input type="checkbox" checked={checked} onChange={() => toggleMatch(m.id)} className="accent-pitch" />
-                          <span className="text-xs font-semibold text-muted-foreground w-12 tabular-nums">{new Date(m.kickoff_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
-                          <span className="flex flex-1 items-center gap-2 min-w-0">
-                            <TeamChip team={home} /> <span className="text-muted-foreground">×</span> <TeamChip team={away} />
-                          </span>
-                          <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-pitch/10 text-pitch">Agendado</span>
-                        </label>
-                      );
-                    })}
+              {shareUrl && (
+                <div className="flex flex-col gap-2 sm:items-end">
+                  <button type="button" onClick={shareWhatsApp} className={`${btnWhats} h-11 px-5 text-base shadow-md`}>
+                    <Share2 className="h-5 w-5" /> Compartilhar no WhatsApp
+                  </button>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={copyShare} className={btnSecondary}>
+                      {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />} {copied ? "Copiado!" : "Copiar"}
+                    </button>
+                    <a href={shareUrl} target="_blank" rel="noopener noreferrer" className={btnSecondary}>
+                      <Eye className="h-4 w-4" /> Visualizar
+                    </a>
                   </div>
                 </div>
-              ))}
+              )}
             </div>
-          )}
+          </section>
 
-          {selectedMatchIds.size > 0 && (
-            <div className="mt-5 rounded-xl border border-pitch/30 bg-pitch/5 p-4 space-y-2">
-              <div className="flex items-center gap-2"><Megaphone className="h-4 w-4 text-pitch" /><span className="text-sm font-bold">Divulgação ({selectedMatchIds.size} jogo{selectedMatchIds.size > 1 ? "s" : ""})</span></div>
-              <textarea readOnly value={divulgacaoTexto} rows={Math.min(14, divulgacaoTexto.split("\n").length + 1)} className={`${inputCss} font-mono text-xs`} />
-              <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={copyDivulgacao} className={btnSecondary}>
-                  {divulgCopied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />} {divulgCopied ? "Copiado!" : "Copiar texto"}
-                </button>
-                <button type="button" onClick={shareDivulgacaoWhatsApp} className={btnWhats}>
-                  <Share2 className="h-4 w-4" /> Enviar no WhatsApp
+          {/* DIVULGAÇÃO EM MASSA */}
+          <Card
+            title="Convite com jogos da rodada"
+            desc="Selecione jogos e gere um texto pronto para WhatsApp com link e detalhes."
+            action={
+              <div className="flex items-center gap-3">
+                {matches.length > 0 && (
+                  <button type="button" onClick={toggleAllVisible} className="text-xs font-semibold text-muted-foreground hover:text-foreground">
+                    {matches.every((m) => selectedMatchIds.has(m.id)) ? "Limpar" : "Selecionar todos"}
+                  </button>
+                )}
+                <button type="button" onClick={loadMatches} disabled={loadingGames} className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground">
+                  <RefreshCw className={`h-3 w-3 ${loadingGames ? "animate-spin" : ""}`} /> Atualizar
                 </button>
               </div>
-            </div>
-          )}
-        </Card>
+            }
+          >
+            {loadingGames ? (
+              <div className="py-8 text-center text-sm text-muted-foreground"><Loader2 className="inline h-4 w-4 animate-spin" /></div>
+            ) : matchesByDate.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nenhum jogo agendado.</p>
+            ) : (
+              <div className="space-y-4 max-h-[24rem] overflow-y-auto pr-1">
+                {matchesByDate.map(([date, ms]) => (
+                  <div key={date}>
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">{date}</div>
+                    <div className="space-y-1.5">
+                      {ms.map((m) => {
+                        const home = teams.get(m.home_team_id);
+                        const away = teams.get(m.away_team_id);
+                        const checked = selectedMatchIds.has(m.id);
+                        return (
+                          <label key={m.id} className={`flex items-center gap-3 text-sm rounded-lg border px-3 py-2.5 cursor-pointer transition-colors ${checked ? "border-pitch bg-pitch/5" : "border-border bg-background hover:border-pitch/40"}`}>
+                            <input type="checkbox" checked={checked} onChange={() => toggleMatch(m.id)} className="accent-pitch" />
+                            <span className="text-xs font-semibold text-muted-foreground w-12 tabular-nums">{new Date(m.kickoff_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+                            <span className="flex flex-1 items-center gap-2 min-w-0">
+                              <TeamChip team={home} /> <span className="text-muted-foreground">×</span> <TeamChip team={away} />
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {selectedMatchIds.size > 0 && (
+              <div className="mt-5 rounded-xl border border-pitch/30 bg-pitch/5 p-4 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Megaphone className="h-4 w-4 text-pitch" />
+                  <span className="text-sm font-bold">Prévia ({selectedMatchIds.size} jogo{selectedMatchIds.size > 1 ? "s" : ""})</span>
+                </div>
+                <textarea readOnly value={divulgacaoTexto} rows={Math.min(14, divulgacaoTexto.split("\n").length + 1)} className={`${inputCss} font-mono text-xs`} />
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" onClick={copyDivulgacao} className={btnSecondary}>
+                    {divulgCopied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />} {divulgCopied ? "Copiado!" : "Copiar texto"}
+                  </button>
+                  <button type="button" onClick={shareDivulgacaoWhatsApp} className={btnWhats}>
+                    <Share2 className="h-4 w-4" /> Enviar no WhatsApp
+                  </button>
+                </div>
+              </div>
+            )}
+          </Card>
+        </div>
       )}
 
-      {/* SAVE BAR — fixa quando há alterações */}
+      {/* SAVE BAR */}
       {tab === "config" && (
         <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-30 transition-all ${dirty || msg ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}>
           <div className="flex items-center gap-3 rounded-full border border-border bg-card/95 backdrop-blur px-4 py-2 shadow-lg">
@@ -340,7 +405,9 @@ function BolaoConfigPage() {
         </div>
       )}
 
-      <p className="text-xs text-muted-foreground">Torcedores palpitam na <Link to="/bolao/$slug" params={{ slug: form.slug || "_" }} className="text-pitch font-semibold hover:underline">página pública</Link>.</p>
+      <p className="text-xs text-muted-foreground">
+        Torcedores palpitam na <Link to="/bolao/$slug" params={{ slug: form.slug || "_" }} className="text-pitch font-semibold hover:underline">página pública</Link>.
+      </p>
     </div>
   );
 }
