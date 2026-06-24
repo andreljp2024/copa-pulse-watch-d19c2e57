@@ -239,7 +239,7 @@ function PublicBolao() {
         `Já lhe envio o comprovante\n` +
         `Para: ${pix.chave_pix}`;
       setDone({ link: buildWhatsAppLink(wa.numero_whatsapp, msg), protocolos, valorTotal });
-      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, useWorker: false, disableForReducedMotion: true });
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erro ao enviar palpite");
     } finally {
