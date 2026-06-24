@@ -259,11 +259,13 @@ function PublicBolao() {
 
 function SuccessPanel({
   waLink,
+  protocolo,
   pix,
   valor,
   onClose,
 }: {
   waLink: string;
+  protocolo: string;
   pix: { nome_recebedor: string; chave_pix: string; banco: string | null };
   valor: number;
   onClose: () => void;
@@ -288,7 +290,9 @@ function SuccessPanel({
     <div className="text-center space-y-4">
       <div className="text-4xl">🎉</div>
       <h3 className="text-xl font-black">Palpite registrado!</h3>
-      <p className="text-sm text-muted-foreground">Pague o Pix e envie o comprovante pelo WhatsApp.</p>
+      <div className="inline-block rounded-lg bg-pitch/10 px-3 py-1 text-sm font-bold text-pitch">Protocolo: {protocolo}</div>
+      <p className="text-sm text-muted-foreground">Guarde esse número para consultas. Pague o Pix e envie o comprovante pelo WhatsApp.</p>
+
 
       <div className="bg-white p-3 rounded-xl border border-border inline-block">
         <QRCodeSVG value={payload} size={180} />
