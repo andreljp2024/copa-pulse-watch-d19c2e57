@@ -175,3 +175,86 @@ export const changeGestorPlano = createServerFn({ method: "POST" })
 
     return { ok: true, plano: plano.nome };
   });
+
+export const getGestorDetail = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ tenant_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const [
+      { data: tenant },
+      { data: boloes },
+      { data: assinaturas },
+      { count: torcedoresCount },
+      { count: palpitesCount },
+      { data: pix },
+      { data: wa },
+    ] = await Promise.all([
+      supabaseAdmin.from("tenants").select("*").eq("id", data.tenant_id).maybeSingle(),
+      supabaseAdmin
+        .from("boloes")
+        .select("id, nome, slug, status, valor_palpite, created_at")
+        .eq("tenant_id", data.tenant_id)
+        .order("created_at", { ascending: false }),
+      supabaseAdmin
+        .from("assinaturas")
+        .select("id, status, data_inicio, data_fim, gateway_pagamento, planos:plano_id(nome, preco)")
+        .eq("tenant_id", data.tenant_id)
+        .order("data_inicio", { ascending: false }),
+      supabaseAdmin.from("torcedores").select("id", { count: "exact", head: true }).eq("tenant_id", data.tenant_id),
+      supabaseAdmin.from("palpites").select("id", { count: "exact", head: true }).eq("tenant_id", data.tenant_id),
+      supabaseAdmin.from("tenant_pix_config").select("nome_recebedor, chave_pix").eq("tenant_id", data.tenant_id).maybeSingle(),
+      supabaseAdmin.from("tenant_whatsapp_config").select("numero_whatsapp").eq("tenant_id", data.tenant_id).maybeSingle(),
+    ]);
+
+    return {
+      tenant,
+      boloes: boloes ?? [],
+      assinaturas: assinaturas ?? [],
+      torcedores_count: torcedoresCount ?? 0,
+      palpites_count: palpitesCount ?? 0,
+      pix_configurado: !!pix?.chave_pix,
+      whatsapp_configurado: !!wa?.numero_whatsapp,
+    };
+  });
+
+export const resetGestorPassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ tenant_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: t } = await supabaseAdmin
+      .from("tenants").select("email").eq("id", data.tenant_id).maybeSingle();
+    if (!t?.email) throw new Error("Tenant sem e-mail cadastrado.");
+    const origin = process.env.SITE_URL ?? "https://copa-pulse-watch.lovable.app";
+    const { error } = await supabaseAdmin.auth.admin.generateLink({
+      type: "recovery",
+      email: t.email,
+      options: { redirectTo: `${origin}/reset-password` },
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true, email: t.email };
+  });
+
+export const resendGestorInvite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ tenant_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: t } = await supabaseAdmin
+      .from("tenants").select("email, nome_responsavel, nome_estabelecimento")
+      .eq("id", data.tenant_id).maybeSingle();
+    if (!t?.email) throw new Error("Tenant sem e-mail cadastrado.");
+    const origin = process.env.SITE_URL ?? "https://copa-pulse-watch.lovable.app";
+    const { error } = await supabaseAdmin.auth.admin.inviteUserByEmail(t.email, {
+      data: { nome_responsavel: t.nome_responsavel, nome_estabelecimento: t.nome_estabelecimento },
+      redirectTo: `${origin}/onboarding`,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true, email: t.email };
+  });
+
