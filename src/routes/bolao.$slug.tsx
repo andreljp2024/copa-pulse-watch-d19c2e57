@@ -200,13 +200,18 @@ function PublicBolao() {
 
   function avancarIdentidade(e: React.FormEvent) {
     e.preventDefault();
-    if (onlyDigits(form.whatsapp).length < 10) {
-      alert("Informe um WhatsApp válido com DDD.");
+    if (!form.nome.trim() || form.nome.trim().length < 2) {
+      alert("Informe seu nome.");
+      return;
+    }
+    if (!isValidWhatsAppBR(form.whatsapp)) {
+      alert("WhatsApp inválido. Use DDD + 9 + número (ex.: (11) 99999-9999).");
       return;
     }
     if (items.length === 0) setQuantidade(1);
     setStep("palpites");
   }
+
 
   async function submitPalpite(e: React.FormEvent) {
     e.preventDefault();
