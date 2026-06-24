@@ -776,11 +776,11 @@ function FeaturedMatchCard({
     <div className="relative overflow-hidden rounded-3xl border border-gold/30 bg-gradient-card shadow-gold ring-conic">
       {/* Background flags */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.12]" aria-hidden="true">
-        {home?.flag_url && (
-          <img src={home.flag_url} alt="" className="absolute -left-10 top-1/2 -translate-y-1/2 h-[140%] w-auto blur-sm" />
+        {flagUrl(home?.code, home?.flag_url) && (
+          <img src={flagUrl(home?.code, home?.flag_url)!} alt="" className="absolute -left-10 top-1/2 -translate-y-1/2 h-[140%] w-auto blur-sm" />
         )}
-        {away?.flag_url && (
-          <img src={away.flag_url} alt="" className="absolute -right-10 top-1/2 -translate-y-1/2 h-[140%] w-auto blur-sm" />
+        {flagUrl(away?.code, away?.flag_url) && (
+          <img src={flagUrl(away?.code, away?.flag_url)!} alt="" className="absolute -right-10 top-1/2 -translate-y-1/2 h-[140%] w-auto blur-sm" />
         )}
       </div>
       <div
