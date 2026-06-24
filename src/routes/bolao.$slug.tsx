@@ -381,14 +381,32 @@ function PublicBolao() {
 
                 <div className="flex items-center gap-2">
                   <label className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Quantidade</label>
+                  <button
+                    type="button"
+                    onClick={() => setQuantidade(items.length - 1)}
+                    className="h-8 w-8 rounded-lg border border-border bg-background text-sm font-black transition-colors hover:border-gold disabled:opacity-40"
+                    disabled={items.length <= 1}
+                    aria-label="Diminuir quantidade de palpites"
+                  >
+                    −
+                  </button>
                   <input
-                    type="number"
-                    min={1}
-                    max={20}
+                    type="text"
+                    inputMode="numeric"
                     value={items.length}
-                    onChange={(e) => setQuantidade(Number(e.target.value))}
+                    onChange={(e) => setQuantidade(Number(onlyDigits(e.target.value)))}
                     className="w-20 rounded-lg border border-border bg-background px-2 py-1.5 text-center text-sm font-bold focus:outline-none focus:ring-2 focus:ring-gold"
+                    aria-label="Quantidade de palpites"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setQuantidade(items.length + 1)}
+                    className="h-8 w-8 rounded-lg border border-border bg-background text-sm font-black transition-colors hover:border-gold disabled:opacity-40"
+                    disabled={items.length >= 20}
+                    aria-label="Aumentar quantidade de palpites"
+                  >
+                    +
+                  </button>
                   <span className="text-xs text-muted-foreground">{openMatches.length} jogo(s) aberto(s)</span>
 
                 </div>
@@ -517,13 +535,14 @@ function SuccessPanel({
 }
 
 function useCountdown(target: string | null) {
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
     if (!target) return;
+    setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, [target]);
-  if (!target) return null;
+  if (!target || now === null) return null;
   const diff = new Date(target).getTime() - now;
   if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0, live: true };
   const d = Math.floor(diff / 86400000);
