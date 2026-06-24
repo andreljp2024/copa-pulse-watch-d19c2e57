@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
-import { TeamBadge, MatchCard } from "@/components/MatchCard";
+import { TeamBadge, MatchCard, ptTeamName } from "@/components/MatchCard";
 import { getTeam } from "@/lib/copa.functions";
 
 const opts = (id: string) => queryOptions({ queryKey: ["team", id], queryFn: () => getTeam({ data: { id } }) });
