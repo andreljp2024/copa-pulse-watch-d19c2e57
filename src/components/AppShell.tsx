@@ -49,9 +49,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 h-16 flex items-center gap-4">
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-pitch text-primary-foreground">
-              <Trophy className="h-5 w-5" />
-            </div>
+            <img src={bolaoIcon} alt="BolaoAI" width={36} height={36} className="h-9 w-9 object-contain" />
             <span className="text-lg font-black tracking-tight">BolaoAI</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 ml-4">
