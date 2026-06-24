@@ -346,8 +346,7 @@ function PublicBolao() {
                     if (m.status === "finished") {
                       return <span className="text-sm font-black tabular-nums text-gold">{m.home_score} x {m.away_score}</span>;
                     }
-                    if (matchOpen) {
-                      return <button onClick={() => { setSelected(m); setForm({ nome: "", whatsapp: "", palpite_a: 0, palpite_b: 0 }); setDone(null); }} className="text-sm font-bold uppercase tracking-wide text-gold hover:underline">Fazer palpite →</button>;
+                      return <button onClick={() => openModal(m)} className="text-sm font-bold uppercase tracking-wide text-gold hover:underline">Fazer palpite →</button>;
                     }
                     return <span className="text-xs text-muted-foreground">{m.status === "live" ? "Em andamento" : "Encerrado"}</span>;
                   })()}
