@@ -125,11 +125,11 @@ function BrandLink({ onClick }: { onClick?: () => void }) {
   );
 }
 
-function SidebarNav() {
+function SidebarNav({ items }: { items: NavItem[] }) {
   return (
     <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
       <p className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-sidebar-foreground/50">Menu</p>
-      {nav.map(({ to, label, icon: Icon, exact }) => (
+      {items.map(({ to, label, icon: Icon, exact }) => (
         <Link
           key={to}
           to={to}
