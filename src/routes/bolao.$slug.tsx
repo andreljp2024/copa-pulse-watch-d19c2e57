@@ -164,23 +164,46 @@ function PublicBolao() {
 
 
   return (
-    <div className="min-h-screen bg-muted/20">
-      <header className="border-b border-border" style={{ background: bolao.cor_primaria ?? "#0f766e", color: "white" }}>
-        <div className="mx-auto max-w-5xl px-4 py-8 flex items-center gap-4">
-          {bolao.logo_url ? (
-            <img src={bolao.logo_url} alt="" className="h-16 w-16 rounded-xl object-cover bg-white" />
-          ) : (
-            <div className="h-16 w-16 rounded-xl bg-white/15 grid place-items-center"><Trophy className="h-8 w-8" /></div>
-          )}
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-black">{bolao.nome}</h1>
-            <p className="text-sm opacity-90">Valor do palpite: {brl(bolao.valor_palpite)}</p>
+    <div className="min-h-screen bg-background text-foreground">
+      <header
+        className="relative overflow-hidden bg-hero grain border-b border-border"
+        style={bolao.cor_primaria ? ({ ["--brand-tint" as any]: bolao.cor_primaria } as React.CSSProperties) : undefined}
+      >
+        {/* Conic samba glow */}
+        <div
+          aria-hidden="true"
+          className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full opacity-25 blur-3xl animate-spin-slow pointer-events-none"
+          style={{ backgroundImage: "var(--gradient-conic-gold)" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/40 to-background pointer-events-none" aria-hidden="true" />
+
+        <div className="relative mx-auto max-w-5xl px-4 py-10 sm:py-14 flex items-center gap-5">
+          <div className="ring-conic rounded-2xl">
+            {bolao.logo_url ? (
+              <img src={bolao.logo_url} alt="" className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-cover bg-card" />
+            ) : (
+              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-gradient-samba grid place-items-center shadow-gold">
+                <Trophy className="h-8 w-8 text-gold-foreground" />
+              </div>
+            )}
+          </div>
+          <div className="min-w-0">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-card/40 backdrop-blur px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-gold mb-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-gradient-samba animate-pulse" />
+              Vai, Brasil! · Copa 2026
+            </div>
+            <h1 className="font-display text-3xl sm:text-5xl font-black uppercase leading-[0.95] bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-transparent">
+              {bolao.nome}
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Valor do palpite: <span className="font-semibold text-gold">{brl(bolao.valor_palpite)}</span>
+            </p>
           </div>
         </div>
       </header>
 
       <div className="mx-auto max-w-5xl px-4 pt-4">
-        <Link to="/bolao/$slug/ranking" params={{ slug: bolao.slug }} className="inline-flex items-center gap-2 text-sm font-semibold text-pitch hover:underline">
+        <Link to="/bolao/$slug/ranking" params={{ slug: bolao.slug }} className="inline-flex items-center gap-2 text-sm font-semibold text-gold hover:underline">
           <ListOrdered className="h-4 w-4" /> Ver ranking
         </Link>
       </div>
