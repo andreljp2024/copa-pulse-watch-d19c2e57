@@ -235,11 +235,18 @@ function BolaoConfigPage() {
       <section className="rounded-2xl border border-border bg-card p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-pitch" /><h2 className="font-bold">Jogos agendados</h2></div>
-          <button type="button" onClick={loadMatches} disabled={loadingGames} className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground">
-            <RefreshCw className={`h-3 w-3 ${loadingGames ? "animate-spin" : ""}`} /> Atualizar
-          </button>
+          <div className="flex items-center gap-2">
+            {matches.length > 0 && (
+              <button type="button" onClick={toggleAllVisible} className="text-xs font-semibold text-muted-foreground hover:text-foreground">
+                {matches.every((m) => selectedMatchIds.has(m.id)) ? "Limpar seleção" : "Selecionar todos"}
+              </button>
+            )}
+            <button type="button" onClick={loadMatches} disabled={loadingGames} className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground">
+              <RefreshCw className={`h-3 w-3 ${loadingGames ? "animate-spin" : ""}`} /> Atualizar
+            </button>
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground">Apenas jogos agendados (ainda não iniciados) são listados. Não é possível criar palpites em jogos já encerrados. Os torcedores palpitam na <Link to="/bolao/$slug" params={{ slug: form.slug || "_" }} className="text-pitch font-semibold hover:underline">página pública</Link>.</p>
+        <p className="text-xs text-muted-foreground">Marque os jogos que quer destacar para montar uma divulgação. Apenas jogos agendados (ainda não iniciados) são listados.</p>
         {loadingGames ? (
           <div className="py-6 text-center text-sm text-muted-foreground"><Loader2 className="inline h-4 w-4 animate-spin" /></div>
         ) : matchesByDate.length === 0 ? (
@@ -253,12 +260,14 @@ function BolaoConfigPage() {
                   {ms.map((m) => {
                     const home = teams.get(m.home_team_id);
                     const away = teams.get(m.away_team_id);
+                    const checked = selectedMatchIds.has(m.id);
                     return (
-                      <div key={m.id} className="flex items-center gap-2 text-sm rounded-lg border border-border bg-background px-3 py-2">
+                      <label key={m.id} className={`flex items-center gap-2 text-sm rounded-lg border px-3 py-2 cursor-pointer ${checked ? "border-pitch bg-pitch/5" : "border-border bg-background"}`}>
+                        <input type="checkbox" checked={checked} onChange={() => toggleMatch(m.id)} className="accent-pitch" />
                         <span className="text-xs text-muted-foreground w-12">{new Date(m.kickoff_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
                         <span className="flex-1">{home?.name ?? "?"} <span className="text-muted-foreground">x</span> {away?.name ?? "?"}</span>
                         <span className="text-xs px-2 py-0.5 rounded-full bg-pitch/10 text-pitch">Agendado</span>
-                      </div>
+                      </label>
                     );
                   })}
                 </div>
@@ -266,7 +275,26 @@ function BolaoConfigPage() {
             ))}
           </div>
         )}
+
+        {/* Divulgação gerada */}
+        {selectedMatchIds.size > 0 && (
+          <div className="mt-3 space-y-2 border-t border-border pt-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold">Divulgação ({selectedMatchIds.size} jogo{selectedMatchIds.size > 1 ? "s" : ""})</span>
+            </div>
+            <textarea readOnly value={divulgacaoTexto} rows={Math.min(12, divulgacaoTexto.split("\n").length + 1)} className={`${inputCss} font-mono text-xs`} />
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={copyDivulgacao} className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-semibold">
+                {divulgCopied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />} {divulgCopied ? "Copiado!" : "Copiar texto"}
+              </button>
+              <button type="button" onClick={shareDivulgacaoWhatsApp} className="inline-flex h-9 items-center gap-2 rounded-lg bg-green-600 px-3 text-sm font-semibold text-white">
+                <Share2 className="h-4 w-4" /> Enviar no WhatsApp
+              </button>
+            </div>
+          </div>
+        )}
       </section>
+
     </div>
   );
 }
