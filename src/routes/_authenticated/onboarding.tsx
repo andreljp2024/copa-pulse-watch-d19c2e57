@@ -227,7 +227,7 @@ function Onboarding() {
           )}
           {step === 3 && (
             <Form title="Configuração do WhatsApp" onSubmit={saveStep3} loading={loading}>
-              <Input label="Número de WhatsApp para receber comprovantes" value={s3.numero_whatsapp} onChange={(v) => setS3({ ...s3, numero_whatsapp: v })} required />
+              <Input label="Número de WhatsApp para receber comprovantes" value={s3.numero_whatsapp} onChange={(v) => setS3({ ...s3, numero_whatsapp: maskPhone(v) })} placeholder="(11) 99999-9999" inputMode="tel" required />
               <p className="text-xs text-muted-foreground">Use variáveis como <code>{"{{nome_torcedor}}"}</code>, <code>{"{{nome_bolao}}"}</code>, <code>{"{{chave_pix}}"}</code> nas mensagens.</p>
               <Textarea label="Mensagem de novo palpite" rows={5} value={s3.mensagem_novo_palpite} onChange={(v) => setS3({ ...s3, mensagem_novo_palpite: v })} />
               <Textarea label="Mensagem de confirmação de pagamento" rows={3} value={s3.mensagem_confirmacao_pagamento} onChange={(v) => setS3({ ...s3, mensagem_confirmacao_pagamento: v })} />
