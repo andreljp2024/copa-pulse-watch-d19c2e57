@@ -164,23 +164,46 @@ function PublicBolao() {
 
 
   return (
-    <div className="min-h-screen bg-muted/20">
-      <header className="border-b border-border" style={{ background: bolao.cor_primaria ?? "#0f766e", color: "white" }}>
-        <div className="mx-auto max-w-5xl px-4 py-8 flex items-center gap-4">
-          {bolao.logo_url ? (
-            <img src={bolao.logo_url} alt="" className="h-16 w-16 rounded-xl object-cover bg-white" />
-          ) : (
-            <div className="h-16 w-16 rounded-xl bg-white/15 grid place-items-center"><Trophy className="h-8 w-8" /></div>
-          )}
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-black">{bolao.nome}</h1>
-            <p className="text-sm opacity-90">Valor do palpite: {brl(bolao.valor_palpite)}</p>
+    <div className="min-h-screen bg-background text-foreground">
+      <header
+        className="relative overflow-hidden bg-hero grain border-b border-border"
+        style={bolao.cor_primaria ? ({ ["--brand-tint" as any]: bolao.cor_primaria } as React.CSSProperties) : undefined}
+      >
+        {/* Conic samba glow */}
+        <div
+          aria-hidden="true"
+          className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full opacity-25 blur-3xl animate-spin-slow pointer-events-none"
+          style={{ backgroundImage: "var(--gradient-conic-gold)" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/40 to-background pointer-events-none" aria-hidden="true" />
+
+        <div className="relative mx-auto max-w-5xl px-4 py-10 sm:py-14 flex items-center gap-5">
+          <div className="ring-conic rounded-2xl">
+            {bolao.logo_url ? (
+              <img src={bolao.logo_url} alt="" className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-cover bg-card" />
+            ) : (
+              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-gradient-samba grid place-items-center shadow-gold">
+                <Trophy className="h-8 w-8 text-gold-foreground" />
+              </div>
+            )}
+          </div>
+          <div className="min-w-0">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-card/40 backdrop-blur px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-gold mb-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-gradient-samba animate-pulse" />
+              Vai, Brasil! · Copa 2026
+            </div>
+            <h1 className="font-display text-3xl sm:text-5xl font-black uppercase leading-[0.95] bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-transparent">
+              {bolao.nome}
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Valor do palpite: <span className="font-semibold text-gold">{brl(bolao.valor_palpite)}</span>
+            </p>
           </div>
         </div>
       </header>
 
       <div className="mx-auto max-w-5xl px-4 pt-4">
-        <Link to="/bolao/$slug/ranking" params={{ slug: bolao.slug }} className="inline-flex items-center gap-2 text-sm font-semibold text-pitch hover:underline">
+        <Link to="/bolao/$slug/ranking" params={{ slug: bolao.slug }} className="inline-flex items-center gap-2 text-sm font-semibold text-gold hover:underline">
           <ListOrdered className="h-4 w-4" /> Ver ranking
         </Link>
       </div>
@@ -196,14 +219,21 @@ function PublicBolao() {
         )}
 
         <section>
-          <h2 className="text-xl font-black mb-3">Jogos</h2>
-          {!palpiteAberto && <p className="mb-3 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">⏰ Período de palpites encerrado.</p>}
+          <h2 className="font-display text-2xl sm:text-3xl font-black uppercase tracking-wide mb-4 flex items-center gap-3">
+            <span className="inline-block h-6 w-1 bg-gradient-samba rounded-sm" aria-hidden="true" />
+            Jogos
+          </h2>
+          {!palpiteAberto && (
+            <p className="mb-3 text-sm font-semibold text-live bg-live/10 border border-live/30 rounded-lg p-3">
+              ⏰ Período de palpites encerrado.
+            </p>
+          )}
           <div className="grid gap-2">
             {matches.slice(0, 30).map((m) => {
               const home = teams.get(m.home_team_id ?? "");
               const away = teams.get(m.away_team_id ?? "");
               return (
-                <div key={m.id} className="rounded-xl border border-border bg-card p-3 flex items-center gap-3">
+                <div key={m.id} className="rounded-xl border border-border bg-gradient-card p-3 flex items-center gap-3 card-elevated transition-colors hover:border-gold/40">
                   <div className="flex-1 flex items-center gap-2">
                     {home?.flag_url && <img src={home.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
                     <span className="font-medium">{home?.name ?? "?"}</span>
@@ -212,9 +242,9 @@ function PublicBolao() {
                     {away?.flag_url && <img src={away.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
                   </div>
                   {m.status === "finished" ? (
-                    <span className="text-sm font-bold">{m.home_score} x {m.away_score}</span>
+                    <span className="text-sm font-black tabular-nums text-gold">{m.home_score} x {m.away_score}</span>
                   ) : palpiteAberto ? (
-                    <button onClick={() => { setSelected(m); setForm({ nome: "", whatsapp: "", palpite_a: 0, palpite_b: 0 }); setDone(null); }} className="text-sm font-semibold text-pitch hover:underline">Fazer palpite →</button>
+                    <button onClick={() => { setSelected(m); setForm({ nome: "", whatsapp: "", palpite_a: 0, palpite_b: 0 }); setDone(null); }} className="text-sm font-bold uppercase tracking-wide text-gold hover:underline">Fazer palpite →</button>
                   ) : (
                     <span className="text-xs text-muted-foreground">Encerrado</span>
                   )}
@@ -226,25 +256,25 @@ function PublicBolao() {
       </main>
 
       {selected && (
-        <div className="fixed inset-0 z-50 bg-black/50 grid place-items-center p-4" onClick={() => setSelected(null)}>
-          <div className="bg-card rounded-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm grid place-items-center p-4" onClick={() => setSelected(null)}>
+          <div className="bg-gradient-card border border-border rounded-2xl max-w-md w-full p-6 card-elevated ring-conic" onClick={(e) => e.stopPropagation()}>
             {done ? (
               <SuccessPanel waLink={done.link} protocolo={done.protocolo} pix={pix!} valor={Number(bolao.valor_palpite)} onClose={() => setSelected(null)} />
             ) : (
               <form onSubmit={submitPalpite} className="space-y-3">
-                <h3 className="text-xl font-black">Seu palpite</h3>
+                <h3 className="font-display text-2xl font-black uppercase">Seu palpite</h3>
                 <p className="text-sm text-muted-foreground">
                   {teams.get(selected.home_team_id ?? "")?.name} x {teams.get(selected.away_team_id ?? "")?.name}
                 </p>
-                <input required placeholder="Seu nome" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-                <input required placeholder="WhatsApp (com DDD)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: onlyDigits(e.target.value) })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+                <input required placeholder="Seu nome" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
+                <input required placeholder="WhatsApp (com DDD)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: onlyDigits(e.target.value) })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
                 <div className="flex items-center gap-3 justify-center">
-                  <input type="number" min={0} required value={form.palpite_a} onChange={(e) => setForm({ ...form, palpite_a: Number(e.target.value) })} className="w-20 text-center text-2xl font-black rounded-lg border border-border bg-background py-2" />
-                  <span className="font-bold">x</span>
-                  <input type="number" min={0} required value={form.palpite_b} onChange={(e) => setForm({ ...form, palpite_b: Number(e.target.value) })} className="w-20 text-center text-2xl font-black rounded-lg border border-border bg-background py-2" />
+                  <input type="number" min={0} required value={form.palpite_a} onChange={(e) => setForm({ ...form, palpite_a: Number(e.target.value) })} className="w-20 text-center text-2xl font-black tabular-nums rounded-lg border border-border bg-background py-2 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
+                  <span className="font-bold text-muted-foreground">x</span>
+                  <input type="number" min={0} required value={form.palpite_b} onChange={(e) => setForm({ ...form, palpite_b: Number(e.target.value) })} className="w-20 text-center text-2xl font-black tabular-nums rounded-lg border border-border bg-background py-2 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
                 </div>
-                <p className="text-center text-sm">Valor: <strong>{brl(bolao.valor_palpite)}</strong></p>
-                <button disabled={submitting} className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-pitch font-semibold text-primary-foreground disabled:opacity-60">
+                <p className="text-center text-sm">Valor: <strong className="text-gold">{brl(bolao.valor_palpite)}</strong></p>
+                <button disabled={submitting} className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.02] disabled:opacity-60">
                   {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmar palpite"}
                 </button>
                 <button type="button" onClick={() => setSelected(null)} className="block w-full text-sm text-muted-foreground hover:underline">Cancelar</button>
@@ -289,26 +319,25 @@ function SuccessPanel({
   return (
     <div className="text-center space-y-4">
       <div className="text-4xl">🎉</div>
-      <h3 className="text-xl font-black">Palpite registrado!</h3>
-      <div className="inline-block rounded-lg bg-pitch/10 px-3 py-1 text-sm font-bold text-pitch">Protocolo: {protocolo}</div>
+      <h3 className="font-display text-2xl font-black uppercase text-gradient-samba">Palpite registrado!</h3>
+      <div className="inline-block rounded-lg bg-gold/15 border border-gold/30 px-3 py-1 text-sm font-bold text-gold">Protocolo: {protocolo}</div>
       <p className="text-sm text-muted-foreground">Guarde esse número para consultas. Pague o Pix e envie o comprovante pelo WhatsApp.</p>
 
-
-      <div className="bg-white p-3 rounded-xl border border-border inline-block">
+      <div className="bg-white p-3 rounded-xl border border-border inline-block shadow-gold">
         <QRCodeSVG value={payload} size={180} />
       </div>
-      <div className="text-xs text-muted-foreground">{pix.nome_recebedor} • {brl(valor)}</div>
+      <div className="text-xs text-muted-foreground">{pix.nome_recebedor} • <span className="text-gold font-semibold">{brl(valor)}</span></div>
 
       <button
         type="button"
         onClick={copyPix}
-        className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-xl border border-border bg-background font-semibold text-sm"
+        className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-xl border border-border bg-background font-semibold text-sm hover:border-gold/40 transition-colors"
       >
-        {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+        {copied ? <Check className="h-4 w-4 text-pitch" /> : <Copy className="h-4 w-4" />}
         {copied ? "Copiado!" : "Copiar Pix copia e cola"}
       </button>
 
-      <a href={waLink} target="_blank" rel="noopener noreferrer" className="w-full inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-green-600 px-5 font-bold text-white">
+      <a href={waLink} target="_blank" rel="noopener noreferrer" className="w-full inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-pitch px-5 font-black uppercase tracking-wide text-primary-foreground shadow-glow transition-transform hover:scale-[1.02]">
         <MessageCircle className="h-5 w-5" /> Abrir WhatsApp
       </a>
       <button onClick={onClose} className="block w-full text-sm text-muted-foreground hover:underline">Fechar</button>
