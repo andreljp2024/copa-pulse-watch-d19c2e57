@@ -138,25 +138,37 @@ export const changeGestorPlano = createServerFn({ method: "POST" })
     if (pErr) throw pErr;
     if (!plano || !plano.ativo) throw new Error("Plano inválido ou inativo.");
 
-    // Encerra assinaturas ativas
-    const now = new Date().toISOString();
-    await supabaseAdmin
+    // Apenas eleva/ajusta privilégios. NÃO apaga assinaturas, palpites,
+    // torcedores ou configurações.
+    const { data: ativa } = await supabaseAdmin
       .from("assinaturas")
-      .update({ status: "cancelada", data_fim: now })
+      .select("id")
       .eq("tenant_id", data.tenant_id)
-      .eq("status", "ativa");
+      .eq("status", "ativa")
+      .order("data_inicio", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    // Cria nova assinatura ativa
-    const { error: aErr } = await supabaseAdmin.from("assinaturas").insert({
-      tenant_id: data.tenant_id,
-      plano_id: plano.id,
-      status: "ativa",
-      data_inicio: now,
-      gateway_pagamento: "manual_admin",
-    });
-    if (aErr) throw aErr;
+    if (ativa?.id) {
+      // Mantém a assinatura existente (histórico, datas, gateway) e só troca o plano.
+      const { error: uErr } = await supabaseAdmin
+        .from("assinaturas")
+        .update({ plano_id: plano.id })
+        .eq("id", ativa.id);
+      if (uErr) throw uErr;
+    } else {
+      // Não havia assinatura ativa: cria uma nova sem tocar nas anteriores.
+      const { error: aErr } = await supabaseAdmin.from("assinaturas").insert({
+        tenant_id: data.tenant_id,
+        plano_id: plano.id,
+        status: "ativa",
+        data_inicio: new Date().toISOString(),
+        gateway_pagamento: "manual_admin",
+      });
+      if (aErr) throw aErr;
+    }
 
-    // Atualiza rótulo do plano no tenant
+    // Atualiza somente o rótulo do plano no tenant.
     const { error: tErr } = await supabaseAdmin
       .from("tenants").update({ plano: plano.nome }).eq("id", data.tenant_id);
     if (tErr) throw tErr;
