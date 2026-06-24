@@ -1,0 +1,1 @@
+ALTER TABLE public.boloes ADD COLUMN IF NOT EXISTS percentual_admin numeric(5,2) NOT NULL DEFAULT 30 CHECK (percentual_admin >= 0 AND percentual_admin <= 100);

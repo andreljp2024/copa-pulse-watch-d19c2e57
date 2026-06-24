@@ -28,6 +28,7 @@ function BolaoConfigPage() {
   const [bolaoId, setBolaoId] = useState<string | null>(null);
   const [form, setForm] = useState({
     nome: "", slug: "", descricao: "", regras: "", valor_palpite: 10,
+    percentual_admin: 30,
     permitir_ranking_publico: true, permitir_ganhadores_publico: true,
     data_limite_palpite: "",
   });
@@ -76,6 +77,7 @@ function BolaoConfigPage() {
         const next = {
           nome: b.nome, slug: b.slug, descricao: b.descricao ?? "", regras: b.regras ?? "",
           valor_palpite: Number(b.valor_palpite),
+          percentual_admin: Number((b as any).percentual_admin ?? 30),
           permitir_ranking_publico: b.permitir_ranking_publico,
           permitir_ganhadores_publico: b.permitir_ganhadores_publico,
           data_limite_palpite: b.data_limite_palpite ? b.data_limite_palpite.slice(0, 16) : "",
@@ -295,6 +297,9 @@ function BolaoConfigPage() {
           <Card title="3. Apostas & prazos">
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Valor do palpite (R$)"><input type="number" min={0} step="0.01" value={form.valor_palpite} onChange={(e) => setForm({ ...form, valor_palpite: Number(e.target.value) })} className={inputCss} /></Field>
+              <Field label="Percentual administrativo (%)" hint="Parte do valor arrecadado que o gestor tem direito. O restante vai para o(s) ganhador(es).">
+                <input type="number" min={0} max={100} step="0.01" value={form.percentual_admin} onChange={(e) => setForm({ ...form, percentual_admin: Number(e.target.value) })} className={inputCss} />
+              </Field>
               <Field label="Hora limite geral (opcional)" hint="Por padrão, os palpites de cada jogo encerram no horário de início (kickoff). Use este campo só para encerrar tudo antes.">
                 <input type="datetime-local" value={form.data_limite_palpite} onChange={(e) => setForm({ ...form, data_limite_palpite: e.target.value })} className={inputCss} />
                 <div className="mt-1 flex flex-wrap items-center gap-3">

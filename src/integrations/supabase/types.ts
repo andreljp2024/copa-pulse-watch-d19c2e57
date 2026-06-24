@@ -135,6 +135,7 @@ export type Database = {
           id: string
           logo_url: string | null
           nome: string
+          percentual_admin: number
           permitir_ganhadores_publico: boolean
           permitir_ranking_publico: boolean
           regras: string | null
@@ -153,6 +154,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           nome: string
+          percentual_admin?: number
           permitir_ganhadores_publico?: boolean
           permitir_ranking_publico?: boolean
           regras?: string | null
@@ -171,6 +173,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           nome?: string
+          percentual_admin?: number
           permitir_ganhadores_publico?: boolean
           permitir_ranking_publico?: boolean
           regras?: string | null
