@@ -238,7 +238,7 @@ function Onboarding() {
           {step === 4 && (
             <Form title="Criar primeiro bolão" onSubmit={saveStep4} loading={loading}>
               <Input label="Nome do bolão" value={s4.nome} onChange={(v) => setS4({ ...s4, nome: v, slug: s4.slug || slugify(v) })} required />
-              <Input label="Slug (link público)" value={s4.slug} onChange={(v) => setS4({ ...s4, slug: slugify(v) })} prefix="/bolao/" required />
+              <Input label="Slug (link público)" value={s4.slug} onChange={(v) => setS4({ ...s4, slug: slugify(v) })} prefix="/bolao/" required hint="Identificador do seu bolão na URL pública. Use letras minúsculas, números e hífens (ex.: copa-do-joao). Será o link que você compartilha no WhatsApp." />
               <Textarea label="Descrição / regras (opcional)" value={s4.descricao} onChange={(v) => setS4({ ...s4, descricao: v })} />
               <Input label="Valor do palpite (R$)" type="number" value={String(s4.valor_palpite)} onChange={(v) => setS4({ ...s4, valor_palpite: Number(v) })} />
             </Form>
