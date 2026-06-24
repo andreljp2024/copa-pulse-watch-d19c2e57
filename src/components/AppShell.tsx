@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { type ReactNode, useEffect, useState } from "react";
-import { Moon, Sun, Trophy, Menu, X } from "lucide-react";
+import { Moon, Sun, Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import bgPattern from "@/assets/bg-pattern.jpg";
+import bolaoIcon from "@/assets/bolaoai-icon.png";
 
 const nav = [
   { to: "/", label: "Início" },
@@ -48,10 +49,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 h-16 flex items-center gap-4">
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-pitch text-primary-foreground">
-              <Trophy className="h-5 w-5" />
-            </div>
-            <span className="text-lg font-black tracking-tight">CopaHub</span>
+            <img src={bolaoIcon} alt="BolaoAI" width={36} height={36} className="h-9 w-9 object-contain" />
+            <span className="text-lg font-black tracking-tight">BolaoAI</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 ml-4">
             {nav.map((n) => (
@@ -108,7 +107,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="flex-1">{children}</main>
       <footer className="border-t border-border mt-12">
         <div className="mx-auto max-w-7xl px-4 py-6 text-sm text-muted-foreground flex flex-wrap items-center justify-between gap-2">
-          <span>© CopaHub — Acompanhe a Copa do Mundo em tempo real.</span>
+          <span>© BolaoAI — Acompanhe a Copa do Mundo em tempo real.</span>
           <span className="text-xs">Estrutura pronta para integração com API externa.</span>
         </div>
       </footer>

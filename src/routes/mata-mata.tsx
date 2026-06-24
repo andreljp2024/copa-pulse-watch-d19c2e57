@@ -3,7 +3,7 @@ import { AppShell } from "@/components/AppShell";
 import { Trophy } from "lucide-react";
 
 export const Route = createFileRoute("/mata-mata")({
-  head: () => ({ meta: [{ title: "Mata-mata — CopaHub" }, { name: "description", content: "Chaveamento do mata-mata da Copa do Mundo." }] }),
+  head: () => ({ meta: [{ title: "Mata-mata — BolaoAI" }, { name: "description", content: "Chaveamento do mata-mata da Copa do Mundo." }] }),
   component: Page,
 });
 

@@ -10,7 +10,7 @@ import { format } from "date-fns";
 import { RefreshCw, LogOut, Shield, Trash2, Plus, Save, X } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  head: () => ({ meta: [{ title: "Admin — CopaHub" }] }),
+  head: () => ({ meta: [{ title: "Admin — BolaoAI" }] }),
   component: AdminPage,
 });
 

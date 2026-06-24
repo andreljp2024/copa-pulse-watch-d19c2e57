@@ -8,7 +8,7 @@ import { listMatches } from "@/lib/copa.functions";
 const opts = queryOptions({ queryKey: ["matches"], queryFn: () => listMatches() });
 
 export const Route = createFileRoute("/calendario")({
-  head: () => ({ meta: [{ title: "Calendário — CopaHub" }, { name: "description", content: "Todas as partidas da Copa com filtros por status, grupo e fase." }] }),
+  head: () => ({ meta: [{ title: "Calendário — BolaoAI" }, { name: "description", content: "Todas as partidas da Copa com filtros por status, grupo e fase." }] }),
   loader: ({ context }) => { context.queryClient.ensureQueryData(opts); },
   component: Page,
 });

@@ -7,7 +7,7 @@ import { listGroups } from "@/lib/copa.functions";
 const opts = queryOptions({ queryKey: ["groups"], queryFn: () => listGroups() });
 
 export const Route = createFileRoute("/grupos")({
-  head: () => ({ meta: [{ title: "Grupos — CopaHub" }, { name: "description", content: "Classificação atualizada de todos os grupos da Copa do Mundo." }] }),
+  head: () => ({ meta: [{ title: "Grupos — BolaoAI" }, { name: "description", content: "Classificação atualizada de todos os grupos da Copa do Mundo." }] }),
   loader: ({ context }) => { context.queryClient.ensureQueryData(opts); },
   component: Page,
 });
