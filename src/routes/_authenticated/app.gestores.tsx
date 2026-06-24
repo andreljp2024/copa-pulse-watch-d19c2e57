@@ -3,13 +3,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { format } from "date-fns";
-import { Shield, UserPlus, Pause, Play, Trash2, Mail } from "lucide-react";
+import { Shield, UserPlus, Pause, Play, Trash2, Mail, CreditCard } from "lucide-react";
 import {
   isSuperAdmin,
   listGestores,
   inviteGestor,
   updateGestorStatus,
   deleteGestor,
+  listPlanosAdmin,
+  changeGestorPlano,
 } from "@/lib/gestores.functions";
 
 export const Route = createFileRoute("/_authenticated/app/gestores")({
@@ -55,12 +57,22 @@ function GestoresPage() {
 }
 
 function GestoresInner({ listFn, inviteFn, statusFn, deleteFn, qc }: any) {
+  const planosFn = useServerFn(listPlanosAdmin);
+  const changePlanoFn = useServerFn(changeGestorPlano);
   const { data: gestores = [], isLoading } = useQuery({ queryKey: ["gestores"], queryFn: () => listFn() });
+  const { data: planos = [] } = useQuery({ queryKey: ["planos-admin"], queryFn: () => planosFn() });
   const [msg, setMsg] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ email: "", nome_responsavel: "", nome_estabelecimento: "" });
+  const [planoEdit, setPlanoEdit] = useState<Record<string, string>>({});
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["gestores"] });
+
+  const changePlano = useMutation({
+    mutationFn: (d: { tenant_id: string; plano_id: string }) => changePlanoFn({ data: d }),
+    onSuccess: (r: any) => { setMsg(`Plano alterado para ${r.plano}.`); invalidate(); },
+    onError: (e: any) => setMsg(e?.message ?? "Falha ao alterar plano."),
+  });
 
   const invite = useMutation({
     mutationFn: (d: typeof form) => inviteFn({ data: d }),
@@ -174,22 +186,47 @@ function GestoresInner({ listFn, inviteFn, statusFn, deleteFn, qc }: any) {
                 {g.last_sign_in_at ? ` • último login ${format(new Date(g.last_sign_in_at), "dd/MM HH:mm")}` : " • sem login"}
               </div>
             </div>
-            <div className="flex gap-1 self-start">
-              <button
-                onClick={() => toggleStatus.mutate(g)}
-                className="h-8 px-3 rounded-md border border-border text-xs font-semibold inline-flex items-center gap-1"
-                title={g.status === "active" ? "Suspender" : "Reativar"}
-              >
-                {g.status === "active" ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-                {g.status === "active" ? "Suspender" : "Reativar"}
-              </button>
-              <button
-                onClick={() => { if (confirm(`Excluir gestor "${g.nome_estabelecimento}"? Isso remove o tenant e o usuário de autenticação.`)) remove.mutate(g.id); }}
-                className="h-8 w-8 grid place-items-center rounded-md border border-border text-destructive"
-                title="Excluir"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
+            <div className="flex flex-col gap-1 self-start items-end">
+              <div className="flex gap-1">
+                <select
+                  value={planoEdit[g.id] ?? ""}
+                  onChange={(e) => setPlanoEdit({ ...planoEdit, [g.id]: e.target.value })}
+                  className="h-8 px-2 rounded-md border border-border bg-background text-xs"
+                  title="Selecionar plano"
+                >
+                  <option value="">Mudar plano…</option>
+                  {planos.map((p: any) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nome} {Number(p.preco) > 0 ? `· R$${Number(p.preco).toFixed(0)}` : "· grátis"}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  disabled={!planoEdit[g.id] || changePlano.isPending}
+                  onClick={() => changePlano.mutate({ tenant_id: g.id, plano_id: planoEdit[g.id] })}
+                  className="h-8 px-3 rounded-md bg-pitch text-primary-foreground text-xs font-bold inline-flex items-center gap-1 disabled:opacity-50"
+                  title="Aplicar plano"
+                >
+                  <CreditCard className="h-3.5 w-3.5" /> Aplicar
+                </button>
+              </div>
+              <div className="flex gap-1">
+                <button
+                  onClick={() => toggleStatus.mutate(g)}
+                  className="h-8 px-3 rounded-md border border-border text-xs font-semibold inline-flex items-center gap-1"
+                  title={g.status === "active" ? "Suspender" : "Reativar"}
+                >
+                  {g.status === "active" ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+                  {g.status === "active" ? "Suspender" : "Reativar"}
+                </button>
+                <button
+                  onClick={() => { if (confirm(`Excluir gestor "${g.nome_estabelecimento}"? Isso remove o tenant e o usuário de autenticação.`)) remove.mutate(g.id); }}
+                  className="h-8 w-8 grid place-items-center rounded-md border border-border text-destructive"
+                  title="Excluir"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         ))}

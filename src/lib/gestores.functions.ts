@@ -109,3 +109,57 @@ export const deleteGestor = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+export const listPlanosAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("planos")
+      .select("id, nome, preco, limite_boloes, limite_palpites, limite_torcedores, ativo")
+      .eq("ativo", true)
+      .order("preco", { ascending: true });
+    if (error) throw error;
+    return data ?? [];
+  });
+
+export const changeGestorPlano = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ tenant_id: z.string().uuid(), plano_id: z.string().uuid() }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: plano, error: pErr } = await supabaseAdmin
+      .from("planos").select("id, nome, ativo").eq("id", data.plano_id).maybeSingle();
+    if (pErr) throw pErr;
+    if (!plano || !plano.ativo) throw new Error("Plano inválido ou inativo.");
+
+    // Encerra assinaturas ativas
+    const now = new Date().toISOString();
+    await supabaseAdmin
+      .from("assinaturas")
+      .update({ status: "cancelada", data_fim: now })
+      .eq("tenant_id", data.tenant_id)
+      .eq("status", "ativa");
+
+    // Cria nova assinatura ativa
+    const { error: aErr } = await supabaseAdmin.from("assinaturas").insert({
+      tenant_id: data.tenant_id,
+      plano_id: plano.id,
+      status: "ativa",
+      data_inicio: now,
+      gateway_pagamento: "manual_admin",
+    });
+    if (aErr) throw aErr;
+
+    // Atualiza rótulo do plano no tenant
+    const { error: tErr } = await supabaseAdmin
+      .from("tenants").update({ plano: plano.nome }).eq("id", data.tenant_id);
+    if (tErr) throw tErr;
+
+    return { ok: true, plano: plano.nome };
+  });
