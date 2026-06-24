@@ -300,6 +300,16 @@ function PublicBolao() {
     }
   }
 
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  async function copyShare() {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch { /* noop */ }
+  }
+  const shareWa = `https://wa.me/?text=${encodeURIComponent(`Participe do bolão *${bolao.nome}* — palpite na Copa 2026! ${shareUrl}`)}`;
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
