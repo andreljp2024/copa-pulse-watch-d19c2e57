@@ -508,7 +508,7 @@ function SuccessPanel({
 }) {
   const [copied, setCopied] = useState(false);
   const payload = useMemo(
-    () => buildPixPayload({ chave: pix.chave_pix, nomeRecebedor: pix.nome_recebedor, valor }),
+    () => buildPixPayload({ chave: pix.chave_pix, nomeRecebedor: pix.nome_recebedor ?? "", valor }),
     [pix.chave_pix, pix.nome_recebedor, valor],
   );
 
