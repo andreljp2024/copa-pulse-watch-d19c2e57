@@ -39,7 +39,7 @@ function Page() {
         <div className="mx-auto max-w-7xl px-4 py-10 flex flex-wrap items-center gap-6">
           {t.flag_url && <img src={t.flag_url} alt={t.name} className="h-20 w-28 object-cover rounded-md ring-2 ring-white/30" />}
           <div className="min-w-0">
-            <div className="text-sm font-semibold text-primary-foreground/80">{t.confederation}{t.group?.name ? ` • Grupo ${t.group.name}` : ""}</div>
+            <div className="text-sm font-semibold text-primary-foreground/80">{(t.confederation && CONFED_PT[t.confederation]) || t.confederation || ""}{t.group?.name ? ` • Grupo ${t.group.name}` : ""}</div>
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight">{t.name}</h1>
             <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-primary-foreground/85">
               <span>Técnico: <span className="font-semibold text-primary-foreground">{t.coach_name ?? "—"}</span></span>
