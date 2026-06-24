@@ -1,10 +1,26 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { TeamBadge, MatchCard } from "@/components/MatchCard";
 import { getTeam } from "@/lib/copa.functions";
 
 const opts = (id: string) => queryOptions({ queryKey: ["team", id], queryFn: () => getTeam({ data: { id } }) });
+
+const CONFED_PT: Record<string, string> = {
+  UEFA: "Europa (UEFA)",
+  CONMEBOL: "América do Sul (CONMEBOL)",
+  CONCACAF: "América do Norte e Central (CONCACAF)",
+  AFC: "Ásia (AFC)",
+  CAF: "África (CAF)",
+  OFC: "Oceania (OFC)",
+};
+
+const POSITION_PT: Record<string, string> = {
+  GK: "Goleiro", Goalkeeper: "Goleiro",
+  DF: "Zagueiro", Defender: "Zagueiro",
+  MF: "Meio-campo", Midfielder: "Meio-campo",
+  FW: "Atacante", Forward: "Atacante", Attacker: "Atacante",
+};
 
 export const Route = createFileRoute("/selecoes/$id")({
   loader: ({ context, params }) => { context.queryClient.ensureQueryData(opts(params.id)); },
@@ -23,7 +39,7 @@ function Page() {
         <div className="mx-auto max-w-7xl px-4 py-10 flex flex-wrap items-center gap-6">
           {t.flag_url && <img src={t.flag_url} alt={t.name} className="h-20 w-28 object-cover rounded-md ring-2 ring-white/30" />}
           <div className="min-w-0">
-            <div className="text-sm font-semibold text-primary-foreground/80">{t.confederation}{t.group?.name ? ` • Grupo ${t.group.name}` : ""}</div>
+            <div className="text-sm font-semibold text-primary-foreground/80">{(t.confederation && CONFED_PT[t.confederation]) || t.confederation || ""}{t.group?.name ? ` • Grupo ${t.group.name}` : ""}</div>
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight">{t.name}</h1>
             <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-primary-foreground/85">
               <span>Técnico: <span className="font-semibold text-primary-foreground">{t.coach_name ?? "—"}</span></span>
@@ -52,7 +68,7 @@ function Page() {
               <div key={p.id} className="flex items-center gap-3 p-3">
                 <span className="grid h-8 w-8 place-items-center rounded-md bg-muted font-bold text-sm">{p.shirt_number ?? "?"}</span>
                 <span className="flex-1 truncate font-semibold">{p.name}</span>
-                <span className="text-xs text-muted-foreground">{p.position}</span>
+                <span className="text-xs text-muted-foreground">{(p.position && POSITION_PT[p.position]) || p.position || ""}</span>
               </div>
             ))}
           </div>
