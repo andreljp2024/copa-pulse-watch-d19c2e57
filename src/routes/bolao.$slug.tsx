@@ -106,7 +106,7 @@ function PublicBolao() {
   const [selected, setSelected] = useState<Match | null>(null);
   const [form, setForm] = useState({ nome: "", whatsapp: "", palpite_a: 0, palpite_b: 0 });
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState<string | null>(null);
+  const [done, setDone] = useState<{ link: string; protocolo: string } | null>(null);
 
 
   const palpiteAberto = useMemo(() => {
