@@ -490,7 +490,7 @@ function SuccessPanel({
     <div className="text-center space-y-4">
       <div className="text-4xl">🎉</div>
       <h3 className="font-display text-2xl font-black uppercase text-gradient-samba">Palpite registrado!</h3>
-      <div className="inline-block rounded-lg bg-gold/15 border border-gold/30 px-3 py-1 text-sm font-bold text-gold">Protocolo: {protocolo}</div>
+      <div className="inline-block rounded-lg bg-gold/15 border border-gold/30 px-3 py-1 text-xs font-bold text-gold">Protocolo(s): {protocolos.join(", ")}</div>
       <p className="text-sm text-muted-foreground">Guarde esse número para consultas. Pague o Pix e envie o comprovante pelo WhatsApp.</p>
 
       <div className="bg-white p-3 rounded-xl border border-border inline-block shadow-gold">
