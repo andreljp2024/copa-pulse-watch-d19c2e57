@@ -227,16 +227,17 @@ function PublicBolao() {
       }
 
       const dataHora = format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
-      const protocoloPrincipal = protocolos[0] ?? "—";
+      const protocolosStr = protocolos.join(", ");
       const msg =
-        `*${bolao.nome}*\n` +
-        `🧾 Aposta: *${protocoloPrincipal}*${protocolos.length > 1 ? ` (+${protocolos.length - 1})` : ""}\n` +
-        `📅 ${dataHora}\n` +
-        `Torcedor: ${form.nome} (${maskPhone(whatsapp)})\n\n` +
-        `*Palpites (${items.length})*\n${linhas.join("\n")}\n\n` +
-        `*Total a pagar:* ${brl(valorTotal)}\n` +
-        `Pix: ${pix.chave_pix} — ${pix.nome_recebedor}\n\n` +
-        `✅ Pix realizado — comprovante em anexo.`;
+        `Eu: ${form.nome}\n` +
+        `Whatsapp: ${maskPhone(whatsapp)}\n` +
+        `📅 ${dataHora}\n\n` +
+        `Acabei de registrar um palpite\n` +
+        `Em: *${bolao.nome}*\n` +
+        `Protocolo(s): ${protocolosStr}\n` +
+        `No total de *${brl(valorTotal)}*\n\n` +
+        `Já lhe envio o comprovante\n` +
+        `Para: ${pix.chave_pix}`;
       setDone({ link: buildWhatsAppLink(wa.numero_whatsapp, msg), protocolos, valorTotal });
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
     } catch (err) {
