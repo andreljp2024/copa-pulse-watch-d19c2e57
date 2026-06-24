@@ -3,13 +3,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { format } from "date-fns";
-import { Shield, UserPlus, Pause, Play, Trash2, Mail } from "lucide-react";
+import { Shield, UserPlus, Pause, Play, Trash2, Mail, CreditCard } from "lucide-react";
 import {
   isSuperAdmin,
   listGestores,
   inviteGestor,
   updateGestorStatus,
   deleteGestor,
+  listPlanosAdmin,
+  changeGestorPlano,
 } from "@/lib/gestores.functions";
 
 export const Route = createFileRoute("/_authenticated/app/gestores")({
