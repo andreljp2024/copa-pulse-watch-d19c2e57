@@ -186,7 +186,7 @@ function BolaoConfigPage() {
       {/* CARD: Jogos vinculados (tabela atualizada pela API) */}
       <section className="rounded-2xl border border-border bg-card p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-pitch" /><h2 className="font-bold">Jogos vinculados</h2></div>
+          <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-pitch" /><h2 className="font-bold">Jogos agendados</h2></div>
           <button type="button" onClick={loadMatches} disabled={loadingGames} className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground">
             <RefreshCw className={`h-3 w-3 ${loadingGames ? "animate-spin" : ""}`} /> Atualizar
           </button>
