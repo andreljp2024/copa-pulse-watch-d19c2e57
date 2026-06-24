@@ -12,12 +12,11 @@ export const Route = createFileRoute("/_authenticated/app/bolao")({
 });
 
 const SUGESTAO_REGRAS = `• Valor do palpite: R$ 10 por jogo.
-• Acertou o placar exato: 3 pontos. Acertou só o vencedor/empate: 1 ponto.
+• Acertou o placar exato: 3 pontos.
 • Distribuição do prêmio (do total arrecadado):
-   - 70% para o 1º colocado
-   - 20% para o 2º colocado
-   - 10% taxa de administração (organizador)
-• Em caso de empate na pontuação, o prêmio é dividido igualmente.
+   70% Para o torcedor que acertou.
+   30% Taxa de administração (organizador)
+• Em caso de vários ganhadores, o prêmio de 70% será dividido igualmente.
 • Palpites só são válidos após confirmação do Pix.
 • Não são aceitos palpites após o início da partida.`;
 
