@@ -65,19 +65,22 @@ function PalpitesPage() {
     const home = teams.get(r.matches?.home_team_id ?? "") ?? "?";
     const away = teams.get(r.matches?.away_team_id ?? "") ?? "?";
     const protocolo = fmtProtocolo(r.codigo);
-    const tpl =
-      waTpl ||
-      "Olá, {{nome_torcedor}}!\n\nSeu pagamento foi confirmado no {{nome_bolao}}.\n\nProtocolo: {{protocolo}}\nJogo: {{selecao_a}} x {{selecao_b}}\nSeu palpite: {{palpite_a}} x {{palpite_b}}\nValor: {{valor}}\nStatus: Pago ✅\n\nBoa sorte!";
-    const msg = interpolate(tpl, {
-      nome_torcedor: r.torcedores?.nome ?? "",
-      nome_bolao: r.boloes?.nome ?? "",
-      protocolo,
-      selecao_a: home,
-      selecao_b: away,
-      palpite_a: r.palpite_a,
-      palpite_b: r.palpite_b,
-      valor: brl(r.valor),
-    });
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const slug = r.boloes?.slug ?? "";
+    const whatsappDigits = (r.torcedores?.whatsapp ?? "").replace(/\D+/g, "");
+    const linkConsulta = slug ? `${origin}/meus-palpites/${slug}?w=${whatsappDigits}` : "";
+    const msg =
+      `Obrigado, ${r.torcedores?.nome ?? ""}! 🙏\n\n` +
+      `Confirmamos o recebimento do seu pagamento de *${brl(r.valor)}* no *${r.boloes?.nome ?? ""}*.\n\n` +
+      `Protocolo: *${protocolo}*\n` +
+      `Jogo: ${home} x ${away}\n` +
+      `Seu palpite: *${r.palpite_a} x ${r.palpite_b}*\n` +
+      `Status: *Pago ✅*\n\n` +
+      (linkConsulta
+        ? `📲 Acompanhe o resultado dos seus palpites a qualquer momento:\n${linkConsulta}\n\n` +
+          `(O acesso é vinculado a este número de WhatsApp — basta informá-lo na consulta.)\n\n`
+        : "") +
+      `Boa sorte! 🍀`;
     const link = buildWhatsAppLink(r.torcedores?.whatsapp ?? "", msg);
     void setStatus(r.id, "pago");
     window.open(link, "_blank", "noopener,noreferrer");
