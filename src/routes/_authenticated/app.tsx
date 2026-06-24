@@ -36,7 +36,7 @@ function AppLayout() {
   return (
     <div className="dark min-h-screen bg-background text-foreground flex">
       <aside className="w-60 hidden md:flex flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-        <Link to="/" className="px-5 h-16 flex items-center font-black tracking-tight border-b border-sidebar-border text-sidebar-foreground">BolaoAI SaaS</Link>
+        <Link to="/" className="px-5 h-16 flex items-center font-black tracking-tight border-b border-sidebar-border text-sidebar-foreground">Bolão AI SaaS</Link>
         <nav className="flex-1 p-3 space-y-1">
           {nav.map(({ to, label, icon: Icon, exact }) => (
             <Link key={to} to={to} activeOptions={{ exact: !!exact }}

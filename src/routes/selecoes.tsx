@@ -7,7 +7,7 @@ import { listTeams } from "@/lib/copa.functions";
 const opts = queryOptions({ queryKey: ["teams"], queryFn: () => listTeams() });
 
 export const Route = createFileRoute("/selecoes")({
-  head: () => ({ meta: [{ title: "Seleções — BolaoAI" }, { name: "description", content: "Todas as seleções da Copa do Mundo." }] }),
+  head: () => ({ meta: [{ title: "Seleções — Bolão AI" }, { name: "description", content: "Todas as seleções da Copa do Mundo." }] }),
   loader: ({ context }) => { context.queryClient.ensureQueryData(opts); },
   component: Page,
 });

@@ -15,9 +15,9 @@ const dashboardOpts = queryOptions({ queryKey: ["dashboard"], queryFn: () => get
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "BolaoAI — Painel da Copa do Mundo" },
+      { title: "Bolão AI — Painel da Copa do Mundo" },
       { name: "description", content: "Resumo da Copa: jogos ao vivo, próximos jogos, resultados, classificação e artilheiros." },
-      { property: "og:title", content: "BolaoAI — Painel da Copa do Mundo" },
+      { property: "og:title", content: "Bolão AI — Painel da Copa do Mundo" },
       { property: "og:description", content: "Tudo da Copa em um só lugar." },
     ],
   }),

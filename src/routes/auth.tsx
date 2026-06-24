@@ -8,7 +8,7 @@ import { friendlyError } from "@/lib/errors";
 import { Trophy } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Entrar — BolaoAI" }] }),
+  head: () => ({ meta: [{ title: "Entrar — Bolão AI" }] }),
   component: Page,
 });
 
@@ -107,7 +107,7 @@ function Page() {
         <div className="flex items-center gap-2 mb-6">
           <div className="grid h-10 w-10 place-items-center rounded-xl bg-pitch text-primary-foreground"><Trophy className="h-5 w-5" /></div>
           <div>
-            <h1 className="text-2xl font-black">Entrar no BolaoAI</h1>
+            <h1 className="text-2xl font-black">Entrar no Bolão AI</h1>
             <p className="text-sm text-muted-foreground">Acesse seu bolão</p>
           </div>
         </div>
