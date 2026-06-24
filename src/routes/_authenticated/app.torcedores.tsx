@@ -128,13 +128,17 @@ function TorcedoresPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div>
-          <h1 className="text-2xl font-black">Leads de torcedores</h1>
-          <p className="text-sm text-muted-foreground">Cada palpite é um lead — nome, WhatsApp, jogo, data e valor da aposta.</p>
-        </div>
-        <button onClick={exportCsv} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold"><Download className="h-4 w-4" /> Exportar CSV</button>
-      </div>
+      <PageHeader
+        title="Leads de torcedores"
+        subtitle="Cada palpite é um lead — nome, WhatsApp, jogo, data e valor."
+        icon={<Users className="h-5 w-5" />}
+        actions={
+          <button onClick={exportCsv} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10">
+            <Download className="h-4 w-4" /> Exportar CSV
+          </button>
+        }
+      />
+
 
       <div className="grid grid-cols-3 gap-3">
         <StatCard label="Leads" value={String(totals.leads)} />
