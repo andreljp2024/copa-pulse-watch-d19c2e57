@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
-import { isAdmin, claimFirstAdmin, syncFromExternalApi, listSyncLogs, upsertMatch, deleteMatch, upsertTeam } from "@/lib/admin.functions";
+import { isAdmin, syncFromExternalApi, listSyncLogs, upsertMatch, deleteMatch, upsertTeam } from "@/lib/admin.functions";
 import { listMatches, listTeams, listGroups } from "@/lib/copa.functions";
 import { format } from "date-fns";
 import { RefreshCw, LogOut, Shield, Trash2, Plus, Save, X } from "lucide-react";
@@ -18,7 +18,7 @@ function AdminPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const adminCheck = useServerFn(isAdmin);
-  const claim = useServerFn(claimFirstAdmin);
+  
   const sync = useServerFn(syncFromExternalApi);
   const logsFn = useServerFn(listSyncLogs);
 
@@ -31,15 +31,8 @@ function AdminPage() {
     onSuccess: (r) => { setMsg(r.message); qc.invalidateQueries({ queryKey: ["syncLogs"] }); },
     onError: (e: any) => setMsg(e.message),
   });
-  const claimMut = useMutation({
-    mutationFn: () => claim(),
-    onSettled: () => refetchAdmin(),
-    onSuccess: (r) => {
-      if (r.ok) setMsg(r.alreadyAdmin ? "Você já é administrador." : "Você agora é administrador.");
-      else setMsg(r.message + " (Se você já é admin, recarregue a página.)");
-    },
-    onError: (e: any) => setMsg(e?.message ?? "Falha ao reivindicar admin."),
-  });
+
+
 
   async function signOut() {
     await qc.cancelQueries();
@@ -56,16 +49,14 @@ function AdminPage() {
         <div className="mx-auto max-w-md px-4 py-16 text-center">
           <Shield className="h-10 w-10 mx-auto text-pitch" />
           <h1 className="mt-4 text-2xl font-black">Acesso restrito</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Você precisa de papel de administrador.</p>
-          <button onClick={() => claimMut.mutate()} className="mt-4 inline-flex h-10 items-center rounded-lg bg-pitch px-4 text-sm font-bold text-primary-foreground">
-            Sou o primeiro admin
-          </button>
+          <p className="mt-2 text-sm text-muted-foreground">Você precisa de papel de administrador. Peça a um administrador existente para conceder acesso.</p>
           {msg && <p className="mt-3 text-sm">{msg}</p>}
           <button onClick={signOut} className="mt-6 text-xs text-muted-foreground underline">Sair</button>
         </div>
       </AppShell>
     );
   }
+
 
   return (
     <AppShell>

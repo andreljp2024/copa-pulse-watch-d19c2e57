@@ -7,13 +7,14 @@ export const Route = createFileRoute("/api/public/hooks/sync-football")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apikey = request.headers.get("apikey") ?? request.headers.get("x-api-key");
-        const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
-        if (!expected || apikey !== expected) {
+        const apikey = request.headers.get("apikey") ?? request.headers.get("x-cron-secret") ?? request.headers.get("x-api-key");
+        const expected = process.env.CRON_SECRET;
+        if (!expected || !apikey || apikey !== expected) {
           return new Response(JSON.stringify({ error: "Unauthorized" }), {
             status: 401, headers: { "Content-Type": "application/json" },
           });
         }
+
         const { syncFootballData } = await import("@/lib/football-sync.server");
         const result = await syncFootballData("pg_cron");
         return new Response(JSON.stringify(result), {
