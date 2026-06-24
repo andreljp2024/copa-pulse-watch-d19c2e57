@@ -1,6 +1,6 @@
 ---
 name: "Audit: Legal Risks"
-description: Verifica os requisitos legais antes de cobrar usuários: presença e qualidade da Política de Privacidade e Termos de Uso, conformidade com LGPD/GDPR, termos de propriedade de código das ferramentas de IA utilizadas (Lovable, Cursor etc.), e dependências open-source com licenças copyleft que podem exigir publicação do código-fonte. Indica o que está faltando e sugere textos e implementações necessários.
+description: "Verifica os requisitos legais antes de cobrar usuários: presença e qualidade da Política de Privacidade e Termos de Uso, conformidade com LGPD/GDPR, termos de propriedade de código das ferramentas de IA utilizadas (Lovable, Cursor etc.), e dependências open-source com licenças copyleft que podem exigir publicação do código-fonte. Indica o que está faltando e sugere textos e implementações necessários."
 ---
 
 Audit this project for legal risks before charging users. Check the following in order of severity.
