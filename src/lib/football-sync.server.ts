@@ -1,0 +1,131 @@
+// Server-only helper that pulls teams + matches from football-data.org
+// and upserts them into Supabase. Shared by the admin "Sync now" button
+// and by the /api/public/hooks/sync-football cron endpoint (every 5 min).
+
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
+const FD_BASE = "https://api.football-data.org/v4";
+const FD_COMPETITION = process.env.FOOTBALL_COMPETITION ?? "WC";
+
+async function fd<T>(path: string): Promise<T> {
+  const key = process.env.FOOTBALL_API_KEY;
+  if (!key) throw new Error("FOOTBALL_API_KEY ausente");
+  const res = await fetch(`${FD_BASE}${path}`, { headers: { "X-Auth-Token": key } });
+  if (!res.ok) throw new Error(`football-data ${path} → ${res.status} ${await res.text().catch(() => "")}`);
+  return res.json() as Promise<T>;
+}
+
+function mapStatus(s: string): "scheduled" | "live" | "finished" | "postponed" | "cancelled" {
+  switch (s) {
+    case "FINISHED": case "AWARDED": return "finished";
+    case "IN_PLAY": case "PAUSED": case "LIVE": return "live";
+    case "POSTPONED": case "SUSPENDED": return "postponed";
+    case "CANCELLED": return "cancelled";
+    default: return "scheduled";
+  }
+}
+
+function mapPhase(stage: string): "group" | "round_of_16" | "quarter" | "semi" | "third_place" | "final" {
+  switch (stage) {
+    case "LAST_16": return "round_of_16";
+    case "QUARTER_FINALS": return "quarter";
+    case "SEMI_FINALS": return "semi";
+    case "THIRD_PLACE": return "third_place";
+    case "FINAL": return "final";
+    default: return "group";
+  }
+}
+
+export type SyncResult = {
+  ok: boolean;
+  status: "success" | "error" | "skipped";
+  message: string;
+  summary?: { teams_upserted: number; matches_upserted: number; matches_updated: number };
+};
+
+export async function syncFootballData(triggeredBy: string): Promise<SyncResult> {
+  const sb = supabaseAdmin;
+
+  if (!process.env.FOOTBALL_API_KEY) {
+    const message = "FOOTBALL_API_KEY não configurada.";
+    await sb.from("api_sync_logs").insert({
+      source: "football-data", action: "sync_all", status: "skipped", message, payload: { triggered_by: triggeredBy },
+    });
+    return { ok: false, status: "skipped", message };
+  }
+
+  const summary = { teams_upserted: 0, matches_upserted: 0, matches_updated: 0 };
+  try {
+    // 1) Teams — upsert by code (UNIQUE)
+    const teamsResp = await fd<{ teams: Array<{ id: number; name: string; tla: string; crest: string; coach?: { name?: string } }> }>(
+      `/competitions/${FD_COMPETITION}/teams`,
+    );
+    const teamRows = teamsResp.teams.map((t) => ({
+      name: t.name,
+      code: (t.tla ?? t.name.slice(0, 3)).toUpperCase(),
+      flag_url: t.crest ?? null,
+      coach_name: t.coach?.name ?? null,
+    }));
+    if (teamRows.length) {
+      const { error } = await sb.from("teams").upsert(teamRows, { onConflict: "code" });
+      if (error) throw error;
+      summary.teams_upserted = teamRows.length;
+    }
+
+    const { data: teams } = await sb.from("teams").select("id, code");
+    const teamByCode = new Map<string, string>((teams ?? []).map((t: any) => [t.code, t.id]));
+
+    // 2) Matches — UPSERT (do NOT wipe, palpites cascade on match deletes)
+    const matchesResp = await fd<{ matches: Array<any> }>(`/competitions/${FD_COMPETITION}/matches`);
+    const { data: groups } = await sb.from("groups").select("id, name");
+    const groupByName = new Map<string, string>((groups ?? []).map((g: any) => [g.name.toUpperCase(), g.id]));
+
+    const matchRows: any[] = [];
+    for (const m of matchesResp.matches) {
+      const homeCode = (m.homeTeam?.tla ?? "").toUpperCase();
+      const awayCode = (m.awayTeam?.tla ?? "").toUpperCase();
+      const homeId = teamByCode.get(homeCode);
+      const awayId = teamByCode.get(awayCode);
+      if (!homeId || !awayId) continue;
+      let groupId: string | null = null;
+      if (m.group && typeof m.group === "string") {
+        const letter = m.group.replace(/^GROUP_/, "").toUpperCase();
+        groupId = groupByName.get(letter) ?? null;
+      }
+      matchRows.push({
+        home_team_id: homeId,
+        away_team_id: awayId,
+        group_id: groupId,
+        phase: mapPhase(m.stage ?? "GROUP_STAGE"),
+        kickoff_at: m.utcDate,
+        status: mapStatus(m.status ?? "SCHEDULED"),
+        home_score: m.score?.fullTime?.home ?? 0,
+        away_score: m.score?.fullTime?.away ?? 0,
+      });
+    }
+
+    if (matchRows.length) {
+      // Requires UNIQUE (home_team_id, away_team_id, kickoff_at) — added via migration.
+      const { error, count } = await sb
+        .from("matches")
+        .upsert(matchRows, { onConflict: "home_team_id,away_team_id,kickoff_at", count: "exact" });
+      if (error) throw error;
+      summary.matches_upserted = matchRows.length;
+      summary.matches_updated = count ?? 0;
+    }
+
+    const message = `Sync OK: ${summary.teams_upserted} seleções, ${summary.matches_upserted} jogos (upsert).`;
+    await sb.from("api_sync_logs").insert({
+      source: "football-data", action: "sync_all", status: "success", message,
+      payload: { triggered_by: triggeredBy, ...summary },
+    });
+    return { ok: true, status: "success", message, summary };
+  } catch (e: any) {
+    const message = `Falha na sincronização: ${e.message ?? String(e)}`;
+    await sb.from("api_sync_logs").insert({
+      source: "football-data", action: "sync_all", status: "error", message,
+      payload: { triggered_by: triggeredBy },
+    });
+    return { ok: false, status: "error", message };
+  }
+}
