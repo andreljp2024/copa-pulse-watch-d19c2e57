@@ -222,7 +222,7 @@ function Onboarding() {
                 <Input label="Cidade" value={s2.cidade} onChange={(v) => setS2({ ...s2, cidade: v })} />
               </div>
               <Input label="Valor padrão do palpite (R$)" type="number" value={String(s2.valor_padrao_palpite)} onChange={(v) => setS2({ ...s2, valor_padrao_palpite: Number(v) })} />
-              <Textarea label="Instruções de pagamento (opcional)" value={s2.instrucoes_pagamento} onChange={(v) => setS2({ ...s2, instrucoes_pagamento: v })} />
+              <Textarea label="Instruções de pagamento (opcional)" value={s2.instrucoes_pagamento} onChange={(v) => setS2({ ...s2, instrucoes_pagamento: v })} placeholder={`Ex.: Após o PIX, envie o comprovante no WhatsApp (XX) 9XXXX-XXXX.\nIdentifique o pagamento com seu nome completo e o nome do bolão.\nPalpites são confirmados em até 10 minutos após o envio do comprovante.`} />
             </Form>
           )}
           {step === 3 && (
