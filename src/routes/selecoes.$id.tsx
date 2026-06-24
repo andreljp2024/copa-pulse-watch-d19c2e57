@@ -1,10 +1,26 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { TeamBadge, MatchCard } from "@/components/MatchCard";
 import { getTeam } from "@/lib/copa.functions";
 
 const opts = (id: string) => queryOptions({ queryKey: ["team", id], queryFn: () => getTeam({ data: { id } }) });
+
+const CONFED_PT: Record<string, string> = {
+  UEFA: "Europa (UEFA)",
+  CONMEBOL: "América do Sul (CONMEBOL)",
+  CONCACAF: "América do Norte e Central (CONCACAF)",
+  AFC: "Ásia (AFC)",
+  CAF: "África (CAF)",
+  OFC: "Oceania (OFC)",
+};
+
+const POSITION_PT: Record<string, string> = {
+  GK: "Goleiro", Goalkeeper: "Goleiro",
+  DF: "Zagueiro", Defender: "Zagueiro",
+  MF: "Meio-campo", Midfielder: "Meio-campo",
+  FW: "Atacante", Forward: "Atacante", Attacker: "Atacante",
+};
 
 export const Route = createFileRoute("/selecoes/$id")({
   loader: ({ context, params }) => { context.queryClient.ensureQueryData(opts(params.id)); },
