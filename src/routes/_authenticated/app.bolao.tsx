@@ -164,7 +164,26 @@ function BolaoConfigPage() {
   const ready = checksOk === checks.length;
 
   return (
-    <div className="max-w-5xl space-y-6 pb-32">
+    <div
+      className="max-w-5xl space-y-6 pb-32 bg-background text-foreground p-4 sm:p-6 rounded-2xl"
+      style={{
+        // Tema claro escopado ao módulo "Meu Bolão" — mantém verde-amarelo BR
+        ["--background" as any]: "oklch(98% 0.012 145)",
+        ["--foreground" as any]: "oklch(20% 0.04 158)",
+        ["--card" as any]: "oklch(100% 0 0)",
+        ["--card-foreground" as any]: "oklch(20% 0.04 158)",
+        ["--popover" as any]: "oklch(100% 0 0)",
+        ["--popover-foreground" as any]: "oklch(20% 0.04 158)",
+        ["--muted" as any]: "oklch(95% 0.02 145)",
+        ["--muted-foreground" as any]: "oklch(42% 0.03 158)",
+        ["--secondary" as any]: "oklch(94% 0.03 145)",
+        ["--secondary-foreground" as any]: "oklch(22% 0.04 158)",
+        ["--border" as any]: "oklch(90% 0.02 145)",
+        ["--input" as any]: "oklch(92% 0.02 145)",
+        ["--accent" as any]: "oklch(92% 0.06 92)",
+        ["--accent-foreground" as any]: "oklch(22% 0.04 158)",
+      } as React.CSSProperties}
+    >
       {/* HEADER */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
