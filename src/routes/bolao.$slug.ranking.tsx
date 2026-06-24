@@ -18,7 +18,7 @@ const rankingOpts = (slug: string) =>
     queryFn: async () => {
       const { data: bolao, error } = await supabase
         .from("boloes")
-        .select("id, nome, slug, cor_primaria, tenant_id")
+        .select("id, nome, slug, cor_primaria")
         .eq("slug", slug)
         .eq("status", "active")
         .maybeSingle();
