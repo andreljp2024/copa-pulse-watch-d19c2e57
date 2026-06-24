@@ -134,9 +134,44 @@ function PublicBolao() {
   const { data } = useSuspenseQuery(bolaoPublicOpts(slug));
   const { bolao, matches, teams, pix, wa, totalPalpites } = data;
   const [selected, setSelected] = useState<Match | null>(null);
-  const [form, setForm] = useState({ nome: "", whatsapp: "", palpite_a: 0, palpite_b: 0 });
+  const [step, setStep] = useState<"identidade" | "palpites">("identidade");
+  const [form, setForm] = useState({ nome: "", whatsapp: "" });
+  const [items, setItems] = useState<Array<{ match_id: string; palpite_a: number; palpite_b: number }>>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState<{ link: string; protocolo: string } | null>(null);
+  const [done, setDone] = useState<{ link: string; protocolos: string[]; valorTotal: number } | null>(null);
+
+  const openMatches = useMemo(() => {
+    const now = Date.now();
+    return matches.filter((m) => {
+      const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= now : false;
+      return !kickoffPassed && m.status !== "live" && m.status !== "finished";
+    });
+  }, [matches]);
+
+  const valorUnit = Number(bolao.valor_palpite) || 0;
+  const valorTotal = items.length * valorUnit;
+
+  function openModal(match: Match | null) {
+    const first = match ?? openMatches[0] ?? null;
+    setSelected(first);
+    setStep("identidade");
+    setForm({ nome: "", whatsapp: "" });
+    setItems(first ? [{ match_id: first.id, palpite_a: 0, palpite_b: 0 }] : []);
+    setDone(null);
+  }
+
+  function setQuantidade(n: number) {
+    const qtd = Math.max(1, Math.min(20, n || 1));
+    setItems((prev) => {
+      const next = prev.slice(0, qtd);
+      while (next.length < qtd) {
+        const usados = new Set(next.map((i) => i.match_id));
+        const livre = openMatches.find((m) => !usados.has(m.id)) ?? openMatches[0];
+        next.push({ match_id: livre?.id ?? "", palpite_a: 0, palpite_b: 0 });
+      }
+      return next;
+    });
+  }
 
   const featured = useMemo(() => {
     const now = Date.now();
@@ -152,46 +187,52 @@ function PublicBolao() {
     return new Date(bolao.data_limite_palpite) > new Date();
   }, [bolao.data_limite_palpite]);
 
-  async function submitPalpite(e: React.FormEvent) {
+  function avancarIdentidade(e: React.FormEvent) {
     e.preventDefault();
-    if (!selected || !wa || !pix) return;
-    const whatsapp = onlyDigits(form.whatsapp);
-    if (whatsapp.length < 10) {
+    if (onlyDigits(form.whatsapp).length < 10) {
       alert("Informe um WhatsApp válido com DDD.");
       return;
     }
+    if (items.length === 0) setQuantidade(1);
+    setStep("palpites");
+  }
+
+  async function submitPalpite(e: React.FormEvent) {
+    e.preventDefault();
+    if (!wa || !pix || items.length === 0) return;
+    const whatsapp = onlyDigits(form.whatsapp);
     setSubmitting(true);
     try {
-      const { data: rData, error: rErr } = await supabase.rpc("submit_palpite", {
-        p_bolao_id: bolao.id,
-        p_nome: form.nome.trim(),
-        p_whatsapp: whatsapp,
-        p_match_id: selected.id,
-        p_palpite_a: form.palpite_a,
-        p_palpite_b: form.palpite_b,
-      });
-      if (rErr) throw rErr;
-      const protocolo = Array.isArray(rData) && rData[0]?.codigo
-        ? `BOL-${String(rData[0].codigo).padStart(4, "0")}`
-        : "—";
-      const home = teams.get(selected.home_team_id ?? "");
-      const away = teams.get(selected.away_team_id ?? "");
-      const msg = interpolate(wa.mensagem_novo_palpite ?? "", {
-        nome_bolao: bolao.nome,
-        nome_torcedor: form.nome,
-        whatsapp_torcedor: whatsapp,
-        selecao_a: ptTeamName(home?.name),
-        selecao_b: ptTeamName(away?.name),
-        palpite_a: form.palpite_a,
-        palpite_b: form.palpite_b,
-        valor_palpite: brl(bolao.valor_palpite),
-        nome_recebedor: pix.nome_recebedor,
-        banco: pix.banco ?? "",
-        chave_pix: pix.chave_pix,
-        protocolo,
-      }) + `\n\nProtocolo: ${protocolo}`;
-      setDone({ link: buildWhatsAppLink(wa.numero_whatsapp, msg), protocolo });
+      const protocolos: string[] = [];
+      const linhas: string[] = [];
+      for (const it of items) {
+        if (!it.match_id) continue;
+        const { data: rData, error: rErr } = await supabase.rpc("submit_palpite", {
+          p_bolao_id: bolao.id,
+          p_nome: form.nome.trim(),
+          p_whatsapp: whatsapp,
+          p_match_id: it.match_id,
+          p_palpite_a: it.palpite_a,
+          p_palpite_b: it.palpite_b,
+        });
+        if (rErr) throw rErr;
+        const protocolo = Array.isArray(rData) && rData[0]?.codigo
+          ? `BOL-${String(rData[0].codigo).padStart(4, "0")}`
+          : "—";
+        protocolos.push(protocolo);
+        const m = matches.find((x) => x.id === it.match_id);
+        const home = teams.get(m?.home_team_id ?? "");
+        const away = teams.get(m?.away_team_id ?? "");
+        linhas.push(`• ${ptTeamName(home?.name)} ${it.palpite_a} x ${it.palpite_b} ${ptTeamName(away?.name)}  (${protocolo})`);
+      }
 
+      const msg =
+        `*${bolao.nome}*\n` +
+        `Torcedor: ${form.nome} (${maskPhone(whatsapp)})\n\n` +
+        `*Palpites (${items.length})*\n${linhas.join("\n")}\n\n` +
+        `*Total a pagar:* ${brl(valorTotal)}\n` +
+        `Pix: ${pix.chave_pix} — ${pix.nome_recebedor}`;
+      setDone({ link: buildWhatsAppLink(wa.numero_whatsapp, msg), protocolos, valorTotal });
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erro ao enviar palpite");
