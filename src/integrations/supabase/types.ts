@@ -1175,7 +1175,10 @@ export type Database = {
           p_palpite_b: number
           p_whatsapp: string
         }
-        Returns: string
+        Returns: {
+          codigo: number
+          palpite_id: string
+        }[]
       }
     }
     Enums: {
