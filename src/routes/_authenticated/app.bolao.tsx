@@ -56,7 +56,17 @@ function BolaoConfigPage() {
       <Field label="Nome"><input required value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className={inputCss} /></Field>
       <Field label="Slug (link público /bolao/...)"><input required value={form.slug} onChange={(e) => setForm({ ...form, slug: slugify(e.target.value) })} className={inputCss} /></Field>
       <Field label="Descrição"><textarea rows={2} value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} className={inputCss} /></Field>
-      <Field label="Regras"><textarea rows={4} value={form.regras} onChange={(e) => setForm({ ...form, regras: e.target.value })} className={inputCss} /></Field>
+      <Field label="Regras"><textarea rows={10} value={form.regras} onChange={(e) => setForm({ ...form, regras: e.target.value })} className={inputCss} placeholder={`Exemplo de regras:
+
+• Valor do palpite: R$ 10 por jogo.
+• Acertou o placar exato: 3 pontos. Acertou só o vencedor/empate: 1 ponto.
+• Distribuição do prêmio (do total arrecadado):
+   - 70% para o 1º colocado
+   - 20% para o 2º colocado
+   - 10% taxa de administração (organizador)
+• Em caso de empate na pontuação, o prêmio é dividido igualmente.
+• Palpites só são válidos após confirmação do Pix.
+• Não são aceitos palpites após o início da partida.`} /></Field>
       <div className="grid grid-cols-2 gap-3">
         <Field label="Valor do palpite (R$)"><input type="number" value={form.valor_palpite} onChange={(e) => setForm({ ...form, valor_palpite: Number(e.target.value) })} className={inputCss} /></Field>
         <Field label="Data limite para palpite"><input type="datetime-local" value={form.data_limite_palpite} onChange={(e) => setForm({ ...form, data_limite_palpite: e.target.value })} className={inputCss} /></Field>
