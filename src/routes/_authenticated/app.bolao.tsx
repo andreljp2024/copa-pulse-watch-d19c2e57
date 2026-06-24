@@ -40,11 +40,17 @@ function BolaoConfigPage() {
   const [teams, setTeams] = useState<Map<string, Team>>(new Map());
   const [loadingGames, setLoadingGames] = useState(false);
   const [selectedMatchIds, setSelectedMatchIds] = useState<Set<string>>(new Set());
+  const [initialSelectedIds, setInitialSelectedIds] = useState<Set<string>>(new Set());
   const [divulgCopied, setDivulgCopied] = useState(false);
   const [tab, setTab] = useState<TabId>("config");
 
   const shareUrl = useMemo(() => (form.slug ? publicBolaoUrl(form.slug) : ""), [form.slug]);
-  const dirty = useMemo(() => JSON.stringify(form) !== JSON.stringify(initialForm), [form, initialForm]);
+  const selectionDirty = useMemo(() => {
+    if (selectedMatchIds.size !== initialSelectedIds.size) return true;
+    for (const id of selectedMatchIds) if (!initialSelectedIds.has(id)) return true;
+    return false;
+  }, [selectedMatchIds, initialSelectedIds]);
+  const dirty = useMemo(() => JSON.stringify(form) !== JSON.stringify(initialForm) || selectionDirty, [form, initialForm, selectionDirty]);
 
   async function loadMatches() {
     setLoadingGames(true);
@@ -76,6 +82,10 @@ function BolaoConfigPage() {
           data_limite_palpite: b.data_limite_palpite ? b.data_limite_palpite.slice(0, 16) : "",
         };
         setForm(next); setInitialForm(next);
+        const { data: bm } = await supabase.from("bolao_matches").select("match_id").eq("bolao_id", b.id);
+        const ids = new Set<string>((bm ?? []).map((r: any) => r.match_id));
+        setSelectedMatchIds(ids);
+        setInitialSelectedIds(ids);
       }
       await loadMatches();
     })();
@@ -91,9 +101,24 @@ function BolaoConfigPage() {
       data_limite_palpite: form.data_limite_palpite ? new Date(form.data_limite_palpite).toISOString() : null,
     };
     const { error } = await supabase.from("boloes").update(payload).eq("id", bolaoId);
+    if (error) { setSaving(false); setMsg({ kind: "err", text: error.message }); return; }
+
+    // Persistir jogos vinculados ao bolão
+    const toRemove = [...initialSelectedIds].filter((id) => !selectedMatchIds.has(id));
+    const toAdd = [...selectedMatchIds].filter((id) => !initialSelectedIds.has(id));
+    if (toRemove.length) {
+      const { error: delErr } = await supabase.from("bolao_matches").delete().eq("bolao_id", bolaoId).in("match_id", toRemove);
+      if (delErr) { setSaving(false); setMsg({ kind: "err", text: delErr.message }); return; }
+    }
+    if (toAdd.length) {
+      const { error: insErr } = await supabase.from("bolao_matches").insert(toAdd.map((match_id) => ({ bolao_id: bolaoId, match_id })));
+      if (insErr) { setSaving(false); setMsg({ kind: "err", text: insErr.message }); return; }
+    }
     setSaving(false);
-    if (error) setMsg({ kind: "err", text: error.message });
-    else { setMsg({ kind: "ok", text: "Alterações salvas." }); setInitialForm(form); setTimeout(() => setMsg(null), 2500); }
+    setMsg({ kind: "ok", text: "Alterações salvas." });
+    setInitialForm(form);
+    setInitialSelectedIds(new Set(selectedMatchIds));
+    setTimeout(() => setMsg(null), 2500);
   }
 
   async function copyShare() {
@@ -199,7 +224,7 @@ function BolaoConfigPage() {
         </div>
         <div className="grid grid-cols-3 gap-2 text-center sm:text-right">
           <Stat icon={<DollarSign className="h-3.5 w-3.5" />} label="Valor" value={`R$ ${Number(form.valor_palpite || 0).toFixed(0)}`} />
-          <Stat icon={<Calendar className="h-3.5 w-3.5" />} label="Jogos" value={String(matches.length)} />
+          <Stat icon={<Calendar className="h-3.5 w-3.5" />} label="Jogos" value={String(selectedMatchIds.size)} />
           <Stat icon={<Clock className="h-3.5 w-3.5" />} label="Limite" value={form.data_limite_palpite ? new Date(form.data_limite_palpite).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "Início do jogo"} />
         </div>
       </header>
@@ -348,8 +373,8 @@ function BolaoConfigPage() {
 
           {/* DIVULGAÇÃO EM MASSA */}
           <Card
-            title="Convite com jogos da rodada"
-            desc="Selecione jogos e gere um texto pronto para WhatsApp com link e detalhes."
+            title="Jogos deste bolão"
+            desc="Marque os confrontos que farão parte deste link. O criativo público e a prévia do WhatsApp usam exatamente esses jogos. Lembre de Salvar."
             action={
               <div className="flex items-center gap-3">
                 {matches.length > 0 && (

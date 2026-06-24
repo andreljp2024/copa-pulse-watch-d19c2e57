@@ -6,6 +6,7 @@ import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
 import { buildPixPayload } from "@/lib/pix";
+import { ptTeamName } from "@/components/MatchCard";
 import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered, Clock, Users, Flame, Sparkles, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -35,11 +36,8 @@ const bolaoPublicOpts = (slug: string) =>
       if (error) throw error;
       if (!bolao) throw notFound();
 
-      const [m, t, p, w, pc] = await Promise.all([
-        supabase
-          .from("matches")
-          .select("id, home_team_id, away_team_id, kickoff_at, status, home_score, away_score")
-          .order("kickoff_at", { ascending: true }),
+      const [bm, t, p, w, pc] = await Promise.all([
+        supabase.from("bolao_matches").select("match_id").eq("bolao_id", bolao.id),
         supabase.from("teams").select("id, name, code, flag_url"),
         supabase
           .from("tenant_pix_config")
@@ -57,9 +55,20 @@ const bolaoPublicOpts = (slug: string) =>
           .eq("bolao_id", bolao.id),
       ]);
 
+      const matchIds = (bm.data ?? []).map((r: any) => r.match_id as string);
+      let matchesData: Match[] = [];
+      if (matchIds.length > 0) {
+        const { data: mrows } = await supabase
+          .from("matches")
+          .select("id, home_team_id, away_team_id, kickoff_at, status, home_score, away_score")
+          .in("id", matchIds)
+          .order("kickoff_at", { ascending: true });
+        matchesData = (mrows ?? []) as Match[];
+      }
+
       return {
         bolao,
-        matches: (m.data ?? []) as Match[],
+        matches: matchesData,
         teams: new Map<string, TeamLite>(
           (t.data ?? []).map((x) => [x.id, { name: x.name, code: x.code, flag_url: x.flag_url }]),
         ),
@@ -75,17 +84,30 @@ const bolaoPublicOpts = (slug: string) =>
 
 export const Route = createFileRoute("/bolao/$slug")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(bolaoPublicOpts(params.slug)),
-  head: ({ loaderData }) => ({
-    meta: loaderData
-      ? [
-          { title: `${loaderData.bolao.nome} — Bolão Copa 2026` },
-          { name: "description", content: loaderData.bolao.descricao ?? `Participe do ${loaderData.bolao.nome}.` },
-          { property: "og:title", content: loaderData.bolao.nome },
-          { property: "og:description", content: loaderData.bolao.descricao ?? "Faça seu palpite e concorra." },
-          ...(loaderData.bolao.logo_url ? [{ property: "og:image", content: loaderData.bolao.logo_url }] : []),
-        ]
-      : [],
-  }),
+  head: ({ loaderData }) => {
+    if (!loaderData) return { meta: [] };
+    const now = Date.now();
+    const next =
+      loaderData.matches.find((m) => m.status !== "finished" && m.kickoff_at && new Date(m.kickoff_at).getTime() > now) ??
+      loaderData.matches.find((m) => m.status !== "finished") ??
+      null;
+    const home = next ? loaderData.teams.get(next.home_team_id ?? "") : undefined;
+    const away = next ? loaderData.teams.get(next.away_team_id ?? "") : undefined;
+    const confronto = home && away ? `${ptTeamName(home.name)} x ${ptTeamName(away.name)}` : "";
+    const title = confronto ? `${confronto} — ${loaderData.bolao.nome}` : `${loaderData.bolao.nome} — Bolão Copa 2026`;
+    const desc = confronto
+      ? `Palpite em ${confronto} e concorra no ${loaderData.bolao.nome}.`
+      : (loaderData.bolao.descricao ?? `Participe do ${loaderData.bolao.nome}.`);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        ...(loaderData.bolao.logo_url ? [{ property: "og:image", content: loaderData.bolao.logo_url }] : []),
+      ],
+    };
+  },
   component: PublicBolao,
   errorComponent: ({ error }) => (
     <div className="min-h-screen grid place-items-center p-8 text-center">
@@ -157,8 +179,8 @@ function PublicBolao() {
         nome_bolao: bolao.nome,
         nome_torcedor: form.nome,
         whatsapp_torcedor: whatsapp,
-        selecao_a: home?.name ?? "",
-        selecao_b: away?.name ?? "",
+        selecao_a: ptTeamName(home?.name),
+        selecao_b: ptTeamName(away?.name),
         palpite_a: form.palpite_a,
         palpite_b: form.palpite_b,
         valor_palpite: brl(bolao.valor_palpite),
@@ -258,6 +280,11 @@ function PublicBolao() {
               ⏰ Período de palpites encerrado.
             </p>
           )}
+          {matches.length === 0 && (
+            <p className="mb-3 text-sm text-muted-foreground bg-card border border-border rounded-lg p-4 text-center">
+              O organizador ainda não vinculou jogos a este bolão.
+            </p>
+          )}
           <div className="grid gap-2">
             {matches.slice(0, 30).map((m) => {
               const home = teams.get(m.home_team_id ?? "");
@@ -266,9 +293,9 @@ function PublicBolao() {
                 <div key={m.id} className="rounded-xl border border-border bg-gradient-card p-3 flex items-center gap-3 card-elevated transition-colors hover:border-gold/40">
                   <div className="flex-1 flex items-center gap-2">
                     {home?.flag_url && <img src={home.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
-                    <span className="font-medium">{home?.name ?? "?"}</span>
+                    <span className="font-medium">{ptTeamName(home?.name) || "?"}</span>
                     <span className="text-muted-foreground text-sm mx-2">x</span>
-                    <span className="font-medium">{away?.name ?? "?"}</span>
+                    <span className="font-medium">{ptTeamName(away?.name) || "?"}</span>
                     {away?.flag_url && <img src={away.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
                   </div>
                   {(() => {
@@ -298,7 +325,7 @@ function PublicBolao() {
               <form onSubmit={submitPalpite} className="space-y-3">
                 <h3 className="font-display text-2xl font-black uppercase">Seu palpite</h3>
                 <p className="text-sm text-muted-foreground">
-                  {teams.get(selected.home_team_id ?? "")?.name} x {teams.get(selected.away_team_id ?? "")?.name}
+                  {ptTeamName(teams.get(selected.home_team_id ?? "")?.name)} x {ptTeamName(teams.get(selected.away_team_id ?? "")?.name)}
                 </p>
                 <input required placeholder="Seu nome" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
                 <input required placeholder="WhatsApp (com DDD)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: onlyDigits(e.target.value) })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
@@ -454,11 +481,11 @@ function FeaturedMatchCard({
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
           <div className="flex flex-col items-center gap-2 text-center min-w-0">
             {home?.flag_url ? (
-              <img src={home.flag_url} alt={home.name} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
+              <img src={home.flag_url} alt={ptTeamName(home.name)} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
             ) : (
               <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-md bg-muted grid place-items-center font-black text-xl">{home?.code ?? "?"}</div>
             )}
-            <div className="font-display font-black uppercase text-sm sm:text-base truncate w-full">{home?.name ?? "—"}</div>
+            <div className="font-display font-black uppercase text-sm sm:text-base truncate w-full">{ptTeamName(home?.name) || "—"}</div>
           </div>
 
           <div className="text-center">
@@ -468,11 +495,11 @@ function FeaturedMatchCard({
 
           <div className="flex flex-col items-center gap-2 text-center min-w-0">
             {away?.flag_url ? (
-              <img src={away.flag_url} alt={away.name} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
+              <img src={away.flag_url} alt={ptTeamName(away.name)} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
             ) : (
               <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-md bg-muted grid place-items-center font-black text-xl">{away?.code ?? "?"}</div>
             )}
-            <div className="font-display font-black uppercase text-sm sm:text-base truncate w-full">{away?.name ?? "—"}</div>
+            <div className="font-display font-black uppercase text-sm sm:text-base truncate w-full">{ptTeamName(away?.name) || "—"}</div>
           </div>
         </div>
 

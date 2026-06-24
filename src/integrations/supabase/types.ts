@@ -92,6 +92,39 @@ export type Database = {
           },
         ]
       }
+      bolao_matches: {
+        Row: {
+          bolao_id: string
+          created_at: string
+          match_id: string
+        }
+        Insert: {
+          bolao_id: string
+          created_at?: string
+          match_id: string
+        }
+        Update: {
+          bolao_id?: string
+          created_at?: string
+          match_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bolao_matches_bolao_id_fkey"
+            columns: ["bolao_id"]
+            isOneToOne: false
+            referencedRelation: "boloes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bolao_matches_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       boloes: {
         Row: {
           cor_primaria: string | null
