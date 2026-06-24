@@ -106,7 +106,7 @@ function PublicBolao() {
   const [selected, setSelected] = useState<Match | null>(null);
   const [form, setForm] = useState({ nome: "", whatsapp: "", palpite_a: 0, palpite_b: 0 });
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState<string | null>(null);
+  const [done, setDone] = useState<{ link: string; protocolo: string } | null>(null);
 
 
   const palpiteAberto = useMemo(() => {
@@ -124,7 +124,7 @@ function PublicBolao() {
     }
     setSubmitting(true);
     try {
-      const { error: rErr } = await supabase.rpc("submit_palpite", {
+      const { data: rData, error: rErr } = await supabase.rpc("submit_palpite", {
         p_bolao_id: bolao.id,
         p_nome: form.nome.trim(),
         p_whatsapp: whatsapp,
@@ -133,6 +133,9 @@ function PublicBolao() {
         p_palpite_b: form.palpite_b,
       });
       if (rErr) throw rErr;
+      const protocolo = Array.isArray(rData) && rData[0]?.codigo
+        ? `BOL-${String(rData[0].codigo).padStart(4, "0")}`
+        : "—";
       const home = teams.get(selected.home_team_id ?? "");
       const away = teams.get(selected.away_team_id ?? "");
       const msg = interpolate(wa.mensagem_novo_palpite ?? "", {
@@ -147,8 +150,10 @@ function PublicBolao() {
         nome_recebedor: pix.nome_recebedor,
         banco: pix.banco ?? "",
         chave_pix: pix.chave_pix,
-      });
-      setDone(buildWhatsAppLink(wa.numero_whatsapp, msg));
+        protocolo,
+      }) + `\n\nProtocolo: ${protocolo}`;
+      setDone({ link: buildWhatsAppLink(wa.numero_whatsapp, msg), protocolo });
+
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erro ao enviar palpite");
@@ -224,7 +229,7 @@ function PublicBolao() {
         <div className="fixed inset-0 z-50 bg-black/50 grid place-items-center p-4" onClick={() => setSelected(null)}>
           <div className="bg-card rounded-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
             {done ? (
-              <SuccessPanel waLink={done} pix={pix!} valor={Number(bolao.valor_palpite)} onClose={() => setSelected(null)} />
+              <SuccessPanel waLink={done.link} protocolo={done.protocolo} pix={pix!} valor={Number(bolao.valor_palpite)} onClose={() => setSelected(null)} />
             ) : (
               <form onSubmit={submitPalpite} className="space-y-3">
                 <h3 className="text-xl font-black">Seu palpite</h3>
@@ -254,11 +259,13 @@ function PublicBolao() {
 
 function SuccessPanel({
   waLink,
+  protocolo,
   pix,
   valor,
   onClose,
 }: {
   waLink: string;
+  protocolo: string;
   pix: { nome_recebedor: string; chave_pix: string; banco: string | null };
   valor: number;
   onClose: () => void;
@@ -283,7 +290,9 @@ function SuccessPanel({
     <div className="text-center space-y-4">
       <div className="text-4xl">🎉</div>
       <h3 className="text-xl font-black">Palpite registrado!</h3>
-      <p className="text-sm text-muted-foreground">Pague o Pix e envie o comprovante pelo WhatsApp.</p>
+      <div className="inline-block rounded-lg bg-pitch/10 px-3 py-1 text-sm font-bold text-pitch">Protocolo: {protocolo}</div>
+      <p className="text-sm text-muted-foreground">Guarde esse número para consultas. Pague o Pix e envie o comprovante pelo WhatsApp.</p>
+
 
       <div className="bg-white p-3 rounded-xl border border-border inline-block">
         <QRCodeSVG value={payload} size={180} />
