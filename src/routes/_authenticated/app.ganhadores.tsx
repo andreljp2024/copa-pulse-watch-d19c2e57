@@ -6,6 +6,8 @@ import { Trophy, RefreshCw, MessageCircle, Sparkles, Users as UsersIcon } from "
 import { computarGanhadores } from "@/lib/ganhadores.functions";
 import { listarGanhadores, type GanhadoresBolaoGroup, type GanhadorRow } from "@/lib/ganhadores-list.functions";
 import { brl, buildWhatsAppLink } from "@/lib/saas";
+import { PageHeader } from "@/components/PageHeader";
+
 
 export const Route = createFileRoute("/_authenticated/app/ganhadores")({
   head: () => ({ meta: [{ title: "Ganhadores" }] }),
