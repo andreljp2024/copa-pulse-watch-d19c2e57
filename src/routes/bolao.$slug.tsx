@@ -535,13 +535,14 @@ function SuccessPanel({
 }
 
 function useCountdown(target: string | null) {
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
     if (!target) return;
+    setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, [target]);
-  if (!target) return null;
+  if (!target || now === null) return null;
   const diff = new Date(target).getTime() - now;
   if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0, live: true };
   const d = Math.floor(diff / 86400000);
