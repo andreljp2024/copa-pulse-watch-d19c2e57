@@ -36,11 +36,8 @@ const bolaoPublicOpts = (slug: string) =>
       if (error) throw error;
       if (!bolao) throw notFound();
 
-      const [m, t, p, w, pc] = await Promise.all([
-        supabase
-          .from("matches")
-          .select("id, home_team_id, away_team_id, kickoff_at, status, home_score, away_score")
-          .order("kickoff_at", { ascending: true }),
+      const [bm, t, p, w, pc] = await Promise.all([
+        supabase.from("bolao_matches").select("match_id").eq("bolao_id", bolao.id),
         supabase.from("teams").select("id, name, code, flag_url"),
         supabase
           .from("tenant_pix_config")
@@ -58,9 +55,20 @@ const bolaoPublicOpts = (slug: string) =>
           .eq("bolao_id", bolao.id),
       ]);
 
+      const matchIds = (bm.data ?? []).map((r: any) => r.match_id as string);
+      let matchesData: Match[] = [];
+      if (matchIds.length > 0) {
+        const { data: mrows } = await supabase
+          .from("matches")
+          .select("id, home_team_id, away_team_id, kickoff_at, status, home_score, away_score")
+          .in("id", matchIds)
+          .order("kickoff_at", { ascending: true });
+        matchesData = (mrows ?? []) as Match[];
+      }
+
       return {
         bolao,
-        matches: (m.data ?? []) as Match[],
+        matches: matchesData,
         teams: new Map<string, TeamLite>(
           (t.data ?? []).map((x) => [x.id, { name: x.name, code: x.code, flag_url: x.flag_url }]),
         ),
