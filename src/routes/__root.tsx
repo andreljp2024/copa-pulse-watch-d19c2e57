@@ -48,7 +48,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "theme-color", content: "#0F172A" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Bolão AI" },
+      { name: "mobile-web-app-capable", content: "yes" },
       { title: "Bolão AI — Acompanhe a Copa do Mundo" },
       { name: "description", content: "Tabela, calendário, resultados, seleções e estatísticas da Copa do Mundo em tempo real." },
       { property: "og:title", content: "Bolão AI — Acompanhe a Copa do Mundo" },
