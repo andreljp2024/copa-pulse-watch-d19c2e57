@@ -35,6 +35,11 @@ function AppLayout() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const checkSuper = useServerFn(isSuperAdmin);
+  const { data: superCheck } = useQuery({ queryKey: ["isSuperAdmin"], queryFn: () => checkSuper() });
+  const nav: NavItem[] = superCheck?.isSuperAdmin
+    ? [...baseNav, { to: "/app/gestores", label: "Gestores", icon: Shield }]
+    : baseNav;
   const currentLabel = nav.find((n) => (n.exact ? pathname === n.to : pathname.startsWith(n.to)))?.label ?? "Painel";
 
   useEffect(() => {
