@@ -47,7 +47,7 @@ function PalpitesPage() {
       supabase.from("teams").select("id, name"),
       supabase.from("tenant_whatsapp_config").select("mensagem_confirmacao_pagamento").eq("tenant_id", t.id).maybeSingle(),
     ]);
-    setRows((pals as Row[]) ?? []);
+    setRows(((pals as unknown) as Row[]) ?? []);
     setTeams(new Map((ts ?? []).map((x) => [x.id, x.name])));
     setWaTpl(wa?.mensagem_confirmacao_pagamento ?? "");
     setLoading(false);
