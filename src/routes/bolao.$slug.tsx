@@ -219,14 +219,21 @@ function PublicBolao() {
         )}
 
         <section>
-          <h2 className="text-xl font-black mb-3">Jogos</h2>
-          {!palpiteAberto && <p className="mb-3 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">⏰ Período de palpites encerrado.</p>}
+          <h2 className="font-display text-2xl sm:text-3xl font-black uppercase tracking-wide mb-4 flex items-center gap-3">
+            <span className="inline-block h-6 w-1 bg-gradient-samba rounded-sm" aria-hidden="true" />
+            Jogos
+          </h2>
+          {!palpiteAberto && (
+            <p className="mb-3 text-sm font-semibold text-live bg-live/10 border border-live/30 rounded-lg p-3">
+              ⏰ Período de palpites encerrado.
+            </p>
+          )}
           <div className="grid gap-2">
             {matches.slice(0, 30).map((m) => {
               const home = teams.get(m.home_team_id ?? "");
               const away = teams.get(m.away_team_id ?? "");
               return (
-                <div key={m.id} className="rounded-xl border border-border bg-card p-3 flex items-center gap-3">
+                <div key={m.id} className="rounded-xl border border-border bg-gradient-card p-3 flex items-center gap-3 card-elevated transition-colors hover:border-gold/40">
                   <div className="flex-1 flex items-center gap-2">
                     {home?.flag_url && <img src={home.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
                     <span className="font-medium">{home?.name ?? "?"}</span>
@@ -235,9 +242,9 @@ function PublicBolao() {
                     {away?.flag_url && <img src={away.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
                   </div>
                   {m.status === "finished" ? (
-                    <span className="text-sm font-bold">{m.home_score} x {m.away_score}</span>
+                    <span className="text-sm font-black tabular-nums text-gold">{m.home_score} x {m.away_score}</span>
                   ) : palpiteAberto ? (
-                    <button onClick={() => { setSelected(m); setForm({ nome: "", whatsapp: "", palpite_a: 0, palpite_b: 0 }); setDone(null); }} className="text-sm font-semibold text-pitch hover:underline">Fazer palpite →</button>
+                    <button onClick={() => { setSelected(m); setForm({ nome: "", whatsapp: "", palpite_a: 0, palpite_b: 0 }); setDone(null); }} className="text-sm font-bold uppercase tracking-wide text-gold hover:underline">Fazer palpite →</button>
                   ) : (
                     <span className="text-xs text-muted-foreground">Encerrado</span>
                   )}
@@ -249,25 +256,25 @@ function PublicBolao() {
       </main>
 
       {selected && (
-        <div className="fixed inset-0 z-50 bg-black/50 grid place-items-center p-4" onClick={() => setSelected(null)}>
-          <div className="bg-card rounded-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm grid place-items-center p-4" onClick={() => setSelected(null)}>
+          <div className="bg-gradient-card border border-border rounded-2xl max-w-md w-full p-6 card-elevated ring-conic" onClick={(e) => e.stopPropagation()}>
             {done ? (
               <SuccessPanel waLink={done.link} protocolo={done.protocolo} pix={pix!} valor={Number(bolao.valor_palpite)} onClose={() => setSelected(null)} />
             ) : (
               <form onSubmit={submitPalpite} className="space-y-3">
-                <h3 className="text-xl font-black">Seu palpite</h3>
+                <h3 className="font-display text-2xl font-black uppercase">Seu palpite</h3>
                 <p className="text-sm text-muted-foreground">
                   {teams.get(selected.home_team_id ?? "")?.name} x {teams.get(selected.away_team_id ?? "")?.name}
                 </p>
-                <input required placeholder="Seu nome" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-                <input required placeholder="WhatsApp (com DDD)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: onlyDigits(e.target.value) })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+                <input required placeholder="Seu nome" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
+                <input required placeholder="WhatsApp (com DDD)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: onlyDigits(e.target.value) })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
                 <div className="flex items-center gap-3 justify-center">
-                  <input type="number" min={0} required value={form.palpite_a} onChange={(e) => setForm({ ...form, palpite_a: Number(e.target.value) })} className="w-20 text-center text-2xl font-black rounded-lg border border-border bg-background py-2" />
-                  <span className="font-bold">x</span>
-                  <input type="number" min={0} required value={form.palpite_b} onChange={(e) => setForm({ ...form, palpite_b: Number(e.target.value) })} className="w-20 text-center text-2xl font-black rounded-lg border border-border bg-background py-2" />
+                  <input type="number" min={0} required value={form.palpite_a} onChange={(e) => setForm({ ...form, palpite_a: Number(e.target.value) })} className="w-20 text-center text-2xl font-black tabular-nums rounded-lg border border-border bg-background py-2 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
+                  <span className="font-bold text-muted-foreground">x</span>
+                  <input type="number" min={0} required value={form.palpite_b} onChange={(e) => setForm({ ...form, palpite_b: Number(e.target.value) })} className="w-20 text-center text-2xl font-black tabular-nums rounded-lg border border-border bg-background py-2 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
                 </div>
-                <p className="text-center text-sm">Valor: <strong>{brl(bolao.valor_palpite)}</strong></p>
-                <button disabled={submitting} className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-pitch font-semibold text-primary-foreground disabled:opacity-60">
+                <p className="text-center text-sm">Valor: <strong className="text-gold">{brl(bolao.valor_palpite)}</strong></p>
+                <button disabled={submitting} className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.02] disabled:opacity-60">
                   {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmar palpite"}
                 </button>
                 <button type="button" onClick={() => setSelected(null)} className="block w-full text-sm text-muted-foreground hover:underline">Cancelar</button>
