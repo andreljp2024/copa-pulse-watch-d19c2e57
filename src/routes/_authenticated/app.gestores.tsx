@@ -57,12 +57,22 @@ function GestoresPage() {
 }
 
 function GestoresInner({ listFn, inviteFn, statusFn, deleteFn, qc }: any) {
+  const planosFn = useServerFn(listPlanosAdmin);
+  const changePlanoFn = useServerFn(changeGestorPlano);
   const { data: gestores = [], isLoading } = useQuery({ queryKey: ["gestores"], queryFn: () => listFn() });
+  const { data: planos = [] } = useQuery({ queryKey: ["planos-admin"], queryFn: () => planosFn() });
   const [msg, setMsg] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ email: "", nome_responsavel: "", nome_estabelecimento: "" });
+  const [planoEdit, setPlanoEdit] = useState<Record<string, string>>({});
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["gestores"] });
+
+  const changePlano = useMutation({
+    mutationFn: (d: { tenant_id: string; plano_id: string }) => changePlanoFn({ data: d }),
+    onSuccess: (r: any) => { setMsg(`Plano alterado para ${r.plano}.`); invalidate(); },
+    onError: (e: any) => setMsg(e?.message ?? "Falha ao alterar plano."),
+  });
 
   const invite = useMutation({
     mutationFn: (d: typeof form) => inviteFn({ data: d }),
