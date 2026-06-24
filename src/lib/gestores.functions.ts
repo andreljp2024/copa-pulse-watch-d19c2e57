@@ -164,6 +164,16 @@ export const changeGestorPlano = createServerFn({ method: "POST" })
         status: "ativa",
         data_inicio: new Date().toISOString(),
         gateway_pagamento: "manual_admin",
+      });
+      if (aErr) throw aErr;
+    }
+
+    // Atualiza somente o rótulo do plano no tenant.
+    const { error: tErr } = await supabaseAdmin
+      .from("tenants").update({ plano: plano.nome }).eq("id", data.tenant_id);
+    if (tErr) throw tErr;
+
+    return { ok: true, plano: plano.nome };
   });
 
 export const getGestorDetail = createServerFn({ method: "GET" })
@@ -248,13 +258,3 @@ export const resendGestorInvite = createServerFn({ method: "POST" })
     return { ok: true, email: t.email };
   });
 
-      if (aErr) throw aErr;
-    }
-
-    // Atualiza somente o rótulo do plano no tenant.
-    const { error: tErr } = await supabaseAdmin
-      .from("tenants").update({ plano: plano.nome }).eq("id", data.tenant_id);
-    if (tErr) throw tErr;
-
-    return { ok: true, plano: plano.nome };
-  });
