@@ -917,7 +917,11 @@ export type Database = {
       tenant_whatsapp_config: {
         Row: {
           created_at: string
+          evolution_api_key: string | null
+          evolution_base_url: string | null
+          evolution_instance: string | null
           id: string
+          integracao_modo: string
           mensagem_confirmacao_pagamento: string | null
           mensagem_ganhador: string | null
           mensagem_lembrete_pagamento: string | null
@@ -928,7 +932,11 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          evolution_api_key?: string | null
+          evolution_base_url?: string | null
+          evolution_instance?: string | null
           id?: string
+          integracao_modo?: string
           mensagem_confirmacao_pagamento?: string | null
           mensagem_ganhador?: string | null
           mensagem_lembrete_pagamento?: string | null
@@ -939,7 +947,11 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          evolution_api_key?: string | null
+          evolution_base_url?: string | null
+          evolution_instance?: string | null
           id?: string
+          integracao_modo?: string
           mensagem_confirmacao_pagamento?: string | null
           mensagem_ganhador?: string | null
           mensagem_lembrete_pagamento?: string | null
