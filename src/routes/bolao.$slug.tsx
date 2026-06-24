@@ -280,6 +280,11 @@ function PublicBolao() {
               ⏰ Período de palpites encerrado.
             </p>
           )}
+          {matches.length === 0 && (
+            <p className="mb-3 text-sm text-muted-foreground bg-card border border-border rounded-lg p-4 text-center">
+              O organizador ainda não vinculou jogos a este bolão.
+            </p>
+          )}
           <div className="grid gap-2">
             {matches.slice(0, 30).map((m) => {
               const home = teams.get(m.home_team_id ?? "");
