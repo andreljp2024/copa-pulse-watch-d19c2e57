@@ -165,13 +165,13 @@ function PublicBolao() {
     setItems((prev) => {
       const next = prev.slice(0, qtd);
       while (next.length < qtd) {
-        const usados = new Set(next.map((i) => i.match_id));
-        const livre = openMatches.find((m) => !usados.has(m.id)) ?? openMatches[0];
-        next.push({ match_id: livre?.id ?? "", palpite_a: 0, palpite_b: 0 });
+        const fallback = openMatches[next.length % Math.max(openMatches.length, 1)] ?? openMatches[0];
+        next.push({ match_id: fallback?.id ?? "", palpite_a: 0, palpite_b: 0 });
       }
       return next;
     });
   }
+
 
   const featured = useMemo(() => {
     const now = Date.now();
@@ -384,12 +384,13 @@ function PublicBolao() {
                   <input
                     type="number"
                     min={1}
-                    max={Math.max(1, openMatches.length || 1)}
+                    max={20}
                     value={items.length}
                     onChange={(e) => setQuantidade(Number(e.target.value))}
                     className="w-20 rounded-lg border border-border bg-background px-2 py-1.5 text-center text-sm font-bold focus:outline-none focus:ring-2 focus:ring-gold"
                   />
-                  <span className="text-xs text-muted-foreground">de até {openMatches.length} jogo(s) aberto(s)</span>
+                  <span className="text-xs text-muted-foreground">{openMatches.length} jogo(s) aberto(s)</span>
+
                 </div>
 
                 <div className="space-y-3 max-h-[45vh] overflow-y-auto pr-1">
