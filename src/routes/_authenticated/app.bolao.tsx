@@ -40,6 +40,7 @@ function BolaoConfigPage() {
   const [teams, setTeams] = useState<Map<string, Team>>(new Map());
   const [loadingGames, setLoadingGames] = useState(false);
   const [selectedMatchIds, setSelectedMatchIds] = useState<Set<string>>(new Set());
+  const [initialSelectedIds, setInitialSelectedIds] = useState<Set<string>>(new Set());
   const [divulgCopied, setDivulgCopied] = useState(false);
   const [tab, setTab] = useState<TabId>("config");
 
