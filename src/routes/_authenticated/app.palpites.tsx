@@ -2,8 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, buildWhatsAppLink } from "@/lib/saas";
-import { CheckCircle2, XCircle, Download, MessageCircle, FileText, Filter, ListChecks } from "lucide-react";
+import { CheckCircle2, XCircle, Download, MessageCircle, FileText, Filter, ListChecks, DollarSign, Clock, Ban, Search } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+
 
 
 export const Route = createFileRoute("/_authenticated/app/palpites")({
@@ -236,10 +237,10 @@ function PalpitesPage() {
 
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <PageHeader
         title="Palpites"
-        subtitle="Gerencie, filtre e exporte relatórios profissionais."
+        subtitle="Gerencie pagamentos, envie mensagens e exporte relatórios profissionais."
         icon={<ListChecks className="h-5 w-5" />}
         actions={
           <>
@@ -256,17 +257,44 @@ function PalpitesPage() {
         }
       />
 
+      {/* KPI cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <StatCard label="Palpites" value={String(totals.qtd)} icon={<ListChecks className="h-3.5 w-3.5" />} />
+        <StatCard label="Pagos" value={String(totals.qtdPagos)} icon={<CheckCircle2 className="h-3.5 w-3.5" />} tone="success" />
+        <StatCard label="Pendentes" value={String(totals.pendentes)} icon={<Clock className="h-3.5 w-3.5" />} tone="warn" />
+        <StatCard label="Cancelados" value={String(totals.cancelados)} icon={<Ban className="h-3.5 w-3.5" />} />
+        <StatCard label="Arrecadado" value={brl(totals.arrecadado)} icon={<DollarSign className="h-3.5 w-3.5" />} tone="success" />
+      </div>
+
+      {/* Quick search + status chips */}
+      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-3 card-elevated">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Buscar por nome, WhatsApp ou protocolo…"
+            value={filters.search}
+            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            className="h-9 w-full rounded-md border border-border bg-background pl-8 pr-2 text-sm"
+          />
+        </div>
+        <div className="flex items-center gap-1 rounded-md bg-muted/40 p-1">
+          {(["todos", "pendente", "pago", "cancelado"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setFilters({ ...filters, status: s })}
+              className={`px-2.5 h-7 rounded text-xs font-semibold capitalize transition-colors ${
+                filters.status === s ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {showFilters && (
-        <div className="rounded-2xl border border-border bg-card p-4 grid gap-3 sm:grid-cols-5">
-          <label className="text-xs font-semibold flex flex-col gap-1">Status
-            <select value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })} className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal">
-              <option value="todos">Todos</option>
-              <option value="pendente">Pendente</option>
-              <option value="pago">Pago</option>
-              <option value="cancelado">Cancelado</option>
-            </select>
-          </label>
+        <div className="rounded-2xl border border-border bg-card p-4 grid gap-3 sm:grid-cols-4 card-elevated">
           <label className="text-xs font-semibold flex flex-col gap-1">Bolão
             <select value={filters.bolaoSlug} onChange={(e) => setFilters({ ...filters, bolaoSlug: e.target.value })} className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal">
               <option value="todos">Todos</option>
@@ -279,12 +307,13 @@ function PalpitesPage() {
           <label className="text-xs font-semibold flex flex-col gap-1">Até
             <input type="date" value={filters.dataAte} onChange={(e) => setFilters({ ...filters, dataAte: e.target.value })} className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal" />
           </label>
-          <label className="text-xs font-semibold flex flex-col gap-1">Buscar
-            <input type="text" placeholder="Nome, WhatsApp ou protocolo" value={filters.search} onChange={(e) => setFilters({ ...filters, search: e.target.value })} className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal" />
-          </label>
-          <div className="sm:col-span-5 flex items-center justify-between text-xs text-muted-foreground">
-            <span>{filtered.length} de {rows.length} palpites · Arrecadado (pagos): <strong className="text-foreground">{brl(totals.arrecadado)}</strong></span>
-            <button onClick={() => setFilters({ status: "todos", bolaoSlug: "todos", search: "", dataDe: "", dataAte: "" })} className="font-semibold hover:underline">Limpar filtros</button>
+          <div className="flex items-end">
+            <button onClick={() => setFilters({ status: "todos", bolaoSlug: "todos", search: "", dataDe: "", dataAte: "" })} className="h-9 w-full rounded-md border border-border text-xs font-semibold hover:bg-accent/10">
+              Limpar filtros
+            </button>
+          </div>
+          <div className="sm:col-span-4 text-xs text-muted-foreground">
+            Mostrando <strong className="text-foreground">{filtered.length}</strong> de {rows.length} palpites
           </div>
         </div>
       )}
@@ -292,65 +321,71 @@ function PalpitesPage() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Carregando…</p>
       ) : rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nenhum palpite recebido.</p>
+        <div className="rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
+          <ListChecks className="mx-auto h-8 w-8 text-muted-foreground/50" />
+          <p className="mt-2 text-sm text-muted-foreground">Nenhum palpite recebido ainda.</p>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
+          <p className="text-sm text-muted-foreground">Nenhum palpite corresponde aos filtros selecionados.</p>
+        </div>
       ) : (
-        <div className="rounded-2xl border border-border bg-card overflow-x-auto">
+        <div className="rounded-2xl border border-border bg-card overflow-x-auto card-elevated">
           <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left">
+            <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
-                <th className="px-4 py-2">Protocolo</th>
-                <th className="px-4 py-2">Torcedor</th>
-                <th className="px-4 py-2">Jogo</th>
-                <th className="px-4 py-2">Palpite</th>
-                <th className="px-4 py-2">Valor</th>
-                <th className="px-4 py-2">Status</th>
-                <th className="px-4 py-2">Ações</th>
+                <th className="px-4 py-3">Protocolo</th>
+                <th className="px-4 py-3">Torcedor</th>
+                <th className="px-4 py-3">Jogo</th>
+                <th className="px-4 py-3">Palpite</th>
+                <th className="px-4 py-3">Valor</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3 text-right">Ações</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((r) => (
-                <tr key={r.id} className="border-t border-border">
-                  <td className="px-4 py-2 font-mono text-xs font-bold">{fmtProtocolo(r.codigo)}</td>
-                  <td className="px-4 py-2">
+                <tr key={r.id} className="border-t border-border hover:bg-muted/20 transition-colors">
+                  <td className="px-4 py-3 font-mono text-xs font-bold">{fmtProtocolo(r.codigo)}</td>
+                  <td className="px-4 py-3">
                     <div className="font-medium">{r.torcedores?.nome}</div>
-                    <div className="text-xs text-muted-foreground">{r.torcedores?.whatsapp}</div>
+                    <div className="text-xs text-muted-foreground font-mono">{r.torcedores?.whatsapp}</div>
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-3">
                     {teams.get(r.matches?.home_team_id ?? "") ?? "?"} <span className="text-muted-foreground">x</span>{" "}
                     {teams.get(r.matches?.away_team_id ?? "") ?? "?"}
                   </td>
-                  <td className="px-4 py-2 font-bold">
-                    {r.palpite_a} x {r.palpite_b}
+                  <td className="px-4 py-3 font-bold font-mono">
+                    {r.palpite_a}–{r.palpite_b}
                   </td>
-                  <td className="px-4 py-2">{brl(r.valor)}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-3 font-semibold">{brl(r.valor)}</td>
+                  <td className="px-4 py-3">
                     <span
-                      className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
                         r.status_pagamento === "pago"
-                          ? "bg-green-100 text-green-800"
+                          ? "bg-green-600/15 text-green-700"
                           : r.status_pagamento === "cancelado"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-amber-100 text-amber-800"
+                          ? "bg-red-600/15 text-red-700"
+                          : "bg-amber-500/15 text-amber-700"
                       }`}
                     >
                       {r.status_pagamento}
                     </span>
                   </td>
-                  <td className="px-4 py-2">
-                    <div className="flex flex-wrap gap-2">
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap justify-end gap-2">
                       {r.status_pagamento !== "pago" && (
                         <button
                           onClick={() => aprovarEEnviar(r)}
-                          className="inline-flex items-center gap-1 rounded-md bg-green-600 px-2 py-1 text-xs font-semibold text-white hover:bg-green-700"
+                          className="inline-flex items-center gap-1 rounded-md bg-green-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-green-700"
                         >
                           <CheckCircle2 className="h-3.5 w-3.5" /> Aprovar
-                          <MessageCircle className="h-3.5 w-3.5" />
                         </button>
                       )}
                       {r.status_pagamento === "pendente" && r.torcedores?.whatsapp && (
                         <button
                           onClick={() => lembrarPagamento(r)}
-                          className="inline-flex items-center gap-1 rounded-md border border-amber-400 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800 hover:bg-amber-100"
+                          className="inline-flex items-center gap-1 rounded-md border border-amber-400 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 hover:bg-amber-100"
                           title="Lembrar de enviar comprovante"
                         >
                           <MessageCircle className="h-3.5 w-3.5" /> Lembrar
@@ -359,16 +394,18 @@ function PalpitesPage() {
                       {r.status_pagamento === "pago" && r.torcedores?.whatsapp && (
                         <button
                           onClick={() => aprovarEEnviar(r)}
-                          className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-semibold hover:bg-muted"
+                          className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted"
                           title="Reenviar recibo"
                         >
                           <MessageCircle className="h-3.5 w-3.5" /> Recibo
                         </button>
                       )}
                       {r.status_pagamento !== "cancelado" && (
-                        <button onClick={() => setStatus(r.id, "cancelado")} className="text-red-700 hover:underline text-xs inline-flex items-center gap-1">
-                          <XCircle className="h-3.5 w-3.5" />
-                          Cancelar
+                        <button
+                          onClick={() => setStatus(r.id, "cancelado")}
+                          className="inline-flex items-center gap-1 rounded-md border border-red-200 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-50"
+                        >
+                          <XCircle className="h-3.5 w-3.5" /> Cancelar
                         </button>
                       )}
                     </div>
@@ -382,3 +419,28 @@ function PalpitesPage() {
     </div>
   );
 }
+
+function StatCard({
+  label,
+  value,
+  icon,
+  tone = "default",
+}: {
+  label: string;
+  value: string;
+  icon?: React.ReactNode;
+  tone?: "default" | "success" | "warn";
+}) {
+  const color =
+    tone === "success" ? "text-green-600" : tone === "warn" ? "text-amber-600" : "";
+  return (
+    <div className="rounded-xl border border-border bg-card p-3 card-elevated">
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        {icon}
+        {label}
+      </div>
+      <div className={`mt-1 text-xl font-black ${color}`}>{value}</div>
+    </div>
+  );
+}
+
