@@ -56,8 +56,8 @@ function WhatsAppConfigPage() {
     if (!tenantId) return;
     setSaving(true);
     setMsg(null);
-    const payload = { tenant_id: tenantId, ...form } as unknown as Record<string, unknown>;
-    const { error } = await supabase.from("tenant_whatsapp_config").upsert(payload, { onConflict: "tenant_id" });
+    const payload = { tenant_id: tenantId, ...form };
+    const { error } = await supabase.from("tenant_whatsapp_config").upsert(payload as never, { onConflict: "tenant_id" });
     setSaving(false);
     setMsg(error ? `Erro: ${error.message}` : "Salvo!");
   }
