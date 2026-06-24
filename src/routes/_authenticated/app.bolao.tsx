@@ -77,6 +77,7 @@ function BolaoConfigPage() {
         const next = {
           nome: b.nome, slug: b.slug, descricao: b.descricao ?? "", regras: b.regras ?? "",
           valor_palpite: Number(b.valor_palpite),
+          percentual_admin: Number((b as any).percentual_admin ?? 30),
           permitir_ranking_publico: b.permitir_ranking_publico,
           permitir_ganhadores_publico: b.permitir_ganhadores_publico,
           data_limite_palpite: b.data_limite_palpite ? b.data_limite_palpite.slice(0, 16) : "",
