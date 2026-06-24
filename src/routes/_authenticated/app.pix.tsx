@@ -52,9 +52,13 @@ function PixConfigPage() {
 
   return (
     <form onSubmit={save} className="max-w-2xl space-y-4">
-      <h1 className="text-2xl font-black">Configuração do Pix</h1>
-      <p className="text-sm text-muted-foreground">Esses dados são usados automaticamente nas mensagens de WhatsApp dos torcedores.</p>
+      <PageHeader
+        title="Configuração do Pix"
+        subtitle="Dados usados nas mensagens automáticas para os torcedores."
+        icon={<CreditCard className="h-5 w-5" />}
+      />
       <Field label="Nome do recebedor"><input required value={form.nome_recebedor} onChange={(e) => setForm({ ...form, nome_recebedor: e.target.value })} className={inputCss} /></Field>
+
       <Field label="Tipo de chave">
         <select value={form.tipo_chave_pix} onChange={(e) => setForm({ ...form, tipo_chave_pix: e.target.value })} className={inputCss}>
           <option value="cpf">CPF</option><option value="cnpj">CNPJ</option><option value="email">E-mail</option><option value="telefone">Telefone</option><option value="aleatoria">Aleatória</option>
