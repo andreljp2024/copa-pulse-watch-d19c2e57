@@ -319,26 +319,25 @@ function SuccessPanel({
   return (
     <div className="text-center space-y-4">
       <div className="text-4xl">🎉</div>
-      <h3 className="text-xl font-black">Palpite registrado!</h3>
-      <div className="inline-block rounded-lg bg-pitch/10 px-3 py-1 text-sm font-bold text-pitch">Protocolo: {protocolo}</div>
+      <h3 className="font-display text-2xl font-black uppercase text-gradient-samba">Palpite registrado!</h3>
+      <div className="inline-block rounded-lg bg-gold/15 border border-gold/30 px-3 py-1 text-sm font-bold text-gold">Protocolo: {protocolo}</div>
       <p className="text-sm text-muted-foreground">Guarde esse número para consultas. Pague o Pix e envie o comprovante pelo WhatsApp.</p>
 
-
-      <div className="bg-white p-3 rounded-xl border border-border inline-block">
+      <div className="bg-white p-3 rounded-xl border border-border inline-block shadow-gold">
         <QRCodeSVG value={payload} size={180} />
       </div>
-      <div className="text-xs text-muted-foreground">{pix.nome_recebedor} • {brl(valor)}</div>
+      <div className="text-xs text-muted-foreground">{pix.nome_recebedor} • <span className="text-gold font-semibold">{brl(valor)}</span></div>
 
       <button
         type="button"
         onClick={copyPix}
-        className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-xl border border-border bg-background font-semibold text-sm"
+        className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-xl border border-border bg-background font-semibold text-sm hover:border-gold/40 transition-colors"
       >
-        {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+        {copied ? <Check className="h-4 w-4 text-pitch" /> : <Copy className="h-4 w-4" />}
         {copied ? "Copiado!" : "Copiar Pix copia e cola"}
       </button>
 
-      <a href={waLink} target="_blank" rel="noopener noreferrer" className="w-full inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-green-600 px-5 font-bold text-white">
+      <a href={waLink} target="_blank" rel="noopener noreferrer" className="w-full inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-pitch px-5 font-black uppercase tracking-wide text-primary-foreground shadow-glow transition-transform hover:scale-[1.02]">
         <MessageCircle className="h-5 w-5" /> Abrir WhatsApp
       </a>
       <button onClick={onClose} className="block w-full text-sm text-muted-foreground hover:underline">Fechar</button>
