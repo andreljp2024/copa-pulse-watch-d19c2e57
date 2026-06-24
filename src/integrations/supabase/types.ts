@@ -1195,6 +1195,25 @@ export type Database = {
       }
     }
     Functions: {
+      consultar_palpites_por_whatsapp: {
+        Args: { p_slug: string; p_whatsapp: string }
+        Returns: {
+          away_team: string
+          codigo: number
+          created_at: string
+          ganhou: boolean
+          home_team: string
+          kickoff_at: string
+          match_status: string
+          nome_torcedor: string
+          palpite_a: number
+          palpite_b: number
+          placar_a: number
+          placar_b: number
+          status_pagamento: string
+          valor: number
+        }[]
+      }
       current_tenant_id: { Args: never; Returns: string }
       get_bolao_ranking: {
         Args: { p_slug: string }
