@@ -134,7 +134,7 @@ function Onboarding() {
     if (!tenantId) return;
     setLoading(true); setError(null);
     try {
-      const { error } = await supabase.from("tenant_whatsapp_config").upsert({ tenant_id: tenantId, ...s3 }, { onConflict: "tenant_id" });
+      const { error } = await supabase.from("tenant_whatsapp_config").upsert({ tenant_id: tenantId, ...s3, numero_whatsapp: onlyDigits(s3.numero_whatsapp) }, { onConflict: "tenant_id" });
       if (error) throw error;
       setStep(4);
     } catch (e) { setError(e instanceof Error ? e.message : "Erro"); } finally { setLoading(false); }
