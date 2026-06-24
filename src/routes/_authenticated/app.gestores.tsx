@@ -186,22 +186,47 @@ function GestoresInner({ listFn, inviteFn, statusFn, deleteFn, qc }: any) {
                 {g.last_sign_in_at ? ` • último login ${format(new Date(g.last_sign_in_at), "dd/MM HH:mm")}` : " • sem login"}
               </div>
             </div>
-            <div className="flex gap-1 self-start">
-              <button
-                onClick={() => toggleStatus.mutate(g)}
-                className="h-8 px-3 rounded-md border border-border text-xs font-semibold inline-flex items-center gap-1"
-                title={g.status === "active" ? "Suspender" : "Reativar"}
-              >
-                {g.status === "active" ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-                {g.status === "active" ? "Suspender" : "Reativar"}
-              </button>
-              <button
-                onClick={() => { if (confirm(`Excluir gestor "${g.nome_estabelecimento}"? Isso remove o tenant e o usuário de autenticação.`)) remove.mutate(g.id); }}
-                className="h-8 w-8 grid place-items-center rounded-md border border-border text-destructive"
-                title="Excluir"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
+            <div className="flex flex-col gap-1 self-start items-end">
+              <div className="flex gap-1">
+                <select
+                  value={planoEdit[g.id] ?? ""}
+                  onChange={(e) => setPlanoEdit({ ...planoEdit, [g.id]: e.target.value })}
+                  className="h-8 px-2 rounded-md border border-border bg-background text-xs"
+                  title="Selecionar plano"
+                >
+                  <option value="">Mudar plano…</option>
+                  {planos.map((p: any) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nome} {Number(p.preco) > 0 ? `· R$${Number(p.preco).toFixed(0)}` : "· grátis"}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  disabled={!planoEdit[g.id] || changePlano.isPending}
+                  onClick={() => changePlano.mutate({ tenant_id: g.id, plano_id: planoEdit[g.id] })}
+                  className="h-8 px-3 rounded-md bg-pitch text-primary-foreground text-xs font-bold inline-flex items-center gap-1 disabled:opacity-50"
+                  title="Aplicar plano"
+                >
+                  <CreditCard className="h-3.5 w-3.5" /> Aplicar
+                </button>
+              </div>
+              <div className="flex gap-1">
+                <button
+                  onClick={() => toggleStatus.mutate(g)}
+                  className="h-8 px-3 rounded-md border border-border text-xs font-semibold inline-flex items-center gap-1"
+                  title={g.status === "active" ? "Suspender" : "Reativar"}
+                >
+                  {g.status === "active" ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+                  {g.status === "active" ? "Suspender" : "Reativar"}
+                </button>
+                <button
+                  onClick={() => { if (confirm(`Excluir gestor "${g.nome_estabelecimento}"? Isso remove o tenant e o usuário de autenticação.`)) remove.mutate(g.id); }}
+                  className="h-8 w-8 grid place-items-center rounded-md border border-border text-destructive"
+                  title="Excluir"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         ))}
