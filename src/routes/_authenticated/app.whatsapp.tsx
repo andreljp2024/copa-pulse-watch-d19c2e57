@@ -85,7 +85,13 @@ function WhatsAppConfigPage() {
 
   return (
     <form onSubmit={save} className="max-w-2xl space-y-4">
-      <h1 className="text-2xl font-black">Configuração do WhatsApp</h1>
+      <PageHeader
+        title="Configuração do WhatsApp"
+        subtitle="Defina como suas mensagens são enviadas aos torcedores."
+        icon={<MessageCircle className="h-5 w-5" />}
+      />
+
+
 
       <div className="rounded-xl border border-border p-4 space-y-3">
         <span className="text-sm font-semibold">Modo de integração</span>
