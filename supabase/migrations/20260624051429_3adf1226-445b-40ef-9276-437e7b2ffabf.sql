@@ -1,0 +1,1 @@
+ALTER TABLE public.palpites DROP CONSTRAINT IF EXISTS palpites_torcedor_id_match_id_key;
