@@ -83,6 +83,25 @@ function PalpitesPage() {
     window.open(link, "_blank", "noopener,noreferrer");
   }
 
+  function lembrarPagamento(r: Row) {
+    const home = teams.get(r.matches?.home_team_id ?? "") ?? "?";
+    const away = teams.get(r.matches?.away_team_id ?? "") ?? "?";
+    const protocolo = fmtProtocolo(r.codigo);
+    const kickoff = r.matches?.kickoff_at
+      ? new Date(r.matches.kickoff_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })
+      : "o início do jogo";
+    const msg =
+      `Olá, ${r.torcedores?.nome ?? ""}!\n\n` +
+      `Recebemos seu palpite no ${r.boloes?.nome ?? ""} (Protocolo ${protocolo}).\n` +
+      `Jogo: ${home} x ${away}\n` +
+      `Palpite: ${r.palpite_a} x ${r.palpite_b}\n` +
+      `Valor: ${brl(r.valor)}\n\n` +
+      `⚠️ Seu palpite ainda está *pendente*. Envie o comprovante do PIX por aqui até ${kickoff} para confirmar. ` +
+      `Após o início do jogo, palpites não confirmados serão cancelados.\n\nObrigado!`;
+    const link = buildWhatsAppLink(r.torcedores?.whatsapp ?? "", msg);
+    window.open(link, "_blank", "noopener,noreferrer");
+  }
+
   function exportCsv() {
     const data = [
       ["Protocolo", "Torcedor", "WhatsApp", "Jogo", "Palpite", "Valor", "Status", "Data"],
