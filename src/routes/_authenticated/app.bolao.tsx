@@ -45,8 +45,15 @@ function BolaoConfigPage() {
 
   async function loadMatches() {
     setLoadingGames(true);
+    const nowIso = new Date().toISOString();
     const [m, t] = await Promise.all([
-      supabase.from("matches").select("id, kickoff_at, status, home_team_id, away_team_id").order("kickoff_at", { ascending: true }).limit(50),
+      supabase
+        .from("matches")
+        .select("id, kickoff_at, status, home_team_id, away_team_id")
+        .eq("status", "scheduled")
+        .gte("kickoff_at", nowIso)
+        .order("kickoff_at", { ascending: true })
+        .limit(50),
       supabase.from("teams").select("id, name, code, flag_url"),
     ]);
     setMatches((m.data ?? []) as Match[]);
@@ -179,12 +186,12 @@ function BolaoConfigPage() {
       {/* CARD: Jogos vinculados (tabela atualizada pela API) */}
       <section className="rounded-2xl border border-border bg-card p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-pitch" /><h2 className="font-bold">Jogos vinculados</h2></div>
+          <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-pitch" /><h2 className="font-bold">Jogos agendados</h2></div>
           <button type="button" onClick={loadMatches} disabled={loadingGames} className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground">
             <RefreshCw className={`h-3 w-3 ${loadingGames ? "animate-spin" : ""}`} /> Atualizar
           </button>
         </div>
-        <p className="text-xs text-muted-foreground">Tabela oficial sincronizada pela API. Os torcedores podem palpitar em qualquer jogo aberto na <Link to="/bolao/$slug" params={{ slug: form.slug || "_" }} className="text-pitch font-semibold hover:underline">página pública</Link>.</p>
+        <p className="text-xs text-muted-foreground">Apenas jogos agendados (ainda não iniciados) são listados. Não é possível criar palpites em jogos já encerrados. Os torcedores palpitam na <Link to="/bolao/$slug" params={{ slug: form.slug || "_" }} className="text-pitch font-semibold hover:underline">página pública</Link>.</p>
         {loadingGames ? (
           <div className="py-6 text-center text-sm text-muted-foreground"><Loader2 className="inline h-4 w-4 animate-spin" /></div>
         ) : matchesByDate.length === 0 ? (
@@ -202,7 +209,7 @@ function BolaoConfigPage() {
                       <div key={m.id} className="flex items-center gap-2 text-sm rounded-lg border border-border bg-background px-3 py-2">
                         <span className="text-xs text-muted-foreground w-12">{new Date(m.kickoff_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
                         <span className="flex-1">{home?.name ?? "?"} <span className="text-muted-foreground">x</span> {away?.name ?? "?"}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${m.status === "finished" ? "bg-muted text-muted-foreground" : "bg-pitch/10 text-pitch"}`}>{m.status === "finished" ? "Encerrado" : m.status === "live" ? "Ao vivo" : "Agendado"}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-pitch/10 text-pitch">Agendado</span>
                       </div>
                     );
                   })}
