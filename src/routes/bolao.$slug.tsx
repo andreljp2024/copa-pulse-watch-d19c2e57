@@ -470,18 +470,6 @@ function SuccessPanel({
   valor: number;
   onClose: () => void;
 }) {
-  waLink,
-  protocolo,
-  pix,
-  valor,
-  onClose,
-}: {
-  waLink: string;
-  protocolo: string;
-  pix: { nome_recebedor: string; chave_pix: string; banco: string | null };
-  valor: number;
-  onClose: () => void;
-}) {
   const [copied, setCopied] = useState(false);
   const payload = useMemo(
     () => buildPixPayload({ chave: pix.chave_pix, nomeRecebedor: pix.nome_recebedor, valor }),
