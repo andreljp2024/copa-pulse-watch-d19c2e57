@@ -346,6 +346,7 @@ function PublicBolao() {
                     if (m.status === "finished") {
                       return <span className="text-sm font-black tabular-nums text-gold">{m.home_score} x {m.away_score}</span>;
                     }
+                    if (matchOpen) {
                       return <button onClick={() => openModal(m)} className="text-sm font-bold uppercase tracking-wide text-gold hover:underline">Fazer palpite →</button>;
                     }
                     return <span className="text-xs text-muted-foreground">{m.status === "live" ? "Em andamento" : "Encerrado"}</span>;
@@ -358,34 +359,95 @@ function PublicBolao() {
       </main>
 
       {selected && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm grid place-items-center p-4" onClick={() => setSelected(null)}>
-          <div className="bg-gradient-card border border-border rounded-2xl max-w-md w-full p-6 card-elevated ring-conic" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm grid place-items-center p-4 overflow-y-auto" onClick={() => setSelected(null)}>
+          <div className="bg-gradient-card border border-border rounded-2xl max-w-md w-full p-6 card-elevated ring-conic my-8" onClick={(e) => e.stopPropagation()}>
             {done ? (
-              <SuccessPanel waLink={done.link} protocolo={done.protocolo} pix={pix!} valor={Number(bolao.valor_palpite)} onClose={() => setSelected(null)} />
-            ) : (
-              <form onSubmit={submitPalpite} className="space-y-3">
+              <SuccessPanel waLink={done.link} protocolos={done.protocolos} pix={pix!} valor={done.valorTotal} onClose={() => setSelected(null)} />
+            ) : step === "identidade" ? (
+              <form onSubmit={avancarIdentidade} className="space-y-3">
                 <h3 className="font-display text-2xl font-black uppercase">Seu palpite</h3>
-                <p className="text-sm text-muted-foreground">
-                  {ptTeamName(teams.get(selected.home_team_id ?? "")?.name)} x {ptTeamName(teams.get(selected.away_team_id ?? "")?.name)}
-                </p>
+                <p className="text-sm text-muted-foreground">Comece com seus dados. Em seguida você escolhe quantos palpites quer fazer.</p>
                 <input required placeholder="Seu nome" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
                 <input required inputMode="tel" placeholder="(11) 99999-9999" value={maskPhone(form.whatsapp)} onChange={(e) => setForm({ ...form, whatsapp: onlyDigits(e.target.value).slice(0, 11) })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
-                <div className="flex items-end gap-3 justify-center">
-                  <label className="flex flex-col items-center gap-1">
-                    <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground max-w-[6rem] truncate">{ptTeamName(teams.get(selected.home_team_id ?? "")?.name)}</span>
-                    <input type="number" min={0} required value={form.palpite_a} onChange={(e) => setForm({ ...form, palpite_a: Number(e.target.value) })} className="w-20 text-center text-2xl font-black tabular-nums rounded-lg border border-border bg-background py-2 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
-                  </label>
-                  <span className="font-bold text-muted-foreground pb-2">x</span>
-                  <label className="flex flex-col items-center gap-1">
-                    <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground max-w-[6rem] truncate">{ptTeamName(teams.get(selected.away_team_id ?? "")?.name)}</span>
-                    <input type="number" min={0} required value={form.palpite_b} onChange={(e) => setForm({ ...form, palpite_b: Number(e.target.value) })} className="w-20 text-center text-2xl font-black tabular-nums rounded-lg border border-border bg-background py-2 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
-                  </label>
-                </div>
-                <p className="text-center text-sm">Valor: <strong className="text-gold">{brl(bolao.valor_palpite)}</strong></p>
-                <button disabled={submitting} className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.02] disabled:opacity-60">
-                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmar palpite"}
+                <button className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.02]">
+                  Continuar →
                 </button>
                 <button type="button" onClick={() => setSelected(null)} className="block w-full text-sm text-muted-foreground hover:underline">Cancelar</button>
+              </form>
+            ) : (
+              <form onSubmit={submitPalpite} className="space-y-4">
+                <h3 className="font-display text-2xl font-black uppercase">Seus palpites</h3>
+                <p className="text-xs text-muted-foreground">Olá, <strong className="text-foreground">{form.nome}</strong> — quantos palpites quer fazer?</p>
+
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Quantidade</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={Math.max(1, openMatches.length || 1)}
+                    value={items.length}
+                    onChange={(e) => setQuantidade(Number(e.target.value))}
+                    className="w-20 rounded-lg border border-border bg-background px-2 py-1.5 text-center text-sm font-bold focus:outline-none focus:ring-2 focus:ring-gold"
+                  />
+                  <span className="text-xs text-muted-foreground">de até {openMatches.length} jogo(s) aberto(s)</span>
+                </div>
+
+                <div className="space-y-3 max-h-[45vh] overflow-y-auto pr-1">
+                  {items.map((it, idx) => {
+                    const m = matches.find((x) => x.id === it.match_id);
+                    const home = teams.get(m?.home_team_id ?? "");
+                    const away = teams.get(m?.away_team_id ?? "");
+                    return (
+                      <div key={idx} className="rounded-xl border border-border bg-background/60 p-3 space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-gold">Palpite {idx + 1}</span>
+                          <span className="text-[10px] text-muted-foreground">{brl(valorUnit)}</span>
+                        </div>
+                        <select
+                          value={it.match_id}
+                          onChange={(e) => setItems(items.map((x, i) => i === idx ? { ...x, match_id: e.target.value } : x))}
+                          className="w-full rounded-lg border border-border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
+                        >
+                          {openMatches.map((om) => {
+                            const h = teams.get(om.home_team_id ?? "");
+                            const a = teams.get(om.away_team_id ?? "");
+                            return <option key={om.id} value={om.id}>{ptTeamName(h?.name)} x {ptTeamName(a?.name)}</option>;
+                          })}
+                        </select>
+                        <div className="flex items-end gap-2 justify-center">
+                          <label className="flex flex-col items-center gap-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground max-w-[6rem] truncate">{ptTeamName(home?.name)}</span>
+                            <input type="number" min={0} required value={it.palpite_a} onChange={(e) => setItems(items.map((x, i) => i === idx ? { ...x, palpite_a: Number(e.target.value) } : x))} className="w-16 text-center text-xl font-black tabular-nums rounded-lg border border-border bg-background py-1.5 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
+                          </label>
+                          <span className="font-bold text-muted-foreground pb-2">x</span>
+                          <label className="flex flex-col items-center gap-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground max-w-[6rem] truncate">{ptTeamName(away?.name)}</span>
+                            <input type="number" min={0} required value={it.palpite_b} onChange={(e) => setItems(items.map((x, i) => i === idx ? { ...x, palpite_b: Number(e.target.value) } : x))} className="w-16 text-center text-xl font-black tabular-nums rounded-lg border border-border bg-background py-1.5 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
+                          </label>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="rounded-xl border border-gold/30 bg-gold/10 p-3 text-sm space-y-1">
+                  <div className="flex justify-between"><span className="text-muted-foreground">{items.length} × {brl(valorUnit)}</span><span className="font-bold text-foreground">{brl(valorTotal)}</span></div>
+                  {pix && (
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Chave Pix</span>
+                      <span className="font-mono text-foreground truncate max-w-[14rem]">{pix.chave_pix}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between pt-1 border-t border-gold/20"><span className="font-black uppercase text-xs text-gold">Total Pix</span><span className="font-black text-gold">{brl(valorTotal)}</span></div>
+                </div>
+
+                <button disabled={submitting} className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.02] disabled:opacity-60">
+                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : `Confirmar ${items.length} palpite(s)`}
+                </button>
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => setStep("identidade")} className="flex-1 text-sm text-muted-foreground hover:underline">← Voltar</button>
+                  <button type="button" onClick={() => setSelected(null)} className="flex-1 text-sm text-muted-foreground hover:underline">Cancelar</button>
+                </div>
               </form>
             )}
           </div>
