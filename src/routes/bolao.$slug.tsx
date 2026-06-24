@@ -329,10 +329,16 @@ function PublicBolao() {
                 </p>
                 <input required placeholder="Seu nome" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
                 <input required placeholder="WhatsApp (com DDD)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: onlyDigits(e.target.value) })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
-                <div className="flex items-center gap-3 justify-center">
-                  <input type="number" min={0} required value={form.palpite_a} onChange={(e) => setForm({ ...form, palpite_a: Number(e.target.value) })} className="w-20 text-center text-2xl font-black tabular-nums rounded-lg border border-border bg-background py-2 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
-                  <span className="font-bold text-muted-foreground">x</span>
-                  <input type="number" min={0} required value={form.palpite_b} onChange={(e) => setForm({ ...form, palpite_b: Number(e.target.value) })} className="w-20 text-center text-2xl font-black tabular-nums rounded-lg border border-border bg-background py-2 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
+                <div className="flex items-end gap-3 justify-center">
+                  <label className="flex flex-col items-center gap-1">
+                    <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground max-w-[6rem] truncate">{ptTeamName(teams.get(selected.home_team_id ?? "")?.name)}</span>
+                    <input type="number" min={0} required value={form.palpite_a} onChange={(e) => setForm({ ...form, palpite_a: Number(e.target.value) })} className="w-20 text-center text-2xl font-black tabular-nums rounded-lg border border-border bg-background py-2 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
+                  </label>
+                  <span className="font-bold text-muted-foreground pb-2">x</span>
+                  <label className="flex flex-col items-center gap-1">
+                    <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground max-w-[6rem] truncate">{ptTeamName(teams.get(selected.away_team_id ?? "")?.name)}</span>
+                    <input type="number" min={0} required value={form.palpite_b} onChange={(e) => setForm({ ...form, palpite_b: Number(e.target.value) })} className="w-20 text-center text-2xl font-black tabular-nums rounded-lg border border-border bg-background py-2 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
+                  </label>
                 </div>
                 <p className="text-center text-sm">Valor: <strong className="text-gold">{brl(bolao.valor_palpite)}</strong></p>
                 <button disabled={submitting} className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.02] disabled:opacity-60">
