@@ -30,26 +30,19 @@ const bolaoPublicOpts = (slug: string) =>
     queryFn: async () => {
       const { data: bolao, error } = await supabase
         .from("boloes")
-        .select("*")
+        .select(
+          "id, nome, slug, descricao, regras, valor_palpite, status, logo_url, cor_primaria, cor_secundaria, permitir_ranking_publico, permitir_ganhadores_publico, data_limite_palpite, created_at, updated_at",
+        )
         .eq("slug", slug)
         .eq("status", "active")
         .maybeSingle();
       if (error) throw error;
       if (!bolao) throw notFound();
 
-      const [bm, t, p, w, pc] = await Promise.all([
+      const [bm, t, pay, pc] = await Promise.all([
         supabase.from("bolao_matches").select("match_id").eq("bolao_id", bolao.id),
         supabase.from("teams").select("id, name, code, flag_url"),
-        supabase
-          .from("tenant_pix_config")
-          .select("nome_recebedor, chave_pix, banco, valor_padrao_palpite")
-          .eq("tenant_id", bolao.tenant_id)
-          .maybeSingle(),
-        supabase
-          .from("tenant_whatsapp_config")
-          .select("numero_whatsapp, mensagem_novo_palpite")
-          .eq("tenant_id", bolao.tenant_id)
-          .maybeSingle(),
+        supabase.rpc("get_bolao_public_payment", { p_slug: slug }),
         supabase
           .from("palpites")
           .select("id", { count: "exact", head: true })
@@ -67,16 +60,34 @@ const bolaoPublicOpts = (slug: string) =>
         matchesData = (mrows ?? []) as Match[];
       }
 
+      const payRow = (pay.data?.[0] ?? null) as
+        | {
+            nome_recebedor: string | null;
+            chave_pix: string | null;
+            banco: string | null;
+            valor_padrao_palpite: number | string | null;
+            numero_whatsapp: string | null;
+            mensagem_novo_palpite: string | null;
+          }
+        | null;
+
       return {
         bolao,
         matches: matchesData,
         teams: new Map<string, TeamLite>(
           (t.data ?? []).map((x) => [x.id, { name: x.name, code: x.code, flag_url: x.flag_url }]),
         ),
-        pix: p.data
-          ? { ...p.data, valor_padrao_palpite: Number(p.data.valor_padrao_palpite) }
+        pix: payRow?.chave_pix
+          ? {
+              nome_recebedor: payRow.nome_recebedor,
+              chave_pix: payRow.chave_pix,
+              banco: payRow.banco,
+              valor_padrao_palpite: Number(payRow.valor_padrao_palpite ?? 0),
+            }
           : null,
-        wa: w.data,
+        wa: payRow
+          ? { numero_whatsapp: payRow.numero_whatsapp, mensagem_novo_palpite: payRow.mensagem_novo_palpite }
+          : null,
         totalPalpites: pc.count ?? 0,
       };
     },
@@ -238,7 +249,7 @@ function PublicBolao() {
         `No total de *${brl(valorTotal)}*\n\n` +
         `Já lhe envio o comprovante\n` +
         `Para: ${pix.chave_pix}`;
-      setDone({ link: buildWhatsAppLink(wa.numero_whatsapp, msg), protocolos, valorTotal });
+      setDone({ link: buildWhatsAppLink(wa.numero_whatsapp ?? "", msg), protocolos, valorTotal });
       (confetti as unknown as (opts: Record<string, unknown>) => void)({ particleCount: 120, spread: 80, origin: { y: 0.6 }, useWorker: false, disableForReducedMotion: true });
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erro ao enviar palpite");
@@ -491,13 +502,13 @@ function SuccessPanel({
 }: {
   waLink: string;
   protocolos: string[];
-  pix: { nome_recebedor: string; chave_pix: string; banco: string | null };
+  pix: { nome_recebedor: string | null; chave_pix: string; banco: string | null };
   valor: number;
   onClose: () => void;
 }) {
   const [copied, setCopied] = useState(false);
   const payload = useMemo(
-    () => buildPixPayload({ chave: pix.chave_pix, nomeRecebedor: pix.nome_recebedor, valor }),
+    () => buildPixPayload({ chave: pix.chave_pix, nomeRecebedor: pix.nome_recebedor ?? "", valor }),
     [pix.chave_pix, pix.nome_recebedor, valor],
   );
 

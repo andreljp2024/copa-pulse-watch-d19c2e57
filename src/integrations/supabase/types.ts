@@ -1215,6 +1215,17 @@ export type Database = {
         }[]
       }
       current_tenant_id: { Args: never; Returns: string }
+      get_bolao_public_payment: {
+        Args: { p_slug: string }
+        Returns: {
+          banco: string
+          chave_pix: string
+          mensagem_novo_palpite: string
+          nome_recebedor: string
+          numero_whatsapp: string
+          valor_padrao_palpite: number
+        }[]
+      }
       get_bolao_ranking: {
         Args: { p_slug: string }
         Returns: {
