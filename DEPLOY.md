@@ -223,8 +223,9 @@ bun run start        # ou deploy do .output em Workers/Node
 Plataformas validadas:
 
 - **Cloudflare Workers** (alvo padrão do template — `nodejs_compat`).
+- **Coolify / Docker** (use o `Dockerfile` na raiz — ver seção [6.1](#61-deploy-no-coolify-docker-self-hosted)).
 - **Netlify** / **Vercel** (adapters TanStack).
-- **Node 20+** standalone.
+- **Node 20+** standalone (`NITRO_PRESET=node-server bun run build && node .output/server/index.mjs`).
 
 Configure todas as variáveis da seção [3](#3-variáveis-de-ambiente) no provedor. Para detalhes, consulte: <https://docs.lovable.dev/tips-tricks/self-hosting>.
 
