@@ -1,90 +1,45 @@
-# CopaHub — Plano da Primeira Versão
+## Problema
 
-Plataforma web moderna e responsiva para acompanhar a Copa do Mundo, com Supabase (Lovable Cloud) como banco e estrutura preparada para integração futura com API externa de futebol.
+Hoje todo bolão de um tenant mostra **todos** os jogos da base no link público. O gestor não consegue agendar um bolão para uma rodada específica nem ter links diferentes apontando para conjuntos distintos de jogos. O criativo do hero usa um “próximo jogo qualquer” em vez das seleções realmente agendadas.
 
-## Escopo desta primeira versão
+## Solução
 
-Entregáveis funcionais:
-1. **Dashboard** com próximos jogos, ao vivo, últimos resultados, mini-classificação e destaques (artilheiros).
-2. **Seleções** — listagem com bandeira, grupo, técnico, ranking FIFA + página de detalhe (elenco, estatísticas).
-3. **Grupos** — 8 grupos com tabela de classificação calculada automaticamente a partir dos resultados.
-4. **Calendário de Jogos** — lista com filtros (data, grupo, fase, seleção, estádio, status).
-5. **Detalhes da Partida** — escalações, placar, eventos (gols/cartões/substituições), estatísticas, árbitro, estádio.
-6. **Chaveamento mata-mata** visual (placeholder até resultados de grupos).
-7. **Painel Admin** (rota protegida, role `admin`) — CRUD de seleções, jogadores, partidas, estádios, grupos; atualização manual de placar e eventos; logs de sincronização; botão "Sincronizar API" (stub).
-8. **Auth** — email/senha + Google; tabela `profiles` + `user_roles` (enum `app_role`).
-9. **Estrutura para API externa** — server function `syncFromExternalApi` com interface clara, grava em `api_sync_logs`. Sem credenciais ainda; usuário pluga a API depois.
-10. **Tema claro/escuro**, design esportivo elegante, mobile-first.
+Tornar a seleção de jogos parte do bolão (persistida) e fazer o link público (e o criativo do hero) ler somente esses jogos. O gestor poderá ter vários bolões (cada um com seu slug e sua rodada de jogos).
 
-Fora do escopo (preparado para depois): notificações push, PWA install, notícias, compartilhamento social, integração real com API-Football/SportMonks (estrutura pronta, chave a ser adicionada via secrets).
+### 1. Banco — tabela `bolao_matches`
 
-## Arquitetura técnica
+Migration criando join table:
 
-- **Stack**: TanStack Start + Tailwind + shadcn (template). Lovable Cloud (Supabase) para DB/Auth.
-- **Server functions** (`src/lib/*.functions.ts`) para leituras públicas (usando `supabaseAdmin` dentro do handler) e mutações admin (com `requireSupabaseAuth` + checagem `has_role('admin')`).
-- **Rotas públicas** (SSR): `/`, `/selecoes`, `/selecoes/$id`, `/grupos`, `/calendario`, `/partidas/$id`, `/mata-mata`, `/estatisticas`.
-- **Rotas protegidas**: `/_authenticated/admin/*` para painel.
-- **Auth**: `/auth` (login/signup), gate em `_authenticated/route.tsx` (gerenciado pela integração).
-- **TanStack Query** para fetch/cache.
+- `bolao_matches(bolao_id uuid, match_id uuid, created_at)` com PK composta, FKs para `boloes(id)` e `matches(id)` com `ON DELETE CASCADE`.
+- GRANT padrão (`authenticated` CRUD, `service_role` ALL, `anon` apenas SELECT — leitura pública faz parte do link compartilhável).
+- RLS:
+  - `SELECT` público: `EXISTS (boloes b WHERE b.id = bolao_id AND b.status='active')`.
+  - `INSERT/UPDATE/DELETE`: só o dono do tenant do bolão (`current_tenant_id() = b.tenant_id`) ou `super_admin`.
+- Ajustar `submit_palpite(...)` para exigir que `match_id` pertença ao bolão (se houver vínculos cadastrados); se a tabela estiver vazia para aquele bolão, manter o comportamento atual (compatível).
 
-## Schema do banco (migrations)
+### 2. Admin — `src/routes/_authenticated/app.bolao.tsx`
 
-Enums: `app_role` (admin, user), `match_status` (scheduled, live, finished, postponed, cancelled), `match_phase` (group, round_of_16, quarter, semi, third_place, final), `event_type` (goal, yellow_card, red_card, substitution, own_goal, penalty).
+- Carregar `bolao_matches` ao abrir o bolão e popular `selectedMatchIds`.
+- Botão **Salvar** passa a persistir o conjunto (`delete` + `insert` em transação client-side: apaga removidos, insere adicionados).
+- Reorganizar a aba **Config**: bloco “Jogos deste bolão” com a lista de jogos futuros e checkbox; resumo (“X jogos selecionados”).
+- Permitir **criar novo bolão** (já existe estrutura; expor botão “Novo bolão” se ainda não houver) para que o gestor tenha mais de um link.
 
-Tabelas (todas em `public` com GRANTs + RLS):
-- `profiles` (id→auth.users, display_name, avatar_url) — auto-criada por trigger.
-- `user_roles` (user_id, role) + função `has_role(uuid, app_role)` SECURITY DEFINER.
-- `stadiums` (name, city, country, capacity).
-- `groups` (name "A"–"H").
-- `teams` (name, code, flag_url, confederation, group_id, coach_name, fifa_rank).
-- `players` (team_id, name, number, position, photo_url).
-- `referees` (name, country).
-- `matches` (home_team_id, away_team_id, group_id, phase, stadium_id, referee_id, kickoff_at, status, home_score, away_score, attendance).
-- `match_events` (match_id, minute, type, team_id, player_id, related_player_id, description).
-- `match_statistics` (match_id, team_id, possession, shots, shots_on_target, corners, fouls, offsides, passes, passes_accurate, saves).
-- `match_lineups` (match_id, team_id, player_id, is_starter, position, shirt_number).
-- `api_sync_logs` (source, action, status, message, payload jsonb, created_at).
+### 3. Público — `src/routes/bolao.$slug.tsx`
 
-**Classificação dos grupos**: view `v_standings` calculada a partir de `matches` finalizadas (pontos, J, V, E, D, GP, GC, SG), com critérios de desempate (pontos → SG → GP → confronto direto).
+- No `queryFn`, buscar primeiro os `match_id`s em `bolao_matches` para o bolão; se houver, filtrar `matches` por esses IDs. Se a lista estiver vazia (bolão antigo), manter fallback atual.
+- `featured` passa a ser calculado dentro desse subconjunto (mostra o próximo jogo agendado **do bolão**).
+- Hero/criativo: quando há um `featured`, exibir bandeiras + nomes (em PT-BR via `ptTeamName`) das duas seleções com placar previsto/scoreboard, em vez do bloco genérico “Vai, Brasil”. Mantém estética samba/dourada.
+- og:image / og:title incluem nomes das seleções do próximo jogo (`Brasil x Argentina — {nome do bolão}`) para o preview do link no WhatsApp refletir o confronto.
 
-**RLS**:
-- Leitura pública (`anon` + `authenticated`) em `teams`, `players`, `groups`, `matches`, `match_events`, `match_statistics`, `match_lineups`, `stadiums`, `referees`, `v_standings`.
-- Escrita apenas para `has_role(auth.uid(),'admin')`.
-- `profiles`: usuário lê/edita o próprio; admin lê todos.
-- `user_roles`: somente admin escreve; usuário lê o próprio.
-- `api_sync_logs`: somente admin.
+### 4. Detalhes técnicos
 
-## Design
+- Reaproveitar `ptTeamName` para nomes nas metatags e no hero.
+- `FeaturedMatchCard` permanece, mas recebe sempre o jogo do bolão (não do global).
+- Nada muda em rotas autenticadas além do `app.bolao.tsx`.
+- Sem mudança de business logic em palpites além da validação de pertencimento dentro de `submit_palpite`.
 
-- Paleta inspirada em Copa: verde-campo profundo, dourado de troféu, branco. Tokens em `src/styles.css` (oklch). Gradientes sutis em hero e cards de destaque.
-- Tipografia: display forte para placares; sans clean para corpo.
-- Componentes: `TeamBadge` (bandeira+nome), `MatchCard`, `LiveBadge` pulsante, `StandingsTable`, `GroupCard`, `BracketTree`, `StatBar`, `EventTimeline`.
-- Modo claro/escuro via toggle.
+## Arquivos
 
-## Passos de implementação
-
-1. Habilitar Lovable Cloud.
-2. Migration: enums, tabelas, GRANTs, RLS, trigger de profile, função `has_role`, view `v_standings`.
-3. Seed mínimo (8 grupos, ~8 seleções de exemplo, alguns jogos) via migration para a demo não ficar vazia.
-4. Design system em `src/styles.css` + componentes base.
-5. Server functions: `getDashboard`, `listTeams`, `getTeam`, `listGroupsWithStandings`, `listMatches`, `getMatch`, `listTopScorers`, admin CRUDs, `syncFromExternalApi` (stub que grava log).
-6. Rotas públicas + páginas.
-7. Auth (`/auth`) + gate `_authenticated`.
-8. Painel admin com CRUDs essenciais e botão Sincronizar.
-9. QA visual mobile/desktop.
-
-```text
-src/
-├── routes/
-│   ├── __root.tsx, index.tsx, auth.tsx
-│   ├── selecoes.tsx, selecoes.$id.tsx
-│   ├── grupos.tsx, calendario.tsx
-│   ├── partidas.$id.tsx, mata-mata.tsx, estatisticas.tsx
-│   └── _authenticated/admin.*.tsx
-├── lib/{teams,matches,groups,admin,sync}.functions.ts
-└── components/{TeamBadge,MatchCard,StandingsTable,...}
-```
-
-## Perguntas antes de começar
-
-Vou perguntar 1–2 coisas chave (login e dados iniciais) depois que você aprovar o plano.
+- `supabase/migrations/<novo>.sql` — tabela `bolao_matches`, GRANTs, RLS, update em `submit_palpite`.
+- `src/routes/_authenticated/app.bolao.tsx` — carregar/salvar vínculos, UI de seleção de jogos do bolão, criar novo bolão.
+- `src/routes/bolao.$slug.tsx` — filtrar matches pelo vínculo, ajustar hero/criativo e metatags por seleções.
