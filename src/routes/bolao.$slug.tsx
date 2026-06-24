@@ -299,7 +299,7 @@ function PublicBolao() {
             away={teams.get(featured.away_team_id ?? "")}
             valor={Number(bolao.valor_palpite)}
             palpiteAberto={palpiteAberto}
-            onPalpitar={() => { setSelected(featured); setForm({ nome: "", whatsapp: "", palpite_a: 0, palpite_b: 0 }); setDone(null); }}
+            onPalpitar={() => openModal(featured)}
           />
         </section>
       )}
