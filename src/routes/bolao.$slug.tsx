@@ -35,7 +35,7 @@ const bolaoPublicOpts = (slug: string) =>
       if (error) throw error;
       if (!bolao) throw notFound();
 
-      const [m, t, p, w] = await Promise.all([
+      const [m, t, p, w, pc] = await Promise.all([
         supabase
           .from("matches")
           .select("id, home_team_id, away_team_id, kickoff_at, status, home_score, away_score")
@@ -51,6 +51,10 @@ const bolaoPublicOpts = (slug: string) =>
           .select("numero_whatsapp, mensagem_novo_palpite")
           .eq("tenant_id", bolao.tenant_id)
           .maybeSingle(),
+        supabase
+          .from("palpites")
+          .select("id", { count: "exact", head: true })
+          .eq("bolao_id", bolao.id),
       ]);
 
       return {
@@ -63,6 +67,7 @@ const bolaoPublicOpts = (slug: string) =>
           ? { ...p.data, valor_padrao_palpite: Number(p.data.valor_padrao_palpite) }
           : null,
         wa: w.data,
+        totalPalpites: pc.count ?? 0,
       };
     },
     staleTime: 30_000,
