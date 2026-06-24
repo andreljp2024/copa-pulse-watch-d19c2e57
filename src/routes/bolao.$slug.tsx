@@ -8,6 +8,7 @@ import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
 import { maskPhone, isValidWhatsAppBR } from "@/lib/masks";
 import { buildPixPayload } from "@/lib/pix";
 import { ptTeamName } from "@/components/MatchCard";
+import { flagUrl } from "@/lib/flags";
 import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered, Clock, Users, Flame, Sparkles, MapPin, Search, Share2, Printer, Link as LinkIcon, Medal, Coins } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -513,11 +514,11 @@ function PublicBolao() {
               return (
                 <div key={m.id} className="rounded-xl border border-border bg-gradient-card p-3 flex items-center gap-3 card-elevated transition-colors hover:border-gold/40">
                   <div className="flex-1 flex items-center gap-2 min-w-0">
-                    {home?.flag_url && <img src={home.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
+                    {flagUrl(home?.code, home?.flag_url) && <img src={flagUrl(home?.code, home?.flag_url)!} alt="" className="h-5 w-7 object-cover rounded" />}
                     <span className="font-medium truncate">{ptTeamName(home?.name) || "?"}</span>
                     <span className="text-muted-foreground text-sm mx-2">x</span>
                     <span className="font-medium truncate">{ptTeamName(away?.name) || "?"}</span>
-                    {away?.flag_url && <img src={away.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
+                    {flagUrl(away?.code, away?.flag_url) && <img src={flagUrl(away?.code, away?.flag_url)!} alt="" className="h-5 w-7 object-cover rounded" />}
                     {m.kickoff_at && (
                       <span className="hidden sm:inline ml-3 text-[11px] text-muted-foreground">
                         {format(new Date(m.kickoff_at), "dd/MM HH:mm", { locale: ptBR })}
@@ -775,11 +776,11 @@ function FeaturedMatchCard({
     <div className="relative overflow-hidden rounded-3xl border border-gold/30 bg-gradient-card shadow-gold ring-conic">
       {/* Background flags */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.12]" aria-hidden="true">
-        {home?.flag_url && (
-          <img src={home.flag_url} alt="" className="absolute -left-10 top-1/2 -translate-y-1/2 h-[140%] w-auto blur-sm" />
+        {flagUrl(home?.code, home?.flag_url) && (
+          <img src={flagUrl(home?.code, home?.flag_url)!} alt="" className="absolute -left-10 top-1/2 -translate-y-1/2 h-[140%] w-auto blur-sm" />
         )}
-        {away?.flag_url && (
-          <img src={away.flag_url} alt="" className="absolute -right-10 top-1/2 -translate-y-1/2 h-[140%] w-auto blur-sm" />
+        {flagUrl(away?.code, away?.flag_url) && (
+          <img src={flagUrl(away?.code, away?.flag_url)!} alt="" className="absolute -right-10 top-1/2 -translate-y-1/2 h-[140%] w-auto blur-sm" />
         )}
       </div>
       <div
@@ -809,8 +810,8 @@ function FeaturedMatchCard({
 
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
           <div className="flex flex-col items-center gap-2 text-center min-w-0">
-            {home?.flag_url ? (
-              <img src={home.flag_url} alt={ptTeamName(home.name)} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
+            {flagUrl(home?.code, home?.flag_url) ? (
+              <img src={flagUrl(home?.code, home?.flag_url)!} alt={ptTeamName(home?.name)} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
             ) : (
               <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-md bg-muted grid place-items-center font-black text-xl">{home?.code ?? "?"}</div>
             )}
@@ -823,8 +824,8 @@ function FeaturedMatchCard({
           </div>
 
           <div className="flex flex-col items-center gap-2 text-center min-w-0">
-            {away?.flag_url ? (
-              <img src={away.flag_url} alt={ptTeamName(away.name)} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
+            {flagUrl(away?.code, away?.flag_url) ? (
+              <img src={flagUrl(away?.code, away?.flag_url)!} alt={ptTeamName(away?.name)} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
             ) : (
               <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-md bg-muted grid place-items-center font-black text-xl">{away?.code ?? "?"}</div>
             )}
