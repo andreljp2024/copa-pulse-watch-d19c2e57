@@ -434,44 +434,76 @@ function PublicBolao() {
         )}
 
         <section>
-          <h2 className="font-display text-2xl sm:text-3xl font-black uppercase tracking-wide mb-4 flex items-center gap-3">
-            <span className="inline-block h-6 w-1 bg-gradient-samba rounded-sm" aria-hidden="true" />
-            Jogos
-          </h2>
+          <div className="flex items-end justify-between gap-3 flex-wrap mb-4">
+            <h2 className="font-display text-2xl sm:text-3xl font-black uppercase tracking-wide flex items-center gap-3">
+              <span className="inline-block h-6 w-1 bg-gradient-samba rounded-sm" aria-hidden="true" />
+              Jogos
+            </h2>
+            <div className="flex items-center gap-2 print:hidden">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Buscar seleção…"
+                  className="h-9 pl-8 pr-3 rounded-lg border border-border bg-background text-sm w-44 focus:outline-none focus:ring-2 focus:ring-gold"
+                />
+              </div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+                className="h-9 rounded-lg border border-border bg-background px-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-gold"
+                aria-label="Filtrar por status"
+              >
+                <option value="abertos">Abertos</option>
+                <option value="ao_vivo">Ao vivo</option>
+                <option value="encerrados">Encerrados</option>
+                <option value="todos">Todos</option>
+              </select>
+            </div>
+          </div>
           {!palpiteAberto && (
             <p className="mb-3 text-sm font-semibold text-live bg-live/10 border border-live/30 rounded-lg p-3">
               ⏰ Período de palpites encerrado.
             </p>
           )}
-          {matches.length === 0 && (
+          {matches.length === 0 ? (
             <p className="mb-3 text-sm text-muted-foreground bg-card border border-border rounded-lg p-4 text-center">
               O organizador ainda não vinculou jogos a este bolão.
             </p>
-          )}
+          ) : filteredMatches.length === 0 ? (
+            <p className="mb-3 text-sm text-muted-foreground bg-card border border-border rounded-lg p-4 text-center">
+              Nenhum jogo encontrado com os filtros atuais.
+            </p>
+          ) : null}
           <div className="grid gap-2">
-            {matches.slice(0, 30).map((m) => {
+            {filteredMatches.slice(0, 60).map((m) => {
               const home = teams.get(m.home_team_id ?? "");
               const away = teams.get(m.away_team_id ?? "");
+              const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= Date.now() : false;
+              const matchOpen = palpiteAberto && !kickoffPassed && m.status !== "live" && m.status !== "finished";
               return (
                 <div key={m.id} className="rounded-xl border border-border bg-gradient-card p-3 flex items-center gap-3 card-elevated transition-colors hover:border-gold/40">
-                  <div className="flex-1 flex items-center gap-2">
+                  <div className="flex-1 flex items-center gap-2 min-w-0">
                     {home?.flag_url && <img src={home.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
-                    <span className="font-medium">{ptTeamName(home?.name) || "?"}</span>
+                    <span className="font-medium truncate">{ptTeamName(home?.name) || "?"}</span>
                     <span className="text-muted-foreground text-sm mx-2">x</span>
-                    <span className="font-medium">{ptTeamName(away?.name) || "?"}</span>
+                    <span className="font-medium truncate">{ptTeamName(away?.name) || "?"}</span>
                     {away?.flag_url && <img src={away.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
+                    {m.kickoff_at && (
+                      <span className="hidden sm:inline ml-3 text-[11px] text-muted-foreground">
+                        {format(new Date(m.kickoff_at), "dd/MM HH:mm", { locale: ptBR })}
+                      </span>
+                    )}
                   </div>
-                  {(() => {
-                    const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= Date.now() : false;
-                    const matchOpen = palpiteAberto && !kickoffPassed && m.status !== "live" && m.status !== "finished";
-                    if (m.status === "finished") {
-                      return <span className="text-sm font-black tabular-nums text-gold">{m.home_score} x {m.away_score}</span>;
-                    }
-                    if (matchOpen) {
-                      return <button onClick={() => openModal(m)} className="text-sm font-bold uppercase tracking-wide text-gold hover:underline">Fazer palpite →</button>;
-                    }
-                    return <span className="text-xs text-muted-foreground">{m.status === "live" ? "Em andamento" : "Encerrado"}</span>;
-                  })()}
+                  {m.status === "finished" ? (
+                    <span className="text-sm font-black tabular-nums text-gold">{m.home_score} x {m.away_score}</span>
+                  ) : matchOpen ? (
+                    <button onClick={() => openModal(m)} className="text-sm font-bold uppercase tracking-wide text-gold hover:underline print:hidden">Fazer palpite →</button>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">{m.status === "live" ? "Em andamento" : "Encerrado"}</span>
+                  )}
                 </div>
               );
             })}
