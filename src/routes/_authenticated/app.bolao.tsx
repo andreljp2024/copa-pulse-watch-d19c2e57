@@ -224,7 +224,7 @@ function BolaoConfigPage() {
         </div>
         <div className="grid grid-cols-3 gap-2 text-center sm:text-right">
           <Stat icon={<DollarSign className="h-3.5 w-3.5" />} label="Valor" value={`R$ ${Number(form.valor_palpite || 0).toFixed(0)}`} />
-          <Stat icon={<Calendar className="h-3.5 w-3.5" />} label="Jogos" value={String(matches.length)} />
+          <Stat icon={<Calendar className="h-3.5 w-3.5" />} label="Jogos" value={String(selectedMatchIds.size)} />
           <Stat icon={<Clock className="h-3.5 w-3.5" />} label="Limite" value={form.data_limite_palpite ? new Date(form.data_limite_palpite).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "Início do jogo"} />
         </div>
       </header>
