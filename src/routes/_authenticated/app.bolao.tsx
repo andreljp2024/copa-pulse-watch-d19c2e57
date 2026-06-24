@@ -209,7 +209,7 @@ function BolaoConfigPage() {
                       <div key={m.id} className="flex items-center gap-2 text-sm rounded-lg border border-border bg-background px-3 py-2">
                         <span className="text-xs text-muted-foreground w-12">{new Date(m.kickoff_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
                         <span className="flex-1">{home?.name ?? "?"} <span className="text-muted-foreground">x</span> {away?.name ?? "?"}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${m.status === "finished" ? "bg-muted text-muted-foreground" : "bg-pitch/10 text-pitch"}`}>{m.status === "finished" ? "Encerrado" : m.status === "live" ? "Ao vivo" : "Agendado"}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-pitch/10 text-pitch">Agendado</span>
                       </div>
                     );
                   })}
