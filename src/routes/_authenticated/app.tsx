@@ -1,9 +1,12 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { isSuperAdmin } from "@/lib/gestores.functions";
 import {
   LayoutDashboard, CreditCard, MessageCircle, Users, ListChecks, Settings,
-  ExternalLink, LogOut, Trophy, Menu, X,
+  ExternalLink, LogOut, Trophy, Menu, X, Shield,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -11,12 +14,14 @@ export const Route = createFileRoute("/_authenticated/app")({
   component: AppLayout,
 });
 
-const nav: {
-  to: "/app" | "/app/bolao" | "/app/pix" | "/app/whatsapp" | "/app/torcedores" | "/app/palpites" | "/app/ganhadores";
+type NavItem = {
+  to: "/app" | "/app/bolao" | "/app/pix" | "/app/whatsapp" | "/app/torcedores" | "/app/palpites" | "/app/ganhadores" | "/app/gestores";
   label: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
-}[] = [
+};
+
+const baseNav: NavItem[] = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/app/bolao", label: "Meu bolão", icon: Settings },
   { to: "/app/pix", label: "Pix", icon: CreditCard },
