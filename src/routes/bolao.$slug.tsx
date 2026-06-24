@@ -459,6 +459,18 @@ function PublicBolao() {
 
 function SuccessPanel({
   waLink,
+  protocolos,
+  pix,
+  valor,
+  onClose,
+}: {
+  waLink: string;
+  protocolos: string[];
+  pix: { nome_recebedor: string; chave_pix: string; banco: string | null };
+  valor: number;
+  onClose: () => void;
+}) {
+  waLink,
   protocolo,
   pix,
   valor,
