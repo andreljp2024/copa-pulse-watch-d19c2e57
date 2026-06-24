@@ -1,0 +1,16 @@
+node_modules
+.output
+.cache
+.vite
+dist
+.git
+.github
+.lovable
+.vscode
+.idea
+*.log
+.env
+.env.*
+!.env.example
+supabase/.branches
+supabase/.temp
