@@ -1,21 +1,23 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, CreditCard, MessageCircle, Users, ListChecks, Settings, ExternalLink, LogOut } from "lucide-react";
+import { LayoutDashboard, CreditCard, MessageCircle, Users, ListChecks, Settings, ExternalLink, LogOut, Trophy } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({ meta: [{ title: "Painel do bolão" }] }),
   component: AppLayout,
 });
 
-const nav: { to: "/app" | "/app/bolao" | "/app/pix" | "/app/whatsapp" | "/app/torcedores" | "/app/palpites"; label: string; icon: typeof LayoutDashboard; exact?: boolean }[] = [
+const nav: { to: "/app" | "/app/bolao" | "/app/pix" | "/app/whatsapp" | "/app/torcedores" | "/app/palpites" | "/app/ganhadores"; label: string; icon: typeof LayoutDashboard; exact?: boolean }[] = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/app/bolao", label: "Meu bolão", icon: Settings },
   { to: "/app/pix", label: "Pix", icon: CreditCard },
   { to: "/app/whatsapp", label: "WhatsApp", icon: MessageCircle },
   { to: "/app/torcedores", label: "Torcedores", icon: Users },
   { to: "/app/palpites", label: "Palpites", icon: ListChecks },
+  { to: "/app/ganhadores", label: "Ganhadores", icon: Trophy },
 ];
+
 
 function AppLayout() {
   const navigate = useNavigate();
