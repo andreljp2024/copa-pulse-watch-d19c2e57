@@ -252,13 +252,20 @@ function BolaoConfigPage() {
           <Card title="3. Apostas & prazos">
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Valor do palpite (R$)"><input type="number" min={0} step="0.01" value={form.valor_palpite} onChange={(e) => setForm({ ...form, valor_palpite: Number(e.target.value) })} className={inputCss} /></Field>
-              <Field label="Data limite para palpite">
+              <Field label="Hora limite geral (opcional)" hint="Por padrão, os palpites de cada jogo encerram no horário de início (kickoff). Use este campo só para encerrar tudo antes.">
                 <input type="datetime-local" value={form.data_limite_palpite} onChange={(e) => setForm({ ...form, data_limite_palpite: e.target.value })} className={inputCss} />
-                {proximoJogo && (
-                  <button type="button" onClick={() => setForm({ ...form, data_limite_palpite: new Date(proximoJogo.kickoff_at).toISOString().slice(0, 16) })} className="mt-1 text-xs font-semibold text-pitch hover:underline">
-                    Usar início do próximo jogo ({new Date(proximoJogo.kickoff_at).toLocaleString("pt-BR")})
-                  </button>
-                )}
+                <div className="mt-1 flex flex-wrap items-center gap-3">
+                  {form.data_limite_palpite && (
+                    <button type="button" onClick={() => setForm({ ...form, data_limite_palpite: "" })} className="text-xs font-semibold text-muted-foreground hover:text-foreground hover:underline">
+                      Limpar (usar início de cada jogo)
+                    </button>
+                  )}
+                  {proximoJogo && (
+                    <button type="button" onClick={() => setForm({ ...form, data_limite_palpite: new Date(proximoJogo.kickoff_at).toISOString().slice(0, 16) })} className="text-xs font-semibold text-pitch hover:underline">
+                      Usar início do próximo jogo ({new Date(proximoJogo.kickoff_at).toLocaleString("pt-BR")})
+                    </button>
+                  )}
+                </div>
               </Field>
             </div>
           </Card>
