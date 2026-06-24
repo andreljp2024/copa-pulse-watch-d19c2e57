@@ -159,7 +159,6 @@ function BolaoConfigPage() {
     { ok: !!form.slug, label: "Link público (slug)" },
     { ok: !!form.regras, label: "Regras definidas" },
     { ok: Number(form.valor_palpite) > 0, label: "Valor do palpite" },
-    { ok: !!form.data_limite_palpite, label: "Data limite" },
   ];
   const checksOk = checks.filter((c) => c.ok).length;
   const ready = checksOk === checks.length;
