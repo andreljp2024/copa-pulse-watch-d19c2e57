@@ -30,6 +30,11 @@ function PalpitesPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [teams, setTeams] = useState<Map<string, string>>(new Map());
+  const [filters, setFilters] = useState({
+    status: "todos", bolaoSlug: "todos", search: "", dataDe: "", dataAte: "",
+  });
+  const [showFilters, setShowFilters] = useState(false);
+
   
 
   async function load() {
