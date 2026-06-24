@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { brl, buildWhatsAppLink, interpolate } from "@/lib/saas";
+import { brl, buildWhatsAppLink } from "@/lib/saas";
 import { CheckCircle2, XCircle, Download, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/palpites")({
