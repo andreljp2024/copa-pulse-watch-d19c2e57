@@ -514,11 +514,11 @@ function PublicBolao() {
               return (
                 <div key={m.id} className="rounded-xl border border-border bg-gradient-card p-3 flex items-center gap-3 card-elevated transition-colors hover:border-gold/40">
                   <div className="flex-1 flex items-center gap-2 min-w-0">
-                    {home?.flag_url && <img src={home.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
+                    {flagUrl(home?.code, home?.flag_url) && <img src={flagUrl(home?.code, home?.flag_url)!} alt="" className="h-5 w-7 object-cover rounded" />}
                     <span className="font-medium truncate">{ptTeamName(home?.name) || "?"}</span>
                     <span className="text-muted-foreground text-sm mx-2">x</span>
                     <span className="font-medium truncate">{ptTeamName(away?.name) || "?"}</span>
-                    {away?.flag_url && <img src={away.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
+                    {flagUrl(away?.code, away?.flag_url) && <img src={flagUrl(away?.code, away?.flag_url)!} alt="" className="h-5 w-7 object-cover rounded" />}
                     {m.kickoff_at && (
                       <span className="hidden sm:inline ml-3 text-[11px] text-muted-foreground">
                         {format(new Date(m.kickoff_at), "dd/MM HH:mm", { locale: ptBR })}
