@@ -71,8 +71,8 @@ function Dashboard() {
                 Vai, Brasil! · Rumo ao Hexa 2026
               </div>
               <h1 className="font-display text-4xl sm:text-6xl md:text-8xl lg:text-9xl leading-[0.9] uppercase bg-gradient-to-b from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
-                A Experiência <br />
-                <span className="text-gradient-gold">Definitiva</span>
+                A Casa do <br />
+                <span className="text-gradient-samba">Torcedor</span>
               </h1>
               <p className="max-w-md text-sm sm:text-base md:text-lg leading-relaxed text-muted-foreground">
                 Acompanhe cada lance, simule resultados e dispute o topo do ranking no maior portal da Copa do Mundo 2026.
