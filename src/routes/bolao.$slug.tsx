@@ -84,17 +84,30 @@ const bolaoPublicOpts = (slug: string) =>
 
 export const Route = createFileRoute("/bolao/$slug")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(bolaoPublicOpts(params.slug)),
-  head: ({ loaderData }) => ({
-    meta: loaderData
-      ? [
-          { title: `${loaderData.bolao.nome} — Bolão Copa 2026` },
-          { name: "description", content: loaderData.bolao.descricao ?? `Participe do ${loaderData.bolao.nome}.` },
-          { property: "og:title", content: loaderData.bolao.nome },
-          { property: "og:description", content: loaderData.bolao.descricao ?? "Faça seu palpite e concorra." },
-          ...(loaderData.bolao.logo_url ? [{ property: "og:image", content: loaderData.bolao.logo_url }] : []),
-        ]
-      : [],
-  }),
+  head: ({ loaderData }) => {
+    if (!loaderData) return { meta: [] };
+    const now = Date.now();
+    const next =
+      loaderData.matches.find((m) => m.status !== "finished" && m.kickoff_at && new Date(m.kickoff_at).getTime() > now) ??
+      loaderData.matches.find((m) => m.status !== "finished") ??
+      null;
+    const home = next ? loaderData.teams.get(next.home_team_id ?? "") : undefined;
+    const away = next ? loaderData.teams.get(next.away_team_id ?? "") : undefined;
+    const confronto = home && away ? `${ptTeamName(home.name)} x ${ptTeamName(away.name)}` : "";
+    const title = confronto ? `${confronto} — ${loaderData.bolao.nome}` : `${loaderData.bolao.nome} — Bolão Copa 2026`;
+    const desc = confronto
+      ? `Palpite em ${confronto} e concorra no ${loaderData.bolao.nome}.`
+      : (loaderData.bolao.descricao ?? `Participe do ${loaderData.bolao.nome}.`);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        ...(loaderData.bolao.logo_url ? [{ property: "og:image", content: loaderData.bolao.logo_url }] : []),
+      ],
+    };
+  },
   component: PublicBolao,
   errorComponent: ({ error }) => (
     <div className="min-h-screen grid place-items-center p-8 text-center">
