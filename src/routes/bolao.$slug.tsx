@@ -490,7 +490,7 @@ function FeaturedMatchCard({
 
           <div className="flex flex-col items-center gap-2 text-center min-w-0">
             {away?.flag_url ? (
-              <img src={away.flag_url} alt={away.name} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
+              <img src={away.flag_url} alt={ptTeamName(away.name)} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
             ) : (
               <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-md bg-muted grid place-items-center font-black text-xl">{away?.code ?? "?"}</div>
             )}
