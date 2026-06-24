@@ -12,6 +12,7 @@ Documentação oficial do projeto **Bolão SaaS** (TanStack Start + Lovable Clou
 4. [Publicação pelo Lovable (recomendado)](#4-publicação-pelo-lovable-recomendado)
 5. [Conectar o projeto ao GitHub](#5-conectar-o-projeto-ao-github)
 6. [Fluxo de trabalho com GitHub](#6-fluxo-de-trabalho-com-github)
+6.1 [Deploy no Coolify (Docker self-hosted)](#61-deploy-no-coolify-docker-self-hosted)
 7. [Domínio personalizado](#7-domínio-personalizado)
 8. [Deploy fora do Lovable (self-hosting)](#8-deploy-fora-do-lovable-self-hosting)
 9. [Banco de dados e migrações](#9-banco-de-dados-e-migrações)
