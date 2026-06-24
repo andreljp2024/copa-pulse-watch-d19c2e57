@@ -124,7 +124,7 @@ function PublicBolao() {
     }
     setSubmitting(true);
     try {
-      const { error: rErr } = await supabase.rpc("submit_palpite", {
+      const { data: rData, error: rErr } = await supabase.rpc("submit_palpite", {
         p_bolao_id: bolao.id,
         p_nome: form.nome.trim(),
         p_whatsapp: whatsapp,
@@ -133,6 +133,9 @@ function PublicBolao() {
         p_palpite_b: form.palpite_b,
       });
       if (rErr) throw rErr;
+      const protocolo = Array.isArray(rData) && rData[0]?.codigo
+        ? `BOL-${String(rData[0].codigo).padStart(4, "0")}`
+        : "—";
       const home = teams.get(selected.home_team_id ?? "");
       const away = teams.get(selected.away_team_id ?? "");
       const msg = interpolate(wa.mensagem_novo_palpite ?? "", {
@@ -147,8 +150,10 @@ function PublicBolao() {
         nome_recebedor: pix.nome_recebedor,
         banco: pix.banco ?? "",
         chave_pix: pix.chave_pix,
-      });
-      setDone(buildWhatsAppLink(wa.numero_whatsapp, msg));
+        protocolo,
+      }) + `\n\nProtocolo: ${protocolo}`;
+      setDone({ link: buildWhatsAppLink(wa.numero_whatsapp, msg), protocolo });
+
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erro ao enviar palpite");
