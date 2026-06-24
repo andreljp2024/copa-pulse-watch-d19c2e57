@@ -1043,7 +1043,6 @@ export type Database = {
           id: string
           nome: string
           tenant_id: string
-          token_acesso: string
           token_acesso_hash: string | null
           whatsapp: string
         }
@@ -1053,7 +1052,6 @@ export type Database = {
           id?: string
           nome: string
           tenant_id: string
-          token_acesso?: string
           token_acesso_hash?: string | null
           whatsapp: string
         }
@@ -1063,7 +1061,6 @@ export type Database = {
           id?: string
           nome?: string
           tenant_id?: string
-          token_acesso?: string
           token_acesso_hash?: string | null
           whatsapp?: string
         }
