@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { type ReactNode, useEffect, useState } from "react";
-import { Moon, Sun, Trophy, Menu, X } from "lucide-react";
+import { Moon, Sun, Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import bgPattern from "@/assets/bg-pattern.jpg";
 import bolaoIcon from "@/assets/bolaoai-icon.png";
