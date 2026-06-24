@@ -6,6 +6,7 @@ import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
 import { buildPixPayload } from "@/lib/pix";
+import { ptTeamName } from "@/components/MatchCard";
 import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered, Clock, Users, Flame, Sparkles, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
