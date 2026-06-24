@@ -68,7 +68,7 @@ function Page() {
               <div key={p.id} className="flex items-center gap-3 p-3">
                 <span className="grid h-8 w-8 place-items-center rounded-md bg-muted font-bold text-sm">{p.shirt_number ?? "?"}</span>
                 <span className="flex-1 truncate font-semibold">{p.name}</span>
-                <span className="text-xs text-muted-foreground">{p.position}</span>
+                <span className="text-xs text-muted-foreground">{(p.position && POSITION_PT[p.position]) || p.position || ""}</span>
               </div>
             ))}
           </div>
