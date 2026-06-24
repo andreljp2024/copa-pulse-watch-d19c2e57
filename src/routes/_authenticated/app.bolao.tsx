@@ -124,6 +124,51 @@ function BolaoConfigPage() {
 
   const proximoJogo = matches.find((m) => m.status !== "finished" && new Date(m.kickoff_at) > new Date());
 
+  function toggleMatch(id: string) {
+    setSelectedMatchIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+  function toggleAllVisible() {
+    const allIds = matches.map((m) => m.id);
+    const allSelected = allIds.every((id) => selectedMatchIds.has(id));
+    setSelectedMatchIds(allSelected ? new Set() : new Set(allIds));
+  }
+
+  const divulgacaoTexto = useMemo(() => {
+    const selecionados = matches.filter((m) => selectedMatchIds.has(m.id));
+    if (selecionados.length === 0) return "";
+    const linhas = selecionados.map((m) => {
+      const home = teams.get(m.home_team_id)?.name ?? "?";
+      const away = teams.get(m.away_team_id)?.name ?? "?";
+      const dt = new Date(m.kickoff_at).toLocaleString("pt-BR", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+      return `⚽ ${dt} — ${home} x ${away}`;
+    });
+    return [
+      `🏆 ${form.nome || "Bolão"}`,
+      ``,
+      `Palpite nos próximos jogos:`,
+      ...linhas,
+      ``,
+      form.valor_palpite ? `💰 R$ ${Number(form.valor_palpite).toFixed(2)} por palpite` : "",
+      shareUrl ? `👉 ${shareUrl}` : "",
+    ].filter(Boolean).join("\n");
+  }, [matches, selectedMatchIds, teams, form.nome, form.valor_palpite, shareUrl]);
+
+  async function copyDivulgacao() {
+    if (!divulgacaoTexto) return;
+    await navigator.clipboard.writeText(divulgacaoTexto);
+    setDivulgCopied(true);
+    setTimeout(() => setDivulgCopied(false), 2000);
+  }
+  function shareDivulgacaoWhatsApp() {
+    if (!divulgacaoTexto) return;
+    window.open(`https://wa.me/?text=${encodeURIComponent(divulgacaoTexto)}`, "_blank");
+  }
+
+
   return (
     <div className="max-w-3xl space-y-6">
       <h1 className="text-2xl font-black">Meu bolão</h1>
