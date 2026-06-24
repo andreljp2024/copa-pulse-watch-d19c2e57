@@ -36,7 +36,7 @@ function PalpitesPage() {
     const { data: u } = await supabase.auth.getUser();
     const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user!.id).single();
     if (!t) return;
-    const [{ data: pals }, { data: ts }, { data: wa }] = await Promise.all([
+    const [{ data: pals }, { data: ts }] = await Promise.all([
       supabase
         .from("palpites")
         .select(
@@ -45,11 +45,9 @@ function PalpitesPage() {
         .eq("tenant_id", t.id)
         .order("created_at", { ascending: false }),
       supabase.from("teams").select("id, name"),
-      supabase.from("tenant_whatsapp_config").select("mensagem_confirmacao_pagamento").eq("tenant_id", t.id).maybeSingle(),
     ]);
     setRows(((pals as unknown) as Row[]) ?? []);
     setTeams(new Map((ts ?? []).map((x) => [x.id, x.name])));
-    setWaTpl(wa?.mensagem_confirmacao_pagamento ?? "");
     setLoading(false);
   }
   useEffect(() => {
