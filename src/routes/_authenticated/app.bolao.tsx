@@ -45,8 +45,15 @@ function BolaoConfigPage() {
 
   async function loadMatches() {
     setLoadingGames(true);
+    const nowIso = new Date().toISOString();
     const [m, t] = await Promise.all([
-      supabase.from("matches").select("id, kickoff_at, status, home_team_id, away_team_id").order("kickoff_at", { ascending: true }).limit(50),
+      supabase
+        .from("matches")
+        .select("id, kickoff_at, status, home_team_id, away_team_id")
+        .eq("status", "scheduled")
+        .gte("kickoff_at", nowIso)
+        .order("kickoff_at", { ascending: true })
+        .limit(50),
       supabase.from("teams").select("id, name, code, flag_url"),
     ]);
     setMatches((m.data ?? []) as Match[]);
