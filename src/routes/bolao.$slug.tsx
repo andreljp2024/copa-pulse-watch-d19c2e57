@@ -288,9 +288,9 @@ function PublicBolao() {
                 <div key={m.id} className="rounded-xl border border-border bg-gradient-card p-3 flex items-center gap-3 card-elevated transition-colors hover:border-gold/40">
                   <div className="flex-1 flex items-center gap-2">
                     {home?.flag_url && <img src={home.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
-                    <span className="font-medium">{home?.name ?? "?"}</span>
+                    <span className="font-medium">{ptTeamName(home?.name) || "?"}</span>
                     <span className="text-muted-foreground text-sm mx-2">x</span>
-                    <span className="font-medium">{away?.name ?? "?"}</span>
+                    <span className="font-medium">{ptTeamName(away?.name) || "?"}</span>
                     {away?.flag_url && <img src={away.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
                   </div>
                   {(() => {
