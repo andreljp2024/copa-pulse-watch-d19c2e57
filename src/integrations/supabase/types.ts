@@ -1044,6 +1044,7 @@ export type Database = {
           nome: string
           tenant_id: string
           token_acesso: string
+          token_acesso_hash: string | null
           whatsapp: string
         }
         Insert: {
@@ -1053,6 +1054,7 @@ export type Database = {
           nome: string
           tenant_id: string
           token_acesso?: string
+          token_acesso_hash?: string | null
           whatsapp: string
         }
         Update: {
@@ -1062,6 +1064,7 @@ export type Database = {
           nome?: string
           tenant_id?: string
           token_acesso?: string
+          token_acesso_hash?: string | null
           whatsapp?: string
         }
         Relationships: [
