@@ -6,6 +6,8 @@ import { Trophy, RefreshCw, MessageCircle, Sparkles, Users as UsersIcon } from "
 import { computarGanhadores } from "@/lib/ganhadores.functions";
 import { listarGanhadores, type GanhadoresBolaoGroup, type GanhadorRow } from "@/lib/ganhadores-list.functions";
 import { brl, buildWhatsAppLink } from "@/lib/saas";
+import { PageHeader } from "@/components/PageHeader";
+
 
 export const Route = createFileRoute("/_authenticated/app/ganhadores")({
   head: () => ({ meta: [{ title: "Ganhadores" }] }),
@@ -46,24 +48,22 @@ function GanhadoresPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="font-display text-3xl font-black flex items-center gap-2">
-            <Trophy className="h-7 w-7 text-accent" /> Ganhadores
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Cruzamento entre palpites pagos, resultados oficiais e divisão do prêmio.
-          </p>
-        </div>
-        <button
-          onClick={apurar}
-          disabled={busy}
-          className="inline-flex items-center gap-2 h-10 rounded-xl bg-gradient-gold px-4 font-bold text-gold-foreground shadow-gold disabled:opacity-50"
-        >
-          <RefreshCw className={`h-4 w-4 ${busy ? "animate-spin" : ""}`} />
-          Apurar ganhadores
-        </button>
-      </header>
+      <PageHeader
+        title="Ganhadores"
+        subtitle="Cruzamento entre palpites pagos, resultados oficiais e divisão do prêmio."
+        icon={<Trophy className="h-5 w-5" />}
+        actions={
+          <button
+            onClick={apurar}
+            disabled={busy}
+            className="inline-flex items-center gap-2 h-10 rounded-xl bg-gradient-gold px-4 font-bold text-gold-foreground shadow-gold disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${busy ? "animate-spin" : ""}`} />
+            Apurar ganhadores
+          </button>
+        }
+      />
+
 
       {msg && (
         <div className="rounded-xl border border-accent/40 bg-card/60 px-4 py-2 text-sm">

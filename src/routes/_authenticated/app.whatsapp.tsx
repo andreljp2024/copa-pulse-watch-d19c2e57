@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { DEFAULT_TEMPLATES } from "@/lib/saas";
-import { Loader2, Save, Link2, Plug } from "lucide-react";
+import { Loader2, Save, Link2, Plug, MessageCircle } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
+
 
 export const Route = createFileRoute("/_authenticated/app/whatsapp")({
   component: WhatsAppConfigPage,
@@ -83,7 +85,13 @@ function WhatsAppConfigPage() {
 
   return (
     <form onSubmit={save} className="max-w-2xl space-y-4">
-      <h1 className="text-2xl font-black">Configuração do WhatsApp</h1>
+      <PageHeader
+        title="Configuração do WhatsApp"
+        subtitle="Defina como suas mensagens são enviadas aos torcedores."
+        icon={<MessageCircle className="h-5 w-5" />}
+      />
+
+
 
       <div className="rounded-xl border border-border p-4 space-y-3">
         <span className="text-sm font-semibold">Modo de integração</span>

@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, buildWhatsAppLink } from "@/lib/saas";
-import { CheckCircle2, XCircle, Download, MessageCircle, FileText, Filter } from "lucide-react";
+import { CheckCircle2, XCircle, Download, MessageCircle, FileText, Filter, ListChecks } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
+
 
 export const Route = createFileRoute("/_authenticated/app/palpites")({
   component: PalpitesPage,
@@ -235,20 +237,25 @@ function PalpitesPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-black">Palpites</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <button onClick={() => setShowFilters((v) => !v)} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold">
-            <Filter className="h-4 w-4" /> Filtros
-          </button>
-          <button onClick={exportCsv} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold">
-            <Download className="h-4 w-4" /> CSV
-          </button>
-          <button onClick={exportPdf} className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-pitch px-3 text-sm font-semibold text-primary-foreground">
-            <FileText className="h-4 w-4" /> Relatório PDF
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Palpites"
+        subtitle="Gerencie, filtre e exporte relatórios profissionais."
+        icon={<ListChecks className="h-5 w-5" />}
+        actions={
+          <>
+            <button onClick={() => setShowFilters((v) => !v)} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10">
+              <Filter className="h-4 w-4" /> Filtros
+            </button>
+            <button onClick={exportCsv} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10">
+              <Download className="h-4 w-4" /> CSV
+            </button>
+            <button onClick={exportPdf} className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-gradient-gold px-3 text-sm font-bold text-gold-foreground shadow-gold">
+              <FileText className="h-4 w-4" /> Relatório PDF
+            </button>
+          </>
+        }
+      />
+
 
       {showFilters && (
         <div className="rounded-2xl border border-border bg-card p-4 grid gap-3 sm:grid-cols-5">
