@@ -51,63 +51,104 @@
   --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-/* Dark-first design system (matches bolaoai.lovable.app) */
+/* Brazilian-spirit design system — verde-amarelo-azul, dark-first */
 :root {
   --radius: 0.875rem;
-  --background: oklch(16% 0.03 165);
-  --foreground: oklch(97% 0.01 100);
-  --card: oklch(21% 0.035 165);
-  --card-foreground: oklch(97% 0.01 100);
-  --popover: oklch(21% 0.035 165);
-  --popover-foreground: oklch(97% 0.01 100);
-  --primary: oklch(72% 0.18 150);
-  --primary-foreground: oklch(16% 0.03 165);
-  --secondary: oklch(27% 0.04 165);
-  --secondary-foreground: oklch(97% 0.01 100);
-  --muted: oklch(24% 0.03 165);
-  --muted-foreground: oklch(72% 0.02 140);
-  --accent: oklch(83% 0.14 85);
-  --accent-foreground: oklch(16% 0.03 165);
+
+  /* Brand colors (Bandeira do Brasil) */
+  --brand-green:   oklch(62% 0.19 148);  /* verde-bandeira */
+  --brand-yellow:  oklch(86% 0.17 92);   /* amarelo-ouro */
+  --brand-blue:    oklch(38% 0.18 255);  /* azul-bandeira */
+  --brand-samba:   oklch(70% 0.22 27);   /* vermelho-samba (acento quente) */
+
+  /* Surfaces — deep emerald night */
+  --background: oklch(14% 0.035 158);
+  --foreground: oklch(98% 0.012 95);
+  --card: oklch(19% 0.042 158);
+  --card-foreground: oklch(98% 0.012 95);
+  --popover: oklch(19% 0.042 158);
+  --popover-foreground: oklch(98% 0.012 95);
+
+  --primary: var(--brand-green);
+  --primary-foreground: oklch(14% 0.035 158);
+  --secondary: oklch(25% 0.045 158);
+  --secondary-foreground: oklch(98% 0.012 95);
+  --muted: oklch(22% 0.035 158);
+  --muted-foreground: oklch(74% 0.025 140);
+  --accent: var(--brand-yellow);
+  --accent-foreground: oklch(14% 0.035 158);
   --destructive: oklch(66% 0.22 27);
   --destructive-foreground: oklch(99% 0 0);
-  --border: oklch(30% 0.03 165 / 0.6);
-  --input: oklch(30% 0.03 165);
-  --ring: oklch(72% 0.18 150);
-  --pitch: oklch(55% 0.16 148);
-  --gold: oklch(83% 0.14 85);
-  --gold-foreground: oklch(16% 0.03 165);
-  --live: oklch(70% 0.22 27);
-  --chart-1: oklch(72% 0.18 150);
-  --chart-2: oklch(83% 0.14 85);
-  --chart-3: oklch(70% 0.22 27);
-  --chart-4: oklch(60% 0.18 250);
+  --border: oklch(32% 0.04 158 / 0.6);
+  --input: oklch(30% 0.04 158);
+  --ring: var(--brand-yellow);
+
+  --pitch: var(--brand-green);
+  --gold: var(--brand-yellow);
+  --gold-foreground: oklch(14% 0.035 158);
+  --live: var(--brand-samba);
+
+  --chart-1: var(--brand-green);
+  --chart-2: var(--brand-yellow);
+  --chart-3: var(--brand-samba);
+  --chart-4: var(--brand-blue);
   --chart-5: oklch(65% 0.18 320);
-  --sidebar: oklch(18% 0.03 165);
-  --sidebar-foreground: oklch(97% 0.01 100);
-  --sidebar-primary: oklch(72% 0.18 150);
-  --sidebar-primary-foreground: oklch(16% 0.03 165);
-  --sidebar-accent: oklch(27% 0.04 165);
-  --sidebar-accent-foreground: oklch(97% 0.01 100);
-  --sidebar-border: oklch(30% 0.03 165 / 0.6);
-  --sidebar-ring: oklch(72% 0.18 150);
-  --gradient-hero: linear-gradient(135deg, oklch(16% 0.03 165) 0%, oklch(22% 0.06 155) 55%, oklch(30% 0.10 145) 100%);
-  --gradient-gold: linear-gradient(135deg, oklch(88% 0.14 88) 0%, oklch(75% 0.16 70) 100%);
-  --gradient-pitch: linear-gradient(180deg, oklch(55% 0.16 148) 0%, oklch(38% 0.13 148) 100%);
-  --gradient-card: linear-gradient(160deg, oklch(23% 0.04 165 / 0.9) 0%, oklch(18% 0.03 165 / 0.9) 100%);
-  --shadow-glow: 0 0 60px -10px oklch(72% 0.18 150 / 0.55);
-  --shadow-gold: 0 14px 40px -12px oklch(83% 0.14 85 / 0.5);
-  --shadow-card: 0 18px 50px -20px oklch(0% 0 0 / 0.6);
+
+  --sidebar: oklch(17% 0.035 158);
+  --sidebar-foreground: oklch(98% 0.012 95);
+  --sidebar-primary: var(--brand-green);
+  --sidebar-primary-foreground: oklch(14% 0.035 158);
+  --sidebar-accent: oklch(25% 0.045 158);
+  --sidebar-accent-foreground: oklch(98% 0.012 95);
+  --sidebar-border: oklch(32% 0.04 158 / 0.6);
+  --sidebar-ring: var(--brand-yellow);
+
+  /* Modern gradients */
+  --gradient-hero: linear-gradient(135deg,
+    oklch(14% 0.035 158) 0%,
+    oklch(20% 0.07 152) 45%,
+    oklch(30% 0.12 145) 100%);
+  --gradient-gold: linear-gradient(135deg,
+    oklch(90% 0.15 95) 0%,
+    oklch(75% 0.18 70) 100%);
+  --gradient-samba: linear-gradient(120deg,
+    var(--brand-green) 0%,
+    var(--brand-yellow) 50%,
+    var(--brand-blue) 100%);
+  --gradient-pitch: linear-gradient(180deg, var(--brand-green) 0%, oklch(38% 0.13 148) 100%);
+  --gradient-card: linear-gradient(160deg, oklch(22% 0.05 158 / 0.92) 0%, oklch(16% 0.035 158 / 0.92) 100%);
+  --gradient-mesh: radial-gradient(at 18% 12%, oklch(62% 0.19 148 / 0.35) 0px, transparent 55%),
+                   radial-gradient(at 82% 18%, oklch(86% 0.17 92 / 0.30) 0px, transparent 55%),
+                   radial-gradient(at 60% 92%, oklch(38% 0.18 255 / 0.35) 0px, transparent 55%);
+  --gradient-conic-gold: conic-gradient(from 210deg at 50% 50%,
+    oklch(86% 0.17 92) 0deg,
+    oklch(62% 0.19 148) 120deg,
+    oklch(38% 0.18 255) 220deg,
+    oklch(70% 0.22 27) 300deg,
+    oklch(86% 0.17 92) 360deg);
+
+  --shadow-glow: 0 0 80px -10px oklch(62% 0.19 148 / 0.55);
+  --shadow-gold: 0 18px 50px -14px oklch(86% 0.17 92 / 0.55);
+  --shadow-samba: 0 18px 50px -14px oklch(70% 0.22 27 / 0.45);
+  --shadow-card: 0 22px 55px -22px oklch(0% 0 0 / 0.7);
 }
 
-.dark { /* dark is the default; keep alias for components that toggle .dark */
-  color-scheme: dark;
-}
+.dark { color-scheme: dark; }
 
 @layer base {
   * { border-color: var(--color-border); }
   html, body { background-color: var(--color-background); color: var(--color-foreground); }
-  body { font-family: var(--font-sans); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    background-image: var(--gradient-mesh);
+    background-attachment: fixed;
+  }
   h1, h2, h3, h4, .font-display { font-family: var(--font-display); letter-spacing: -0.01em; line-height: 1.2; }
+  ::selection { background: var(--brand-yellow); color: var(--gold-foreground); }
 }
 
 @layer utilities {
@@ -116,21 +157,40 @@
   .bg-gradient-gold { background-image: var(--gradient-gold); }
   .bg-gradient-pitch { background-image: var(--gradient-pitch); }
   .bg-gradient-card { background-image: var(--gradient-card); }
+  .bg-gradient-samba { background-image: var(--gradient-samba); }
+  .bg-mesh { background-image: var(--gradient-mesh); }
   .shadow-glow { box-shadow: var(--shadow-glow); }
   .shadow-gold { box-shadow: var(--shadow-gold); }
+  .shadow-samba { box-shadow: var(--shadow-samba); }
   .shadow-card { box-shadow: var(--shadow-card); }
   .text-gradient-gold {
     background: var(--gradient-gold);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
   }
+  .text-gradient-samba {
+    background: var(--gradient-samba);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  /* Subtle film grain overlay */
+  .grain::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.07;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  /* Pitch chalk lines */
   .pitch-lines {
-    background-image: repeating-linear-gradient(
-      90deg,
-      oklch(100% 0 0 / 0.04) 0 2px,
-      transparent 2px 80px
-    );
+    background-image: repeating-linear-gradient(90deg, oklch(100% 0 0 / 0.04) 0 2px, transparent 2px 80px);
+  }
+  /* Conic gold ring (modern aura) */
+  .ring-conic {
+    position: relative; isolation: isolate;
+  }
+  .ring-conic::before {
+    content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px;
+    background: var(--gradient-conic-gold);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    pointer-events: none;
   }
   .card-elevated { box-shadow: var(--shadow-card); }
   .live-dot {
@@ -143,6 +203,9 @@
     70% { box-shadow: 0 0 0 10px transparent; }
     100% { box-shadow: 0 0 0 0 transparent; }
   }
+  /* Slow conic spin used on hero glow */
+  @keyframes spin-slow { to { transform: rotate(360deg); } }
+  .animate-spin-slow { animation: spin-slow 22s linear infinite; }
 }
 
 

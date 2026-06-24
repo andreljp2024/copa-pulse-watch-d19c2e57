@@ -40,33 +40,39 @@ function Dashboard() {
 
   return (
     <AppShell>
-      <section className="relative overflow-hidden bg-hero">
+      <section className="relative overflow-hidden bg-hero grain">
         <img
           src={heroStadium}
           alt=""
           aria-hidden="true"
           width={1920}
           height={1280}
-          className="absolute inset-0 h-full w-full object-cover opacity-40 pointer-events-none select-none"
+          className="absolute inset-0 h-full w-full object-cover opacity-45 pointer-events-none select-none"
+        />
+        {/* Conic samba glow */}
+        <div
+          aria-hidden="true"
+          className="absolute -top-40 -right-40 h-[36rem] w-[36rem] rounded-full opacity-30 blur-3xl animate-spin-slow pointer-events-none"
+          style={{ backgroundImage: "var(--gradient-conic-gold)" }}
         />
         <div
           className="absolute inset-0 opacity-10 pointer-events-none"
           style={{ backgroundImage: "radial-gradient(circle at 2px 2px, var(--gold) 1px, transparent 0)", backgroundSize: "40px 40px" }}
           aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background pointer-events-none" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/55 to-background pointer-events-none" aria-hidden="true" />
 
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12 lg:py-24">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="space-y-5 sm:space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gold">
-                <span className="h-2 w-2 rounded-full bg-gold animate-pulse" aria-hidden="true" />
-                Rumo ao Hexa · 2026
+              <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gradient-samba/10 px-3 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gold backdrop-blur">
+                <span className="h-2 w-2 rounded-full bg-gradient-samba animate-pulse" aria-hidden="true" />
+                Vai, Brasil! · Rumo ao Hexa 2026
               </div>
               <h1 className="font-display text-4xl sm:text-6xl md:text-8xl lg:text-9xl leading-[0.9] uppercase bg-gradient-to-b from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
-                A Experiência <br />
-                <span className="text-gradient-gold">Definitiva</span>
+                A Casa do <br />
+                <span className="text-gradient-samba">Torcedor</span>
               </h1>
               <p className="max-w-md text-sm sm:text-base md:text-lg leading-relaxed text-muted-foreground">
                 Acompanhe cada lance, simule resultados e dispute o topo do ranking no maior portal da Copa do Mundo 2026.
