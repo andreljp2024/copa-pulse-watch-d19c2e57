@@ -265,7 +265,18 @@ function BolaoConfigPage() {
                       <label key={m.id} className={`flex items-center gap-2 text-sm rounded-lg border px-3 py-2 cursor-pointer ${checked ? "border-pitch bg-pitch/5" : "border-border bg-background"}`}>
                         <input type="checkbox" checked={checked} onChange={() => toggleMatch(m.id)} className="accent-pitch" />
                         <span className="text-xs text-muted-foreground w-12">{new Date(m.kickoff_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
-                        <span className="flex-1">{home?.name ?? "?"} <span className="text-muted-foreground">x</span> {away?.name ?? "?"}</span>
+                        <span className="flex flex-1 items-center gap-2 min-w-0">
+                          <span className="flex items-center gap-1 min-w-0">
+                            {home?.flag_url ? <img src={home.flag_url} alt={home.code} className="h-4 w-6 object-cover rounded-sm ring-1 ring-border shrink-0" loading="lazy" /> : <span className="h-4 w-6 rounded-sm bg-muted text-[9px] font-bold grid place-items-center shrink-0">{home?.code ?? "?"}</span>}
+                            <span className="truncate">{home?.name ?? "?"}</span>
+                          </span>
+                          <span className="text-muted-foreground">x</span>
+                          <span className="flex items-center gap-1 min-w-0">
+                            {away?.flag_url ? <img src={away.flag_url} alt={away.code} className="h-4 w-6 object-cover rounded-sm ring-1 ring-border shrink-0" loading="lazy" /> : <span className="h-4 w-6 rounded-sm bg-muted text-[9px] font-bold grid place-items-center shrink-0">{away?.code ?? "?"}</span>}
+                            <span className="truncate">{away?.name ?? "?"}</span>
+                          </span>
+                        </span>
+
                         <span className="text-xs px-2 py-0.5 rounded-full bg-pitch/10 text-pitch">Agendado</span>
                       </label>
                     );
