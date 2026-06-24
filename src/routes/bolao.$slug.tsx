@@ -320,7 +320,7 @@ function PublicBolao() {
               <form onSubmit={submitPalpite} className="space-y-3">
                 <h3 className="font-display text-2xl font-black uppercase">Seu palpite</h3>
                 <p className="text-sm text-muted-foreground">
-                  {teams.get(selected.home_team_id ?? "")?.name} x {teams.get(selected.away_team_id ?? "")?.name}
+                  {ptTeamName(teams.get(selected.home_team_id ?? "")?.name)} x {ptTeamName(teams.get(selected.away_team_id ?? "")?.name)}
                 </p>
                 <input required placeholder="Seu nome" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
                 <input required placeholder="WhatsApp (com DDD)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: onlyDigits(e.target.value) })} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold" />
