@@ -45,7 +45,12 @@ function BolaoConfigPage() {
   const [tab, setTab] = useState<TabId>("config");
 
   const shareUrl = useMemo(() => (form.slug ? publicBolaoUrl(form.slug) : ""), [form.slug]);
-  const dirty = useMemo(() => JSON.stringify(form) !== JSON.stringify(initialForm), [form, initialForm]);
+  const selectionDirty = useMemo(() => {
+    if (selectedMatchIds.size !== initialSelectedIds.size) return true;
+    for (const id of selectedMatchIds) if (!initialSelectedIds.has(id)) return true;
+    return false;
+  }, [selectedMatchIds, initialSelectedIds]);
+  const dirty = useMemo(() => JSON.stringify(form) !== JSON.stringify(initialForm) || selectionDirty, [form, initialForm, selectionDirty]);
 
   async function loadMatches() {
     setLoadingGames(true);
