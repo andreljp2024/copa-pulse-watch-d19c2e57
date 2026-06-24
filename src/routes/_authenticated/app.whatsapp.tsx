@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { DEFAULT_TEMPLATES } from "@/lib/saas";
-import { Loader2, Save, Link2, Plug } from "lucide-react";
+import { Loader2, Save, Link2, Plug, MessageCircle } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
+
 
 export const Route = createFileRoute("/_authenticated/app/whatsapp")({
   component: WhatsAppConfigPage,
