@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
 import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +8,7 @@ import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
 import { maskPhone, isValidWhatsAppBR } from "@/lib/masks";
 import { buildPixPayload } from "@/lib/pix";
 import { ptTeamName } from "@/components/MatchCard";
-import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered, Clock, Users, Flame, Sparkles, MapPin } from "lucide-react";
+import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered, Clock, Users, Flame, Sparkles, MapPin, Search, Share2, Printer, Link as LinkIcon, Medal, Coins } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -150,6 +150,23 @@ function PublicBolao() {
   const [items, setItems] = useState<Array<{ match_id: string; palpite_a: number; palpite_b: number }>>([]);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ link: string; protocolos: string[]; valorTotal: number } | null>(null);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"abertos" | "ao_vivo" | "encerrados" | "todos">("abertos");
+  const [shareCopied, setShareCopied] = useState(false);
+
+  const ranking = useQuery({
+    queryKey: ["bolao", slug, "ranking"],
+    queryFn: async () => {
+      const { data: r } = await supabase.rpc("get_bolao_ranking", { p_slug: slug });
+      return (r ?? []) as Array<{ torcedor_id: string; nome: string; pontos: number; acertos_exatos: number; total: number }>;
+    },
+    enabled: bolao.permitir_ranking_publico !== false,
+    staleTime: 60_000,
+  });
+
+  const valorUnit = Number(bolao.valor_palpite) || 0;
+  const arrecadado = totalPalpites * valorUnit;
+  const premioEstimado = arrecadado * 0.9;
 
   const openMatches = useMemo(() => {
     const now = Date.now();
@@ -159,7 +176,27 @@ function PublicBolao() {
     });
   }, [matches]);
 
-  const valorUnit = Number(bolao.valor_palpite) || 0;
+  const filteredMatches = useMemo(() => {
+    const now = Date.now();
+    const q = query.trim().toLowerCase();
+    return matches.filter((m) => {
+      const home = teams.get(m.home_team_id ?? "");
+      const away = teams.get(m.away_team_id ?? "");
+      const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= now : false;
+      const isOpen = !kickoffPassed && m.status !== "live" && m.status !== "finished";
+      const isLive = m.status === "live";
+      const isFinished = m.status === "finished" || kickoffPassed;
+      if (statusFilter === "abertos" && !isOpen) return false;
+      if (statusFilter === "ao_vivo" && !isLive) return false;
+      if (statusFilter === "encerrados" && !isFinished) return false;
+      if (q) {
+        const hay = `${ptTeamName(home?.name)} ${ptTeamName(away?.name)} ${home?.code ?? ""} ${away?.code ?? ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [matches, teams, query, statusFilter]);
+
   const valorTotal = items.length * valorUnit;
 
   function openModal(match: Match | null) {
@@ -263,6 +300,16 @@ function PublicBolao() {
     }
   }
 
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  async function copyShare() {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch { /* noop */ }
+  }
+  const shareWa = `https://wa.me/?text=${encodeURIComponent(`Participe do bolão *${bolao.nome}* — palpite na Copa 2026! ${shareUrl}`)}`;
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -303,18 +350,70 @@ function PublicBolao() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-5xl px-4 pt-4 flex items-center justify-between gap-3 flex-wrap">
-        <Link to="/bolao/$slug/ranking" params={{ slug: bolao.slug }} className="inline-flex items-center gap-2 text-sm font-semibold text-gold hover:underline">
-          <ListOrdered className="h-4 w-4" /> Ver ranking
-        </Link>
+      <div className="mx-auto max-w-5xl px-4 pt-4 flex items-center justify-between gap-3 flex-wrap print:hidden">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link to="/bolao/$slug/ranking" params={{ slug: bolao.slug }} className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-gold/30 bg-card text-sm font-semibold text-gold hover:border-gold/60 transition-colors">
+            <ListOrdered className="h-4 w-4" /> Ranking
+          </Link>
+          <button type="button" onClick={copyShare} className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-card text-sm font-semibold hover:border-gold/40 transition-colors" aria-label="Copiar link do bolão">
+            {shareCopied ? <Check className="h-4 w-4 text-pitch" /> : <LinkIcon className="h-4 w-4" />}
+            {shareCopied ? "Copiado!" : "Copiar link"}
+          </button>
+          <a href={shareWa} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-card text-sm font-semibold hover:border-gold/40 transition-colors">
+            <Share2 className="h-4 w-4" /> Compartilhar
+          </a>
+          <button type="button" onClick={() => window.print()} className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-card text-sm font-semibold hover:border-gold/40 transition-colors" aria-label="Baixar como PDF">
+            <Printer className="h-4 w-4" /> PDF
+          </button>
+        </div>
         <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
           <Users className="h-3.5 w-3.5 text-gold" />
           <span><strong className="text-foreground">{totalPalpites}</strong> palpites registrados</span>
         </div>
       </div>
 
+      {/* Prêmio estimado + ranking ao vivo */}
+      <section className="mx-auto max-w-5xl px-4 pt-6 grid gap-4 md:grid-cols-2">
+        <div className="rounded-2xl border border-gold/30 bg-gradient-card p-5 card-elevated">
+          <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gold">
+            <Coins className="h-3.5 w-3.5" /> Prêmio estimado
+          </div>
+          <div className="mt-2 font-display text-3xl sm:text-4xl font-black text-gradient-samba">{brl(premioEstimado)}</div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            Arrecadação atual: <strong className="text-foreground">{brl(arrecadado)}</strong> · {totalPalpites} palpite(s) · 90% para premiação
+          </div>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-5 card-elevated">
+          <div className="flex items-center justify-between mb-3">
+            <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gold">
+              <Medal className="h-3.5 w-3.5" /> Ranking ao vivo
+            </div>
+            <Link to="/bolao/$slug/ranking" params={{ slug: bolao.slug }} className="text-[11px] font-semibold text-gold hover:underline">Ver tudo →</Link>
+          </div>
+          {bolao.permitir_ranking_publico === false ? (
+            <p className="text-xs text-muted-foreground">Ranking não disponível publicamente.</p>
+          ) : ranking.isLoading ? (
+            <p className="text-xs text-muted-foreground inline-flex items-center gap-2"><Loader2 className="h-3 w-3 animate-spin" /> Calculando…</p>
+          ) : (ranking.data ?? []).length === 0 ? (
+            <p className="text-xs text-muted-foreground">Sem pontuações ainda. Seja o primeiro a acertar!</p>
+          ) : (
+            <ol className="space-y-1.5">
+              {(ranking.data ?? []).slice(0, 5).map((r, i) => (
+                <li key={r.torcedor_id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="inline-flex items-center gap-2 min-w-0">
+                    <span className={`h-6 w-6 rounded-full grid place-items-center text-[10px] font-black ${i === 0 ? "bg-gradient-gold text-gold-foreground" : "bg-muted text-foreground"}`}>{i + 1}</span>
+                    <span className="truncate">{r.nome}</span>
+                  </span>
+                  <span className="font-black tabular-nums text-gold">{r.pontos} pts</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      </section>
+
       {featured && (
-        <section className="mx-auto max-w-5xl px-4 pt-6">
+        <section className="mx-auto max-w-5xl px-4 pt-6 print:hidden">
           <FeaturedMatchCard
             match={featured}
             home={teams.get(featured.home_team_id ?? "")}
@@ -335,44 +434,76 @@ function PublicBolao() {
         )}
 
         <section>
-          <h2 className="font-display text-2xl sm:text-3xl font-black uppercase tracking-wide mb-4 flex items-center gap-3">
-            <span className="inline-block h-6 w-1 bg-gradient-samba rounded-sm" aria-hidden="true" />
-            Jogos
-          </h2>
+          <div className="flex items-end justify-between gap-3 flex-wrap mb-4">
+            <h2 className="font-display text-2xl sm:text-3xl font-black uppercase tracking-wide flex items-center gap-3">
+              <span className="inline-block h-6 w-1 bg-gradient-samba rounded-sm" aria-hidden="true" />
+              Jogos
+            </h2>
+            <div className="flex items-center gap-2 print:hidden">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Buscar seleção…"
+                  className="h-9 pl-8 pr-3 rounded-lg border border-border bg-background text-sm w-44 focus:outline-none focus:ring-2 focus:ring-gold"
+                />
+              </div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+                className="h-9 rounded-lg border border-border bg-background px-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-gold"
+                aria-label="Filtrar por status"
+              >
+                <option value="abertos">Abertos</option>
+                <option value="ao_vivo">Ao vivo</option>
+                <option value="encerrados">Encerrados</option>
+                <option value="todos">Todos</option>
+              </select>
+            </div>
+          </div>
           {!palpiteAberto && (
             <p className="mb-3 text-sm font-semibold text-live bg-live/10 border border-live/30 rounded-lg p-3">
               ⏰ Período de palpites encerrado.
             </p>
           )}
-          {matches.length === 0 && (
+          {matches.length === 0 ? (
             <p className="mb-3 text-sm text-muted-foreground bg-card border border-border rounded-lg p-4 text-center">
               O organizador ainda não vinculou jogos a este bolão.
             </p>
-          )}
+          ) : filteredMatches.length === 0 ? (
+            <p className="mb-3 text-sm text-muted-foreground bg-card border border-border rounded-lg p-4 text-center">
+              Nenhum jogo encontrado com os filtros atuais.
+            </p>
+          ) : null}
           <div className="grid gap-2">
-            {matches.slice(0, 30).map((m) => {
+            {filteredMatches.slice(0, 60).map((m) => {
               const home = teams.get(m.home_team_id ?? "");
               const away = teams.get(m.away_team_id ?? "");
+              const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= Date.now() : false;
+              const matchOpen = palpiteAberto && !kickoffPassed && m.status !== "live" && m.status !== "finished";
               return (
                 <div key={m.id} className="rounded-xl border border-border bg-gradient-card p-3 flex items-center gap-3 card-elevated transition-colors hover:border-gold/40">
-                  <div className="flex-1 flex items-center gap-2">
+                  <div className="flex-1 flex items-center gap-2 min-w-0">
                     {home?.flag_url && <img src={home.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
-                    <span className="font-medium">{ptTeamName(home?.name) || "?"}</span>
+                    <span className="font-medium truncate">{ptTeamName(home?.name) || "?"}</span>
                     <span className="text-muted-foreground text-sm mx-2">x</span>
-                    <span className="font-medium">{ptTeamName(away?.name) || "?"}</span>
+                    <span className="font-medium truncate">{ptTeamName(away?.name) || "?"}</span>
                     {away?.flag_url && <img src={away.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
+                    {m.kickoff_at && (
+                      <span className="hidden sm:inline ml-3 text-[11px] text-muted-foreground">
+                        {format(new Date(m.kickoff_at), "dd/MM HH:mm", { locale: ptBR })}
+                      </span>
+                    )}
                   </div>
-                  {(() => {
-                    const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= Date.now() : false;
-                    const matchOpen = palpiteAberto && !kickoffPassed && m.status !== "live" && m.status !== "finished";
-                    if (m.status === "finished") {
-                      return <span className="text-sm font-black tabular-nums text-gold">{m.home_score} x {m.away_score}</span>;
-                    }
-                    if (matchOpen) {
-                      return <button onClick={() => openModal(m)} className="text-sm font-bold uppercase tracking-wide text-gold hover:underline">Fazer palpite →</button>;
-                    }
-                    return <span className="text-xs text-muted-foreground">{m.status === "live" ? "Em andamento" : "Encerrado"}</span>;
-                  })()}
+                  {m.status === "finished" ? (
+                    <span className="text-sm font-black tabular-nums text-gold">{m.home_score} x {m.away_score}</span>
+                  ) : matchOpen ? (
+                    <button onClick={() => openModal(m)} className="text-sm font-bold uppercase tracking-wide text-gold hover:underline print:hidden">Fazer palpite →</button>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">{m.status === "live" ? "Em andamento" : "Encerrado"}</span>
+                  )}
                 </div>
               );
             })}
