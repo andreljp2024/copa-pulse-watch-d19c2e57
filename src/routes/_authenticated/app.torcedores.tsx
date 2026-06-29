@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -11,6 +11,7 @@ import {
   Filter,
   Copy,
   CheckCircle2,
+  Upload,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { toast } from "sonner";
@@ -22,6 +23,8 @@ export const Route = createFileRoute("/_authenticated/app/torcedores")({
 type Lead = {
   palpite_id: string;
   torcedor_id: string;
+  bolao_id: string;
+  tenant_id: string;
   nome: string;
   whatsapp: string;
   valor: number;
@@ -51,6 +54,8 @@ type Torcedor = {
 type StatusFilter = "todos" | "pago" | "pendente";
 type ViewMode = "torcedores" | "palpites";
 
+
+
 function TorcedoresPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,79 +63,48 @@ function TorcedoresPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
   const [view, setView] = useState<ViewMode>("torcedores");
 
-  useEffect(() => {
-    (async () => {
-      const { data: u } = await supabase.auth.getUser();
-      const { data: t } = await supabase
-        .from("tenants")
-        .select("id")
-        .eq("owner_user_id", u.user!.id)
-        .single();
-      if (!t) {
-        setLoading(false);
-        return;
-      }
+  async function loadLeads() {
+    const { data: u } = await supabase.auth.getUser();
+    if (!u.user) { setLoading(false); return; }
+    const tRes = await supabase.from("tenants").select("id").eq("owner_user_id", u.user.id).limit(1);
+    const tenantRow = Array.isArray(tRes.data) ? tRes.data[0] : tRes.data;
+    if (!tenantRow?.id) { setLoading(false); return; }
 
-      const { data: palpites } = await supabase
-        .from("palpites")
-        .select(
-          "id, torcedor_id, match_id, valor, palpite_a, palpite_b, created_at, status_pagamento",
-        )
-        .eq("tenant_id", t.id)
-        .order("created_at", { ascending: false });
+    const { data: pals } = await supabase
+      .from("palpites")
+      .select(
+        "id, bolao_id, tenant_id, torcedor_id, palpite_a, palpite_b, valor, status_pagamento, created_at, match_id, matches(kickoff_at, home_team_id, away_team_id), torcedores(nome, whatsapp)",
+      )
+      .eq("tenant_id", tenantRow.id)
+      .order("created_at", { ascending: false });
 
-      const torcedorIds = Array.from(new Set((palpites ?? []).map((p) => p.torcedor_id)));
-      const matchIds = Array.from(new Set((palpites ?? []).map((p) => p.match_id)));
+    const { data: ts } = await supabase.from("teams").select("id, name, flag_url");
+    const teamMap = new Map((ts ?? []).map((x) => [x.id, x]));
 
-      const [torcRes, matchRes] = await Promise.all([
-        torcedorIds.length
-          ? supabase.from("torcedores").select("id, nome, whatsapp").in("id", torcedorIds)
-          : Promise.resolve({ data: [] as any[] }),
-        matchIds.length
-          ? supabase
-              .from("matches")
-              .select("id, kickoff_at, home_team_id, away_team_id")
-              .in("id", matchIds)
-          : Promise.resolve({ data: [] as any[] }),
-      ]);
-      const teamIds = Array.from(
-        new Set((matchRes.data ?? []).flatMap((m: any) => [m.home_team_id, m.away_team_id])),
-      );
-      const teamRes = teamIds.length
-        ? await supabase.from("teams").select("id, name, flag_url").in("id", teamIds)
-        : { data: [] as any[] };
+    const mapped: Lead[] = ((pals as any[]) ?? []).map((p: any) => ({
+      palpite_id: p.id,
+      bolao_id: p.bolao_id,
+      tenant_id: p.tenant_id,
+      torcedor_id: p.torcedor_id,
+      nome: p.torcedores?.nome ?? "",
+      whatsapp: p.torcedores?.whatsapp ?? "",
+      valor: Number(p.valor ?? 0),
+      palpite_a: p.palpite_a,
+      palpite_b: p.palpite_b,
+      created_at: p.created_at,
+      match_id: p.match_id,
+      kickoff_at: p.matches?.kickoff_at ?? "",
+      home: teamMap.get(p.matches?.home_team_id)?.name ?? "?",
+      away: teamMap.get(p.matches?.away_team_id)?.name ?? "?",
+      home_flag: teamMap.get(p.matches?.home_team_id)?.flag_url ?? null,
+      away_flag: teamMap.get(p.matches?.away_team_id)?.flag_url ?? null,
+      status_pagamento: p.status_pagamento,
+    }));
+    setLeads(mapped);
+    setLoading(false);
+  }
 
-      const torcMap = new Map((torcRes.data ?? []).map((x: any) => [x.id, x]));
-      const matchMap = new Map((matchRes.data ?? []).map((x: any) => [x.id, x]));
-      const teamMap = new Map((teamRes.data ?? []).map((x: any) => [x.id, x]));
-
-      const out: Lead[] = (palpites ?? []).map((p) => {
-        const tor = torcMap.get(p.torcedor_id);
-        const m = matchMap.get(p.match_id);
-        const home = m ? teamMap.get(m.home_team_id) : null;
-        const away = m ? teamMap.get(m.away_team_id) : null;
-        return {
-          palpite_id: p.id,
-          torcedor_id: p.torcedor_id,
-          nome: tor?.nome ?? "—",
-          whatsapp: tor?.whatsapp ?? "",
-          valor: Number(p.valor ?? 0),
-          palpite_a: p.palpite_a,
-          palpite_b: p.palpite_b,
-          created_at: p.created_at,
-          match_id: p.match_id,
-          kickoff_at: m?.kickoff_at ?? "",
-          home: home?.name ?? "?",
-          away: away?.name ?? "?",
-          home_flag: home?.flag_url ?? null,
-          away_flag: away?.flag_url ?? null,
-          status_pagamento: p.status_pagamento ?? "pendente",
-        };
-      });
-      setLeads(out);
-      setLoading(false);
-    })();
-  }, []);
+  useEffect(() => { void loadLeads(); }, []);
 
   const filteredLeads = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -230,12 +204,20 @@ function TorcedoresPage() {
         subtitle="Sua base de leads — cada palpite é uma oportunidade."
         icon={<Users className="h-5 w-5" />}
         actions={
-          <button
-            onClick={exportCsv}
-            className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10"
-          >
-            <Download className="h-4 w-4" /> Exportar CSV
-          </button>
+          <div className="flex gap-2">
+            <Link
+              to="/app/contatos"
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-pitch px-3 text-sm font-semibold text-primary-foreground"
+            >
+              <Upload className="h-4 w-4" /> Importar CSV
+            </Link>
+            <button
+              onClick={exportCsv}
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10"
+            >
+              <Download className="h-4 w-4" /> Exportar CSV
+            </button>
+          </div>
         }
       />
 

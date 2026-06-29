@@ -5,8 +5,19 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { isSuperAdmin } from "@/lib/gestores.functions";
 import {
-  LayoutDashboard, CreditCard, MessageCircle, Users, ListChecks, Settings,
-  ExternalLink, LogOut, Trophy, Menu, X, Shield,
+  LayoutDashboard,
+  CreditCard,
+  MessageCircle,
+  Users,
+  ListChecks,
+  Settings,
+  ExternalLink,
+  LogOut,
+  Trophy,
+  Menu,
+  X,
+  Shield,
+  HelpCircle,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -15,7 +26,15 @@ export const Route = createFileRoute("/_authenticated/app")({
 });
 
 type NavItem = {
-  to: "/app" | "/app/bolao" | "/app/pix" | "/app/whatsapp" | "/app/torcedores" | "/app/palpites" | "/app/ganhadores" | "/app/gestores";
+  to:
+    | "/app"
+    | "/app/bolao"
+    | "/app/pix"
+    | "/app/whatsapp"
+    | "/app/torcedores"
+    | "/app/palpites"
+    | "/app/ganhadores"
+    | "/app/gestores";
   label: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
@@ -29,29 +48,48 @@ const baseNav: NavItem[] = [
   { to: "/app/torcedores", label: "Torcedores", icon: Users },
   { to: "/app/palpites", label: "Palpites", icon: ListChecks },
   { to: "/app/ganhadores", label: "Ganhadores", icon: Trophy },
+  { to: "/ajuda", label: "Ajuda", icon: HelpCircle },
 ];
 
 function AppLayout() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [loadingTenant, setLoadingTenant] = useState(true);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const checkSuper = useServerFn(isSuperAdmin);
-  const { data: superCheck } = useQuery({ queryKey: ["isSuperAdmin"], queryFn: () => checkSuper() });
+  const { data: superCheck } = useQuery({
+    queryKey: ["isSuperAdmin"],
+    queryFn: () => checkSuper(),
+  });
   const nav: NavItem[] = superCheck?.isSuperAdmin
     ? [...baseNav, { to: "/app/gestores", label: "Gestores", icon: Shield }]
     : baseNav;
-  const currentLabel = nav.find((n) => (n.exact ? pathname === n.to : pathname.startsWith(n.to)))?.label ?? "Painel";
+  const currentLabel =
+    nav.find((n) => (n.exact ? pathname === n.to : pathname.startsWith(n.to)))?.label ?? "Painel";
 
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
-      if (!u.user) return;
-      const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user.id).maybeSingle();
-      if (!t) navigate({ to: "/onboarding" });
+      if (!u.user) {
+        setLoadingTenant(false);
+        return;
+      }
+      const { data: t } = await supabase
+        .from("tenants")
+        .select("id")
+        .eq("owner_user_id", u.user.id)
+        .maybeSingle();
+      if (!t?.id) {
+        navigate({ to: "/onboarding" });
+        return;
+      }
+      setLoadingTenant(false);
     })();
   }, [navigate]);
 
-  useEffect(() => { setMobileOpen(false); }, [pathname]);
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   async function logout() {
     await supabase.auth.signOut();
@@ -70,7 +108,10 @@ function AppLayout() {
       {/* Sidebar (mobile drawer) */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+          <div
+            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
           <aside className="relative w-72 max-w-[85%] h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col">
             <BrandLink onClick={() => setMobileOpen(false)} />
             <SidebarNav items={nav} />
@@ -91,7 +132,9 @@ function AppLayout() {
           </button>
           <div className="min-w-0 flex-1">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Painel</p>
-            <h2 className="truncate font-display font-bold text-sm leading-tight">{currentLabel}</h2>
+            <h2 className="truncate font-display font-bold text-sm leading-tight">
+              {currentLabel}
+            </h2>
           </div>
           <Link
             to="/"
@@ -101,7 +144,18 @@ function AppLayout() {
           </Link>
         </header>
 
-        <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto"><Outlet /></div>
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          {loadingTenant ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <div className="animate-spin h-8 w-8 border-4 border-pitch border-t-transparent rounded-full mx-auto" />
+                <p className="mt-4 text-sm text-muted-foreground">Carregando…</p>
+              </div>
+            </div>
+          ) : (
+            <Outlet />
+          )}
+        </div>
       </main>
     </div>
   );
@@ -119,7 +173,9 @@ function BrandLink({ onClick }: { onClick?: () => void }) {
       </div>
       <div className="min-w-0">
         <p className="font-display font-black tracking-tight leading-tight">Bolão SaaS</p>
-        <p className="text-[10px] uppercase tracking-wider text-sidebar-foreground/60">Espírito brasileiro</p>
+        <p className="text-[10px] uppercase tracking-wider text-sidebar-foreground/60">
+          Espírito brasileiro
+        </p>
       </div>
     </Link>
   );
@@ -128,7 +184,9 @@ function BrandLink({ onClick }: { onClick?: () => void }) {
 function SidebarNav({ items }: { items: NavItem[] }) {
   return (
     <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-      <p className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-sidebar-foreground/50">Menu</p>
+      <p className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-sidebar-foreground/50">
+        Menu
+      </p>
       {items.map(({ to, label, icon: Icon, exact }) => (
         <Link
           key={to}

@@ -1,0 +1,14 @@
+{
+  "name": "Bolão AI",
+  "short_name": "Bolão AI",
+  "description": "Acompanhe a Copa do Mundo em tempo real — jogos ao vivo, resultados, classificação e artilheiros.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/assets/bolaoai-icon-BWSdr3QL.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/bolaoai-icon-BWSdr3QL.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

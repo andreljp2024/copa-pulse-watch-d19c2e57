@@ -7,37 +7,28 @@
 # defina NITRO_PRESET=node-server no build (já feito abaixo).
 
 # 1) Dependências ------------------------------------------------------------
-FROM oven/bun:1.1 AS deps
+FROM oven/bun:1 AS deps
 WORKDIR /app
-COPY package.json bun.lockb* bunfig.toml* ./
+COPY package.json bun.lock bunfig.toml* ./
 RUN bun install --frozen-lockfile || bun install
 
-# 2) Build -------------------------------------------------------------------
-FROM oven/bun:1.1 AS build
+FROM oven/bun:1 AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Variáveis públicas (VITE_*) precisam estar presentes no build.
-# No Coolify, defina-as em "Build Variables".
-ARG VITE_SUPABASE_URL
-ARG VITE_SUPABASE_PUBLISHABLE_KEY
-ARG VITE_SUPABASE_PROJECT_ID
-ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
-    VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY \
-    VITE_SUPABASE_PROJECT_ID=$VITE_SUPABASE_PROJECT_ID \
-    NITRO_PRESET=node-server
+ENV NITRO_PRESET=node-server \
+    VITE_SUPABASE_URL=https://bolao.ai.slz.br \
+    VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzgyNDM2NTkyLCJleHAiOjIwOTc3OTY1OTJ9.eTPHcqYLV7pvB21rSJTsPZLcFeozj10XfhQWUSynRdY
 
 RUN bun run build
 
-# 3) Runtime -----------------------------------------------------------------
-FROM node:20-alpine AS runtime
+FROM node:22-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production \
     PORT=3000 \
     HOST=0.0.0.0
 
-# Output do Nitro (preset node-server) fica em .output/
 COPY --from=build /app/.output ./.output
 
 EXPOSE 3000

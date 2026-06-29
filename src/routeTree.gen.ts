@@ -18,6 +18,7 @@ import { Route as EstatisticasRouteImport } from './routes/estatisticas'
 import { Route as CriarBolaoRouteImport } from './routes/criar-bolao'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SelecoesIdRouteImport } from './routes/selecoes.$id'
@@ -29,14 +30,15 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as BolaoSlugRankingRouteImport } from './routes/bolao.$slug.ranking'
+import { Route as AuthV1SplatRouteImport } from './routes/auth/v1/$'
 import { Route as AuthenticatedAppWhatsappRouteImport } from './routes/_authenticated/app.whatsapp'
 import { Route as AuthenticatedAppTorcedoresRouteImport } from './routes/_authenticated/app.torcedores'
 import { Route as AuthenticatedAppPixRouteImport } from './routes/_authenticated/app.pix'
 import { Route as AuthenticatedAppPalpitesRouteImport } from './routes/_authenticated/app.palpites'
 import { Route as AuthenticatedAppGestoresRouteImport } from './routes/_authenticated/app.gestores'
 import { Route as AuthenticatedAppGanhadoresRouteImport } from './routes/_authenticated/app.ganhadores'
+import { Route as AuthenticatedAppContatosRouteImport } from './routes/_authenticated/app.contatos'
 import { Route as AuthenticatedAppBolaoRouteImport } from './routes/_authenticated/app.bolao'
-import { Route as ApiPublicHooksSyncFootballRouteImport } from './routes/api/public/hooks/sync-football'
 
 const SelecoesRoute = SelecoesRouteImport.update({
   id: '/selecoes',
@@ -81,6 +83,11 @@ const CalendarioRoute = CalendarioRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AjudaRoute = AjudaRouteImport.update({
+  id: '/ajuda',
+  path: '/ajuda',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -137,6 +144,11 @@ const BolaoSlugRankingRoute = BolaoSlugRankingRouteImport.update({
   path: '/ranking',
   getParentRoute: () => BolaoSlugRoute,
 } as any)
+const AuthV1SplatRoute = AuthV1SplatRouteImport.update({
+  id: '/v1/$',
+  path: '/v1/$',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthenticatedAppWhatsappRoute =
   AuthenticatedAppWhatsappRouteImport.update({
     id: '/whatsapp',
@@ -172,21 +184,22 @@ const AuthenticatedAppGanhadoresRoute =
     path: '/ganhadores',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppContatosRoute =
+  AuthenticatedAppContatosRouteImport.update({
+    id: '/contatos',
+    path: '/contatos',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppBolaoRoute = AuthenticatedAppBolaoRouteImport.update({
   id: '/bolao',
   path: '/bolao',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
-const ApiPublicHooksSyncFootballRoute =
-  ApiPublicHooksSyncFootballRouteImport.update({
-    id: '/api/public/hooks/sync-football',
-    path: '/api/public/hooks/sync-football',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/ajuda': typeof AjudaRoute
+  '/auth': typeof AuthRouteWithChildren
   '/calendario': typeof CalendarioRoute
   '/criar-bolao': typeof CriarBolaoRoute
   '/estatisticas': typeof EstatisticasRoute
@@ -203,19 +216,21 @@ export interface FileRoutesByFullPath {
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
   '/app/bolao': typeof AuthenticatedAppBolaoRoute
+  '/app/contatos': typeof AuthenticatedAppContatosRoute
   '/app/ganhadores': typeof AuthenticatedAppGanhadoresRoute
   '/app/gestores': typeof AuthenticatedAppGestoresRoute
   '/app/palpites': typeof AuthenticatedAppPalpitesRoute
   '/app/pix': typeof AuthenticatedAppPixRoute
   '/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
   '/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
+  '/auth/v1/$': typeof AuthV1SplatRoute
   '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/app/': typeof AuthenticatedAppIndexRoute
-  '/api/public/hooks/sync-football': typeof ApiPublicHooksSyncFootballRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/ajuda': typeof AjudaRoute
+  '/auth': typeof AuthRouteWithChildren
   '/calendario': typeof CalendarioRoute
   '/criar-bolao': typeof CriarBolaoRoute
   '/estatisticas': typeof EstatisticasRoute
@@ -231,21 +246,23 @@ export interface FileRoutesByTo {
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
   '/app/bolao': typeof AuthenticatedAppBolaoRoute
+  '/app/contatos': typeof AuthenticatedAppContatosRoute
   '/app/ganhadores': typeof AuthenticatedAppGanhadoresRoute
   '/app/gestores': typeof AuthenticatedAppGestoresRoute
   '/app/palpites': typeof AuthenticatedAppPalpitesRoute
   '/app/pix': typeof AuthenticatedAppPixRoute
   '/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
   '/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
+  '/auth/v1/$': typeof AuthV1SplatRoute
   '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/app': typeof AuthenticatedAppIndexRoute
-  '/api/public/hooks/sync-football': typeof ApiPublicHooksSyncFootballRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/auth': typeof AuthRoute
+  '/ajuda': typeof AjudaRoute
+  '/auth': typeof AuthRouteWithChildren
   '/calendario': typeof CalendarioRoute
   '/criar-bolao': typeof CriarBolaoRoute
   '/estatisticas': typeof EstatisticasRoute
@@ -262,20 +279,22 @@ export interface FileRoutesById {
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
   '/_authenticated/app/bolao': typeof AuthenticatedAppBolaoRoute
+  '/_authenticated/app/contatos': typeof AuthenticatedAppContatosRoute
   '/_authenticated/app/ganhadores': typeof AuthenticatedAppGanhadoresRoute
   '/_authenticated/app/gestores': typeof AuthenticatedAppGestoresRoute
   '/_authenticated/app/palpites': typeof AuthenticatedAppPalpitesRoute
   '/_authenticated/app/pix': typeof AuthenticatedAppPixRoute
   '/_authenticated/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
   '/_authenticated/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
+  '/auth/v1/$': typeof AuthV1SplatRoute
   '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
-  '/api/public/hooks/sync-football': typeof ApiPublicHooksSyncFootballRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ajuda'
     | '/auth'
     | '/calendario'
     | '/criar-bolao'
@@ -293,18 +312,20 @@ export interface FileRouteTypes {
     | '/partidas/$id'
     | '/selecoes/$id'
     | '/app/bolao'
+    | '/app/contatos'
     | '/app/ganhadores'
     | '/app/gestores'
     | '/app/palpites'
     | '/app/pix'
     | '/app/torcedores'
     | '/app/whatsapp'
+    | '/auth/v1/$'
     | '/bolao/$slug/ranking'
     | '/app/'
-    | '/api/public/hooks/sync-football'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ajuda'
     | '/auth'
     | '/calendario'
     | '/criar-bolao'
@@ -321,19 +342,21 @@ export interface FileRouteTypes {
     | '/partidas/$id'
     | '/selecoes/$id'
     | '/app/bolao'
+    | '/app/contatos'
     | '/app/ganhadores'
     | '/app/gestores'
     | '/app/palpites'
     | '/app/pix'
     | '/app/torcedores'
     | '/app/whatsapp'
+    | '/auth/v1/$'
     | '/bolao/$slug/ranking'
     | '/app'
-    | '/api/public/hooks/sync-football'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/ajuda'
     | '/auth'
     | '/calendario'
     | '/criar-bolao'
@@ -351,21 +374,23 @@ export interface FileRouteTypes {
     | '/partidas/$id'
     | '/selecoes/$id'
     | '/_authenticated/app/bolao'
+    | '/_authenticated/app/contatos'
     | '/_authenticated/app/ganhadores'
     | '/_authenticated/app/gestores'
     | '/_authenticated/app/palpites'
     | '/_authenticated/app/pix'
     | '/_authenticated/app/torcedores'
     | '/_authenticated/app/whatsapp'
+    | '/auth/v1/$'
     | '/bolao/$slug/ranking'
     | '/_authenticated/app/'
-    | '/api/public/hooks/sync-football'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AuthRoute: typeof AuthRoute
+  AjudaRoute: typeof AjudaRoute
+  AuthRoute: typeof AuthRouteWithChildren
   CalendarioRoute: typeof CalendarioRoute
   CriarBolaoRoute: typeof CriarBolaoRoute
   EstatisticasRoute: typeof EstatisticasRoute
@@ -377,7 +402,6 @@ export interface RootRouteChildren {
   BolaoSlugRoute: typeof BolaoSlugRouteWithChildren
   MeusPalpitesSlugRoute: typeof MeusPalpitesSlugRoute
   PartidasIdRoute: typeof PartidasIdRoute
-  ApiPublicHooksSyncFootballRoute: typeof ApiPublicHooksSyncFootballRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -443,6 +467,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ajuda': {
+      id: '/ajuda'
+      path: '/ajuda'
+      fullPath: '/ajuda'
+      preLoaderRoute: typeof AjudaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -522,6 +553,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BolaoSlugRankingRouteImport
       parentRoute: typeof BolaoSlugRoute
     }
+    '/auth/v1/$': {
+      id: '/auth/v1/$'
+      path: '/v1/$'
+      fullPath: '/auth/v1/$'
+      preLoaderRoute: typeof AuthV1SplatRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_authenticated/app/whatsapp': {
       id: '/_authenticated/app/whatsapp'
       path: '/whatsapp'
@@ -564,6 +602,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppGanhadoresRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/contatos': {
+      id: '/_authenticated/app/contatos'
+      path: '/contatos'
+      fullPath: '/app/contatos'
+      preLoaderRoute: typeof AuthenticatedAppContatosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/bolao': {
       id: '/_authenticated/app/bolao'
       path: '/bolao'
@@ -571,18 +616,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBolaoRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/api/public/hooks/sync-football': {
-      id: '/api/public/hooks/sync-football'
-      path: '/api/public/hooks/sync-football'
-      fullPath: '/api/public/hooks/sync-football'
-      preLoaderRoute: typeof ApiPublicHooksSyncFootballRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppBolaoRoute: typeof AuthenticatedAppBolaoRoute
+  AuthenticatedAppContatosRoute: typeof AuthenticatedAppContatosRoute
   AuthenticatedAppGanhadoresRoute: typeof AuthenticatedAppGanhadoresRoute
   AuthenticatedAppGestoresRoute: typeof AuthenticatedAppGestoresRoute
   AuthenticatedAppPalpitesRoute: typeof AuthenticatedAppPalpitesRoute
@@ -594,6 +633,7 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppBolaoRoute: AuthenticatedAppBolaoRoute,
+  AuthenticatedAppContatosRoute: AuthenticatedAppContatosRoute,
   AuthenticatedAppGanhadoresRoute: AuthenticatedAppGanhadoresRoute,
   AuthenticatedAppGestoresRoute: AuthenticatedAppGestoresRoute,
   AuthenticatedAppPalpitesRoute: AuthenticatedAppPalpitesRoute,
@@ -620,6 +660,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface AuthRouteChildren {
+  AuthV1SplatRoute: typeof AuthV1SplatRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthV1SplatRoute: AuthV1SplatRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface SelecoesRouteChildren {
   SelecoesIdRoute: typeof SelecoesIdRoute
@@ -648,7 +698,8 @@ const BolaoSlugRouteWithChildren = BolaoSlugRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AuthRoute: AuthRoute,
+  AjudaRoute: AjudaRoute,
+  AuthRoute: AuthRouteWithChildren,
   CalendarioRoute: CalendarioRoute,
   CriarBolaoRoute: CriarBolaoRoute,
   EstatisticasRoute: EstatisticasRoute,
@@ -660,8 +711,17 @@ const rootRouteChildren: RootRouteChildren = {
   BolaoSlugRoute: BolaoSlugRouteWithChildren,
   MeusPalpitesSlugRoute: MeusPalpitesSlugRoute,
   PartidasIdRoute: PartidasIdRoute,
-  ApiPublicHooksSyncFootballRoute: ApiPublicHooksSyncFootballRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

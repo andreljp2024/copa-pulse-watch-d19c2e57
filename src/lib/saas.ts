@@ -19,7 +19,10 @@ export function brl(n: number | string | null | undefined): string {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v || 0);
 }
 
-export function interpolate(template: string, vars: Record<string, string | number | null | undefined>): string {
+export function interpolate(
+  template: string,
+  vars: Record<string, string | number | null | undefined>,
+): string {
   return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (_, key) => {
     const v = vars[key];
     return v === undefined || v === null ? "" : String(v);

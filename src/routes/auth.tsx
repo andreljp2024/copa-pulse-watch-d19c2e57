@@ -92,11 +92,14 @@ function Page() {
   }
 
   async function google() {
+    console.log("[Auth] Starting Google OAuth...");
     setError(null);
     try {
-      const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/admin" });
+      const res = await lovable.auth.signInWithOAuth("google", { redirectTo: window.location.origin + "/admin" });
+      console.log("[Auth] OAuth result:", res);
       if (res.error) throw res.error;
     } catch (err) {
+      console.error("[Auth] OAuth error:", err);
       setError(friendlyError(err, "Falha ao entrar com Google."));
     }
   }

@@ -2,10 +2,20 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, buildWhatsAppLink } from "@/lib/saas";
-import { CheckCircle2, XCircle, Download, MessageCircle, FileText, Filter, ListChecks, DollarSign, Clock, Ban, Search } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  Download,
+  MessageCircle,
+  FileText,
+  Filter,
+  ListChecks,
+  DollarSign,
+  Clock,
+  Ban,
+  Search,
+} from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
-
-
 
 export const Route = createFileRoute("/_authenticated/app/palpites")({
   component: PalpitesPage,
@@ -21,7 +31,11 @@ type Row = {
   status_pagamento: string;
   created_at: string;
   torcedores: { nome: string; whatsapp: string } | null;
-  matches: { home_team_id: string | null; away_team_id: string | null; kickoff_at: string | null } | null;
+  matches: {
+    home_team_id: string | null;
+    away_team_id: string | null;
+    kickoff_at: string | null;
+  } | null;
   boloes: { nome: string; slug: string } | null;
 };
 
@@ -34,15 +48,22 @@ function PalpitesPage() {
   const [loading, setLoading] = useState(true);
   const [teams, setTeams] = useState<Map<string, string>>(new Map());
   const [filters, setFilters] = useState({
-    status: "todos", bolaoSlug: "todos", search: "", dataDe: "", dataAte: "",
+    status: "todos",
+    bolaoSlug: "todos",
+    search: "",
+    dataDe: "",
+    dataAte: "",
   });
   const [showFilters, setShowFilters] = useState(false);
 
-  
-
   async function load() {
     const { data: u } = await supabase.auth.getUser();
-    const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user!.id).single();
+    const tRes = await supabase
+      .from("tenants")
+      .select("id")
+      .eq("owner_user_id", u.user!.id)
+      .limit(1);
+    const t = Array.isArray(tRes.data) ? tRes.data[0] : tRes.data;
     if (!t) return;
     const [{ data: pals }, { data: ts }] = await Promise.all([
       supabase
@@ -54,7 +75,7 @@ function PalpitesPage() {
         .order("created_at", { ascending: false }),
       supabase.from("teams").select("id, name"),
     ]);
-    setRows(((pals as unknown) as Row[]) ?? []);
+    setRows((pals as unknown as Row[]) ?? []);
     setTeams(new Map((ts ?? []).map((x) => [x.id, x.name])));
     setLoading(false);
   }
@@ -97,7 +118,10 @@ function PalpitesPage() {
     const away = teams.get(r.matches?.away_team_id ?? "") ?? "?";
     const protocolo = fmtProtocolo(r.codigo);
     const kickoff = r.matches?.kickoff_at
-      ? new Date(r.matches.kickoff_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })
+      ? new Date(r.matches.kickoff_at).toLocaleString("pt-BR", {
+          dateStyle: "short",
+          timeStyle: "short",
+        })
       : "o início do jogo";
     const msg =
       `Olá, ${r.torcedores?.nome ?? ""}!\n\n` +
@@ -128,7 +152,8 @@ function PalpitesPage() {
       if (de !== null && ts < de) return false;
       if (ate !== null && ts > ate) return false;
       if (q) {
-        const hay = `${r.torcedores?.nome ?? ""} ${r.torcedores?.whatsapp ?? ""} ${fmtProtocolo(r.codigo)}`.toLowerCase();
+        const hay =
+          `${r.torcedores?.nome ?? ""} ${r.torcedores?.whatsapp ?? ""} ${fmtProtocolo(r.codigo)}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -161,7 +186,9 @@ function PalpitesPage() {
         new Date(r.created_at).toLocaleString("pt-BR"),
       ]),
     ];
-    const csv = data.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = data
+      .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -172,13 +199,23 @@ function PalpitesPage() {
   }
 
   function exportPdf() {
-    const esc = (s: unknown) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+    const esc = (s: unknown) =>
+      String(s ?? "").replace(
+        /[&<>"']/g,
+        (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!,
+      );
     const statusLabel = filters.status === "todos" ? "Todos" : filters.status;
-    const bolaoLabel = filters.bolaoSlug === "todos" ? "Todos" : (boloesUnicos.find((b) => b.slug === filters.bolaoSlug)?.nome ?? filters.bolaoSlug);
-    const periodo = filters.dataDe || filters.dataAte
-      ? `${filters.dataDe || "início"} → ${filters.dataAte || "hoje"}`
-      : "Todo o período";
-    const linhas = filtered.map((r) => `
+    const bolaoLabel =
+      filters.bolaoSlug === "todos"
+        ? "Todos"
+        : (boloesUnicos.find((b) => b.slug === filters.bolaoSlug)?.nome ?? filters.bolaoSlug);
+    const periodo =
+      filters.dataDe || filters.dataAte
+        ? `${filters.dataDe || "início"} → ${filters.dataAte || "hoje"}`
+        : "Todo o período";
+    const linhas = filtered
+      .map(
+        (r) => `
       <tr>
         <td class="mono">${esc(fmtProtocolo(r.codigo))}</td>
         <td>${esc(r.torcedores?.nome ?? "")}<div class="sub">${esc(r.torcedores?.whatsapp ?? "")}</div></td>
@@ -188,7 +225,9 @@ function PalpitesPage() {
         <td>${esc(brl(r.valor))}</td>
         <td><span class="pill pill-${esc(r.status_pagamento)}">${esc(r.status_pagamento)}</span></td>
         <td>${esc(new Date(r.created_at).toLocaleString("pt-BR"))}</td>
-      </tr>`).join("");
+      </tr>`,
+      )
+      .join("");
     const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório de Palpites</title>
 <style>
   *{box-sizing:border-box} body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#111;margin:24px}
@@ -231,10 +270,14 @@ function PalpitesPage() {
   <script>window.addEventListener('load',()=>{setTimeout(()=>window.print(),250)});</script>
 </body></html>`;
     const w = window.open("", "_blank", "noopener,noreferrer");
-    if (!w) { alert("Permita pop-ups para gerar o PDF."); return; }
-    w.document.open(); w.document.write(html); w.document.close();
+    if (!w) {
+      alert("Permita pop-ups para gerar o PDF.");
+      return;
+    }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
   }
-
 
   return (
     <div className="space-y-5">
@@ -244,13 +287,22 @@ function PalpitesPage() {
         icon={<ListChecks className="h-5 w-5" />}
         actions={
           <>
-            <button onClick={() => setShowFilters((v) => !v)} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10">
+            <button
+              onClick={() => setShowFilters((v) => !v)}
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10"
+            >
               <Filter className="h-4 w-4" /> Filtros
             </button>
-            <button onClick={exportCsv} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10">
+            <button
+              onClick={exportCsv}
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10"
+            >
               <Download className="h-4 w-4" /> CSV
             </button>
-            <button onClick={exportPdf} className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-gradient-gold px-3 text-sm font-bold text-gold-foreground shadow-gold">
+            <button
+              onClick={exportPdf}
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-gradient-gold px-3 text-sm font-bold text-gold-foreground shadow-gold"
+            >
               <FileText className="h-4 w-4" /> Relatório PDF
             </button>
           </>
@@ -259,11 +311,34 @@ function PalpitesPage() {
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <StatCard label="Palpites" value={String(totals.qtd)} icon={<ListChecks className="h-3.5 w-3.5" />} />
-        <StatCard label="Pagos" value={String(totals.qtdPagos)} icon={<CheckCircle2 className="h-3.5 w-3.5" />} tone="success" />
-        <StatCard label="Pendentes" value={String(totals.pendentes)} icon={<Clock className="h-3.5 w-3.5" />} tone="warn" />
-        <StatCard label="Cancelados" value={String(totals.cancelados)} icon={<Ban className="h-3.5 w-3.5" />} />
-        <StatCard label="Arrecadado" value={brl(totals.arrecadado)} icon={<DollarSign className="h-3.5 w-3.5" />} tone="success" />
+        <StatCard
+          label="Palpites"
+          value={String(totals.qtd)}
+          icon={<ListChecks className="h-3.5 w-3.5" />}
+        />
+        <StatCard
+          label="Pagos"
+          value={String(totals.qtdPagos)}
+          icon={<CheckCircle2 className="h-3.5 w-3.5" />}
+          tone="success"
+        />
+        <StatCard
+          label="Pendentes"
+          value={String(totals.pendentes)}
+          icon={<Clock className="h-3.5 w-3.5" />}
+          tone="warn"
+        />
+        <StatCard
+          label="Cancelados"
+          value={String(totals.cancelados)}
+          icon={<Ban className="h-3.5 w-3.5" />}
+        />
+        <StatCard
+          label="Arrecadado"
+          value={brl(totals.arrecadado)}
+          icon={<DollarSign className="h-3.5 w-3.5" />}
+          tone="success"
+        />
       </div>
 
       {/* Quick search + status chips */}
@@ -284,7 +359,9 @@ function PalpitesPage() {
               key={s}
               onClick={() => setFilters({ ...filters, status: s })}
               className={`px-2.5 h-7 rounded text-xs font-semibold capitalize transition-colors ${
-                filters.status === s ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                filters.status === s
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {s}
@@ -295,25 +372,58 @@ function PalpitesPage() {
 
       {showFilters && (
         <div className="rounded-2xl border border-border bg-card p-4 grid gap-3 sm:grid-cols-4 card-elevated">
-          <label className="text-xs font-semibold flex flex-col gap-1">Bolão
-            <select value={filters.bolaoSlug} onChange={(e) => setFilters({ ...filters, bolaoSlug: e.target.value })} className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal">
+          <label className="text-xs font-semibold flex flex-col gap-1">
+            Bolão
+            <select
+              value={filters.bolaoSlug}
+              onChange={(e) => setFilters({ ...filters, bolaoSlug: e.target.value })}
+              className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal"
+            >
               <option value="todos">Todos</option>
-              {boloesUnicos.map((b) => <option key={b.slug} value={b.slug}>{b.nome}</option>)}
+              {boloesUnicos.map((b) => (
+                <option key={b.slug} value={b.slug}>
+                  {b.nome}
+                </option>
+              ))}
             </select>
           </label>
-          <label className="text-xs font-semibold flex flex-col gap-1">De
-            <input type="date" value={filters.dataDe} onChange={(e) => setFilters({ ...filters, dataDe: e.target.value })} className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal" />
+          <label className="text-xs font-semibold flex flex-col gap-1">
+            De
+            <input
+              type="date"
+              value={filters.dataDe}
+              onChange={(e) => setFilters({ ...filters, dataDe: e.target.value })}
+              className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal"
+            />
           </label>
-          <label className="text-xs font-semibold flex flex-col gap-1">Até
-            <input type="date" value={filters.dataAte} onChange={(e) => setFilters({ ...filters, dataAte: e.target.value })} className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal" />
+          <label className="text-xs font-semibold flex flex-col gap-1">
+            Até
+            <input
+              type="date"
+              value={filters.dataAte}
+              onChange={(e) => setFilters({ ...filters, dataAte: e.target.value })}
+              className="h-9 rounded-md border border-border bg-background px-2 text-sm font-normal"
+            />
           </label>
           <div className="flex items-end">
-            <button onClick={() => setFilters({ status: "todos", bolaoSlug: "todos", search: "", dataDe: "", dataAte: "" })} className="h-9 w-full rounded-md border border-border text-xs font-semibold hover:bg-accent/10">
+            <button
+              onClick={() =>
+                setFilters({
+                  status: "todos",
+                  bolaoSlug: "todos",
+                  search: "",
+                  dataDe: "",
+                  dataAte: "",
+                })
+              }
+              className="h-9 w-full rounded-md border border-border text-xs font-semibold hover:bg-accent/10"
+            >
               Limpar filtros
             </button>
           </div>
           <div className="sm:col-span-4 text-xs text-muted-foreground">
-            Mostrando <strong className="text-foreground">{filtered.length}</strong> de {rows.length} palpites
+            Mostrando <strong className="text-foreground">{filtered.length}</strong> de{" "}
+            {rows.length} palpites
           </div>
         </div>
       )}
@@ -327,7 +437,9 @@ function PalpitesPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
-          <p className="text-sm text-muted-foreground">Nenhum palpite corresponde aos filtros selecionados.</p>
+          <p className="text-sm text-muted-foreground">
+            Nenhum palpite corresponde aos filtros selecionados.
+          </p>
         </div>
       ) : (
         <div className="rounded-2xl border border-border bg-card overflow-x-auto card-elevated">
@@ -345,14 +457,22 @@ function PalpitesPage() {
             </thead>
             <tbody>
               {filtered.map((r) => (
-                <tr key={r.id} className="border-t border-border hover:bg-muted/20 transition-colors">
-                  <td className="px-4 py-3 font-mono text-xs font-bold">{fmtProtocolo(r.codigo)}</td>
-                  <td className="px-4 py-3">
-                    <div className="font-medium">{r.torcedores?.nome}</div>
-                    <div className="text-xs text-muted-foreground font-mono">{r.torcedores?.whatsapp}</div>
+                <tr
+                  key={r.id}
+                  className="border-t border-border hover:bg-muted/20 transition-colors"
+                >
+                  <td className="px-4 py-3 font-mono text-xs font-bold">
+                    {fmtProtocolo(r.codigo)}
                   </td>
                   <td className="px-4 py-3">
-                    {teams.get(r.matches?.home_team_id ?? "") ?? "?"} <span className="text-muted-foreground">x</span>{" "}
+                    <div className="font-medium">{r.torcedores?.nome}</div>
+                    <div className="text-xs text-muted-foreground font-mono">
+                      {r.torcedores?.whatsapp}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    {teams.get(r.matches?.home_team_id ?? "") ?? "?"}{" "}
+                    <span className="text-muted-foreground">x</span>{" "}
                     {teams.get(r.matches?.away_team_id ?? "") ?? "?"}
                   </td>
                   <td className="px-4 py-3 font-bold font-mono">
@@ -365,8 +485,8 @@ function PalpitesPage() {
                         r.status_pagamento === "pago"
                           ? "bg-green-600/15 text-green-700"
                           : r.status_pagamento === "cancelado"
-                          ? "bg-red-600/15 text-red-700"
-                          : "bg-amber-500/15 text-amber-700"
+                            ? "bg-red-600/15 text-red-700"
+                            : "bg-amber-500/15 text-amber-700"
                       }`}
                     >
                       {r.status_pagamento}
@@ -431,8 +551,7 @@ function StatCard({
   icon?: React.ReactNode;
   tone?: "default" | "success" | "warn";
 }) {
-  const color =
-    tone === "success" ? "text-green-600" : tone === "warn" ? "text-amber-600" : "";
+  const color = tone === "success" ? "text-green-600" : tone === "warn" ? "text-amber-600" : "";
   return (
     <div className="rounded-xl border border-border bg-card p-3 card-elevated">
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -443,4 +562,3 @@ function StatCard({
     </div>
   );
 }
-

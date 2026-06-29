@@ -20,9 +20,7 @@ export function PageHeader({ title, subtitle, icon, actions }: Props) {
           <h1 className="truncate font-display text-2xl sm:text-3xl font-black tracking-tight">
             {title}
           </h1>
-          {subtitle && (
-            <p className="truncate text-sm text-muted-foreground">{subtitle}</p>
-          )}
+          {subtitle && <p className="truncate text-sm text-muted-foreground">{subtitle}</p>}
         </div>
       </div>
       {actions && <div className="flex items-center gap-2 flex-wrap">{actions}</div>}

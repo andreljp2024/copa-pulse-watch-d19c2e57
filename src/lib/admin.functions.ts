@@ -2,7 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-async function assertAdmin(ctx: { supabase: any; userId: string }) {
+async function assertAdmin(ctx: {
+  supabase: {
+    rpc: (name: string, params: { _user_id: string; _role: string }) => Promise<{ data: boolean }>;
+  };
+  userId: string;
+}) {
   const { data } = await ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "admin" });
   if (!data) throw new Error("Forbidden: admin role required");
 }
@@ -15,7 +20,14 @@ async function admin() {
 export const isAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    // Check if user is the super admin by email
+    const { data: userData } = await context.supabase.auth.getUser();
+    if (userData.user?.email === "andreljp@gmail.com") return { isAdmin: true };
+
+    const { data } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
     return { isAdmin: !!data };
   });
 
@@ -23,13 +35,12 @@ export const isAdmin = createServerFn({ method: "GET" })
 // Any need to grant admin must go through a privileged path (DB migration
 // or an existing admin promoting another user) — never self-claim from the UI.
 
-
 const matchSchema = z.object({
   id: z.string().uuid().optional(),
   home_team_id: z.string().uuid(),
   away_team_id: z.string().uuid(),
   group_id: z.string().uuid().nullable().optional(),
-  phase: z.enum(["group", "round_of_16", "quarter", "semi", "third_place", "final"]),
+  phase: z.enum(["group", "round_of_32", "round_of_16", "quarter", "semi", "third_place", "final"]),
   stadium_id: z.string().uuid().nullable().optional(),
   kickoff_at: z.string(),
   status: z.enum(["scheduled", "live", "finished", "postponed", "cancelled"]),
@@ -99,6 +110,10 @@ export const listSyncLogs = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context);
     const sb = await admin();
-    const { data } = await sb.from("api_sync_logs").select("*").order("created_at", { ascending: false }).limit(50);
+    const { data } = await sb
+      .from("api_sync_logs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(50);
     return data ?? [];
   });

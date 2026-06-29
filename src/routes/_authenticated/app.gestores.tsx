@@ -2,10 +2,22 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { format } from "date-fns";
+import { formatBRDateOnly, formatBRShort } from "@/lib/timezone";
 import {
-  Shield, UserPlus, Pause, Play, Trash2, Mail, CreditCard,
-  Search, MoreVertical, KeyRound, Send, Eye, CheckCircle2, XCircle,
+  Shield,
+  UserPlus,
+  Pause,
+  Play,
+  Trash2,
+  Mail,
+  CreditCard,
+  Search,
+  MoreVertical,
+  KeyRound,
+  Send,
+  Eye,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import {
   isSuperAdmin,
@@ -20,14 +32,28 @@ import {
   resendGestorInvite,
 } from "@/lib/gestores.functions";
 import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/_authenticated/app/gestores")({
@@ -79,7 +105,10 @@ function GestoresInner() {
   const resetPwdFn = useServerFn(resetGestorPassword);
   const resendInviteFn = useServerFn(resendGestorInvite);
 
-  const { data: gestores = [], isLoading } = useQuery({ queryKey: ["gestores"], queryFn: () => listFn() });
+  const { data: gestores = [], isLoading } = useQuery({
+    queryKey: ["gestores"],
+    queryFn: () => listFn(),
+  });
   const { data: planos = [] } = useQuery({ queryKey: ["planos-admin"], queryFn: () => planosFn() });
 
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
@@ -108,20 +137,35 @@ function GestoresInner() {
 
   const toggleStatus = useMutation({
     mutationFn: (g: any) =>
-      statusFn({ data: { tenant_id: g.id, status: g.status === "active" ? "suspended" : "active" } }),
-    onSuccess: () => { notify("Status atualizado."); invalidate(); },
+      statusFn({
+        data: { tenant_id: g.id, status: g.status === "active" ? "suspended" : "active" },
+      }),
+    onSuccess: () => {
+      notify("Status atualizado.");
+      invalidate();
+    },
     onError: (e: any) => notify(e?.message ?? "Falha ao atualizar.", "err"),
   });
 
   const remove = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { tenant_id: id, delete_auth_user: true } }),
-    onSuccess: () => { notify("Gestor removido."); invalidate(); setConfirmDelete(null); },
-    onError: (e: any) => { notify(e?.message ?? "Falha ao remover.", "err"); setConfirmDelete(null); },
+    onSuccess: () => {
+      notify("Gestor removido.");
+      invalidate();
+      setConfirmDelete(null);
+    },
+    onError: (e: any) => {
+      notify(e?.message ?? "Falha ao remover.", "err");
+      setConfirmDelete(null);
+    },
   });
 
   const changePlano = useMutation({
     mutationFn: (d: { tenant_id: string; plano_id: string }) => changePlanoFn({ data: d }),
-    onSuccess: (r: any) => { notify(`Plano alterado para ${r.plano}.`); invalidate(); },
+    onSuccess: (r: any) => {
+      notify(`Plano alterado para ${r.plano}.`);
+      invalidate();
+    },
     onError: (e: any) => notify(e?.message ?? "Falha ao alterar plano.", "err"),
   });
 
@@ -144,7 +188,8 @@ function GestoresInner() {
       if (planoFilter !== "all" && g.plano !== planoFilter) return false;
       if (!q) return true;
       return [g.nome_estabelecimento, g.nome_responsavel, g.email, g.whatsapp, g.cidade]
-        .filter(Boolean).some((v: string) => v.toLowerCase().includes(q));
+        .filter(Boolean)
+        .some((v: string) => v.toLowerCase().includes(q));
     });
   }, [gestores, query, statusFilter, planoFilter]);
 
@@ -169,7 +214,8 @@ function GestoresInner() {
         <div>
           <h1 className="text-2xl font-black">Gestores de bolão</h1>
           <p className="text-sm text-muted-foreground">
-            {totals.total} no total · {totals.ativos} ativos · {totals.suspensos} suspensos · {totals.semLogin} nunca logaram
+            {totals.total} no total · {totals.ativos} ativos · {totals.suspensos} suspensos ·{" "}
+            {totals.semLogin} nunca logaram
           </p>
         </div>
         <button
@@ -181,24 +227,39 @@ function GestoresInner() {
       </div>
 
       {msg && (
-        <div className={`rounded-lg border p-3 text-sm flex items-start gap-2 ${
-          msg.kind === "ok" ? "border-pitch/30 bg-pitch/5 text-pitch" : "border-destructive/30 bg-destructive/5 text-destructive"
-        }`}>
-          {msg.kind === "ok" ? <CheckCircle2 className="h-4 w-4 mt-0.5" /> : <XCircle className="h-4 w-4 mt-0.5" />}
+        <div
+          className={`rounded-lg border p-3 text-sm flex items-start gap-2 ${
+            msg.kind === "ok"
+              ? "border-pitch/30 bg-pitch/5 text-pitch"
+              : "border-destructive/30 bg-destructive/5 text-destructive"
+          }`}
+        >
+          {msg.kind === "ok" ? (
+            <CheckCircle2 className="h-4 w-4 mt-0.5" />
+          ) : (
+            <XCircle className="h-4 w-4 mt-0.5" />
+          )}
           <span className="flex-1">{msg.text}</span>
-          <button onClick={() => setMsg(null)} className="text-xs opacity-70 hover:opacity-100">fechar</button>
+          <button onClick={() => setMsg(null)} className="text-xs opacity-70 hover:opacity-100">
+            fechar
+          </button>
         </div>
       )}
 
       {showForm && (
         <form
-          onSubmit={(e) => { e.preventDefault(); invite.mutate(form); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            invite.mutate(form);
+          }}
           className="rounded-xl border border-border bg-card p-4 grid gap-3 sm:grid-cols-2"
         >
           <label className="text-xs font-semibold uppercase text-muted-foreground space-y-1 block sm:col-span-2">
             E-mail
             <input
-              type="email" required value={form.email}
+              type="email"
+              required
+              value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               className="mt-1 w-full h-10 px-3 rounded-lg border border-border bg-background text-sm"
             />
@@ -206,7 +267,8 @@ function GestoresInner() {
           <label className="text-xs font-semibold uppercase text-muted-foreground space-y-1 block">
             Responsável
             <input
-              required value={form.nome_responsavel}
+              required
+              value={form.nome_responsavel}
               onChange={(e) => setForm({ ...form, nome_responsavel: e.target.value })}
               className="mt-1 w-full h-10 px-3 rounded-lg border border-border bg-background text-sm"
             />
@@ -214,16 +276,24 @@ function GestoresInner() {
           <label className="text-xs font-semibold uppercase text-muted-foreground space-y-1 block">
             Estabelecimento
             <input
-              required value={form.nome_estabelecimento}
+              required
+              value={form.nome_estabelecimento}
               onChange={(e) => setForm({ ...form, nome_estabelecimento: e.target.value })}
               className="mt-1 w-full h-10 px-3 rounded-lg border border-border bg-background text-sm"
             />
           </label>
           <div className="sm:col-span-2 flex gap-2 justify-end">
-            <button type="button" onClick={() => setShowForm(false)} className="h-10 px-4 rounded-lg border border-border text-sm font-semibold">
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="h-10 px-4 rounded-lg border border-border text-sm font-semibold"
+            >
               Cancelar
             </button>
-            <button disabled={invite.isPending} className="h-10 px-4 rounded-lg bg-pitch text-primary-foreground text-sm font-bold inline-flex items-center gap-1">
+            <button
+              disabled={invite.isPending}
+              className="h-10 px-4 rounded-lg bg-pitch text-primary-foreground text-sm font-bold inline-flex items-center gap-1"
+            >
               <Mail className="h-4 w-4" /> {invite.isPending ? "Enviando…" : "Enviar convite"}
             </button>
           </div>
@@ -255,7 +325,11 @@ function GestoresInner() {
           className="h-10 px-3 rounded-lg border border-border bg-background text-sm"
         >
           <option value="all">Todos planos</option>
-          {planoNames.map((p) => <option key={p} value={p}>{p}</option>)}
+          {planoNames.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -275,23 +349,38 @@ function GestoresInner() {
                 >
                   {g.nome_estabelecimento}
                 </button>
-                <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
-                  g.status === "active" ? "bg-pitch/15 text-pitch" : "bg-destructive/15 text-destructive"
-                }`}>{g.status === "active" ? "ativo" : "suspenso"}</span>
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-muted">{g.plano}</span>
+                <span
+                  className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
+                    g.status === "active"
+                      ? "bg-pitch/15 text-pitch"
+                      : "bg-destructive/15 text-destructive"
+                  }`}
+                >
+                  {g.status === "active" ? "ativo" : "suspenso"}
+                </span>
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-muted">
+                  {g.plano}
+                </span>
                 {g.roles?.includes("super_admin") && (
-                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-amber-500/15 text-amber-600">super</span>
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-amber-500/15 text-amber-600">
+                    super
+                  </span>
                 )}
                 {g.roles?.includes("admin") && (
-                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-blue-500/15 text-blue-600">admin</span>
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-blue-500/15 text-blue-600">
+                    admin
+                  </span>
                 )}
               </div>
               <div className="mt-1 text-xs text-muted-foreground truncate">
                 {g.nome_responsavel} • {g.email} {g.whatsapp ? `• ${g.whatsapp}` : ""}
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">
-                {g.cidade ? `${g.cidade}/${g.estado ?? ""} • ` : ""}{g.boloes_count} bolão(ões) • criado {format(new Date(g.created_at), "dd/MM/yy")}
-                {g.last_sign_in_at ? ` • último login ${format(new Date(g.last_sign_in_at), "dd/MM HH:mm")}` : " • sem login"}
+                {g.cidade ? `${g.cidade}/${g.estado ?? ""} • ` : ""}
+                {g.boloes_count} bolão(ões) • criado {formatBRDateOnly(g.created_at)}
+                {g.last_sign_in_at
+                  ? ` • último login ${formatBRShort(g.last_sign_in_at)}`
+                  : " • sem login"}
               </div>
             </div>
             <div className="flex flex-col gap-1 self-start items-end">
@@ -305,7 +394,8 @@ function GestoresInner() {
                   <option value="">Mudar plano…</option>
                   {planos.map((p: any) => (
                     <option key={p.id} value={p.id}>
-                      {p.nome} {Number(p.preco) > 0 ? `· R$${Number(p.preco).toFixed(0)}` : "· grátis"}
+                      {p.nome}{" "}
+                      {Number(p.preco) > 0 ? `· R$${Number(p.preco).toFixed(0)}` : "· grátis"}
                     </option>
                   ))}
                 </select>
@@ -331,7 +421,11 @@ function GestoresInner() {
                   className="h-8 px-3 rounded-md border border-border text-xs font-semibold inline-flex items-center gap-1"
                   title={g.status === "active" ? "Suspender acesso" : "Reativar acesso"}
                 >
-                  {g.status === "active" ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+                  {g.status === "active" ? (
+                    <Pause className="h-3.5 w-3.5" />
+                  ) : (
+                    <Play className="h-3.5 w-3.5" />
+                  )}
                   {g.status === "active" ? "Suspender" : "Reativar"}
                 </button>
                 <DropdownMenu>
@@ -376,9 +470,9 @@ function GestoresInner() {
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir gestor?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação remove o tenant <strong>{confirmDelete?.nome}</strong>, todos os bolões, palpites,
-              torcedores e o usuário de autenticação. Não pode ser desfeita.
-              Para apenas bloquear o acesso, prefira <strong>Suspender</strong>.
+              Esta ação remove o tenant <strong>{confirmDelete?.nome}</strong>, todos os bolões,
+              palpites, torcedores e o usuário de autenticação. Não pode ser desfeita. Para apenas
+              bloquear o acesso, prefira <strong>Suspender</strong>.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -397,8 +491,14 @@ function GestoresInner() {
 }
 
 function GestorDetailSheet({
-  tenantId, onClose, getDetailFn,
-}: { tenantId: string | null; onClose: () => void; getDetailFn: any }) {
+  tenantId,
+  onClose,
+  getDetailFn,
+}: {
+  tenantId: string | null;
+  onClose: () => void;
+  getDetailFn: any;
+}) {
   const { data, isLoading } = useQuery({
     queryKey: ["gestor-detail", tenantId],
     queryFn: () => getDetailFn({ data: { tenant_id: tenantId } }),
@@ -425,10 +525,14 @@ function GestorDetailSheet({
             </div>
 
             <div className="flex gap-2 text-xs">
-              <span className={`px-2 py-1 rounded ${data.pix_configurado ? "bg-pitch/15 text-pitch" : "bg-muted text-muted-foreground"}`}>
+              <span
+                className={`px-2 py-1 rounded ${data.pix_configurado ? "bg-pitch/15 text-pitch" : "bg-muted text-muted-foreground"}`}
+              >
                 PIX {data.pix_configurado ? "configurado" : "pendente"}
               </span>
-              <span className={`px-2 py-1 rounded ${data.whatsapp_configurado ? "bg-pitch/15 text-pitch" : "bg-muted text-muted-foreground"}`}>
+              <span
+                className={`px-2 py-1 rounded ${data.whatsapp_configurado ? "bg-pitch/15 text-pitch" : "bg-muted text-muted-foreground"}`}
+              >
                 WhatsApp {data.whatsapp_configurado ? "configurado" : "pendente"}
               </span>
             </div>
@@ -439,7 +543,9 @@ function GestorDetailSheet({
                 <div key={b.id} className="flex items-center justify-between py-1.5 text-sm">
                   <div className="min-w-0">
                     <div className="font-medium truncate">{b.nome}</div>
-                    <div className="text-[11px] text-muted-foreground">/{b.slug} · {b.status}</div>
+                    <div className="text-[11px] text-muted-foreground">
+                      /{b.slug} · {b.status}
+                    </div>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     R${Number(b.valor_palpite ?? 0).toFixed(0)}
@@ -455,12 +561,20 @@ function GestorDetailSheet({
                   <div>
                     <div className="font-medium">{a.planos?.nome ?? "—"}</div>
                     <div className="text-[11px] text-muted-foreground">
-                      {format(new Date(a.data_inicio), "dd/MM/yy")} {a.data_fim ? `→ ${format(new Date(a.data_fim), "dd/MM/yy")}` : "→ atual"} · {a.gateway_pagamento ?? "—"}
+                      {formatBRDateOnly(a.data_inicio)}
+                      {a.data_fim ? `→ ${formatBRDateOnly(a.data_fim)}` : "→ atual"} ·{" "}
+                      {a.gateway_pagamento ?? "—"}
                     </div>
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
-                    a.status === "ativa" ? "bg-pitch/15 text-pitch" : "bg-muted text-muted-foreground"
-                  }`}>{a.status}</span>
+                  <span
+                    className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
+                      a.status === "ativa"
+                        ? "bg-pitch/15 text-pitch"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {a.status}
+                  </span>
                 </div>
               ))}
             </Section>
@@ -484,7 +598,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <div>
       <h3 className="text-xs font-bold uppercase text-muted-foreground mb-2">{title}</h3>
-      <div className="rounded-lg border border-border bg-card divide-y divide-border px-3">{children}</div>
+      <div className="rounded-lg border border-border bg-card divide-y divide-border px-3">
+        {children}
+      </div>
     </div>
   );
 }

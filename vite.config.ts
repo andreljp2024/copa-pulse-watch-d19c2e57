@@ -12,4 +12,18 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  nitro: {
+    preset: "node-server",
+    routeRules: {
+      "/rest/**": { proxy: "http://kong:8000/rest/**" },
+      "/auth/v1/**": {
+        proxy: { to: "http://kong:8000/auth/v1/**", fetchOptions: { redirect: "manual" } },
+      },
+
+      "/realtime/**": { proxy: "http://kong:8000/realtime/**" },
+      "/evolution/**": { proxy: "http://evo-crm-evolution-api:8080/**" },
+      "/sw.js": { headers: { "cache-control": "no-store, no-cache, must-revalidate, max-age=0" } },
+      "/favicon.ico": { redirect: "/assets/bolaoai-icon-BWSdr3QL.png" },
+    },
+  },
 });

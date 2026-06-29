@@ -34,9 +34,7 @@ export function buildPixPayload(opts: {
   descricao?: string;
 }): string {
   const merchantAccount = emv("00", "br.gov.bcb.pix") + emv("01", opts.chave.trim());
-  const additional = opts.descricao
-    ? emv("05", sanitize(opts.descricao, 25))
-    : emv("05", "***");
+  const additional = opts.descricao ? emv("05", sanitize(opts.descricao, 25)) : emv("05", "***");
 
   const parts =
     emv("00", "01") +

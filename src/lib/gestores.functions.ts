@@ -1,8 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-async function assertSuperAdmin(ctx: { supabase: any; userId: string }) {
+interface AssertContext {
+  supabase: SupabaseClient;
+  userId: string;
+}
+
+async function assertSuperAdmin(ctx: AssertContext) {
   const { data } = await ctx.supabase.rpc("has_role", {
     _user_id: ctx.userId,
     _role: "super_admin",
@@ -28,7 +34,9 @@ export const listGestores = createServerFn({ method: "GET" })
 
     const { data: tenants, error } = await supabaseAdmin
       .from("tenants")
-      .select("id, owner_user_id, nome_responsavel, nome_estabelecimento, email, whatsapp, cidade, estado, status, plano, created_at")
+      .select(
+        "id, owner_user_id, nome_responsavel, nome_estabelecimento, email, whatsapp, cidade, estado, status, plano, created_at",
+      )
       .order("created_at", { ascending: false });
     if (error) throw error;
 
@@ -36,21 +44,29 @@ export const listGestores = createServerFn({ method: "GET" })
     const ownerIds = (tenants ?? []).map((t) => t.owner_user_id);
 
     const [{ data: boloes }, { data: roles }, { data: authUsers }] = await Promise.all([
-      supabaseAdmin.from("boloes").select("tenant_id").in("tenant_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]),
-      supabaseAdmin.from("user_roles").select("user_id, role").in("user_id", ownerIds.length ? ownerIds : ["00000000-0000-0000-0000-000000000000"]),
+      supabaseAdmin
+        .from("boloes")
+        .select("tenant_id")
+        .in("tenant_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]),
+      supabaseAdmin
+        .from("user_roles")
+        .select("user_id, role")
+        .in("user_id", ownerIds.length ? ownerIds : ["00000000-0000-0000-0000-000000000000"]),
       supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
     ]);
 
     const boloesCount = new Map<string, number>();
-    (boloes ?? []).forEach((b: any) => boloesCount.set(b.tenant_id, (boloesCount.get(b.tenant_id) ?? 0) + 1));
+    (boloes ?? []).forEach((b) =>
+      boloesCount.set(b.tenant_id, (boloesCount.get(b.tenant_id) ?? 0) + 1),
+    );
     const rolesMap = new Map<string, string[]>();
-    (roles ?? []).forEach((r: any) => {
+    (roles ?? []).forEach((r) => {
       const arr = rolesMap.get(r.user_id) ?? [];
       arr.push(r.role);
       rolesMap.set(r.user_id, arr);
     });
     const lastSignIn = new Map<string, string | null>();
-    (authUsers?.users ?? []).forEach((u: any) => lastSignIn.set(u.id, u.last_sign_in_at ?? null));
+    (authUsers?.users ?? []).forEach((u) => lastSignIn.set(u.id, u.last_sign_in_at ?? null));
 
     return (tenants ?? []).map((t) => ({
       ...t,
@@ -73,9 +89,12 @@ export const inviteGestor = createServerFn({ method: "POST" })
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const origin = process.env.SITE_URL ?? "https://copa-pulse-watch.lovable.app";
+    const origin = process.env.SITE_URL ?? "https://bolao.ai.slz.br";
     const { data: inv, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
-      data: { nome_responsavel: data.nome_responsavel, nome_estabelecimento: data.nome_estabelecimento },
+      data: {
+        nome_responsavel: data.nome_responsavel,
+        nome_estabelecimento: data.nome_estabelecimento,
+      },
       redirectTo: `${origin}/onboarding`,
     });
     if (error) throw new Error(error.message);
@@ -90,18 +109,27 @@ export const updateGestorStatus = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("tenants").update({ status: data.status }).eq("id", data.tenant_id);
+    const { error } = await supabaseAdmin
+      .from("tenants")
+      .update({ status: data.status })
+      .eq("id", data.tenant_id);
     if (error) throw error;
     return { ok: true };
   });
 
 export const deleteGestor = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ tenant_id: z.string().uuid(), delete_auth_user: z.boolean().optional() }).parse(d))
+  .inputValidator((d) =>
+    z.object({ tenant_id: z.string().uuid(), delete_auth_user: z.boolean().optional() }).parse(d),
+  )
   .handler(async ({ data, context }) => {
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: t } = await supabaseAdmin.from("tenants").select("owner_user_id").eq("id", data.tenant_id).maybeSingle();
+    const { data: t } = await supabaseAdmin
+      .from("tenants")
+      .select("owner_user_id")
+      .eq("id", data.tenant_id)
+      .maybeSingle();
     const { error } = await supabaseAdmin.from("tenants").delete().eq("id", data.tenant_id);
     if (error) throw error;
     if (data.delete_auth_user && t?.owner_user_id) {
@@ -134,7 +162,10 @@ export const changeGestorPlano = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: plano, error: pErr } = await supabaseAdmin
-      .from("planos").select("id, nome, ativo").eq("id", data.plano_id).maybeSingle();
+      .from("planos")
+      .select("id, nome, ativo")
+      .eq("id", data.plano_id)
+      .maybeSingle();
     if (pErr) throw pErr;
     if (!plano || !plano.ativo) throw new Error("Plano inválido ou inativo.");
 
@@ -170,7 +201,9 @@ export const changeGestorPlano = createServerFn({ method: "POST" })
 
     // Atualiza somente o rótulo do plano no tenant.
     const { error: tErr } = await supabaseAdmin
-      .from("tenants").update({ plano: plano.nome }).eq("id", data.tenant_id);
+      .from("tenants")
+      .update({ plano: plano.nome })
+      .eq("id", data.tenant_id);
     if (tErr) throw tErr;
 
     return { ok: true, plano: plano.nome };
@@ -200,13 +233,29 @@ export const getGestorDetail = createServerFn({ method: "GET" })
         .order("created_at", { ascending: false }),
       supabaseAdmin
         .from("assinaturas")
-        .select("id, status, data_inicio, data_fim, gateway_pagamento, planos:plano_id(nome, preco)")
+        .select(
+          "id, status, data_inicio, data_fim, gateway_pagamento, planos:plano_id(nome, preco)",
+        )
         .eq("tenant_id", data.tenant_id)
         .order("data_inicio", { ascending: false }),
-      supabaseAdmin.from("torcedores").select("id", { count: "exact", head: true }).eq("tenant_id", data.tenant_id),
-      supabaseAdmin.from("palpites").select("id", { count: "exact", head: true }).eq("tenant_id", data.tenant_id),
-      supabaseAdmin.from("tenant_pix_config").select("nome_recebedor, chave_pix").eq("tenant_id", data.tenant_id).maybeSingle(),
-      supabaseAdmin.from("tenant_whatsapp_config").select("numero_whatsapp").eq("tenant_id", data.tenant_id).maybeSingle(),
+      supabaseAdmin
+        .from("torcedores")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", data.tenant_id),
+      supabaseAdmin
+        .from("palpites")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", data.tenant_id),
+      supabaseAdmin
+        .from("tenant_pix_config")
+        .select("nome_recebedor, chave_pix")
+        .eq("tenant_id", data.tenant_id)
+        .maybeSingle(),
+      supabaseAdmin
+        .from("tenant_whatsapp_config")
+        .select("numero_whatsapp")
+        .eq("tenant_id", data.tenant_id)
+        .maybeSingle(),
     ]);
 
     return {
@@ -227,9 +276,12 @@ export const resetGestorPassword = createServerFn({ method: "POST" })
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: t } = await supabaseAdmin
-      .from("tenants").select("email").eq("id", data.tenant_id).maybeSingle();
+      .from("tenants")
+      .select("email")
+      .eq("id", data.tenant_id)
+      .maybeSingle();
     if (!t?.email) throw new Error("Tenant sem e-mail cadastrado.");
-    const origin = process.env.SITE_URL ?? "https://copa-pulse-watch.lovable.app";
+    const origin = process.env.SITE_URL ?? "https://bolao.ai.slz.br";
     const { error } = await supabaseAdmin.auth.admin.generateLink({
       type: "recovery",
       email: t.email,
@@ -246,10 +298,12 @@ export const resendGestorInvite = createServerFn({ method: "POST" })
     await assertSuperAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: t } = await supabaseAdmin
-      .from("tenants").select("email, nome_responsavel, nome_estabelecimento")
-      .eq("id", data.tenant_id).maybeSingle();
+      .from("tenants")
+      .select("email, nome_responsavel, nome_estabelecimento")
+      .eq("id", data.tenant_id)
+      .maybeSingle();
     if (!t?.email) throw new Error("Tenant sem e-mail cadastrado.");
-    const origin = process.env.SITE_URL ?? "https://copa-pulse-watch.lovable.app";
+    const origin = process.env.SITE_URL ?? "https://bolao.ai.slz.br";
     const { error } = await supabaseAdmin.auth.admin.inviteUserByEmail(t.email, {
       data: { nome_responsavel: t.nome_responsavel, nome_estabelecimento: t.nome_estabelecimento },
       redirectTo: `${origin}/onboarding`,
@@ -257,4 +311,3 @@ export const resendGestorInvite = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true, email: t.email };
   });
-

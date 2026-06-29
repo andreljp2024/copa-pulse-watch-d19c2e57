@@ -106,7 +106,9 @@ function GanhadoresPage() {
         ]);
       }
     }
-    const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = rows
+      .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -297,12 +299,7 @@ function BolaoCard({ g }: { g: GanhadoresBolaoGroup }) {
 
       <ul className="space-y-2">
         {g.ganhadores.map((w) => (
-          <GanhadorItem
-            key={w.id}
-            w={w}
-            premio={g.premio_por_ganhador}
-            bolaoNome={g.bolao_nome}
-          />
+          <GanhadorItem key={w.id} w={w} premio={g.premio_por_ganhador} bolaoNome={g.bolao_nome} />
         ))}
       </ul>
     </section>
@@ -373,7 +370,11 @@ function GanhadorItem({
             className="inline-flex items-center gap-1 h-9 rounded-lg border border-border bg-card px-3 text-xs font-bold hover:bg-muted/40"
             title="Copiar mensagem"
           >
-            {copied ? <CheckCircle2 className="h-4 w-4 text-accent" /> : <Copy className="h-4 w-4" />}
+            {copied ? (
+              <CheckCircle2 className="h-4 w-4 text-accent" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
             {copied ? "Copiado" : "Copiar"}
           </button>
           <a

@@ -43,18 +43,26 @@ export function useRealtimeMatches() {
       .on("postgres_changes", { event: "*", schema: "public", table: "torcedores" }, () => {
         schedule(["bolao"]);
       })
-      .on("postgres_changes", { event: "*", schema: "public", table: "match_events" }, (payload) => {
-        const id =
-          (payload.new as { match_id?: string } | null)?.match_id ??
-          (payload.old as { match_id?: string } | null)?.match_id;
-        if (id) schedule(["match", id]);
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "match_statistics" }, (payload) => {
-        const id =
-          (payload.new as { match_id?: string } | null)?.match_id ??
-          (payload.old as { match_id?: string } | null)?.match_id;
-        if (id) schedule(["match", id]);
-      })
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "match_events" },
+        (payload) => {
+          const id =
+            (payload.new as { match_id?: string } | null)?.match_id ??
+            (payload.old as { match_id?: string } | null)?.match_id;
+          if (id) schedule(["match", id]);
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "match_statistics" },
+        (payload) => {
+          const id =
+            (payload.new as { match_id?: string } | null)?.match_id ??
+            (payload.old as { match_id?: string } | null)?.match_id;
+          if (id) schedule(["match", id]);
+        },
+      )
       .subscribe();
 
     return () => {

@@ -7,7 +7,9 @@ import { Search, Trophy, XCircle, Clock, CheckCircle2, Sparkles } from "lucide-r
 export const Route = createFileRoute("/meus-palpites/$slug")({
   component: MeusPalpitesPage,
   head: () => ({ meta: [{ title: "Meus palpites" }] }),
-  errorComponent: ({ error }) => <div className="p-6 text-sm text-destructive">{error.message}</div>,
+  errorComponent: ({ error }) => (
+    <div className="p-6 text-sm text-destructive">{error.message}</div>
+  ),
   notFoundComponent: () => <div className="p-6 text-sm">Bolão não encontrado.</div>,
 });
 
@@ -38,9 +40,14 @@ function MeusPalpitesPage() {
   const [bolaoNome, setBolaoNome] = useState<string>("");
 
   useEffect(() => {
-    void supabase.from("boloes").select("nome").eq("slug", slug).maybeSingle().then(({ data }) => {
-      if (data) setBolaoNome(data.nome as string);
-    });
+    void supabase
+      .from("boloes")
+      .select("nome")
+      .eq("slug", slug)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setBolaoNome(data.nome as string);
+      });
   }, [slug]);
 
   async function buscar(e?: React.FormEvent) {
@@ -68,7 +75,8 @@ function MeusPalpitesPage() {
 
   const ganhadores = rows?.filter((r) => r.ganhou) ?? [];
   const finalizados = rows?.filter((r) => r.match_status === "finished") ?? [];
-  const semGanho = searched && rows && rows.length > 0 && ganhadores.length === 0 && finalizados.length > 0;
+  const semGanho =
+    searched && rows && rows.length > 0 && ganhadores.length === 0 && finalizados.length > 0;
 
   return (
     <div className="min-h-screen bg-hero relative overflow-hidden">
@@ -145,7 +153,8 @@ function MeusPalpitesPage() {
                   Não foi dessa vez 💚💛
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Você não acertou desta vez. Obrigado por vestir a camisa — a torcida continua, e a próxima é nossa!
+                  Você não acertou desta vez. Obrigado por vestir a camisa — a torcida continua, e a
+                  próxima é nossa!
                 </p>
               </div>
             ) : null}
@@ -178,14 +187,16 @@ function MeusPalpitesPage() {
                         {r.palpite_a} <span className="text-muted-foreground">x</span> {r.palpite_b}
                       </span>
                     </div>
-                    {r.match_status === "finished" && r.placar_a !== null && r.placar_b !== null && (
-                      <div className="rounded-lg bg-accent/10 px-3 py-1.5 border border-accent/30">
-                        <span className="text-muted-foreground text-xs">Placar:</span>{" "}
-                        <span className="font-display font-black text-base text-accent">
-                          {r.placar_a} <span className="opacity-70">x</span> {r.placar_b}
-                        </span>
-                      </div>
-                    )}
+                    {r.match_status === "finished" &&
+                      r.placar_a !== null &&
+                      r.placar_b !== null && (
+                        <div className="rounded-lg bg-accent/10 px-3 py-1.5 border border-accent/30">
+                          <span className="text-muted-foreground text-xs">Placar:</span>{" "}
+                          <span className="font-display font-black text-base text-accent">
+                            {r.placar_a} <span className="opacity-70">x</span> {r.placar_b}
+                          </span>
+                        </div>
+                      )}
                     <div className="ml-auto font-semibold text-primary">{brl(r.valor)}</div>
                   </div>
                 </li>

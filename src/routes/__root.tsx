@@ -13,7 +13,6 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppShell } from "../components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
-import { useRealtimeMatches } from "@/hooks/useRealtimeMatches";
 
 function NotFoundComponent() {
   return (
@@ -21,7 +20,12 @@ function NotFoundComponent() {
       <div className="mx-auto max-w-7xl px-4 py-24 text-center">
         <h1 className="text-7xl font-black text-pitch">404</h1>
         <p className="mt-4 text-lg text-muted-foreground">Página não encontrada.</p>
-        <Link to="/" className="mt-6 inline-flex h-10 items-center rounded-lg bg-pitch px-4 text-sm font-semibold text-primary-foreground">Ir para o início</Link>
+        <Link
+          to="/"
+          className="mt-6 inline-flex h-10 items-center rounded-lg bg-pitch px-4 text-sm font-semibold text-primary-foreground"
+        >
+          Ir para o início
+        </Link>
       </div>
     </AppShell>
   );
@@ -30,13 +34,21 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => { reportLovableError(error, { boundary: "tanstack_root_error_component" }); }, [error]);
+  useEffect(() => {
+    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+  }, [error]);
   return (
     <AppShell>
       <div className="mx-auto max-w-7xl px-4 py-24 text-center">
         <h1 className="text-2xl font-bold">Algo deu errado</h1>
         <p className="mt-2 text-sm text-muted-foreground">Tente novamente.</p>
-        <button onClick={() => { router.invalidate(); reset(); }} className="mt-6 inline-flex h-10 items-center rounded-lg bg-pitch px-4 text-sm font-semibold text-primary-foreground">
+        <button
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
+          className="mt-6 inline-flex h-10 items-center rounded-lg bg-pitch px-4 text-sm font-semibold text-primary-foreground"
+        >
           Tentar novamente
         </button>
       </div>
@@ -45,7 +57,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
+head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
@@ -53,17 +65,37 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Bolão AI" },
-      { name: "mobile-web-app-capable", content: "yes" },
+{ name: "mobile-web-app-capable", content: "yes" },
       { title: "Bolão AI — Acompanhe a Copa do Mundo" },
-      { name: "description", content: "Tabela, calendário, resultados, seleções e estatísticas da Copa do Mundo em tempo real." },
+      {
+        name: "description",
+        content:
+          "Tabela, calendário, resultados, seleções e estatísticas da Copa do Mundo em tempo real.",
+      },
       { property: "og:title", content: "Bolão AI — Acompanhe a Copa do Mundo" },
-      { property: "og:description", content: "Tabela, calendário, resultados, seleções e estatísticas da Copa do Mundo em tempo real." },
+      {
+        property: "og:description",
+        content:
+          "Tabela, calendário, resultados, seleções e estatísticas da Copa do Mundo em tempo real.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Bolão AI — Acompanhe a Copa do Mundo" },
-      { name: "twitter:description", content: "Tabela, calendário, resultados, seleções e estatísticas da Copa do Mundo em tempo real." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0a6af608-6cce-4f57-a6fd-c0a654b4005f/id-preview-b731ae3a--84da67c1-66da-4335-845c-026539ecf393.lovable.app-1781548084544.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0a6af608-6cce-4f57-a6fd-c0a654b4005f/id-preview-b731ae3a--84da67c1-66da-4335-845c-026539ecf393.lovable.app-1781548084544.png" },
+      {
+        name: "twitter:description",
+        content:
+          "Tabela, calendário, resultados, seleções e estatísticas da Copa do Mundo em tempo real.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0a6af608-6cce-4f57-a6fd-c0a654b4005f/id-preview-b731ae3a--84da67c1-66da-4335-845c-026539ecf393.lovable.app-1781548084544.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0a6af608-6cce-4f57-a6fd-c0a654b4005f/id-preview-b731ae3a--84da67c1-66da-4335-845c-026539ecf393.lovable.app-1781548084544.png",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -72,7 +104,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -83,9 +118,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-BR">
-      <head><HeadContent /></head>
-      <body>{children}<Scripts /></body>
+    <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <HeadContent />
+      </head>
+      <body suppressHydrationWarning>
+        {children}
+        <Scripts />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ("serviceWorker" in navigator) {
+                navigator.serviceWorker.getRegistrations()
+                  .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+                  .catch(() => {});
+              }
+              if ("caches" in window) {
+                caches.keys()
+                  .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+                  .catch(() => {});
+              }
+            `,
+          }}
+        />
+      </body>
     </html>
   );
 }
@@ -101,15 +157,17 @@ function RootComponent() {
     });
     return () => sub.subscription.unsubscribe();
   }, [router, queryClient]);
+
+  // Inicializa tema escuro APENAS no cliente para evitar hydration mismatch
+  useEffect(() => {
+    const saved = localStorage.getItem("copahub-theme");
+    const isDark = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.classList.toggle("dark", isDark);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
-      <RealtimeBridge />
       <Outlet />
     </QueryClientProvider>
   );
-}
-
-function RealtimeBridge() {
-  useRealtimeMatches();
-  return null;
 }

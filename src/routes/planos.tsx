@@ -10,14 +10,22 @@ export const Route = createFileRoute("/planos")({
   head: () => ({
     meta: [
       { title: "Planos — Bolão AI" },
-      { name: "description", content: "Escolha o plano ideal para o seu bolão da Copa 2026: Grátis, Intermediário ou Ilimitado." },
+      {
+        name: "description",
+        content:
+          "Escolha o plano ideal para o seu bolão da Copa 2026: Grátis, Intermediário ou Ilimitado.",
+      },
       { property: "og:title", content: "Planos Bolão AI" },
       { property: "og:description", content: "Planos a partir de R$ 0 — até 50 palpites grátis." },
     ],
   }),
-  loader: ({ context }) => { context.queryClient.ensureQueryData(planosOpts); },
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(planosOpts);
+  },
   component: Planos,
-  errorComponent: () => <div className="p-8 text-center text-muted-foreground">Erro ao carregar planos.</div>,
+  errorComponent: () => (
+    <div className="p-8 text-center text-muted-foreground">Erro ao carregar planos.</div>
+  ),
   notFoundComponent: () => <div className="p-8 text-center">Não encontrado.</div>,
 });
 
@@ -31,7 +39,10 @@ function Planos() {
   return (
     <AppShell>
       <section className="relative overflow-hidden bg-hero">
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background pointer-events-none" aria-hidden="true" />
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background pointer-events-none"
+          aria-hidden="true"
+        />
         <div className="relative mx-auto max-w-7xl px-6 py-16 lg:py-24 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-gold">
             <Trophy className="h-3.5 w-3.5" aria-hidden="true" /> Planos Bolão AI
@@ -49,7 +60,10 @@ function Planos() {
         <div className="grid gap-6 md:grid-cols-3">
           {planos.map((p, i) => {
             const destaque = i === 1;
-            const palpites = p.limite_palpites === null ? "Palpites ilimitados" : `Até ${p.limite_palpites} palpites`;
+            const palpites =
+              p.limite_palpites === null
+                ? "Palpites ilimitados"
+                : `Até ${p.limite_palpites} palpites`;
             return (
               <article
                 key={p.id}
@@ -63,12 +77,20 @@ function Planos() {
                 <h2 className="font-display text-3xl uppercase">{p.nome}</h2>
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="font-display text-5xl text-gold">{fmtBRL(Number(p.preco))}</span>
-                  {Number(p.preco) > 0 && <span className="text-sm text-muted-foreground">/mês</span>}
+                  {Number(p.preco) > 0 && (
+                    <span className="text-sm text-muted-foreground">/mês</span>
+                  )}
                 </div>
                 <ul className="mt-6 space-y-3 text-sm flex-1">
                   <Feature>{palpites}</Feature>
-                  {p.limite_boloes != null && <Feature>{p.limite_boloes} {p.limite_boloes === 1 ? "bolão" : "bolões"}</Feature>}
-                  {p.limite_torcedores != null && <Feature>Até {p.limite_torcedores} torcedores</Feature>}
+                  {p.limite_boloes != null && (
+                    <Feature>
+                      {p.limite_boloes} {p.limite_boloes === 1 ? "bolão" : "bolões"}
+                    </Feature>
+                  )}
+                  {p.limite_torcedores != null && (
+                    <Feature>Até {p.limite_torcedores} torcedores</Feature>
+                  )}
                   {p.permite_logo && <Feature>Logo personalizada</Feature>}
                   {p.permite_exportacao && <Feature>Exportação de dados</Feature>}
                   {p.permite_whatsapp_api && <Feature>Integração WhatsApp</Feature>}

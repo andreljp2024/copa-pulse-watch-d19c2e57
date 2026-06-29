@@ -6,11 +6,9 @@ import type { Database } from "@/integrations/supabase/types";
 // Public read-only client (publishable key). RLS applies as anon — all
 // tables read here have explicit `TO anon` SELECT policies.
 function publicClient() {
-  return createClient<Database>(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
-    { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
-  );
+  return createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+  });
 }
 
 const MATCH_SELECT =
@@ -18,26 +16,37 @@ const MATCH_SELECT =
 
 function unwrap<T>(res: { data: T | null; error: { message: string } | null }, label: string): T {
   if (res.error) throw new Error(`[${label}] ${res.error.message}`);
-  return (res.data ?? ([] as unknown as T));
+  return res.data ?? ([] as unknown as T);
 }
 
 export const getDashboard = createServerFn({ method: "GET" }).handler(async () => {
-  const sb = publicClient();
+  const empty = { live: [], upcoming: [], recent: [], standings: [], topScorers: [], stats: { teams: 0, matches: 0, stadiums: 0 } };
+  let sb;
+  try {
+    sb = publicClient();
+  } catch {
+    return empty;
+  }
   const now = new Date().toISOString();
-  const [live, upcoming, recent, standings, scorers] = await Promise.all([
-    sb.from("matches").select(MATCH_SELECT).eq("status", "live").order("kickoff_at"),
-    sb.from("matches").select(MATCH_SELECT).eq("status", "scheduled").gte("kickoff_at", now).order("kickoff_at").limit(6),
-    sb.from("matches").select(MATCH_SELECT).eq("status", "finished").order("kickoff_at", { ascending: false }).limit(6),
-    sb.from("v_standings").select("*"),
-    sb.from("v_top_scorers").select("*").limit(8),
-  ]);
-  return {
-    live: unwrap(live, "live"),
-    upcoming: unwrap(upcoming, "upcoming"),
-    recent: unwrap(recent, "recent"),
-    standings: unwrap(standings, "standings"),
-    topScorers: unwrap(scorers, "topScorers"),
-  };
+  try {
+    const [live, upcoming, recent, standings, scorers] = await Promise.all([
+      sb.from("matches").select(MATCH_SELECT).eq("status", "live").order("kickoff_at").catch(() => ({ data: [], error: null })),
+      sb.from("matches").select(MATCH_SELECT).eq("status", "scheduled").gte("kickoff_at", now).order("kickoff_at").limit(6).catch(() => ({ data: [], error: null })),
+      sb.from("matches").select(MATCH_SELECT).eq("status", "finished").order("kickoff_at", { ascending: false }).limit(6).catch(() => ({ data: [], error: null })),
+      sb.from("v_standings").select("*").catch(() => ({ data: [], error: null })),
+      sb.from("v_top_scorers").select("*").limit(8).catch(() => ({ data: [], error: null })),
+    ]);
+    return {
+      live: live.data ?? [],
+      upcoming: upcoming.data ?? [],
+      recent: recent.data ?? [],
+      standings: standings.data ?? [],
+      topScorers: scorers.data ?? [],
+      stats: { teams: 0, matches: 0, stadiums: 0 },
+    };
+  } catch {
+    return empty;
+  }
 });
 
 export const listTeams = createServerFn({ method: "GET" }).handler(async () => {
@@ -123,4 +132,16 @@ export const listTopScorers = createServerFn({ method: "GET" }).handler(async ()
   const sb = publicClient();
   const res = await sb.from("v_top_scorers").select("*").limit(50);
   return unwrap(res, "listTopScorers");
+});
+
+export const listKnockoutMatches = createServerFn({ method: "GET" }).handler(async () => {
+  const sb = publicClient();
+  const res = await sb
+    .from("matches")
+    .select(
+      "*, home:home_team_id(id,name,code,flag_url), away:away_team_id(id,name,code,flag_url), stadium:stadium_id(name,city), phase",
+    )
+    .neq("phase", "group")
+    .order("kickoff_at");
+  return unwrap(res, "listKnockoutMatches");
 });

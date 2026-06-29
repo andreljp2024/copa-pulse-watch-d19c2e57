@@ -3,8 +3,10 @@ export const onlyDigits = (v: string) => v.replace(/\D+/g, "");
 
 export function maskPhone(v: string): string {
   const d = onlyDigits(v).slice(0, 11);
-  if (d.length <= 10) return d.replace(/^(\d{0,2})(\d{0,4})(\d{0,4}).*/, (_, a, b, c) =>
-    [a && `(${a}`, a?.length === 2 ? ") " : "", b, c && `-${c}`].filter(Boolean).join(""));
+  if (d.length <= 10)
+    return d.replace(/^(\d{0,2})(\d{0,4})(\d{0,4}).*/, (_, a, b, c) =>
+      [a && `(${a}`, a?.length === 2 ? ") " : "", b, c && `-${c}`].filter(Boolean).join(""),
+    );
   return d.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, "($1) $2-$3");
 }
 
@@ -12,10 +14,12 @@ export function maskCpfCnpj(v: string): string {
   const d = onlyDigits(v).slice(0, 14);
   if (d.length <= 11) {
     return d.replace(/^(\d{0,3})(\d{0,3})(\d{0,3})(\d{0,2}).*/, (_, a, b, c, e) =>
-      [a, b && `.${b}`, c && `.${c}`, e && `-${e}`].filter(Boolean).join(""));
+      [a, b && `.${b}`, c && `.${c}`, e && `-${e}`].filter(Boolean).join(""),
+    );
   }
   return d.replace(/^(\d{0,2})(\d{0,3})(\d{0,3})(\d{0,4})(\d{0,2}).*/, (_, a, b, c, e, f) =>
-    [a, b && `.${b}`, c && `.${c}`, e && `/${e}`, f && `-${f}`].filter(Boolean).join(""));
+    [a, b && `.${b}`, c && `.${c}`, e && `/${e}`, f && `-${f}`].filter(Boolean).join(""),
+  );
 }
 
 export function maskCep(v: string): string {
@@ -23,7 +27,13 @@ export function maskCep(v: string): string {
   return d.replace(/^(\d{0,5})(\d{0,3}).*/, (_, a, b) => (b ? `${a}-${b}` : a));
 }
 
-export type ViaCep = { localidade: string; uf: string; bairro?: string; logradouro?: string; erro?: boolean };
+export type ViaCep = {
+  localidade: string;
+  uf: string;
+  bairro?: string;
+  logradouro?: string;
+  erro?: boolean;
+};
 
 export async function fetchCep(cep: string): Promise<ViaCep | null> {
   const d = onlyDigits(cep);
@@ -54,7 +64,8 @@ export function isValidCnpj(v: string): boolean {
   const d = onlyDigits(v);
   if (d.length !== 14 || /^(\d)\1+$/.test(d)) return false;
   const calc = (len: number) => {
-    const w = len === 12 ? [5,4,3,2,9,8,7,6,5,4,3,2] : [6,5,4,3,2,9,8,7,6,5,4,3,2];
+    const w =
+      len === 12 ? [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2] : [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
     let s = 0;
     for (let i = 0; i < len; i++) s += parseInt(d[i], 10) * w[i];
     const r = s % 11;
@@ -75,15 +86,9 @@ export const isValidPhoneBR = (v: string) => {
 
 // DDDs válidos no Brasil
 const DDDS_BR = new Set([
-  11,12,13,14,15,16,17,18,19,
-  21,22,24,27,28,
-  31,32,33,34,35,37,38,
-  41,42,43,44,45,46,47,48,49,
-  51,53,54,55,
-  61,62,63,64,65,66,67,68,69,
-  71,73,74,75,77,79,
-  81,82,83,84,85,86,87,88,89,
-  91,92,93,94,95,96,97,98,99,
+  11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 24, 27, 28, 31, 32, 33, 34, 35, 37, 38, 41, 42, 43,
+  44, 45, 46, 47, 48, 49, 51, 53, 54, 55, 61, 62, 63, 64, 65, 66, 67, 68, 69, 71, 73, 74, 75, 77,
+  79, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 94, 95, 96, 97, 98, 99,
 ]);
 
 /** Valida WhatsApp BR: 11 dígitos, DDD válido, 9º dígito = 9, sem repetições óbvias. */
@@ -96,4 +101,3 @@ export function isValidWhatsAppBR(v: string): boolean {
   if (/^(\d)\1{10}$/.test(d)) return false;
   return true;
 }
-

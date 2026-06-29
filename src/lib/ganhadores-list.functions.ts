@@ -73,12 +73,21 @@ export const listarGanhadores = createServerFn({ method: "GET" })
 
     const grupos = new Map<string, GanhadoresBolaoGroup>();
     for (const g of (ganhadores ?? []) as unknown as Array<{
-      id: string; bolao_id: string; match_id: string; torcedor_id: string; palpite_id: string;
+      id: string;
+      bolao_id: string;
+      match_id: string;
+      torcedor_id: string;
+      palpite_id: string;
       boloes: { id: string; nome: string; slug: string; percentual_admin: number };
       torcedores: { id: string; nome: string; whatsapp: string };
       palpites: { id: string; codigo: number; palpite_a: number; palpite_b: number; valor: number };
-      matches: { id: string; home_score: number | null; away_score: number | null;
-        home_team: { name: string } | null; away_team: { name: string } | null };
+      matches: {
+        id: string;
+        home_score: number | null;
+        away_score: number | null;
+        home_team: { name: string } | null;
+        away_team: { name: string } | null;
+      };
     }>) {
       const row: GanhadorRow = {
         id: g.id,
@@ -121,9 +130,8 @@ export const listarGanhadores = createServerFn({ method: "GET" })
       grp.arrecadado = arrecadadoMap.get(grp.bolao_id) ?? 0;
       grp.taxa_admin = +(grp.arrecadado * (grp.percentual_admin / 100)).toFixed(2);
       grp.premio_total = +(grp.arrecadado - grp.taxa_admin).toFixed(2);
-      grp.premio_por_ganhador = grp.ganhadores.length > 0
-        ? +(grp.premio_total / grp.ganhadores.length).toFixed(2)
-        : 0;
+      grp.premio_por_ganhador =
+        grp.ganhadores.length > 0 ? +(grp.premio_total / grp.ganhadores.length).toFixed(2) : 0;
     }
 
     return Array.from(grupos.values()).sort((a, b) => a.bolao_nome.localeCompare(b.bolao_nome));

@@ -4,7 +4,18 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, publicBolaoUrl } from "@/lib/saas";
 import { computarGanhadores } from "@/lib/ganhadores.functions";
-import { Users, ListChecks, CheckCircle2, Clock, DollarSign, Trophy, Copy, ExternalLink, Sparkles, Loader2 } from "lucide-react";
+import {
+  Users,
+  ListChecks,
+  CheckCircle2,
+  Clock,
+  DollarSign,
+  Trophy,
+  Copy,
+  ExternalLink,
+  Sparkles,
+  Loader2,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: Dashboard,
@@ -19,7 +30,13 @@ type Stats = {
   ganhadores: number;
   taxa_admin: number;
   premio_torcedores: number;
-  bolao: { id: string; nome: string; slug: string; valor_palpite: number; percentual_admin: number } | null;
+  bolao: {
+    id: string;
+    nome: string;
+    slug: string;
+    valor_palpite: number;
+    percentual_admin: number;
+  } | null;
   serie: { dia: string; total: number }[];
 };
 
@@ -42,25 +59,50 @@ function Dashboard() {
     }
   }
 
-
-
-  useEffect(() => { void load(); }, []);
+  useEffect(() => {
+    void load();
+  }, []);
 
   async function load() {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
-    const { data: t } = await supabase.from("tenants").select("id").eq("owner_user_id", u.user.id).maybeSingle();
-    if (!t) return;
-    const { data: bo } = await supabase.from("boloes").select("id, nome, slug, valor_palpite, percentual_admin").eq("tenant_id", t.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
+    const { data: t } = await supabase
+      .from("tenants")
+      .select("id")
+      .eq("owner_user_id", u.user.id)
+      .maybeSingle();
+    if (!t?.id) return;
+    const { data: bo } = await supabase
+      .from("boloes")
+      .select("id, nome, slug, valor_palpite, percentual_admin")
+      .eq("tenant_id", t.id)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
     const [tor, pal, gan, serieRows] = await Promise.all([
-      supabase.from("torcedores").select("id", { count: "exact", head: true }).eq("tenant_id", t.id),
-      supabase.from("palpites").select("status_pagamento, valor", { count: "exact" }).eq("tenant_id", t.id),
-      supabase.from("ganhadores").select("id", { count: "exact", head: true }).eq("tenant_id", t.id),
-      supabase.from("palpites").select("created_at").eq("tenant_id", t.id).gte("created_at", new Date(Date.now() - 13 * 86400000).toISOString()),
+      supabase
+        .from("torcedores")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", t.id),
+      supabase
+        .from("palpites")
+        .select("status_pagamento, valor", { count: "exact" })
+        .eq("tenant_id", t.id),
+      supabase
+        .from("ganhadores")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", t.id),
+      supabase
+        .from("palpites")
+        .select("created_at")
+        .eq("tenant_id", t.id)
+        .gte("created_at", new Date(Date.now() - 13 * 86400000).toISOString()),
     ]);
     const palpites = pal.data ?? [];
     const pagos = palpites.filter((p) => p.status_pagamento === "pago").length;
-    const arrecadado = palpites.filter((p) => p.status_pagamento === "pago").reduce((s, p) => s + Number(p.valor ?? 0), 0);
+    const arrecadado = palpites
+      .filter((p) => p.status_pagamento === "pago")
+      .reduce((s, p) => s + Number(p.valor ?? 0), 0);
     const pct = Number((bo as any)?.percentual_admin ?? 30);
     const taxa_admin = arrecadado * (pct / 100);
     const premio_torcedores = arrecadado - taxa_admin;
@@ -82,7 +124,15 @@ function Dashboard() {
       ganhadores: gan.count ?? 0,
       taxa_admin,
       premio_torcedores,
-      bolao: bo ? { id: bo.id, nome: bo.nome, slug: bo.slug, valor_palpite: Number(bo.valor_palpite), percentual_admin: pct } : null,
+      bolao: bo
+        ? {
+            id: bo.id,
+            nome: bo.nome,
+            slug: bo.slug,
+            valor_palpite: Number(bo.valor_palpite),
+            percentual_admin: pct,
+          }
+        : null,
       serie: [...buckets.entries()].map(([dia, total]) => ({ dia, total })),
     });
   }
@@ -102,7 +152,11 @@ function Dashboard() {
     { label: "Palpites pagos", value: stats.pagos, icon: CheckCircle2 },
     { label: "Pendentes", value: stats.pendentes, icon: Clock },
     { label: "Arrecadado", value: brl(stats.arrecadado), icon: DollarSign },
-    { label: `Taxa admin (${stats.bolao?.percentual_admin ?? 30}%)`, value: brl(stats.taxa_admin), icon: DollarSign },
+    {
+      label: `Taxa admin (${stats.bolao?.percentual_admin ?? 30}%)`,
+      value: brl(stats.taxa_admin),
+      icon: DollarSign,
+    },
     { label: "Prêmio aos torcedores", value: brl(stats.premio_torcedores), icon: Trophy },
     { label: "Ganhadores", value: stats.ganhadores, icon: Trophy },
   ];
@@ -112,27 +166,46 @@ function Dashboard() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-black">Painel</h1>
-          {stats.bolao && <p className="text-sm text-muted-foreground">Bolão ativo: <strong>{stats.bolao.nome}</strong></p>}
+          {stats.bolao && (
+            <p className="text-sm text-muted-foreground">
+              Bolão ativo: <strong>{stats.bolao.nome}</strong>
+            </p>
+          )}
         </div>
         <button
           onClick={runCompute}
           disabled={computing}
           className="inline-flex h-10 items-center gap-2 rounded-lg bg-pitch px-4 text-sm font-semibold text-primary-foreground disabled:opacity-60"
         >
-          {computing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+          {computing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4" />
+          )}
           Computar ganhadores
         </button>
       </div>
 
       {stats.bolao && (
         <div className="rounded-2xl border border-pitch/30 bg-pitch/5 p-5">
-          <p className="text-xs uppercase tracking-wide font-semibold text-pitch">Link público do bolão</p>
+          <p className="text-xs uppercase tracking-wide font-semibold text-pitch">
+            Link público do bolão
+          </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <code className="text-sm bg-background border border-border rounded-lg px-3 py-2 break-all">{publicBolaoUrl(stats.bolao.slug)}</code>
-            <button onClick={copyLink} className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-pitch px-3 text-sm font-semibold text-primary-foreground">
+            <code className="text-sm bg-background border border-border rounded-lg px-3 py-2 break-all">
+              {publicBolaoUrl(stats.bolao.slug)}
+            </code>
+            <button
+              onClick={copyLink}
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-pitch px-3 text-sm font-semibold text-primary-foreground"
+            >
               <Copy className="h-4 w-4" /> {copied ? "Copiado!" : "Copiar"}
             </button>
-            <Link to="/bolao/$slug" params={{ slug: stats.bolao.slug }} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold">
+            <Link
+              to="/bolao/$slug"
+              params={{ slug: stats.bolao.slug }}
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold"
+            >
               <ExternalLink className="h-4 w-4" /> Abrir
             </Link>
           </div>
@@ -170,12 +243,32 @@ function Sparkline({ serie }: { serie: { dia: string; total: number }[] }) {
           const bh = ((h - pad * 2) * s.total) / max;
           return (
             <g key={s.dia}>
-              <rect x={pad + i * bw + 2} y={h - pad - bh} width={bw - 4} height={bh} rx={3} className="fill-pitch/80" />
-              <text x={pad + i * bw + bw / 2} y={h - 6} textAnchor="middle" className="fill-muted-foreground" fontSize="9">
+              <rect
+                x={pad + i * bw + 2}
+                y={h - pad - bh}
+                width={bw - 4}
+                height={bh}
+                rx={3}
+                className="fill-pitch/80"
+              />
+              <text
+                x={pad + i * bw + bw / 2}
+                y={h - 6}
+                textAnchor="middle"
+                className="fill-muted-foreground"
+                fontSize="9"
+              >
                 {s.dia.slice(5)}
               </text>
               {s.total > 0 && (
-                <text x={pad + i * bw + bw / 2} y={h - pad - bh - 4} textAnchor="middle" className="fill-foreground" fontSize="10" fontWeight="700">
+                <text
+                  x={pad + i * bw + bw / 2}
+                  y={h - pad - bh - 4}
+                  textAnchor="middle"
+                  className="fill-foreground"
+                  fontSize="10"
+                  fontWeight="700"
+                >
                   {s.total}
                 </text>
               )}

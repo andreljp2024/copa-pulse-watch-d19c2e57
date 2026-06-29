@@ -18,12 +18,15 @@ const rankingOpts = (slug: string) =>
     queryFn: async () => {
       const { data: bolao, error } = await supabase
         .from("boloes")
-        .select("id, nome, slug, cor_primaria")
+        .select("id, nome, slug, cor_primaria, permitir_ranking_publico")
         .eq("slug", slug)
         .eq("status", "active")
         .maybeSingle();
       if (error) throw error;
       if (!bolao) throw notFound();
+      if (bolao.permitir_ranking_publico === false) {
+        throw new Error("Ranking público desativado para este bolão");
+      }
 
       const { data: ranking, error: rErr } = await supabase.rpc("get_bolao_ranking", {
         p_slug: slug,
