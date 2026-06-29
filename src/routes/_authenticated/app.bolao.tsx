@@ -90,13 +90,13 @@ function BolaoConfigPage() {
 
   async function loadMatches() {
     setLoadingGames(true);
-    const nowIso = new Date().toISOString();
+    const nowUtc = new Date(Date.now() - 3 * 3600_000).toISOString();
     const [m, t] = await Promise.all([
       supabase
         .from("matches")
         .select("id, kickoff_at, status, home_team_id, away_team_id")
         .eq("status", "scheduled")
-        .gte("kickoff_at", nowIso)
+        .gte("kickoff_at", nowUtc)
         .order("kickoff_at", { ascending: true })
         .limit(50),
       supabase.from("teams").select("id, name, code, flag_url"),
@@ -256,7 +256,7 @@ function BolaoConfigPage() {
   }, [matches]);
 
   const proximoJogo = matches.find(
-    (m) => m.status !== "finished" && new Date(m.kickoff_at) > new Date(),
+    (m) => m.status !== "finished" && new Date(m.kickoff_at) > new Date(Date.now() - 3 * 3600_000),
   );
 
   function toggleMatch(id: string) {

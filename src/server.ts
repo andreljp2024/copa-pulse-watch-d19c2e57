@@ -29,7 +29,7 @@ function proxyToKong(request: Request): Promise<Response> {
   return new Promise((resolve) => {
     const url = new URL(request.url);
     const options: http.RequestOptions = {
-      hostname: "kong",
+      hostname: "supabase-kong",
       port: 8000,
       path: url.pathname + url.search,
       method: request.method,

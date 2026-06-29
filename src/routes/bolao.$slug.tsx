@@ -99,7 +99,7 @@ export const Route = createFileRoute("/bolao/$slug")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(bolaoPublicOpts(params.slug)),
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [] };
-    const now = Date.now();
+    const now = Date.now() - 3 * 3600_000;
     const next =
       loaderData.matches.find((m) => m.status !== "finished" && m.kickoff_at && new Date(m.kickoff_at).getTime() > now) ??
       loaderData.matches.find((m) => m.status !== "finished") ??
@@ -170,7 +170,7 @@ function PublicBolao() {
   const premioEstimado = arrecadado * 0.9;
 
   const openMatches = useMemo(() => {
-    const now = Date.now();
+    const now = Date.now() - 3 * 3600_000;
     return matches.filter((m) => {
       const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= now : false;
       return !kickoffPassed && m.status !== "live" && m.status !== "finished";
@@ -178,7 +178,7 @@ function PublicBolao() {
   }, [matches]);
 
   const filteredMatches = useMemo(() => {
-    const now = Date.now();
+    const now = Date.now() - 3 * 3600_000;
     const q = query.trim().toLowerCase();
     return matches.filter((m) => {
       const home = teams.get(m.home_team_id ?? "");
@@ -223,7 +223,7 @@ function PublicBolao() {
 
 
   const featured = useMemo(() => {
-    const now = Date.now();
+    const now = Date.now() - 3 * 3600_000;
     return (
       matches.find((m) => m.status !== "finished" && m.kickoff_at && new Date(m.kickoff_at).getTime() > now) ??
       matches.find((m) => m.status !== "finished") ??
@@ -233,7 +233,9 @@ function PublicBolao() {
 
   const palpiteAberto = useMemo(() => {
     if (!bolao.data_limite_palpite) return true;
-    return new Date(bolao.data_limite_palpite) > new Date();
+    const now = new Date();
+    now.setHours(now.getHours() - 3);
+    return new Date(bolao.data_limite_palpite) > now;
   }, [bolao.data_limite_palpite]);
 
   function avancarIdentidade(e: React.FormEvent) {
@@ -528,7 +530,7 @@ function PublicBolao() {
             {filteredMatches.slice(0, 60).map((m) => {
               const home = teams.get(m.home_team_id ?? "");
               const away = teams.get(m.away_team_id ?? "");
-              const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= Date.now() : false;
+              const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= Date.now() - 3 * 3600_000 : false;
               const matchOpen = palpiteAberto && !kickoffPassed && m.status !== "live" && m.status !== "finished";
               return (
                 <div key={m.id} className="rounded-xl border border-border bg-gradient-card p-3 flex items-center gap-3 card-elevated transition-colors hover:border-gold/40">
