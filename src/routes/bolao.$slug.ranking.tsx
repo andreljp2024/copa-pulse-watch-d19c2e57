@@ -49,7 +49,7 @@ const rankingOpts = (slug: string) =>
 export const Route = createFileRoute("/bolao/$slug/ranking")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(rankingOpts(params.slug)),
   head: ({ loaderData }) => ({
-    meta: loaderData
+    meta: loaderData?.bolao
       ? [
           { title: `Ranking — ${loaderData.bolao.nome}` },
           { name: "description", content: `Ranking de participantes do ${loaderData.bolao.nome}.` },
