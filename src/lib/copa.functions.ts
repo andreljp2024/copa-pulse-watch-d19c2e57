@@ -30,18 +30,18 @@ export const getDashboard = createServerFn({ method: "GET" }).handler(async () =
   const now = new Date().toISOString();
   try {
     const [live, upcoming, recent, standings, scorers] = await Promise.all([
-      sb.from("matches").select(MATCH_SELECT).eq("status", "live").order("kickoff_at").catch(() => ({ data: [], error: null })),
-      sb.from("matches").select(MATCH_SELECT).eq("status", "scheduled").gte("kickoff_at", now).order("kickoff_at").limit(6).catch(() => ({ data: [], error: null })),
-      sb.from("matches").select(MATCH_SELECT).eq("status", "finished").order("kickoff_at", { ascending: false }).limit(6).catch(() => ({ data: [], error: null })),
-      sb.from("v_standings").select("*").catch(() => ({ data: [], error: null })),
-      sb.from("v_top_scorers").select("*").limit(8).catch(() => ({ data: [], error: null })),
+      sb.from("matches").select(MATCH_SELECT).eq("status", "live").order("kickoff_at").then(r => r.error ? [] : r.data),
+      sb.from("matches").select(MATCH_SELECT).eq("status", "scheduled").gte("kickoff_at", now).order("kickoff_at").limit(6).then(r => r.error ? [] : r.data),
+      sb.from("matches").select(MATCH_SELECT).eq("status", "finished").order("kickoff_at", { ascending: false }).limit(6).then(r => r.error ? [] : r.data),
+      sb.from("v_standings").select("*").then(r => r.error ? [] : r.data),
+      sb.from("v_top_scorers").select("*").limit(8).then(r => r.error ? [] : r.data),
     ]);
     return {
-      live: live.data ?? [],
-      upcoming: upcoming.data ?? [],
-      recent: recent.data ?? [],
-      standings: standings.data ?? [],
-      topScorers: scorers.data ?? [],
+      live: live ?? [],
+      upcoming: upcoming ?? [],
+      recent: recent ?? [],
+      standings: standings ?? [],
+      topScorers: scorers ?? [],
       stats: { teams: 0, matches: 0, stadiums: 0 },
     };
   } catch {
