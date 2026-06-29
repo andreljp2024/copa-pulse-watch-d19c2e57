@@ -79,41 +79,72 @@ function PixConfigPage() {
     cidade: "",
     valor_padrao_palpite: 10,
     instrucoes_pagamento: "",
+    numero_recebedor_whatsapp: "",
   });
   const [saving, setSaving] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
 
   useEffect(() => {
     (async () => {
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user) return;
-      const { data: t } = await supabase
-        .from("tenants")
-        .select("id")
-        .eq("owner_user_id", u.user.id)
-        .single();
-      if (!t) {
+      setLoading(true);
+      try {
+        const { data: u } = await supabase.auth.getUser();
+        if (!u.user) {
+          console.log("[Pix] Usuário não autenticado");
+          setLoading(false);
+          return;
+        }
+        
+        const tRes = await supabase
+          .from("tenants")
+          .select("id")
+          .eq("owner_user_id", u.user.id)
+          .limit(1);
+        
+        if (tRes.error) {
+          console.error("[Pix] Erro ao buscar tenant:", tRes.error);
+          setLoading(false);
+          return;
+        }
+        
+        const t = Array.isArray(tRes.data) ? tRes.data[0] : tRes.data;
+        if (!t?.id) {
+          console.log("[Pix] Tenant não encontrado");
+          setLoading(false);
+          return;
+        }
+        
+        setTenantId(t.id);
+        console.log("[Pix] Tenant ID carregado:", t.id);
+        
+        const pixRes = await supabase
+          .from("tenant_pix_config")
+          .select("*")
+          .eq("tenant_id", t.id)
+          .maybeSingle();
+        
+        if (pixRes.error) {
+          console.error("[Pix] Erro ao buscar configuração Pix:", pixRes.error);
+        } else if (pixRes.data) {
+          console.log("[Pix] Configuração carregada:", pixRes.data);
+          setForm({
+            nome_recebedor: pixRes.data.nome_recebedor ?? "",
+            tipo_chave_pix: (pixRes.data.tipo_chave_pix as TipoChave) ?? "cpf",
+            chave_pix: pixRes.data.chave_pix ?? "",
+            banco: pixRes.data.banco ?? "",
+            cidade: pixRes.data.cidade ?? "",
+            valor_padrao_palpite: Number(pixRes.data.valor_padrao_palpite ?? 10),
+            instrucoes_pagamento: pixRes.data.instrucoes_pagamento ?? "",
+            numero_recebedor_whatsapp: pixRes.data.numero_recebedor_whatsapp ?? "",
+          });
+        } else {
+          console.log("[Pix] Nenhuma configuração encontrada");
+        }
+      } catch (err) {
+        console.error("[Pix] Erro inesperado:", err);
+      } finally {
         setLoading(false);
-        return;
       }
-      setTenantId(t.id);
-      const { data: pix } = await supabase
-        .from("tenant_pix_config")
-        .select("*")
-        .eq("tenant_id", t.id)
-        .maybeSingle();
-      if (pix) {
-        setForm({
-          nome_recebedor: pix.nome_recebedor ?? "",
-          tipo_chave_pix: (pix.tipo_chave_pix as TipoChave) ?? "cpf",
-          chave_pix: pix.chave_pix ?? "",
-          banco: pix.banco ?? "",
-          cidade: pix.cidade ?? "",
-          valor_padrao_palpite: Number(pix.valor_padrao_palpite ?? 10),
-          instrucoes_pagamento: pix.instrucoes_pagamento ?? "",
-        });
-      }
-      setLoading(false);
     })();
   }, []);
 
@@ -122,8 +153,7 @@ function PixConfigPage() {
     [form.tipo_chave_pix, form.chave_pix],
   );
 
-  const canPreview =
-    !!form.nome_recebedor && !!form.chave_pix && !chaveError;
+  const canPreview = !!form.nome_recebedor && !!form.chave_pix && !chaveError;
 
   const payload = useMemo(() => {
     if (!canPreview) return "";
@@ -157,6 +187,7 @@ function PixConfigPage() {
         form.tipo_chave_pix === "telefone"
           ? onlyDigits(form.chave_pix)
           : form.chave_pix.trim(),
+      numero_recebedor_whatsapp: onlyDigits(form.numero_recebedor_whatsapp),
     };
     const { error } = await supabase
       .from("tenant_pix_config")
@@ -320,6 +351,16 @@ function PixConfigPage() {
                 placeholder="Ex.: Após o pagamento, envie o comprovante no WhatsApp para confirmação."
               />
             </Field>
+            <Field label="WhatsApp do recebedor">
+              <input
+                value={form.numero_recebedor_whatsapp}
+                onChange={(e) => setForm({ ...form, numero_recebedor_whatsapp: maskPhone(e.target.value) })}
+                className={inputCss}
+                placeholder="(11) 99999-9999"
+                inputMode="numeric"
+              />
+              <Hint>Número para contato direto com o recebedor.</Hint>
+            </Field>
           </Section>
 
           <div className="flex items-center gap-3">
@@ -437,9 +478,7 @@ function Section({
         )}
         <div>
           <h3 className="font-display text-base font-bold">{title}</h3>
-          {description && (
-            <p className="text-xs text-muted-foreground">{description}</p>
-          )}
+          {description && <p className="text-xs text-muted-foreground">{description}</p>}
         </div>
       </header>
       <div className="space-y-4">{children}</div>

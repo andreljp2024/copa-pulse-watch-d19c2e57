@@ -8,7 +8,6 @@ import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
 import { maskPhone, isValidWhatsAppBR } from "@/lib/masks";
 import { buildPixPayload } from "@/lib/pix";
 import { ptTeamName } from "@/components/MatchCard";
-import { flagUrl } from "@/lib/flags";
 import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered, Clock, Users, Flame, Sparkles, MapPin, Search, Share2, Printer, Link as LinkIcon, Medal, Coins } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -64,11 +63,13 @@ const bolaoPublicOpts = (slug: string) =>
       const payRow = (pay.data?.[0] ?? null) as
         | {
             nome_recebedor: string | null;
+            tipo_chave_pix: string | null;
             chave_pix: string | null;
             banco: string | null;
             valor_padrao_palpite: number | string | null;
             numero_whatsapp: string | null;
             mensagem_novo_palpite: string | null;
+            numero_recebedor_whatsapp: string | null;
           }
         | null;
 
@@ -81,14 +82,13 @@ const bolaoPublicOpts = (slug: string) =>
         pix: payRow?.chave_pix
           ? {
               nome_recebedor: payRow.nome_recebedor,
+              tipo_chave_pix: (payRow.tipo_chave_pix as "cpf" | "cnpj" | "email" | "telefone" | "aleatoria") || "email",
               chave_pix: payRow.chave_pix,
               banco: payRow.banco,
               valor_padrao_palpite: Number(payRow.valor_padrao_palpite ?? 0),
             }
           : null,
-        wa: payRow
-          ? { numero_whatsapp: payRow.numero_whatsapp, mensagem_novo_palpite: payRow.mensagem_novo_palpite }
-          : null,
+        wa: payRow?.numero_whatsapp ? { numero_whatsapp: payRow.numero_whatsapp, mensagem_novo_palpite: payRow.mensagem_novo_palpite ?? "Olá! Gostaria de confirmar meu palpite no bolão." } : null,
         totalPalpites: pc.count ?? 0,
       };
     },
@@ -253,7 +253,15 @@ function PublicBolao() {
 
   async function submitPalpite(e: React.FormEvent) {
     e.preventDefault();
-    if (!wa || !pix || items.length === 0) return;
+    if (items.length === 0) return;
+    if (!pix) {
+      alert("Configuração PIX não encontrada. O organizador precisa configurar a chave PIX antes de aceitar palpites.");
+      return;
+    }
+    if (!pix.numero_recebedor_whatsapp) {
+      alert("Configuração do WhatsApp do recebedor não encontrada. O organizador precisa configurar o número do recebedor.");
+      return;
+    }
     const whatsapp = onlyDigits(form.whatsapp);
     setSubmitting(true);
     try {
@@ -292,7 +300,7 @@ function PublicBolao() {
         `No total de *${brl(valorTotal)}*\n\n` +
         `Já lhe envio o comprovante\n` +
         `Para: ${pix.chave_pix}`;
-      setDone({ link: buildWhatsAppLink(wa.numero_whatsapp ?? "", msg), protocolos, valorTotal });
+      setDone({ link: buildWhatsAppLink(pix.numero_recebedor_whatsapp ?? "", msg), protocolos, valorTotal });
       (confetti as unknown as (opts: Record<string, unknown>) => void)({ particleCount: 120, spread: 80, origin: { y: 0.6 }, useWorker: false, disableForReducedMotion: true });
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erro ao enviar palpite");
@@ -440,18 +448,29 @@ function PublicBolao() {
         </div>
       </section>
 
-      {featured && (
-        <section className="mx-auto max-w-5xl px-4 pt-6 print:hidden">
-          <FeaturedMatchCard
-            match={featured}
-            home={teams.get(featured.home_team_id ?? "")}
-            away={teams.get(featured.away_team_id ?? "")}
-            valor={Number(bolao.valor_palpite)}
-            palpiteAberto={palpiteAberto}
-            onPalpitar={() => openModal(featured)}
-          />
-        </section>
-      )}
+{featured && pix && pix.numero_recebedor_whatsapp && (
+         <section className="mx-auto max-w-5xl px-4 pt-6 print:hidden">
+           <FeaturedMatchCard
+             match={featured}
+             home={teams.get(featured.home_team_id ?? "")}
+             away={teams.get(featured.away_team_id ?? "")}
+             valor={Number(bolao.valor_palpite)}
+             palpiteAberto={palpiteAberto}
+             pix={pix}
+             onPalpitar={() => openModal(featured)}
+           />
+         </section>
+        )}
+
+        {!pix || !pix.numero_recebedor_whatsapp && (
+         <section className="mx-auto max-w-5xl px-4 pt-6 print:hidden">
+           <div className="rounded-2xl border border-border bg-card p-5 text-center">
+             <p className="text-sm text-muted-foreground">
+               {!pix ? "WhatsApp não configurado" : "Palpites encerrados"}
+             </p>
+           </div>
+         </section>
+        )}
 
       <main className="mx-auto max-w-5xl px-4 py-8 space-y-8">
         {bolao.regras && (
@@ -514,11 +533,11 @@ function PublicBolao() {
               return (
                 <div key={m.id} className="rounded-xl border border-border bg-gradient-card p-3 flex items-center gap-3 card-elevated transition-colors hover:border-gold/40">
                   <div className="flex-1 flex items-center gap-2 min-w-0">
-                    {flagUrl(home?.code, home?.flag_url) && <img src={flagUrl(home?.code, home?.flag_url)!} alt="" className="h-5 w-7 object-cover rounded" />}
+                    {home?.flag_url && <img src={home.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
                     <span className="font-medium truncate">{ptTeamName(home?.name) || "?"}</span>
                     <span className="text-muted-foreground text-sm mx-2">x</span>
                     <span className="font-medium truncate">{ptTeamName(away?.name) || "?"}</span>
-                    {flagUrl(away?.code, away?.flag_url) && <img src={flagUrl(away?.code, away?.flag_url)!} alt="" className="h-5 w-7 object-cover rounded" />}
+                    {away?.flag_url && <img src={away.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
                     {m.kickoff_at && (
                       <span className="hidden sm:inline ml-3 text-[11px] text-muted-foreground">
                         {format(new Date(m.kickoff_at), "dd/MM HH:mm", { locale: ptBR })}
@@ -660,8 +679,7 @@ function PublicBolao() {
                   )}
                   <div className="flex justify-between pt-1 border-t border-gold/20"><span className="font-black uppercase text-xs text-gold">Total Pix</span><span className="font-black text-gold">{brl(valorTotal)}</span></div>
                 </div>
-
-                <button disabled={submitting} className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.02] disabled:opacity-60">
+                <button type="submit" disabled={submitting} className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.02] disabled:opacity-60">
                   {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : `Confirmar ${items.length} palpite(s)`}
                 </button>
                 <div className="flex gap-2">
@@ -686,14 +704,19 @@ function SuccessPanel({
 }: {
   waLink: string;
   protocolos: string[];
-  pix: { nome_recebedor: string | null; chave_pix: string; banco: string | null };
+  pix: { nome_recebedor: string | null; tipo_chave_pix: "cpf" | "cnpj" | "email" | "telefone" | "aleatoria"; chave_pix: string; banco: string | null };
   valor: number;
   onClose: () => void;
 }) {
   const [copied, setCopied] = useState(false);
+  const formattedChave = pix.tipo_chave_pix === "telefone"
+    ? `+55${onlyDigits(pix.chave_pix)}`
+    : pix.tipo_chave_pix === "cpf" || pix.tipo_chave_pix === "cnpj"
+      ? onlyDigits(pix.chave_pix)
+      : pix.chave_pix;
   const payload = useMemo(
-    () => buildPixPayload({ chave: pix.chave_pix, nomeRecebedor: pix.nome_recebedor ?? "", valor }),
-    [pix.chave_pix, pix.nome_recebedor, valor],
+    () => buildPixPayload({ chave: formattedChave, nomeRecebedor: pix.nome_recebedor ?? "", valor }),
+    [formattedChave, pix.nome_recebedor, valor],
   );
 
   async function copyPix() {
@@ -759,6 +782,7 @@ function FeaturedMatchCard({
   away,
   valor,
   palpiteAberto,
+  pix,
   onPalpitar,
 }: {
   match: Match;
@@ -766,21 +790,22 @@ function FeaturedMatchCard({
   away?: TeamLite;
   valor: number;
   palpiteAberto: boolean;
+  pix: { nome_recebedor: string | null; tipo_chave_pix: "cpf" | "cnpj" | "email" | "telefone" | "aleatoria"; chave_pix: string; banco: string | null; numero_recebedor_whatsapp: string | null } | null;
   onPalpitar: () => void;
 }) {
   const cd = useCountdown(match.kickoff_at);
   const isLive = match.status === "live";
-  const podePalpitar = palpiteAberto && !isLive && match.status !== "finished";
+  const podePalpitar = palpiteAberto && !isLive && match.status !== "finished" && !!pix && !!pix.numero_recebedor_whatsapp;
 
   return (
     <div className="relative overflow-hidden rounded-3xl border border-gold/30 bg-gradient-card shadow-gold ring-conic">
       {/* Background flags */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.12]" aria-hidden="true">
-        {flagUrl(home?.code, home?.flag_url) && (
-          <img src={flagUrl(home?.code, home?.flag_url)!} alt="" className="absolute -left-10 top-1/2 -translate-y-1/2 h-[140%] w-auto blur-sm" />
+        {home?.flag_url && (
+          <img src={home.flag_url} alt="" className="absolute -left-10 top-1/2 -translate-y-1/2 h-[140%] w-auto blur-sm" />
         )}
-        {flagUrl(away?.code, away?.flag_url) && (
-          <img src={flagUrl(away?.code, away?.flag_url)!} alt="" className="absolute -right-10 top-1/2 -translate-y-1/2 h-[140%] w-auto blur-sm" />
+        {away?.flag_url && (
+          <img src={away.flag_url} alt="" className="absolute -right-10 top-1/2 -translate-y-1/2 h-[140%] w-auto blur-sm" />
         )}
       </div>
       <div
@@ -810,8 +835,8 @@ function FeaturedMatchCard({
 
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
           <div className="flex flex-col items-center gap-2 text-center min-w-0">
-            {flagUrl(home?.code, home?.flag_url) ? (
-              <img src={flagUrl(home?.code, home?.flag_url)!} alt={ptTeamName(home?.name)} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
+            {home?.flag_url ? (
+              <img src={home.flag_url} alt={ptTeamName(home.name)} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
             ) : (
               <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-md bg-muted grid place-items-center font-black text-xl">{home?.code ?? "?"}</div>
             )}
@@ -824,8 +849,8 @@ function FeaturedMatchCard({
           </div>
 
           <div className="flex flex-col items-center gap-2 text-center min-w-0">
-            {flagUrl(away?.code, away?.flag_url) ? (
-              <img src={flagUrl(away?.code, away?.flag_url)!} alt={ptTeamName(away?.name)} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
+            {away?.flag_url ? (
+              <img src={away.flag_url} alt={ptTeamName(away.name)} className="h-16 w-24 sm:h-20 sm:w-28 object-cover rounded-md ring-2 ring-gold/40 shadow-card" />
             ) : (
               <div className="h-16 w-24 sm:h-20 sm:w-28 rounded-md bg-muted grid place-items-center font-black text-xl">{away?.code ?? "?"}</div>
             )}
@@ -860,18 +885,18 @@ function FeaturedMatchCard({
               <MapPin className="h-3.5 w-3.5 text-gold" /> Mundial FIFA
             </span>
           </div>
-          {podePalpitar ? (
-            <button
-              onClick={onPalpitar}
-              className="h-12 px-6 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.03]"
-            >
-              <Trophy className="h-4 w-4" /> Fazer meu palpite
-            </button>
-          ) : (
-            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              {isLive ? "Jogo em andamento" : "Palpites encerrados"}
-            </span>
-          )}
+{podePalpitar ? (
+             <button
+               onClick={onPalpitar}
+               className="h-12 px-6 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.03]"
+             >
+               <Trophy className="h-4 w-4" /> Fazer meu palpite
+             </button>
+           ) : (
+             <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+               {isLive ? "Jogo em andamento" : !pix ? "PIX não configurado" : !pix.numero_recebedor_whatsapp ? "WhatsApp não configurado" : "Palpites encerrados"}
+             </span>
+           )}
         </div>
       </div>
     </div>
