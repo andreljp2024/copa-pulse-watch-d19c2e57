@@ -125,7 +125,7 @@ function Page() {
             <section>
               <h2 className="text-xl font-black mb-4">Grupo {t.group.name}</h2>
               <div className="rounded-xl border border-border bg-card overflow-hidden">
-                <StandingsTable rows={data.groupStandings ?? []} />
+                <StandingsTable rows={(data as { groupStandings?: unknown[] }).groupStandings as never[] ?? []} />
               </div>
             </section>
           )}

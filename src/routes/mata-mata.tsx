@@ -55,7 +55,7 @@ function Page() {
     (acc, match) => {
       const p = match.phase;
       if (!acc[p]) acc[p] = [];
-      acc[p].push(match);
+      acc[p].push(match as unknown as Match);
       return acc;
     },
     {} as Record<string, Match[]>,

@@ -513,7 +513,7 @@ function TeamsAdmin() {
           <Field label="Ranking FIFA">
             <input
               type="number"
-              value={editing.fifa_rank ?? ""}
+              value={(editing.fifa_rank as number | string | undefined) ?? ""}
               onChange={(e) => setEditing({ ...editing, fifa_rank: e.target.value })}
               className="input"
             />
