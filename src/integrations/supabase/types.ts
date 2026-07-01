@@ -193,6 +193,36 @@ export type Database = {
           },
         ]
       }
+      evolution_credentials: {
+        Row: {
+          api_key: string
+          created_at: string
+          gestor_id: string
+          id: string
+          instance_id: string
+          qr_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string
+          gestor_id: string
+          id?: string
+          instance_id: string
+          qr_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          gestor_id?: string
+          id?: string
+          instance_id?: string
+          qr_code?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ganhadores: {
         Row: {
           bolao_id: string
@@ -614,6 +644,30 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+        }
+        Relationships: []
+      }
       palpites: {
         Row: {
           bolao_id: string
@@ -829,6 +883,60 @@ export type Database = {
         }
         Relationships: []
       }
+      scorers: {
+        Row: {
+          assists: number
+          created_at: string
+          goals: number
+          id: string
+          name: string
+          nationality: string | null
+          penalties: number
+          team_code: string
+          team_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          assists?: number
+          created_at?: string
+          goals?: number
+          id?: string
+          name: string
+          nationality?: string | null
+          penalties?: number
+          team_code: string
+          team_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assists?: number
+          created_at?: string
+          goals?: number
+          id?: string
+          name?: string
+          nationality?: string | null
+          penalties?: number
+          team_code?: string
+          team_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scorers_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scorers_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "v_standings"
+            referencedColumns: ["team_id"]
+          },
+        ]
+      }
       stadiums: {
         Row: {
           capacity: number | null
@@ -912,6 +1020,7 @@ export type Database = {
           id: string
           instrucoes_pagamento: string | null
           nome_recebedor: string
+          numero_recebedor_whatsapp: string | null
           tenant_id: string
           tipo_chave_pix: string
           updated_at: string
@@ -925,6 +1034,7 @@ export type Database = {
           id?: string
           instrucoes_pagamento?: string | null
           nome_recebedor: string
+          numero_recebedor_whatsapp?: string | null
           tenant_id: string
           tipo_chave_pix: string
           updated_at?: string
@@ -938,6 +1048,7 @@ export type Database = {
           id?: string
           instrucoes_pagamento?: string | null
           nome_recebedor?: string
+          numero_recebedor_whatsapp?: string | null
           tenant_id?: string
           tipo_chave_pix?: string
           updated_at?: string
@@ -1260,6 +1371,17 @@ export type Database = {
           codigo: number
           palpite_id: string
         }[]
+      }
+      upsert_whatsapp_config: {
+        Args: {
+          p_mensagem_confirmacao_pagamento?: string
+          p_mensagem_ganhador?: string
+          p_mensagem_lembrete_pagamento?: string
+          p_mensagem_novo_palpite?: string
+          p_numero_whatsapp: string
+          p_tenant_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
