@@ -441,7 +441,7 @@ function TeamsAdmin() {
   const upsert = useServerFn(upsertTeam);
   const { data: teams = [] } = useQuery({ queryKey: ["teams"], queryFn: () => list() });
   const { data: g } = useQuery({ queryKey: ["groups"], queryFn: () => groupsFn() });
-  const [editing, setEditing] = useState<(TeamData & { fifa_rank?: string | number | null }) | null>(null);
+  const [editing, setEditing] = useState<(Omit<TeamData, "fifa_rank"> & { fifa_rank?: string | number | null }) | null>(null);
   const save = useMutation({
     mutationFn: (d: Record<string, unknown>) => upsert({ data: d }),
     onSuccess: () => {
