@@ -72,7 +72,7 @@ async function verificarDuplicados(contatos: Contato[]): Promise<{unicos: Contat
     .select('whatsapp')
     .in('whatsapp', numeros);
 
-  const existentes = new Set(data.map(c => c.whatsapp));
+  const existentes = new Set((data ?? []).map(c => c.whatsapp));
   return {
     unicos: contatos.filter(c => !existentes.has(c.numero)),
     duplicados: contatos.filter(c => existentes.has(c.numero))

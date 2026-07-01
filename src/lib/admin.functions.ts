@@ -1,13 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
-async function assertAdmin(ctx: {
-  supabase: {
-    rpc: (name: string, params: { _user_id: string; _role: string }) => Promise<{ data: boolean }>;
-  };
+interface AssertContext {
+  supabase: SupabaseClient;
   userId: string;
-}) {
+}
+
+async function assertAdmin(ctx: AssertContext) {
   const { data } = await ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "admin" });
   if (!data) throw new Error("Forbidden: admin role required");
 }
