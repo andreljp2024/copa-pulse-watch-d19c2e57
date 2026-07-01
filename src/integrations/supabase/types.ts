@@ -1336,6 +1336,7 @@ export type Database = {
           chave_pix: string
           mensagem_novo_palpite: string
           nome_recebedor: string
+          numero_recebedor_whatsapp: string
           numero_whatsapp: string
           valor_padrao_palpite: number
         }[]
