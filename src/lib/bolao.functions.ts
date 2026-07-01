@@ -49,6 +49,7 @@ const saveBolaoMatchesSchema = z.object({
 
 export const saveBolaoMatches = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => saveBolaoMatchesSchema.parse(d))
   .handler(async ({ data, context }) => {
     try {
       const { error: delErr } = await context.supabase
@@ -117,10 +118,10 @@ export const saveWaConfig = createServerFn({ method: "POST" })
         const { error } = await context.supabase.rpc("upsert_whatsapp_config", {
           p_tenant_id: tenantId,
           p_numero_whatsapp: d.numero_whatsapp,
-          p_mensagem_novo_palpite: d.mensagem_novo_palpite ?? null,
-          p_mensagem_confirmacao_pagamento: d.mensagem_confirmacao_pagamento ?? null,
-          p_mensagem_ganhador: d.mensagem_ganhador ?? null,
-          p_mensagem_lembrete_pagamento: d.mensagem_lembrete_pagamento ?? null,
+          p_mensagem_novo_palpite: d.mensagem_novo_palpite ?? undefined,
+          p_mensagem_confirmacao_pagamento: d.mensagem_confirmacao_pagamento ?? undefined,
+          p_mensagem_ganhador: d.mensagem_ganhador ?? undefined,
+          p_mensagem_lembrete_pagamento: d.mensagem_lembrete_pagamento ?? undefined,
         });
 
         if (error) return { ok: false, message: "Erro ao salvar: " + error.message };
