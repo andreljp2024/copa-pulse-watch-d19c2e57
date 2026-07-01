@@ -48,7 +48,7 @@ const baseNav: NavItem[] = [
   { to: "/app/torcedores", label: "Torcedores", icon: Users },
   { to: "/app/palpites", label: "Palpites", icon: ListChecks },
   { to: "/app/ganhadores", label: "Ganhadores", icon: Trophy },
-  { to: "/ajuda", label: "Ajuda", icon: HelpCircle },
+  { to: "/ajuda" as "/app", label: "Ajuda", icon: HelpCircle },
 ];
 
 function AppLayout() {

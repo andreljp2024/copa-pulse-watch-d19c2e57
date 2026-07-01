@@ -86,6 +86,7 @@ const bolaoPublicOpts = (slug: string) =>
               chave_pix: payRow.chave_pix,
               banco: payRow.banco,
               valor_padrao_palpite: Number(payRow.valor_padrao_palpite ?? 0),
+              numero_recebedor_whatsapp: payRow.numero_recebedor_whatsapp,
             }
           : null,
         wa: payRow?.numero_whatsapp ? { numero_whatsapp: payRow.numero_whatsapp, mensagem_novo_palpite: payRow.mensagem_novo_palpite ?? "Olá! Gostaria de confirmar meu palpite no bolão." } : null,

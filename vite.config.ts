@@ -25,5 +25,5 @@ export default defineConfig({
       "/sw.js": { headers: { "cache-control": "no-store, no-cache, must-revalidate, max-age=0" } },
       "/favicon.ico": { redirect: "/assets/bolaoai-icon-BWSdr3QL.png" },
     },
-  },
+  } as never,
 });

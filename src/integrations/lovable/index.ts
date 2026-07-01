@@ -14,7 +14,7 @@ export const lovable = {
         return { error: new Error("Unsupported provider") };
       }
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: provider as "google" | "apple" | "microsoft",
+        provider: provider as "google" | "apple" | "azure",
         options: {
           redirectTo: opts?.redirectTo || window.location.origin,
         },

@@ -74,20 +74,18 @@ function AdminPage() {
   const { data: notifs, refetch: refetchNotifs } = useQuery({
     queryKey: ["notifications"],
     queryFn: async () => {
-      // @ts-expect-error
       const { data } = await supabase
         .from("notifications")
         .select("*")
         .eq("read", false)
         .order("created_at", { ascending: false })
         .limit(5);
-      return data ?? [];
+      return (data ?? []) as Array<{ id: string; title: string; message: string; created_at: string }>;
     },
     refetchInterval: 15_000,
   });
 
   async function markRead(id: string) {
-    // @ts-expect-error
     await supabase.from("notifications").update({ read: true }).eq("id", id);
     refetchNotifs();
   }
@@ -264,6 +262,10 @@ function MatchesAdmin() {
       <button
         onClick={() =>
           setEditing({
+            home_team_id: "",
+            away_team_id: "",
+            group_id: null,
+            stadium_id: null,
             phase: "group",
             status: "scheduled",
             home_score: 0,
@@ -439,7 +441,7 @@ function TeamsAdmin() {
   const upsert = useServerFn(upsertTeam);
   const { data: teams = [] } = useQuery({ queryKey: ["teams"], queryFn: () => list() });
   const { data: g } = useQuery({ queryKey: ["groups"], queryFn: () => groupsFn() });
-  const [editing, setEditing] = useState<Record<string, unknown> | null>(null);
+  const [editing, setEditing] = useState<(Omit<TeamData, "fifa_rank"> & { fifa_rank?: string | number | null }) | null>(null);
   const save = useMutation({
     mutationFn: (d: Record<string, unknown>) => upsert({ data: d }),
     onSuccess: () => {
@@ -511,7 +513,7 @@ function TeamsAdmin() {
           <Field label="Ranking FIFA">
             <input
               type="number"
-              value={editing.fifa_rank ?? ""}
+              value={String((editing.fifa_rank as number | string | undefined) ?? "")}
               onChange={(e) => setEditing({ ...editing, fifa_rank: e.target.value })}
               className="input"
             />

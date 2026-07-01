@@ -24,7 +24,7 @@ function proxyAuth({ request }: { request: Request }): Promise<Response> {
       method: request.method,
       headers: Object.fromEntries(request.headers.entries()),
     };
-    delete options.headers!["host"];
+    delete (options.headers as Record<string, string>)["host"];
 
     const proxyReq = http.request(options, (proxyRes) => {
       const chunks: Buffer[] = [];

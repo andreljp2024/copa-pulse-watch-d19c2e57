@@ -20,7 +20,7 @@ async function obterCredenciais(instanceId: string): Promise<{apiKey: string; qr
 
   return {
     apiKey: data.api_key,
-    qrCode: data.qr_code
+    qrCode: data.qr_code ?? ""
   };
 }
 
