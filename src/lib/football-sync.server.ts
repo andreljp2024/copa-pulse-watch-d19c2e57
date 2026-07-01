@@ -147,7 +147,7 @@ export async function syncFootballData(triggeredBy: string): Promise<SyncResult>
       home_team_id: string;
       away_team_id: string;
       group_id: string | null;
-      phase: "group" | "round_of_16" | "quarter" | "semi" | "third_place" | "final";
+      phase: "group" | "round_of_32" | "round_of_16" | "quarter" | "semi" | "third_place" | "final";
       kickoff_at: string;
       status: "scheduled" | "live" | "finished" | "postponed" | "cancelled";
       home_score: number;
