@@ -334,14 +334,20 @@ function GanhadorItem({
   const protocolo = `BOL-${String(w.codigo).padStart(4, "0")}`;
   const homePt = ptTeamName(w.home_team) || "?";
   const awayPt = ptTeamName(w.away_team) || "?";
+  const protocoloLinha = `\n\n🧾 Protocolo: *${protocolo}*\n💰 Prêmio: *${brl(premio)}*`;
   const msg =
-    `🏆 *Parabéns, ${w.nome}!*\n\n` +
-    `Você é um dos ganhadores do bolão *${bolaoNome}*!\n\n` +
-    `Jogo: ${homePt} ${w.home_score ?? "?"} x ${w.away_score ?? "?"} ${awayPt}\n` +
-    `Seu palpite: ${w.palpite_a} x ${w.palpite_b} ✅\n` +
-    `Palpite: ${protocolo}\n\n` +
-    `💰 Valor do prêmio: *${brl(premio)}*\n\n` +
-    `Em breve entraremos em contato para o pagamento. Obrigado por participar! 💚💛`;
+    interpolate(DEFAULT_TEMPLATES.ganhador, {
+      nome_torcedor: w.nome,
+      nome_bolao: bolaoNome,
+      bandeira_a: w.home_flag ?? "",
+      selecao_a: homePt,
+      bandeira_b: w.away_flag ?? "",
+      selecao_b: awayPt,
+      placar_a: w.home_score ?? "?",
+      placar_b: w.away_score ?? "?",
+      palpite_a: w.palpite_a,
+      palpite_b: w.palpite_b,
+    }) + protocoloLinha;
   const link = buildWhatsAppLink(w.whatsapp, msg);
 
   async function copy() {
