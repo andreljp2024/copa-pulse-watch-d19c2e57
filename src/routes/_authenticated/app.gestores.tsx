@@ -184,7 +184,10 @@ function GestoresInner() {
 
   const resetPwd = useMutation({
     mutationFn: (id: string) => resetPwdFn({ data: { tenant_id: id } }),
-    onSuccess: (r: any) => notify(`Link de redefinição enviado para ${r.email}.`),
+    onSuccess: (r: any) => {
+      notify(`Link de redefinição gerado para ${r.email}.`);
+      setRecoveryLink({ email: r.email, link: r.action_link ?? null });
+    },
     onError: (e: any) => notify(e?.message ?? "Falha ao enviar link.", "err"),
   });
 
@@ -193,6 +196,27 @@ function GestoresInner() {
     onSuccess: (r: any) => notify(`Convite reenviado para ${r.email}.`),
     onError: (e: any) => notify(e?.message ?? "Falha ao reenviar convite.", "err"),
   });
+
+  const grantRole = useMutation({
+    mutationFn: (d: { tenant_id: string; role: "super_admin" | "admin" }) =>
+      grantRoleFn({ data: d }),
+    onSuccess: (_r, v) => {
+      notify(`Papel ${v.role} concedido.`);
+      invalidate();
+    },
+    onError: (e: any) => notify(e?.message ?? "Falha ao conceder papel.", "err"),
+  });
+
+  const revokeRole = useMutation({
+    mutationFn: (d: { tenant_id: string; role: "super_admin" | "admin" }) =>
+      revokeRoleFn({ data: d }),
+    onSuccess: (_r, v) => {
+      notify(`Papel ${v.role} removido.`);
+      invalidate();
+    },
+    onError: (e: any) => notify(e?.message ?? "Falha ao remover papel.", "err"),
+  });
+
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
