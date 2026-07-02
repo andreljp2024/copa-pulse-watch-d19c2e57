@@ -28,9 +28,11 @@ function Page() {
         <p className="mt-2 text-muted-foreground">Artilheiros da competição.</p>
         <div className="mt-8 rounded-xl border border-border bg-card divide-y divide-border">
           {data.length === 0 && (
-            <p className="p-6 text-center text-sm text-muted-foreground">Sem gols registrados.</p>
+            <p className="p-6 text-center text-sm text-muted-foreground">
+              Sem artilheiros sincronizados ainda. Rode a sincronização em /admin.
+            </p>
           )}
-          {data.map((s: any, i: number) => (
+          {data.map((s, i) => (
             <div key={s.player_id} className="flex items-center gap-4 p-4">
               <span
                 className={`grid h-9 w-9 place-items-center rounded-full text-sm font-bold ${i === 0 ? "bg-gold text-accent-foreground" : i < 3 ? "bg-pitch text-primary-foreground" : "bg-muted"}`}
