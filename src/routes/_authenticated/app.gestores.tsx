@@ -110,6 +110,9 @@ function GestoresInner() {
   const changePlanoFn = useServerFn(changeGestorPlano);
   const resetPwdFn = useServerFn(resetGestorPassword);
   const resendInviteFn = useServerFn(resendGestorInvite);
+  const grantRoleFn = useServerFn(grantGestorRole);
+  const revokeRoleFn = useServerFn(revokeGestorRole);
+
 
   const { data: gestores = [], isLoading } = useQuery({
     queryKey: ["gestores"],
