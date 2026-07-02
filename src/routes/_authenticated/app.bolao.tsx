@@ -736,6 +736,20 @@ function BolaoConfigPage() {
                   <RefreshCw className={`h-3 w-3 ${loadingGames ? "animate-spin" : ""}`} />{" "}
                   Atualizar
                 </button>
+                <button
+                  type="button"
+                  onClick={syncWithApi}
+                  disabled={syncing}
+                  className="inline-flex items-center gap-1 rounded-md border border-gold/40 bg-gold/10 px-2.5 py-1 text-xs font-semibold text-gold hover:bg-gold/20 disabled:opacity-60"
+                  title="Buscar jogos e seleções atualizados na API oficial"
+                >
+                  {syncing ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-3 w-3" />
+                  )}
+                  Sincronizar com API
+                </button>
               </div>
             }
           >
