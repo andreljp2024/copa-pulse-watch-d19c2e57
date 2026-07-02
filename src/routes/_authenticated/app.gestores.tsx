@@ -30,7 +30,10 @@ import {
   getGestorDetail,
   resetGestorPassword,
   resendGestorInvite,
+  grantGestorRole,
+  revokeGestorRole,
 } from "@/lib/gestores.functions";
+
 import {
   Sheet,
   SheetContent,
