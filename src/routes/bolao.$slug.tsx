@@ -8,7 +8,7 @@ import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
 import { maskPhone, isValidWhatsAppBR } from "@/lib/masks";
 import { buildPixPayload } from "@/lib/pix";
 import { ptTeamName } from "@/components/MatchCard";
-import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered, Clock, Users, Flame, Sparkles, MapPin, Search, Share2, Printer, Link as LinkIcon, Medal, Coins } from "lucide-react";
+import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered, Clock, Users, Flame, Sparkles, MapPin, Search, Share2, Link as LinkIcon, Medal, Coins } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -382,36 +382,6 @@ function PublicBolao() {
           <a href={shareWa} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-card text-sm font-semibold hover:border-gold/40 transition-colors">
             <Share2 className="h-4 w-4" /> Compartilhar
           </a>
-          <button
-            type="button"
-            onClick={async () => {
-              // Force eager-load all images (incl. lazy/off-screen) before printing
-              const imgs = Array.from(document.images);
-              imgs.forEach((img) => {
-                img.loading = "eager";
-                img.setAttribute("crossorigin", "anonymous");
-              });
-              await Promise.all(
-                imgs.map((img) =>
-                  img.complete && img.naturalWidth > 0
-                    ? Promise.resolve()
-                    : new Promise<void>((resolve) => {
-                        img.addEventListener("load", () => resolve(), { once: true });
-                        img.addEventListener("error", () => resolve(), { once: true });
-                        // Re-trigger load
-                        const src = img.src;
-                        img.src = "";
-                        img.src = src;
-                      }),
-                ),
-              );
-              window.print();
-            }}
-            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-card text-sm font-semibold hover:border-gold/40 transition-colors"
-            aria-label="Baixar como PDF"
-          >
-            <Printer className="h-4 w-4" /> PDF
-          </button>
         </div>
         <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
           <Users className="h-3.5 w-3.5 text-gold" />
