@@ -14,6 +14,7 @@ export const listPlanos = createServerFn({ method: "GET" }).handler(async () => 
       "id, nome, preco, limite_palpites, limite_boloes, limite_torcedores, permite_logo, permite_exportacao, permite_whatsapp_api, permite_dominio_personalizado",
     )
     .eq("ativo", true)
+    .not("nome", "ilike", "%(dev)%")
     .order("preco", { ascending: true });
   if (error) throw error;
   return data;
