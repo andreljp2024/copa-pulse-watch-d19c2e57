@@ -70,13 +70,63 @@ export const saveBolaoMatches = createServerFn({ method: "POST" })
         }
       }
 
-      console.log(
-        `[saveBolaoMatches] ${data.match_ids.length} jogos vinculados ao bolão ${data.bolao_id}.`,
-      );
       return { ok: true, message: `${data.match_ids.length} jogos vinculados!` };
     } catch (e: any) {
       console.error("[saveBolaoMatches] Erro:", e?.message);
       return { ok: false, message: e?.message ?? "Erro interno ao salvar jogos." };
+    }
+  });
+
+/**
+ * Save consolidado: valida no servidor, garante ownership via RLS,
+ * atualiza `boloes` e substitui a lista de `bolao_matches` numa única chamada.
+ */
+export const saveBolao = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => saveBolaoSchema.parse(d))
+  .handler(async ({ data, context }): Promise<SaveBolaoResult> => {
+    try {
+      // Verifica se slug já pertence a outro bolão.
+      const { data: dup } = await context.supabase
+        .from("boloes")
+        .select("id")
+        .eq("slug", data.slug)
+        .neq("id", data.bolao_id)
+        .maybeSingle();
+      if (dup) return { ok: false, message: "Este link (slug) já está em uso. Escolha outro." };
+
+      const { error: updErr } = await context.supabase
+        .from("boloes")
+        .update({
+          nome: data.nome,
+          slug: data.slug,
+          descricao: data.descricao ?? null,
+          regras: data.regras ?? null,
+          valor_palpite: data.valor_palpite,
+          percentual_admin: data.percentual_admin,
+          permitir_ranking_publico: data.permitir_ranking_publico,
+          permitir_ganhadores_publico: data.permitir_ganhadores_publico,
+          data_limite_palpite: data.data_limite_palpite ?? null,
+        })
+        .eq("id", data.bolao_id);
+      if (updErr) return { ok: false, message: "Erro ao atualizar bolão: " + updErr.message };
+
+      const { error: delErr } = await context.supabase
+        .from("bolao_matches")
+        .delete()
+        .eq("bolao_id", data.bolao_id);
+      if (delErr) return { ok: false, message: "Erro ao limpar jogos: " + delErr.message };
+
+      if (data.match_ids.length > 0) {
+        const rows = data.match_ids.map((mid) => ({ bolao_id: data.bolao_id, match_id: mid }));
+        const { error: insErr } = await context.supabase.from("bolao_matches").insert(rows);
+        if (insErr) return { ok: false, message: "Erro ao vincular jogos: " + insErr.message };
+      }
+
+      return { ok: true, message: "Bolão salvo com sucesso!" };
+    } catch (e: any) {
+      console.error("[saveBolao] Erro:", e?.message);
+      return { ok: false, message: e?.message ?? "Erro interno ao salvar bolão." };
     }
   });
 
