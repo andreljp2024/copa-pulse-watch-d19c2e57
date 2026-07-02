@@ -133,8 +133,18 @@ export async function syncFootballData(triggeredBy: string): Promise<SyncResult>
       summary.teams_upserted = teamRows.length;
     }
 
+    // Garantir que exista uma seleção placeholder "A definir" (código TBD)
+    // usada nos confrontos de mata-mata ainda não decididos.
+    await sb
+      .from("teams")
+      .upsert(
+        [{ name: "A definir", code: "TBD", flag_url: null, coach_name: null }],
+        { onConflict: "code" },
+      );
+
     const { data: teams } = await sb.from("teams").select("id, code");
     const teamByCode = new Map<string, string>((teams ?? []).map((t) => [t.code, t.id]));
+    const tbdId = teamByCode.get("TBD");
 
     // 2) Matches — UPSERT (do NOT wipe, palpites cascade on match deletes)
     const matchesResp = await fd<{ matches: FDMatch[] }>(`/competitions/${FD_COMPETITION}/matches`);
@@ -154,27 +164,23 @@ export async function syncFootballData(triggeredBy: string): Promise<SyncResult>
       away_score: number;
     }
     const matchRows: MatchRow[] = [];
-    const KO_TEAM_TBD_ID = "00000000-0000-0000-0000-000000000001";
     for (const m of matchesResp.matches) {
       const homeCode = (m.homeTeam?.tla ?? "").toUpperCase();
       const awayCode = (m.awayTeam?.tla ?? "").toUpperCase();
       let homeId = teamByCode.get(homeCode);
       let awayId = teamByCode.get(awayCode);
-      // Se for fase eliminatória (não group), criar placeholder "A definir"
+      const stage = m.stage ?? "";
+      const isKO = ["LAST_32", "LAST_16", "QUARTER_FINALS", "SEMI_FINALS", "THIRD_PLACE", "FINAL"].includes(stage);
+      // Se for fase eliminatória (não group), usar placeholder TBD quando ainda não decidido
       if (!homeId || !awayId) {
-        const stage = m.stage ?? "";
-        if (
-          stage !== "GROUP_STAGE" &&
-          ["LAST_32", "LAST_16", "QUARTER_FINALS", "SEMI_FINALS", "THIRD_PLACE", "FINAL"].includes(
-            stage,
-          )
-        ) {
-          homeId = teamByCode.get("TBD") ?? KO_TEAM_TBD_ID;
-          awayId = teamByCode.get("TBD") ?? KO_TEAM_TBD_ID;
+        if (isKO && tbdId) {
+          homeId = homeId ?? tbdId;
+          awayId = awayId ?? tbdId;
         } else {
           continue;
         }
       }
+
       let groupId: string | null = null;
       if (m.group && typeof m.group === "string") {
         const letter = m.group.replace(/^GROUP_/, "").toUpperCase();
