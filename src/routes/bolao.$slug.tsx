@@ -188,7 +188,7 @@ function PublicBolao() {
   }, [matches]);
 
   const filteredMatches = useMemo(() => {
-    const now = Date.now() - 3 * 3600_000;
+    const now = nowSafe;
     const q = query.trim().toLowerCase();
     return matches.filter((m) => {
       const home = teams.get(m.home_team_id ?? "");
