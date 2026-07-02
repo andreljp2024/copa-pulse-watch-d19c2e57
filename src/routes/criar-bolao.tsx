@@ -207,9 +207,15 @@ function LandingPage() {
                 Bolão maior
               </span>
               <h3 className="text-2xl font-black">Consulte o Dev</h3>
-              <div className="mt-2 text-4xl font-black text-gold">Sob consulta</div>
+              <div className="mt-2 text-4xl font-black text-gold">Sob consulta 👍</div>
               <p className="mt-1 text-sm text-muted-foreground">
                 Para bolões acima de {LIMITE_PALPITES_FREE} palpites, fale direto no WhatsApp.
+              </p>
+              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                👍 O Dev é especialista em <strong>redes de computadores</strong>, <strong>análise
+                de sistemas</strong>, <strong>segurança cibernética</strong> e <strong>segurança
+                eletrônica</strong> para o mercado corporativo — atendimento <strong>sob
+                demanda</strong>.
               </p>
               <ul className="mt-4 flex-1 space-y-2 text-sm">
                 {[
