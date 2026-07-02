@@ -540,7 +540,7 @@ function PublicBolao() {
             {filteredMatches.slice(0, 60).map((m) => {
               const home = teams.get(m.home_team_id ?? "");
               const away = teams.get(m.away_team_id ?? "");
-              const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= Date.now() - 3 * 3600_000 : false;
+              const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= nowSafe : false;
               const matchOpen = palpiteAberto && !kickoffPassed && m.status !== "live" && m.status !== "finished";
               return (
                 <div key={m.id} className="rounded-xl border border-border bg-gradient-card p-3 flex items-center gap-3 card-elevated transition-colors hover:border-gold/40">
