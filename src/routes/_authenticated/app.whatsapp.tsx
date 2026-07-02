@@ -284,6 +284,7 @@ function WhatsAppConfigPage() {
                 <button
                   key={v}
                   type="button"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => insertVariable(previewKey, v)}
                   title={`Inserir em "${TEMPLATES.find((t) => t.key === previewKey)?.label}"`}
                   className="rounded-md border border-border bg-card px-2 py-0.5 text-[11px] font-mono hover:border-gold/40 hover:text-gold transition-colors"
