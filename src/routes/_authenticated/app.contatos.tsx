@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Upload, FileText, CheckCircle2, Download, AlertCircle, ExternalLink } from "lucide-react";
-import { PageHeader } from "@/components/PageHeader";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 

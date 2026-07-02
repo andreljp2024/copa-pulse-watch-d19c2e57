@@ -24,7 +24,6 @@ import {
 import { brl, buildWhatsAppLink, onlyDigits } from "@/lib/saas";
 import { maskPhone } from "@/lib/masks";
 import { ptTeamName } from "@/components/MatchCard";
-import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/app/ganhadores")({
   head: () => ({ meta: [{ title: "Ganhadores" }] }),
