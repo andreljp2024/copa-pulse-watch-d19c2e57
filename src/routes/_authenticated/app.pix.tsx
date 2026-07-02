@@ -285,10 +285,15 @@ function PixConfigPage() {
                 <input
                   maxLength={15}
                   value={form.cidade}
-                  onChange={(e) => setForm({ ...form, cidade: e.target.value })}
+                  onChange={(e) => update("cidade", e.target.value)}
                   className={inputCss}
-                  placeholder="Ex.: São Paulo"
+                  placeholder="Ex.: SAO PAULO"
                 />
+                {cidadeWarn ? (
+                  <Hint>Se vazio, será usado "BRASIL" no QR Code.</Hint>
+                ) : (
+                  <Hint>Sem acentos, até 15 caracteres (padrão BR Code).</Hint>
+                )}
               </Field>
             </div>
           </Section>
