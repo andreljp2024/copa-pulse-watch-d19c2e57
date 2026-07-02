@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { brl, buildWhatsAppLink } from "@/lib/saas";
 import { maskPhone } from "@/lib/masks";
 import { ptTeamName } from "@/components/MatchCard";
+import { formatBR } from "@/lib/timezone";
 import { toast } from "sonner";
 import {
   CheckCircle2,
