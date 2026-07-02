@@ -468,6 +468,24 @@ function GestoresInner() {
                 >
                   <CreditCard className="h-3.5 w-3.5" /> Aplicar
                 </button>
+                {(() => {
+                  const liberado = (planos as any[]).find((p) => /liberado.*dev/i.test(p.nome));
+                  if (!liberado || g.plano === liberado.nome) return null;
+                  return (
+                    <button
+                      disabled={changePlano.isPending}
+                      onClick={() => {
+                        if (confirm(`Liberar acesso total (palpites ilimitados) para ${g.nome_estabelecimento}? Dados e configurações são preservados.`)) {
+                          changePlano.mutate({ tenant_id: g.id, plano_id: liberado.id });
+                        }
+                      }}
+                      className="h-8 px-3 rounded-md bg-gradient-gold text-gold-foreground text-xs font-bold inline-flex items-center gap-1 shadow-gold disabled:opacity-50"
+                      title="Liberar acesso total (palpites ilimitados, mantém dados)"
+                    >
+                      🔓 Liberar
+                    </button>
+                  );
+                })()}
               </div>
               <div className="flex gap-1">
                 <button
