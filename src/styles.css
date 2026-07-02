@@ -291,6 +291,27 @@
     animation: spin-slow 22s linear infinite;
   }
 
+  /* Attention pulse for the "Copiar Pix copia e cola" CTA */
+  @keyframes attn-pix {
+    0%, 100% {
+      background-color: var(--color-gold);
+      color: #000;
+      border-color: color-mix(in oklab, var(--color-gold) 70%, transparent);
+      box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-gold) 55%, transparent);
+      transform: scale(1);
+    }
+    50% {
+      background-color: var(--color-pitch, var(--color-primary));
+      color: #fff;
+      border-color: var(--color-pitch, var(--color-primary));
+      box-shadow: 0 0 0 8px transparent;
+      transform: scale(1.02);
+    }
+  }
+  .animate-attn-pix {
+    animation: attn-pix 1.2s ease-in-out infinite;
+  }
+
   /* Print: keep colors, force eager images, white background for PDF readability */
   @media print {
     html,
