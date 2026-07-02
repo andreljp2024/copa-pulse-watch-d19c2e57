@@ -307,7 +307,7 @@ function BolaoConfigPage() {
         hour: "2-digit",
         minute: "2-digit",
       });
-      return `⚽ ${dt} — ${flagEmoji(h?.code)} ${h?.name ?? "?"} 🆚 ${flagEmoji(a?.code)} ${a?.name ?? "?"}`;
+      return `⚽ ${dt} — ${flagEmoji(h?.code)} ${ptTeamName(h?.name) || "?"} 🆚 ${flagEmoji(a?.code)} ${ptTeamName(a?.name) || "?"}`;
     });
     const isUm = sel.length === 1;
     return [
