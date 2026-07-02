@@ -75,7 +75,8 @@ function MeusPalpitesPage() {
   }
 
   useEffect(() => {
-    if (search?.get("w")) void buscar();
+    const w = new URLSearchParams(window.location.search).get("w");
+    if (w) void buscar();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
