@@ -32,12 +32,18 @@ type Row = {
 
 function MeusPalpitesPage() {
   const { slug } = Route.useParams();
-  const search = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-  const [whatsapp, setWhatsapp] = useState(search?.get("w") ?? "");
+  const [whatsapp, setWhatsapp] = useState("");
   const [rows, setRows] = useState<Row[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [bolaoNome, setBolaoNome] = useState<string>("");
+
+  // Hidrata o valor de ?w= somente após o mount, evitando mismatch SSR/CSR.
+  useEffect(() => {
+    const w = new URLSearchParams(window.location.search).get("w");
+    if (w) setWhatsapp(w);
+  }, []);
+
 
   useEffect(() => {
     void supabase
