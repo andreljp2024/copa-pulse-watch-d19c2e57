@@ -155,6 +155,15 @@ function PublicBolao() {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"abertos" | "ao_vivo" | "encerrados" | "todos">("abertos");
   const [shareCopied, setShareCopied] = useState(false);
+  // Evita mismatch de hidratação: `null` durante SSR/1º render, valor real após mount.
+  const [nowMs, setNowMs] = useState<number | null>(null);
+  useEffect(() => {
+    const tick = () => setNowMs(Date.now() - 3 * 3600_000);
+    tick();
+    const id = setInterval(tick, 30_000);
+    return () => clearInterval(id);
+  }, []);
+  const nowSafe = nowMs ?? 0;
 
   const ranking = useQuery({
     queryKey: ["bolao", slug, "ranking"],
