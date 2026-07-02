@@ -545,7 +545,7 @@ function BolaoConfigPage() {
                 />
               </Field>
               <Field
-                label="Percentual administrativo (%)"
+                label="Percentual da organização (%)"
                 hint="Parte do valor arrecadado que o gestor tem direito. O restante vai para o(s) ganhador(es)."
               >
                 <input
