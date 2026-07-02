@@ -33,25 +33,29 @@ export const Route = createFileRoute("/_authenticated/app/bolao")({
   component: BolaoConfigPage,
 });
 
-const SUGESTAO_REGRAS = `✅ Serão considerados válidos:
+const SUGESTAO_REGRAS = `📜 *REGRAS DO BOLÃO* 🏆⚽
 
-• O tempo normal da partida, incluindo os acréscimos;
-• A prorrogação, caso aconteça.
+⏱️ *1. Placar considerado*
+✅ Tempo normal (com acréscimos) e prorrogação, se houver.
+⚠️ Em caso de prorrogação, o placar após os 120 minutos é o oficial.
+❌ Pênaltis *NÃO* contam — servem só para definir quem avança.
 
-⚠️ Em caso de prorrogação, o placar final após os 120 minutos será o resultado oficial do bolão.
+💰 *2. Valor e prazo do palpite*
+💵 R$ 10,00 por jogo.
+📲 O palpite só vale após a *confirmação do Pix*.
+⏰ Não são aceitos palpites *após o início da partida*.
 
-❌ Desempates por pênaltis NÃO serão considerados, pois servem apenas para definir quem avança na competição e não alteram o placar oficial do bolão.
+🎯 *3. Como pontuar / ganhar*
+🥇 Ganha quem acertar o *placar exato* do jogo.
+🤝 Havendo mais de um ganhador, o prêmio é *dividido igualmente*.
 
-• Valor do palpite: R$ 10 por jogo.
-• Acertar o placar exato.
-• Distribuição do prêmio (do total arrecadado):
-   80% Para o torcedor com palpite exato.
-   20% Taxa da organização.
-• Em caso de vários ganhadores, o prêmio de 80% será dividido igualmente.
-• Palpites só são válidos após confirmação do Pix.
-• Não são aceitos palpites após o início da partida.
+🏅 *4. Distribuição do prêmio* (do total arrecadado)
+💚 80% para o(s) torcedor(es) com palpite exato.
+💛 20% taxa da organização (custeio da confraternização 🍻🍿).
 
-*Só serão aceitos palpites de torcedores maiores de +18 anos.*`;
+🔞 *5. Participação*
+👤 Apenas maiores de *+18 anos*.
+🚫 Bolão AI *não é bets* — é cortesia entre amigos rumo ao *Hexa* 🇧🇷.`;
 
 type Match = {
   id: string;
