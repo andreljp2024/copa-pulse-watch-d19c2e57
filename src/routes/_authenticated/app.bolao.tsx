@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify, publicBolaoUrl } from "@/lib/saas";
 import { saveBolaoMatches, type SaveBolaoInput, type SaveBolaoResult } from "@/lib/bolao.functions";
+import { syncMatchesForTenant } from "@/lib/sync.functions";
 import { toast } from "sonner";
 import { toDatetimeLocalBR, fromDatetimeLocalBR } from "@/lib/timezone";
 import {
@@ -88,6 +89,8 @@ function BolaoConfigPage() {
     data: { bolao_id: string; match_ids: string[] };
     headers: Record<string, string>;
   }) => Promise<SaveBolaoResult>;
+  const syncApiFn = useServerFn(syncMatchesForTenant);
+  const [syncing, setSyncing] = useState(false);
 
   const shareUrl = useMemo(() => (form.slug ? publicBolaoUrl(form.slug) : ""), [form.slug]);
   const selectionDirty = useMemo(() => {
@@ -116,6 +119,26 @@ function BolaoConfigPage() {
     setMatches((m.data ?? []) as Match[]);
     setTeams(new Map((t.data ?? []).map((x) => [x.id, x as Team])));
     setLoadingGames(false);
+  }
+
+  async function syncWithApi() {
+    setSyncing(true);
+    try {
+      const res = (await syncApiFn()) as {
+        teams_upserted?: number;
+        matches_upserted?: number;
+        source?: string;
+      };
+      toast.success(
+        `Sincronizado (${res.source ?? "api"}): ${res.matches_upserted ?? 0} jogos, ${res.teams_upserted ?? 0} seleções`,
+      );
+      await loadMatches();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(`Falha ao sincronizar: ${msg}`);
+    } finally {
+      setSyncing(false);
+    }
   }
 
   useEffect(() => {
@@ -712,6 +735,20 @@ function BolaoConfigPage() {
                 >
                   <RefreshCw className={`h-3 w-3 ${loadingGames ? "animate-spin" : ""}`} />{" "}
                   Atualizar
+                </button>
+                <button
+                  type="button"
+                  onClick={syncWithApi}
+                  disabled={syncing}
+                  className="inline-flex items-center gap-1 rounded-md border border-gold/40 bg-gold/10 px-2.5 py-1 text-xs font-semibold text-gold hover:bg-gold/20 disabled:opacity-60"
+                  title="Buscar jogos e seleções atualizados na API oficial"
+                >
+                  {syncing ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-3 w-3" />
+                  )}
+                  Sincronizar com API
                 </button>
               </div>
             }
