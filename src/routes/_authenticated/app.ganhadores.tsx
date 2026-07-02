@@ -93,7 +93,7 @@ function GanhadoresPage() {
 
   function exportCsv() {
     const rows = [
-      ["Bolão", "Palpite", "Nome", "WhatsApp", "Jogo", "Placar", "Palpite", "Prêmio"],
+      ["Bolão", "Palpite", "Nome", "WhatsApp", "Jogo", "Placar", "Acertou", "Prêmio"],
     ];
     for (const g of filteredGrupos) {
       for (const w of g.ganhadores) {
