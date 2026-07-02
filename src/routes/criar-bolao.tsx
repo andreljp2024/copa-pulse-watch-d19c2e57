@@ -87,18 +87,18 @@ function LandingPage() {
         <div className="absolute inset-0 pitch-lines opacity-60" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
         <div className="relative mx-auto max-w-5xl px-4 pt-20 pb-28 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-4 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur">
-            <Trophy className="h-3.5 w-3.5 text-gold" /> Plataforma oficial multiempresa · Copa do
-            Mundo 2026
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-gold backdrop-blur">
+            <Heart className="h-3.5 w-3.5" /> Cortesia de Dev · Rumo ao Hexa 🇧🇷
           </span>
           <h1 className="mt-6 font-display text-5xl leading-[0.95] tracking-tight md:text-7xl lg:text-8xl">
-            Crie seu <span className="text-gradient-gold">Bolão da Copa</span>
+            <span className="text-gradient-gold">Bolão AI</span> não é bets.
             <br />
-            em minutos
+            É bolão entre <span className="text-gradient-gold">amigos.</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base text-muted-foreground md:text-lg">
-            Cadastre participantes, receba via Pix, controle palpites pelo WhatsApp e descubra os
-            ganhadores automaticamente.
+            Uma cortesia de Dev para os torcedores brasileiros juntarem amigos e parentes e fazerem
+            seus próprios palpites na Copa 2026 — com o espírito de quem torce pelo Hexa 💚💛.
+            Sem apostas, sem taxas escondidas: só torcida.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
             <Link
@@ -116,6 +116,7 @@ function LandingPage() {
           </div>
         </div>
       </section>
+
 
       <section className="mx-auto max-w-7xl px-4 py-16">
         <h2 className="font-display text-4xl sm:text-5xl tracking-tight text-center">
