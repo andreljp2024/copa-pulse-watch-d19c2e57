@@ -63,7 +63,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/_authenticated/app/gestores")({
-  head: () => ({ meta: [{ title: "Gestores — Bolão AI" }] }),
+  head: () => ({ meta: [{ title: "Organizadores — Bolão AI" }] }),
   component: GestoresPage,
 });
 
@@ -163,7 +163,7 @@ function GestoresInner() {
   const remove = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { tenant_id: id, delete_auth_user: true } }),
     onSuccess: () => {
-      notify("Gestor removido.");
+      notify("Organizador removido.");
       invalidate();
       setConfirmDelete(null);
     },
@@ -258,7 +258,7 @@ function GestoresInner() {
               <Shield className="h-3 w-3" /> Painel do Super Admin · Rumo ao Hexa 🇧🇷
             </div>
             <h1 className="mt-3 font-display text-3xl font-black tracking-tight sm:text-4xl">
-              Gestores de <span className="text-gradient-gold">Bolão</span>
+              Organizadores de <span className="text-gradient-gold">Bolão</span>
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Comanda o time de organizadores com a garra da torcida brasileira.
@@ -268,7 +268,7 @@ function GestoresInner() {
             onClick={() => setShowForm((s) => !s)}
             className="group inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-gold px-5 text-sm font-black text-primary-foreground shadow-md transition-transform hover:scale-105"
           >
-            <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" /> Novo gestor
+            <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" /> Novo organizador
           </button>
         </div>
 
@@ -392,7 +392,7 @@ function GestoresInner() {
       <div className="rounded-2xl border border-border bg-card/60 divide-y divide-border overflow-hidden backdrop-blur">
         {isLoading && <p className="p-6 text-center text-sm text-muted-foreground">Carregando…</p>}
         {!isLoading && filtered.length === 0 && (
-          <p className="p-6 text-center text-sm text-muted-foreground">Nenhum gestor encontrado.</p>
+          <p className="p-6 text-center text-sm text-muted-foreground">Nenhum organizador encontrado.</p>
         )}
         {filtered.map((g: any) => (
           <div
@@ -541,7 +541,7 @@ function GestoresInner() {
                       className="text-destructive focus:text-destructive"
                       onClick={() => setConfirmDelete({ id: g.id, nome: g.nome_estabelecimento })}
                     >
-                      <Trash2 className="h-3.5 w-3.5 mr-2" /> Excluir gestor
+                      <Trash2 className="h-3.5 w-3.5 mr-2" /> Excluir organizador
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -561,7 +561,7 @@ function GestoresInner() {
       <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir gestor?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir organizador?</AlertDialogTitle>
             <AlertDialogDescription>
               Esta ação remove o tenant <strong>{confirmDelete?.nome}</strong>, todos os bolões,
               palpites, torcedores e o usuário de autenticação. Não pode ser desfeita. Para apenas
@@ -588,8 +588,8 @@ function GestoresInner() {
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirmSuspend?.status === "active"
-                ? "O gestor não conseguirá acessar o painel enquanto estiver suspenso. Os dados são preservados."
-                : "O gestor voltará a conseguir acessar o painel normalmente."}
+                ? "O organizador não conseguirá acessar o painel enquanto estiver suspenso. Os dados são preservados."
+                : "O organizador voltará a conseguir acessar o painel normalmente."}
               <br />
               <strong>{confirmSuspend?.nome_estabelecimento}</strong>
             </AlertDialogDescription>
