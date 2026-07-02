@@ -256,11 +256,11 @@ function WhatsAppConfigPage() {
             icon={<Info className="h-4 w-4 text-gold" />}
           >
             {pixPhoneError ? (
-              <p className="inline-flex items-center gap-1 text-xs text-destructive">
+              <p className="inline-flex flex-wrap items-center gap-1 text-xs text-destructive">
                 <AlertCircle className="h-3 w-3" /> {pixPhoneError}. Configure em{" "}
-                <a href="/app/pix" className="underline hover:text-foreground">
+                <Link to="/app/pix" className="underline hover:text-foreground">
                   Módulo Pix
-                </a>
+                </Link>
                 .
               </p>
             ) : (
