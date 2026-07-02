@@ -18,7 +18,9 @@ import {
   Sparkles,
   Loader2,
   RefreshCw,
+  Shield,
 } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: Dashboard,
@@ -253,59 +255,69 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-black">Painel</h1>
-          {stats.bolao ? (
-            <p className="text-sm text-muted-foreground">
-              Bolão ativo: <strong>{stats.bolao.nome}</strong>
-            </p>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Nenhum bolão criado ainda.{" "}
-              <Link to="/app/bolao" className="font-semibold text-pitch underline">
-                Criar bolão
-              </Link>
-            </p>
-          )}
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={refresh}
-            disabled={refreshing}
-            className="inline-flex h-10 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold disabled:opacity-60"
-            aria-label="Atualizar painel"
-          >
-            <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-            Atualizar
-          </button>
-          <button
-            onClick={runCompute}
-            disabled={computing}
-            className="inline-flex h-10 items-center gap-2 rounded-lg bg-pitch px-4 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-          >
-            {computing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+      {/* Hero */}
+      <div className="relative overflow-hidden rounded-3xl border border-gold/30 bg-hero p-6 sm:p-8 shadow-card">
+        <div className="pointer-events-none absolute inset-0 bg-mesh opacity-70" />
+        <div className="pointer-events-none absolute -top-16 -right-10 h-64 w-64 rounded-full bg-gold/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-16 h-72 w-72 rounded-full bg-pitch/30 blur-3xl" />
+        <div className="relative flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-2">
+            <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-background/40 px-3 py-1 text-xs font-semibold text-gold backdrop-blur">
+              <Shield className="h-3.5 w-3.5" /> Rumo ao Hexa 🇧🇷
+            </span>
+            <h1 className="font-display text-3xl sm:text-4xl font-black tracking-tight">
+              Painel do <span className="text-gradient-gold">gestor</span>
+            </h1>
+            {stats.bolao ? (
+              <p className="text-sm text-muted-foreground">
+                Bolão ativo: <strong className="text-foreground">{stats.bolao.nome}</strong>
+              </p>
             ) : (
-              <Sparkles className="h-4 w-4" />
+              <p className="text-sm text-muted-foreground">
+                Nenhum bolão criado ainda.{" "}
+                <Link to="/app/bolao" className="font-semibold text-gold underline">
+                  Criar bolão
+                </Link>
+              </p>
             )}
-            Computar ganhadores
-          </button>
+          </div>
+          <div className="relative flex flex-wrap items-center gap-2">
+            <button
+              onClick={refresh}
+              disabled={refreshing}
+              className="inline-flex h-10 items-center gap-2 rounded-xl border border-border/70 bg-card/60 px-3 text-sm font-semibold backdrop-blur transition hover:bg-card disabled:opacity-60"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+              Atualizar
+            </button>
+            <button
+              onClick={runCompute}
+              disabled={computing}
+              className="inline-flex h-10 items-center gap-2 rounded-xl bg-gradient-gold px-4 text-sm font-black text-[color:var(--gold-foreground)] shadow-gold transition hover:scale-105 disabled:opacity-60"
+            >
+              {computing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+              Computar ganhadores
+            </button>
+          </div>
         </div>
       </div>
 
       {stats.bolao && (
-        <div className="rounded-2xl border border-pitch/30 bg-pitch/5 p-5">
-          <p className="text-xs uppercase tracking-wide font-semibold text-pitch">
+        <div className="rounded-2xl border border-gold/30 bg-card/60 p-5 backdrop-blur shadow-card">
+          <p className="text-xs uppercase tracking-wide font-semibold text-gold">
             Link público do bolão
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <code className="text-sm bg-background border border-border rounded-lg px-3 py-2 break-all">
+            <code className="text-sm bg-background/60 border border-border rounded-lg px-3 py-2 break-all">
               {publicBolaoUrl(stats.bolao.slug)}
             </code>
             <button
               onClick={copyLink}
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-pitch px-3 text-sm font-semibold text-primary-foreground"
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-gradient-pitch px-3 text-sm font-semibold text-primary-foreground shadow-glow transition hover:scale-105"
             >
               <Copy className="h-4 w-4" /> {copied ? "Copiado!" : "Copiar"}
             </button>
@@ -314,7 +326,7 @@ function Dashboard() {
               params={{ slug: stats.bolao.slug }}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold"
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-card"
             >
               <ExternalLink className="h-4 w-4" /> Abrir
             </Link>
@@ -322,17 +334,27 @@ function Dashboard() {
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map(({ label, value, icon: Icon }) => (
-          <div key={label} className="rounded-2xl border border-border bg-card p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">{label}</span>
-              <Icon className="h-4 w-4 text-muted-foreground" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {cards.map(({ label, value, icon: Icon }, i) => {
+          const tones = ["from-pitch/25", "from-gold/25", "from-brand-blue/25", "from-destructive/25"];
+          const tone = tones[i % tones.length];
+          return (
+            <div
+              key={label}
+              className={`group relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br ${tone} to-transparent bg-card/60 p-5 backdrop-blur shadow-card transition hover:-translate-y-0.5 hover:border-gold/50`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">
+                  {label}
+                </span>
+                <Icon className="h-4 w-4 text-gold" />
+              </div>
+              <p className="mt-2 text-3xl font-black font-display">{value}</p>
             </div>
-            <p className="mt-2 text-3xl font-black">{value}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
 
       <Sparkline serie={stats.serie} />
     </div>
