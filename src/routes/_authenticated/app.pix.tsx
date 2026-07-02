@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/PageHeader";
+
 import { buildPixPayload } from "@/lib/pix";
 import { brl } from "@/lib/saas";
 import {
