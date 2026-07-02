@@ -19,10 +19,10 @@ function Page() {
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (session?.user) navigate({ to: "/admin" });
+      if (session?.user) navigate({ to: "/app/bolao" });
     });
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.user) navigate({ to: "/admin" });
+      if (data.session?.user) navigate({ to: "/app/bolao" });
     });
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
