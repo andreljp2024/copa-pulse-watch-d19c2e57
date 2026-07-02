@@ -54,7 +54,7 @@ function PalpitesPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [teams, setTeams] = useState<Map<string, string>>(new Map());
+  const [teams, setTeams] = useState<Map<string, { name: string; flag: string | null }>>(new Map());
   const [filters, setFilters] = useState({
     status: "todos",
     bolaoSlug: "todos",
@@ -64,8 +64,9 @@ function PalpitesPage() {
   });
   const [showFilters, setShowFilters] = useState(false);
 
+  const teamInfo = (id: string | null | undefined) => teams.get(id ?? "") ?? null;
   const teamName = (id: string | null | undefined) =>
-    ptTeamName(teams.get(id ?? "") ?? "") || "?";
+    ptTeamName(teamInfo(id)?.name ?? "") || "?";
 
   async function load(silent = false) {
     if (silent) setRefreshing(true);
@@ -87,12 +88,12 @@ function PalpitesPage() {
           )
           .eq("tenant_id", t.id)
           .order("created_at", { ascending: false }),
-        supabase.from("teams").select("id, name"),
+        supabase.from("teams").select("id, name, flag_url"),
       ]);
       if (e1) throw e1;
       if (e2) throw e2;
       setRows((pals as unknown as Row[]) ?? []);
-      setTeams(new Map((ts ?? []).map((x) => [x.id, x.name])));
+      setTeams(new Map((ts ?? []).map((x) => [x.id, { name: x.name, flag: x.flag_url ?? null }])));
     } catch (err) {
       console.error(err);
       toast.error("Falha ao carregar palpites");
@@ -522,9 +523,13 @@ function PalpitesPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    {teamName(r.matches?.home_team_id)}{" "}
-                    <span className="text-muted-foreground">x</span>{" "}
-                    {teamName(r.matches?.away_team_id)}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <TeamFlag flag={teamInfo(r.matches?.home_team_id)?.flag} />
+                      <span>{teamName(r.matches?.home_team_id)}</span>
+                      <span className="text-muted-foreground">x</span>
+                      <TeamFlag flag={teamInfo(r.matches?.away_team_id)?.flag} />
+                      <span>{teamName(r.matches?.away_team_id)}</span>
+                    </div>
                   </td>
                   <td className="px-4 py-3 font-bold font-mono">
                     {r.palpite_a}–{r.palpite_b}
@@ -605,6 +610,19 @@ function PalpitesPage() {
     </div>
   );
 }
+
+function TeamFlag({ flag }: { flag?: string | null }) {
+  if (!flag) return <span className="inline-block h-4 w-6 rounded-sm bg-muted" aria-hidden />;
+  return (
+    <img
+      src={flag}
+      alt=""
+      loading="lazy"
+      className="h-4 w-6 rounded-sm object-cover ring-1 ring-border"
+    />
+  );
+}
+
 
 function StatCard({
   label,
