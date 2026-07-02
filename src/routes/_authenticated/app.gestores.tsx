@@ -18,6 +18,9 @@ import {
   Eye,
   CheckCircle2,
   XCircle,
+  ShieldPlus,
+  ShieldMinus,
+  Copy,
 } from "lucide-react";
 import {
   isSuperAdmin,
@@ -30,7 +33,10 @@ import {
   getGestorDetail,
   resetGestorPassword,
   resendGestorInvite,
+  grantGestorRole,
+  revokeGestorRole,
 } from "@/lib/gestores.functions";
+
 import {
   Sheet,
   SheetContent,
@@ -104,6 +110,9 @@ function GestoresInner() {
   const changePlanoFn = useServerFn(changeGestorPlano);
   const resetPwdFn = useServerFn(resetGestorPassword);
   const resendInviteFn = useServerFn(resendGestorInvite);
+  const grantRoleFn = useServerFn(grantGestorRole);
+  const revokeRoleFn = useServerFn(revokeGestorRole);
+
 
   const { data: gestores = [], isLoading } = useQuery({
     queryKey: ["gestores"],
@@ -120,6 +129,10 @@ function GestoresInner() {
   const [planoFilter, setPlanoFilter] = useState<string>("all");
   const [detailId, setDetailId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; nome: string } | null>(null);
+  const [confirmSuspend, setConfirmSuspend] = useState<any | null>(null);
+  const [recoveryLink, setRecoveryLink] = useState<{ email: string; link: string | null } | null>(
+    null,
+  );
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["gestores"] });
   const notify = (text: string, kind: "ok" | "err" = "ok") => setMsg({ kind, text });
@@ -171,7 +184,10 @@ function GestoresInner() {
 
   const resetPwd = useMutation({
     mutationFn: (id: string) => resetPwdFn({ data: { tenant_id: id } }),
-    onSuccess: (r: any) => notify(`Link de redefinição enviado para ${r.email}.`),
+    onSuccess: (r: any) => {
+      notify(`Link de redefinição gerado para ${r.email}.`);
+      setRecoveryLink({ email: r.email, link: r.action_link ?? null });
+    },
     onError: (e: any) => notify(e?.message ?? "Falha ao enviar link.", "err"),
   });
 
@@ -180,6 +196,27 @@ function GestoresInner() {
     onSuccess: (r: any) => notify(`Convite reenviado para ${r.email}.`),
     onError: (e: any) => notify(e?.message ?? "Falha ao reenviar convite.", "err"),
   });
+
+  const grantRole = useMutation({
+    mutationFn: (d: { tenant_id: string; role: "super_admin" | "admin" }) =>
+      grantRoleFn({ data: d }),
+    onSuccess: (_r, v) => {
+      notify(`Papel ${v.role} concedido.`);
+      invalidate();
+    },
+    onError: (e: any) => notify(e?.message ?? "Falha ao conceder papel.", "err"),
+  });
+
+  const revokeRole = useMutation({
+    mutationFn: (d: { tenant_id: string; role: "super_admin" | "admin" }) =>
+      revokeRoleFn({ data: d }),
+    onSuccess: (_r, v) => {
+      notify(`Papel ${v.role} removido.`);
+      invalidate();
+    },
+    onError: (e: any) => notify(e?.message ?? "Falha ao remover papel.", "err"),
+  });
+
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -417,7 +454,7 @@ function GestoresInner() {
                   <Eye className="h-3.5 w-3.5" /> Detalhes
                 </button>
                 <button
-                  onClick={() => toggleStatus.mutate(g)}
+                  onClick={() => setConfirmSuspend(g)}
                   className="h-8 px-3 rounded-md border border-border text-xs font-semibold inline-flex items-center gap-1"
                   title={g.status === "active" ? "Suspender acesso" : "Reativar acesso"}
                 >
@@ -437,13 +474,44 @@ function GestoresInner() {
                       <MoreVertical className="h-3.5 w-3.5" />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuContent align="end" className="w-60">
                     <DropdownMenuItem onClick={() => resetPwd.mutate(g.id)}>
-                      <KeyRound className="h-3.5 w-3.5 mr-2" /> Enviar redefinição de senha
+                      <KeyRound className="h-3.5 w-3.5 mr-2" /> Gerar link de redefinição
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => resendInvite.mutate(g.id)}>
                       <Send className="h-3.5 w-3.5 mr-2" /> Reenviar convite
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    {g.roles?.includes("super_admin") ? (
+                      <DropdownMenuItem
+                        onClick={() =>
+                          revokeRole.mutate({ tenant_id: g.id, role: "super_admin" })
+                        }
+                      >
+                        <ShieldMinus className="h-3.5 w-3.5 mr-2" /> Remover super admin
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onClick={() =>
+                          grantRole.mutate({ tenant_id: g.id, role: "super_admin" })
+                        }
+                      >
+                        <ShieldPlus className="h-3.5 w-3.5 mr-2" /> Promover a super admin
+                      </DropdownMenuItem>
+                    )}
+                    {g.roles?.includes("admin") ? (
+                      <DropdownMenuItem
+                        onClick={() => revokeRole.mutate({ tenant_id: g.id, role: "admin" })}
+                      >
+                        <ShieldMinus className="h-3.5 w-3.5 mr-2" /> Remover admin
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onClick={() => grantRole.mutate({ tenant_id: g.id, role: "admin" })}
+                      >
+                        <ShieldPlus className="h-3.5 w-3.5 mr-2" /> Conceder admin
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="text-destructive focus:text-destructive"
@@ -453,6 +521,7 @@ function GestoresInner() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+
               </div>
             </div>
           </div>
@@ -486,9 +555,71 @@ function GestoresInner() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={!!confirmSuspend} onOpenChange={(o) => !o && setConfirmSuspend(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmSuspend?.status === "active" ? "Suspender acesso?" : "Reativar acesso?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmSuspend?.status === "active"
+                ? "O gestor não conseguirá acessar o painel enquanto estiver suspenso. Os dados são preservados."
+                : "O gestor voltará a conseguir acessar o painel normalmente."}
+              <br />
+              <strong>{confirmSuspend?.nome_estabelecimento}</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirmSuspend) toggleStatus.mutate(confirmSuspend);
+                setConfirmSuspend(null);
+              }}
+            >
+              Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!recoveryLink} onOpenChange={(o) => !o && setRecoveryLink(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Link de redefinição de senha</AlertDialogTitle>
+            <AlertDialogDescription>
+              Envie este link para <strong>{recoveryLink?.email}</strong>. Ele expira em 1 hora e é
+              de uso único.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {recoveryLink?.link ? (
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 p-2">
+              <code className="text-[11px] break-all flex-1">{recoveryLink.link}</code>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(recoveryLink.link ?? "");
+                  notify("Link copiado.");
+                }}
+                className="h-8 px-2 rounded-md border border-border text-xs font-semibold inline-flex items-center gap-1"
+              >
+                <Copy className="h-3.5 w-3.5" /> Copiar
+              </button>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              O e-mail de recuperação foi disparado pelo provedor.
+            </p>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setRecoveryLink(null)}>Fechar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
+
 
 function GestorDetailSheet({
   tenantId,
