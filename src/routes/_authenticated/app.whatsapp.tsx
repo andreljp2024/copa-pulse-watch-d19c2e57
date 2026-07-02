@@ -251,36 +251,27 @@ function WhatsAppConfigPage() {
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         <form onSubmit={handleSave} className="space-y-6">
           <Section
-            title="Número do recebedor"
-            description="Número do WhatsApp que aparece nos links wa.me."
-            icon={<Phone className="h-4 w-4 text-gold" />}
+            title="Número de recebimento"
+            description="O número usado nos links wa.me é o mesmo configurado no módulo Pix."
+            icon={<Info className="h-4 w-4 text-gold" />}
           >
-            <Field label="WhatsApp (DDD + número)" required>
-              <div className="relative mt-1">
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-mono text-muted-foreground select-none">
-                  +55
-                </span>
-                <input
-                  required
-                  inputMode="numeric"
-                  value={form.numero_whatsapp}
-                  onChange={(e) => update("numero_whatsapp", maskPhone(e.target.value))}
-                  className={`${inputCss} font-mono pl-12 ${phoneError ? "border-destructive/60 focus:ring-destructive/40" : ""}`}
-                  placeholder="(11) 99999-9999"
-                  maxLength={16}
-                />
-              </div>
-              {phoneError ? (
-                <p className="mt-1 inline-flex items-center gap-1 text-xs text-destructive">
-                  <AlertCircle className="h-3 w-3" /> {phoneError}
-                </p>
-              ) : (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  DDI +55 (Brasil) incluso automaticamente. Informe DDD + número.
-                </p>
-              )}
-            </Field>
+            {pixPhoneError ? (
+              <p className="inline-flex items-center gap-1 text-xs text-destructive">
+                <AlertCircle className="h-3 w-3" /> {pixPhoneError}. Configure em{" "}
+                <a href="/app/pix" className="underline hover:text-foreground">
+                  Módulo Pix
+                </a>
+                .
+              </p>
+            ) : (
+              <p className="text-sm">
+                <span className="text-muted-foreground">Número atual:</span>{" "}
+                <strong className="font-mono">+55 {pixPhoneMasked}</strong>
+              </p>
+            )}
           </Section>
+
+
 
 
           <Section
