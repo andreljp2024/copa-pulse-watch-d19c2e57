@@ -22,6 +22,8 @@ import {
   ShieldMinus,
   Copy,
   Share2,
+  ChevronDown,
+  MessageCircle,
 } from "lucide-react";
 import {
   isSuperAdmin,
@@ -62,6 +64,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_authenticated/app/gestores")({
   head: () => ({ meta: [{ title: "Organizadores — Bolão AI" }] }),
@@ -122,6 +132,8 @@ function GestoresInner() {
   const { data: planos = [] } = useQuery({ queryKey: ["planos-admin"], queryFn: () => planosFn() });
 
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  const [showWhatsAppForm, setShowWhatsAppForm] = useState(false);
+  const [waForm, setWaForm] = useState({ nome_responsavel: "", nome_estabelecimento: "", telefone: "" });
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ email: "", nome_responsavel: "", nome_estabelecimento: "" });
   const [planoEdit, setPlanoEdit] = useState<Record<string, string>>({});
@@ -304,12 +316,21 @@ function GestoresInner() {
                 </a>
               );
             })()}
-            <button
-              onClick={() => setShowForm((s) => !s)}
-              className="group inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-gold px-5 text-sm font-black text-primary-foreground shadow-md transition-transform hover:scale-105"
-            >
-              <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" /> Novo organizador
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="group inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-gold px-5 text-sm font-black text-primary-foreground shadow-md transition-transform hover:scale-105">
+                  <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" /> Novo organizador <ChevronDown className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={() => setShowForm(true)}>
+                  <Mail className="mr-2 h-4 w-4" /> 📧 Convite por e-mail
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowWhatsAppForm(true)}>
+                  <MessageCircle className="mr-2 h-4 w-4" /> 💬 Convite por WhatsApp
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -394,8 +415,96 @@ function GestoresInner() {
               <Mail className="h-4 w-4" /> {invite.isPending ? "Enviando…" : "Enviar convite"}
             </button>
           </div>
-        </form>
+      </form>
       )}
+
+      <Dialog open={showWhatsAppForm} onOpenChange={setShowWhatsAppForm}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>💬 Convite por WhatsApp</DialogTitle>
+            <DialogDescription>
+              Preencha os dados do organizador e gere o link de convite para enviar pelo WhatsApp.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3 py-2">
+            <label className="text-xs font-semibold uppercase text-muted-foreground space-y-1 block">
+              Responsável
+              <input
+                value={waForm.nome_responsavel}
+                onChange={(e) => setWaForm({ ...waForm, nome_responsavel: e.target.value })}
+                placeholder="Nome do responsável"
+                className="mt-1 w-full h-10 px-3 rounded-lg border border-border bg-background text-sm"
+              />
+            </label>
+            <label className="text-xs font-semibold uppercase text-muted-foreground space-y-1 block">
+              Estabelecimento
+              <input
+                value={waForm.nome_estabelecimento}
+                onChange={(e) => setWaForm({ ...waForm, nome_estabelecimento: e.target.value })}
+                placeholder="Nome do estabelecimento"
+                className="mt-1 w-full h-10 px-3 rounded-lg border border-border bg-background text-sm"
+              />
+            </label>
+            <label className="text-xs font-semibold uppercase text-muted-foreground space-y-1 block">
+              WhatsApp (com DDD)
+              <input
+                type="tel"
+                value={waForm.telefone}
+                onChange={(e) => setWaForm({ ...waForm, telefone: e.target.value })}
+                placeholder="11999999999"
+                className="mt-1 w-full h-10 px-3 rounded-lg border border-border bg-background text-sm"
+              />
+            </label>
+          </div>
+          <DialogFooter>
+            <button
+              onClick={() => setShowWhatsAppForm(false)}
+              className="h-10 px-4 rounded-lg border border-border text-sm font-semibold"
+            >
+              Cancelar
+            </button>
+            <a
+              href={(() => {
+                const origin = typeof window !== "undefined" ? window.location.origin : "https://copa-pulse-watch.lovable.app";
+                const url = `${origin}/criar-bolao`;
+                const nome = waForm.nome_responsavel.trim() || "Craque";
+                const estab = waForm.nome_estabelecimento.trim() || "sua turma";
+                const msg =
+                  `🏆⚽ *BOLÃO AI — CONVITE ESPECIAL* 🇧🇷\n` +
+                  `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                  `Fala, *${nome}*! 👋\n\n` +
+                  `Você foi convidado pra ser o *organizador oficial* do bolão do *${estab}* na *Copa 2026*! 🎉⚽\n\n` +
+                  `🎁 *É cortesia do Dev* — não é bets 🚫🎰\n` +
+                  `🤝 Só diversão entre amigos, família e colegas.\n\n` +
+                  `✨ *O QUE VOCÊ GANHA:*\n` +
+                  `📱 Palpites 100% pelo WhatsApp\n` +
+                  `💰 Pix cai *direto na sua conta*\n` +
+                  `🏅 Ranking e ganhadores no automático\n` +
+                  `📊 Painel completo pra gerenciar tudo\n` +
+                  `🆓 *Grátis até 50 palpites* — todos os recursos liberados\n\n` +
+                  `⚡ *COMO COMEÇAR (leva 2 min):*\n` +
+                  `1️⃣ Clique no link abaixo\n` +
+                  `2️⃣ Crie o seu bolão\n` +
+                  `3️⃣ Compartilhe com a galera 🚀\n\n` +
+                  `👇 *Crie o seu bolão agora:*\n${url}\n\n` +
+                  `━━━━━━━━━━━━━━━━━━━━\n` +
+                  `Bora torcer juntos pelo *HEXA*! 🇧🇷🥅🔥`;
+                const phone = waForm.telefone.replace(/\D/g, "");
+                return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+              })()}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                setShowWhatsAppForm(false);
+                setWaForm({ nome_responsavel: "", nome_estabelecimento: "", telefone: "" });
+              }}
+              className={`h-10 px-4 rounded-lg text-sm font-bold inline-flex items-center gap-1 ${waForm.telefone.trim() ? "bg-[#25D366] text-white" : "bg-muted text-muted-foreground pointer-events-none opacity-60"}`}
+            >
+              <MessageCircle className="h-4 w-4" /> Enviar convite no WhatsApp
+            </a>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card/60 p-3 backdrop-blur">
         <div className="relative flex-1 min-w-[220px]">
