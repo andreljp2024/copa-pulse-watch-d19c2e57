@@ -101,18 +101,18 @@ function GanhadoresPage() {
           g.bolao_nome,
           `BOL-${String(w.codigo).padStart(4, "0")}`,
           w.nome,
-          w.whatsapp,
-          `${w.home_team ?? "?"} x ${w.away_team ?? "?"}`,
+          maskPhone(w.whatsapp),
+          `${ptTeamName(w.home_team) || "?"} x ${ptTeamName(w.away_team) || "?"}`,
           `${w.home_score ?? ""}-${w.away_score ?? ""}`,
           `${w.palpite_a}-${w.palpite_b}`,
-          String(g.premio_por_ganhador),
+          brl(g.premio_por_ganhador),
         ]);
       }
     }
     const csv = rows
       .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
       .join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
