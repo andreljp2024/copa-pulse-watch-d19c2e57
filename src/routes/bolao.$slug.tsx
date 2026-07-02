@@ -418,7 +418,7 @@ function PublicBolao() {
               {(ranking.data ?? []).slice(0, 5).map((r, i) => (
                 <li key={r.torcedor_id} className="flex items-center justify-between gap-2 text-sm">
                   <span className="inline-flex items-center gap-2 min-w-0">
-                    <span className={`h-6 w-6 rounded-full grid place-items-center text-[10px] font-black ${i === 0 ? "bg-gradient-gold text-gold-foreground" : "bg-muted text-foreground"}`}>{i + 1}</span>
+                    <span className={`h-6 w-6 rounded-full grid place-items-center text-[10px] font-black ${i === 0 ? "bg-gradient-gold text-black" : "bg-muted text-foreground"}`}>{i + 1}</span>
                     <span className="truncate">{r.nome}</span>
                   </span>
                   <span className="font-black tabular-nums text-gold">{r.pontos} pts</span>
@@ -568,7 +568,7 @@ function PublicBolao() {
                 </div>
                 <button
                   disabled={!isValidWhatsAppBR(form.whatsapp) || !form.nome.trim()}
-                  className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-black shadow-gold transition-transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   Continuar →
                 </button>
@@ -670,7 +670,7 @@ function PublicBolao() {
                   )}
                   <div className="flex justify-between pt-1 border-t border-gold/20"><span className="font-black uppercase text-xs text-gold">Total Pix</span><span className="font-black text-gold">{brl(valorTotal)}</span></div>
                 </div>
-                <button type="submit" disabled={submitting} className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.02] disabled:opacity-60">
+                <button type="submit" disabled={submitting} className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-black shadow-gold transition-transform hover:scale-[1.02] disabled:opacity-60">
                   {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : `Confirmar ${items.length} palpite(s)`}
                 </button>
                 <div className="flex gap-2">
@@ -885,7 +885,7 @@ function FeaturedMatchCard({
 {podePalpitar ? (
              <button
                onClick={onPalpitar}
-               className="h-12 px-6 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-gold-foreground shadow-gold transition-transform hover:scale-[1.03]"
+               className="h-12 px-6 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-gold font-black uppercase tracking-wide text-black shadow-gold transition-transform hover:scale-[1.03]"
              >
                <Trophy className="h-4 w-4" /> Fazer meu palpite
              </button>
