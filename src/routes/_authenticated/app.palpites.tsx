@@ -313,7 +313,7 @@ function PalpitesPage() {
 </body></html>`;
     const w = window.open("", "_blank", "noopener,noreferrer");
     if (!w) {
-      alert("Permita pop-ups para gerar o PDF.");
+      toast.error("Permita pop-ups para gerar o PDF.");
       return;
     }
     w.document.open();
