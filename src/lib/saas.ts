@@ -36,7 +36,7 @@ export function buildWhatsAppLink(numero: string, mensagem: string): string {
 
 export const DEFAULT_TEMPLATES = {
   novo_palpite:
-    "Olá! Quero participar do {{nome_bolao}}.\n\nNome: {{nome_torcedor}}\nWhatsApp: {{whatsapp_torcedor}}\nJogo: {{selecao_a}} x {{selecao_b}}\nPalpite: {{palpite_a}} x {{palpite_b}}\nValor: R$ {{valor_palpite}}\n\nDados Pix:\nRecebedor: {{nome_recebedor}}\nBanco: {{banco}}\nChave Pix: {{chave_pix}}\n\nApós o pagamento, envio o comprovante por aqui.",
+    "Olá! Quero participar do {{nome_bolao}}.\n\nMeu nome: {{nome_torcedor}}\n\nWhatsApp: {{whatsapp_torcedor}}\n\nJogo: {{selecao_a}} x {{selecao_b}}\n\nPalpite: {{palpite_a}} x {{palpite_b}}\n\nValor: R$ {{valor_palpite}}\n\nIrei confirmar o palpite e envio o comprovante por aqui.",
   confirmacao_pagamento:
     "Olá, {{nome_torcedor}}!\n\nSeu pagamento foi confirmado no {{nome_bolao}}.\n\nJogo: {{selecao_a}} x {{selecao_b}}\nSeu palpite: {{palpite_a}} x {{palpite_b}}\nStatus: Pago\n\nBoa sorte!",
   ganhador:
