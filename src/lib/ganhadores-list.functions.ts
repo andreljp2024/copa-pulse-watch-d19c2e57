@@ -87,8 +87,8 @@ export const listarGanhadores = createServerFn({ method: "GET" })
         id: string;
         home_score: number | null;
         away_score: number | null;
-        home_team: { name: string } | null;
-        away_team: { name: string } | null;
+        home_team: { name: string; flag_url: string | null } | null;
+        away_team: { name: string; flag_url: string | null } | null;
       };
     }>) {
       const row: GanhadorRow = {
@@ -100,6 +100,8 @@ export const listarGanhadores = createServerFn({ method: "GET" })
         match_id: g.match_id,
         home_team: g.matches.home_team?.name ?? null,
         away_team: g.matches.away_team?.name ?? null,
+        home_flag: g.matches.home_team?.flag_url ?? null,
+        away_flag: g.matches.away_team?.flag_url ?? null,
         home_score: g.matches.home_score,
         away_score: g.matches.away_score,
         torcedor_id: g.torcedor_id,
