@@ -48,3 +48,13 @@ export function isLiveNow(kickoffAt: string, status: string): boolean {
 export function nowInBR(): Date {
   return toZonedTime(new Date(), BRAZIL_TZ);
 }
+
+/** Converte UTC ISO -> string "yyyy-MM-ddTHH:mm" no fuso BR para input datetime-local. */
+export function toDatetimeLocalBR(iso: string | Date): string {
+  return formatInTimeZone(iso, BRAZIL_TZ, "yyyy-MM-dd'T'HH:mm");
+}
+
+/** Converte string "yyyy-MM-ddTHH:mm" (assumida como BR) -> Date UTC. */
+export function fromDatetimeLocalBR(local: string): Date {
+  return fromZonedTime(local, BRAZIL_TZ);
+}
