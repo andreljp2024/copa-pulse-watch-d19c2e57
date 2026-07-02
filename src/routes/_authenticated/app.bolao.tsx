@@ -30,14 +30,25 @@ export const Route = createFileRoute("/_authenticated/app/bolao")({
   component: BolaoConfigPage,
 });
 
-const SUGESTAO_REGRAS = `• Valor do palpite: R$ 10 por jogo.
-• Acertou o placar exato: 3 pontos.
+const SUGESTAO_REGRAS = `✅ Serão considerados válidos:
+
+• O tempo normal da partida, incluindo os acréscimos;
+• A prorrogação, caso aconteça.
+
+⚠️ Em caso de prorrogação, o placar final após os 120 minutos será o resultado oficial do bolão.
+
+❌ Desempates por pênaltis NÃO serão considerados, pois servem apenas para definir quem avança na competição e não alteram o placar oficial do bolão.
+
+• Valor do palpite: R$ 10 por jogo.
+• Acertar o placar exato.
 • Distribuição do prêmio (do total arrecadado):
-   70% Para o torcedor que acertou.
-   30% Taxa de administração (organizador)
-• Em caso de vários ganhadores, o prêmio de 70% será dividido igualmente.
+   80% Para o torcedor com palpite exato.
+   20% Taxa da organização.
+• Em caso de vários ganhadores, o prêmio de 80% será dividido igualmente.
 • Palpites só são válidos após confirmação do Pix.
-• Não são aceitos palpites após o início da partida.`;
+• Não são aceitos palpites após o início da partida.
+
+*Só serão aceitos palpites de torcedores maiores de +18 anos.*`;
 
 type Match = {
   id: string;
