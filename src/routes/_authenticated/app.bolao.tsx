@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify, publicBolaoUrl } from "@/lib/saas";
 import { ptTeamName } from "@/components/MatchCard";
+import { flagEmojiFromCode } from "@/lib/flags";
 import { saveBolao, type SaveBolaoResult } from "@/lib/bolao.functions";
 import { syncMatchesForTenant } from "@/lib/sync.functions";
 import { toast } from "sonner";
@@ -293,11 +294,7 @@ function BolaoConfigPage() {
   const divulgacaoTexto = useMemo(() => {
     const sel = matches.filter((m) => selectedMatchIds.has(m.id));
     if (sel.length === 0) return "";
-    const flagEmoji = (code?: string) => {
-      const c = (code ?? "").trim().toUpperCase();
-      if (c.length !== 2 || !/^[A-Z]{2}$/.test(c)) return "🏳️";
-      return String.fromCodePoint(...[...c].map((ch) => 0x1f1e6 + ch.charCodeAt(0) - 65));
-    };
+    const flagEmoji = flagEmojiFromCode;
     const linhas = sel.map((m) => {
       const h = teams.get(m.home_team_id);
       const a = teams.get(m.away_team_id);
