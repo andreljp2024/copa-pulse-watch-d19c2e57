@@ -272,12 +272,24 @@ function GestoresInner() {
                   ? `${window.location.origin}/criar-bolao`
                   : "https://copa-pulse-watch.lovable.app/criar-bolao";
               const msg =
-                `🏆⚽ *Bolão AI — Rumo ao Hexa 🇧🇷💚💛*\n\n` +
-                `🎉 Convido você a organizar o *bolão da sua turma* na Copa 2026!\n\n` +
-                `✨ *É cortesia de Dev, não é bets* 🚫🎰 — só torcida entre amigos e familiares 🤝\n` +
-                `📱 Palpites via WhatsApp\n💰 Pix direto na *sua* conta\n🏅 Ranking e ganhadores automáticos\n🆓 *Grátis* até 50 palpites — todos os recursos liberados\n\n` +
-                `👇 Crie o bolão da sua turma agora:\n${url}\n\n` +
-                `Bora torcer juntos pelo *Hexa*! 🇧🇷🥅🔥`;
+                `🏆⚽ *BOLÃO AI — RUMO AO HEXA* 🇧🇷💚💛\n` +
+                `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                `👋 E aí, craque! Bora ser o *organizador oficial* do bolão da sua turma na *Copa 2026*? 🎉\n\n` +
+                `🎁 *É cortesia do Dev* — não é bets 🚫🎰\n` +
+                `🤝 Só torcida entre amigos, família e colegas de trabalho.\n\n` +
+                `✨ *O QUE VOCÊ GANHA:*\n` +
+                `📱 Palpites 100% pelo WhatsApp\n` +
+                `💰 Pix cai *direto na sua conta*\n` +
+                `🏅 Ranking e ganhadores no automático\n` +
+                `📊 Painel completo pra gerenciar tudo\n` +
+                `🆓 *Grátis até 50 palpites* — todos os recursos liberados\n\n` +
+                `⚡ *COMO COMEÇAR (leva 2 min):*\n` +
+                `1️⃣ Clique no link abaixo\n` +
+                `2️⃣ Crie o seu bolão\n` +
+                `3️⃣ Compartilhe com a galera 🚀\n\n` +
+                `👇 *Crie o seu bolão agora:*\n${url}\n\n` +
+                `━━━━━━━━━━━━━━━━━━━━\n` +
+                `Bora torcer juntos pelo *HEXA*! 🇧🇷🥅🔥`;
               const shareLink = `https://wa.me/?text=${encodeURIComponent(msg)}`;
               return (
                 <a
