@@ -320,10 +320,12 @@ function GanhadorItem({
 }) {
   const [copied, setCopied] = useState(false);
   const protocolo = `BOL-${String(w.codigo).padStart(4, "0")}`;
+  const homePt = ptTeamName(w.home_team) || "?";
+  const awayPt = ptTeamName(w.away_team) || "?";
   const msg =
     `🏆 *Parabéns, ${w.nome}!*\n\n` +
     `Você é um dos ganhadores do bolão *${bolaoNome}*!\n\n` +
-    `Jogo: ${w.home_team ?? "?"} ${w.home_score ?? "?"} x ${w.away_score ?? "?"} ${w.away_team ?? "?"}\n` +
+    `Jogo: ${homePt} ${w.home_score ?? "?"} x ${w.away_score ?? "?"} ${awayPt}\n` +
     `Seu palpite: ${w.palpite_a} x ${w.palpite_b} ✅\n` +
     `Protocolo: ${protocolo}\n\n` +
     `💰 Valor do prêmio: *${brl(premio)}*\n\n` +
@@ -349,15 +351,17 @@ function GanhadorItem({
         <div className="flex-1 min-w-[200px]">
           <p className="font-semibold truncate">{w.nome}</p>
           <p className="text-xs text-muted-foreground font-mono">
-            {protocolo} • {w.whatsapp}
+            {protocolo} • {maskPhone(w.whatsapp)}
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {w.home_team}{" "}
+          <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5 flex-wrap">
+            <TeamFlag flag={w.home_flag} />
+            <span>{homePt}</span>
             <span className="font-bold text-foreground">
               {w.home_score}x{w.away_score}
-            </span>{" "}
-            {w.away_team}
-            {" · palpite "}
+            </span>
+            <TeamFlag flag={w.away_flag} />
+            <span>{awayPt}</span>
+            <span>· palpite</span>
             <span className="font-bold text-primary">
               {w.palpite_a}x{w.palpite_b}
             </span>
@@ -391,5 +395,17 @@ function GanhadorItem({
         </div>
       </div>
     </li>
+  );
+}
+
+function TeamFlag({ flag }: { flag?: string | null }) {
+  if (!flag) return <span className="inline-block h-3.5 w-5 rounded-sm bg-muted" aria-hidden />;
+  return (
+    <img
+      src={flag}
+      alt=""
+      loading="lazy"
+      className="h-3.5 w-5 rounded-sm object-cover ring-1 ring-border"
+    />
   );
 }
