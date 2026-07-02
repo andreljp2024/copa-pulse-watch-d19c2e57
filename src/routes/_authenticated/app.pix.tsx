@@ -127,15 +127,16 @@ function PixConfigPage() {
           console.error("[Pix] Erro ao buscar configuração Pix:", pixRes.error);
         } else if (pixRes.data) {
           console.log("[Pix] Configuração carregada:", pixRes.data);
+          const tipo = (pixRes.data.tipo_chave_pix as TipoChave) ?? "cpf";
           setForm({
             nome_recebedor: pixRes.data.nome_recebedor ?? "",
-            tipo_chave_pix: (pixRes.data.tipo_chave_pix as TipoChave) ?? "cpf",
-            chave_pix: pixRes.data.chave_pix ?? "",
+            tipo_chave_pix: tipo,
+            chave_pix: formatChave(tipo, pixRes.data.chave_pix ?? ""),
             banco: pixRes.data.banco ?? "",
             cidade: pixRes.data.cidade ?? "",
             valor_padrao_palpite: Number(pixRes.data.valor_padrao_palpite ?? 10),
             instrucoes_pagamento: pixRes.data.instrucoes_pagamento ?? "",
-            numero_recebedor_whatsapp: pixRes.data.numero_recebedor_whatsapp ?? "",
+            numero_recebedor_whatsapp: maskPhone(pixRes.data.numero_recebedor_whatsapp ?? ""),
           });
         } else {
           console.log("[Pix] Nenhuma configuração encontrada");
