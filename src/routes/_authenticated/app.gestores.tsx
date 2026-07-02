@@ -247,21 +247,40 @@ function GestoresInner() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-black">Gestores de bolão</h1>
-          <p className="text-sm text-muted-foreground">
-            {totals.total} no total · {totals.ativos} ativos · {totals.suspensos} suspensos ·{" "}
-            {totals.semLogin} nunca logaram
-          </p>
+      {/* Hero verde-amarelo — espírito do Hexa */}
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-hero p-6 shadow-lg">
+        <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:var(--gradient-mesh)]" />
+        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-gradient-gold blur-3xl opacity-30" />
+        <div className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-gradient-pitch blur-3xl opacity-30" />
+        <div className="relative flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-background/40 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-gold backdrop-blur">
+              <Shield className="h-3 w-3" /> Painel do Super Admin · Rumo ao Hexa 🇧🇷
+            </div>
+            <h1 className="mt-3 font-display text-3xl font-black tracking-tight sm:text-4xl">
+              Gestores de <span className="text-gradient-gold">Bolão</span>
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Comanda o time de organizadores com a garra da torcida brasileira.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowForm((s) => !s)}
+            className="group inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-gold px-5 text-sm font-black text-primary-foreground shadow-md transition-transform hover:scale-105"
+          >
+            <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" /> Novo gestor
+          </button>
         </div>
-        <button
-          onClick={() => setShowForm((s) => !s)}
-          className="inline-flex h-10 items-center gap-2 rounded-lg bg-pitch px-4 text-sm font-bold text-primary-foreground"
-        >
-          <UserPlus className="h-4 w-4" /> Novo gestor
-        </button>
+
+        {/* KPIs */}
+        <div className="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <KpiCard label="No total" value={totals.total} tone="gold" />
+          <KpiCard label="Ativos" value={totals.ativos} tone="pitch" />
+          <KpiCard label="Suspensos" value={totals.suspensos} tone="samba" />
+          <KpiCard label="Nunca logaram" value={totals.semLogin} tone="muted" />
+        </div>
       </div>
+
 
       {msg && (
         <div
@@ -337,20 +356,20 @@ function GestoresInner() {
         </form>
       )}
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card/60 p-3 backdrop-blur">
         <div className="relative flex-1 min-w-[220px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gold" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar por nome, e-mail, WhatsApp, cidade…"
-            className="w-full h-10 pl-9 pr-3 rounded-lg border border-border bg-background text-sm"
+            className="w-full h-10 pl-9 pr-3 rounded-lg border border-border bg-background text-sm focus:border-gold/50 focus:ring-2 focus:ring-gold/20 transition"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-          className="h-10 px-3 rounded-lg border border-border bg-background text-sm"
+          className="h-10 px-3 rounded-lg border border-border bg-background text-sm focus:border-gold/50"
         >
           <option value="all">Todos status</option>
           <option value="active">Ativos</option>
@@ -359,7 +378,7 @@ function GestoresInner() {
         <select
           value={planoFilter}
           onChange={(e) => setPlanoFilter(e.target.value)}
-          className="h-10 px-3 rounded-lg border border-border bg-background text-sm"
+          className="h-10 px-3 rounded-lg border border-border bg-background text-sm focus:border-gold/50"
         >
           <option value="all">Todos planos</option>
           {planoNames.map((p) => (
@@ -370,13 +389,18 @@ function GestoresInner() {
         </select>
       </div>
 
-      <div className="rounded-xl border border-border bg-card divide-y divide-border">
+      <div className="rounded-2xl border border-border bg-card/60 divide-y divide-border overflow-hidden backdrop-blur">
         {isLoading && <p className="p-6 text-center text-sm text-muted-foreground">Carregando…</p>}
         {!isLoading && filtered.length === 0 && (
           <p className="p-6 text-center text-sm text-muted-foreground">Nenhum gestor encontrado.</p>
         )}
         {filtered.map((g: any) => (
-          <div key={g.id} className="p-4 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3">
+          <div
+            key={g.id}
+            className="group relative p-4 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 transition-colors hover:bg-gradient-to-r hover:from-pitch/10 hover:via-transparent hover:to-gold/10"
+          >
+            <span className="absolute left-0 top-0 h-full w-1 bg-gradient-pitch opacity-0 group-hover:opacity-100 transition-opacity" />
+
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <button
@@ -724,6 +748,32 @@ function Stat({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
+
+function KpiCard({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: "gold" | "pitch" | "samba" | "muted";
+}) {
+  const toneMap: Record<string, string> = {
+    gold: "from-gold/25 to-transparent border-gold/40 text-gold",
+    pitch: "from-pitch/25 to-transparent border-pitch/40 text-pitch",
+    samba: "from-destructive/25 to-transparent border-destructive/40 text-destructive",
+    muted: "from-muted/40 to-transparent border-border text-muted-foreground",
+  };
+  return (
+    <div
+      className={`relative overflow-hidden rounded-xl border bg-gradient-to-br ${toneMap[tone]} bg-card/60 p-3 backdrop-blur transition-transform hover:-translate-y-0.5`}
+    >
+      <div className="text-2xl font-black text-foreground">{value}</div>
+      <div className="mt-0.5 text-[10px] font-bold uppercase tracking-wider">{label}</div>
+    </div>
+  );
+}
+
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
