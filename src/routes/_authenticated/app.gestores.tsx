@@ -744,6 +744,32 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
+function KpiCard({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: "gold" | "pitch" | "samba" | "muted";
+}) {
+  const toneMap: Record<string, string> = {
+    gold: "from-gold/25 to-transparent border-gold/40 text-gold",
+    pitch: "from-pitch/25 to-transparent border-pitch/40 text-pitch",
+    samba: "from-destructive/25 to-transparent border-destructive/40 text-destructive",
+    muted: "from-muted/40 to-transparent border-border text-muted-foreground",
+  };
+  return (
+    <div
+      className={`relative overflow-hidden rounded-xl border bg-gradient-to-br ${toneMap[tone]} bg-card/60 p-3 backdrop-blur transition-transform hover:-translate-y-0.5`}
+    >
+      <div className="text-2xl font-black text-foreground">{value}</div>
+      <div className="mt-0.5 text-[10px] font-bold uppercase tracking-wider">{label}</div>
+    </div>
+  );
+}
+
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
