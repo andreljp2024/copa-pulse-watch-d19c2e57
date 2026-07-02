@@ -20,6 +20,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { toast } from "sonner";
 import { brl } from "@/lib/saas";
 import { maskPhone } from "@/lib/masks";
+import { ptTeamName } from "@/components/MatchCard";
 
 export const Route = createFileRoute("/_authenticated/app/torcedores")({
   component: TorcedoresPage,
@@ -119,8 +120,8 @@ function TorcedoresPage() {
           created_at: String(p.created_at ?? ""),
           match_id: String(p.match_id ?? ""),
           kickoff_at: m?.kickoff_at ?? "",
-          home: home?.name ?? "?",
-          away: away?.name ?? "?",
+          home: ptTeamName(home?.name) || "?",
+          away: ptTeamName(away?.name) || "?",
           home_flag: home?.flag_url ?? null,
           away_flag: away?.flag_url ?? null,
           status_pagamento: String(p.status_pagamento ?? "pendente"),
