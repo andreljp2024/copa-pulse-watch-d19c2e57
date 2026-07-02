@@ -357,25 +357,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "match_events_player_id_fkey"
-            columns: ["player_id"]
-            isOneToOne: false
-            referencedRelation: "v_top_scorers"
-            referencedColumns: ["player_id"]
-          },
-          {
             foreignKeyName: "match_events_related_player_id_fkey"
             columns: ["related_player_id"]
             isOneToOne: false
             referencedRelation: "players"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "match_events_related_player_id_fkey"
-            columns: ["related_player_id"]
-            isOneToOne: false
-            referencedRelation: "v_top_scorers"
-            referencedColumns: ["player_id"]
           },
           {
             foreignKeyName: "match_events_team_id_fkey"
@@ -435,13 +421,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "players"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "match_lineups_player_id_fkey"
-            columns: ["player_id"]
-            isOneToOne: false
-            referencedRelation: "v_top_scorers"
-            referencedColumns: ["player_id"]
           },
           {
             foreignKeyName: "match_lineups_team_id_fkey"
@@ -620,13 +599,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "players"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "matches_man_of_the_match_fkey"
-            columns: ["man_of_the_match"]
-            isOneToOne: false
-            referencedRelation: "v_top_scorers"
-            referencedColumns: ["player_id"]
           },
           {
             foreignKeyName: "matches_referee_id_fkey"
@@ -1282,9 +1254,12 @@ export type Database = {
       }
       v_top_scorers: {
         Row: {
+          assists: number | null
           flag_url: string | null
           goals: number | null
           name: string | null
+          nationality: string | null
+          penalties: number | null
           player_id: string | null
           team_code: string | null
           team_id: string | null
@@ -1292,14 +1267,14 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "players_team_id_fkey"
+            foreignKeyName: "scorers_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "players_team_id_fkey"
+            foreignKeyName: "scorers_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "v_standings"
