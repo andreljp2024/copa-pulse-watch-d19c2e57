@@ -473,11 +473,11 @@ function PublicBolao() {
          </section>
         )}
 
-        {!pix || !pix.numero_recebedor_whatsapp && (
+        {(!pix || !pix.numero_recebedor_whatsapp) && (
          <section className="mx-auto max-w-5xl px-4 pt-6 print:hidden">
            <div className="rounded-2xl border border-border bg-card p-5 text-center">
              <p className="text-sm text-muted-foreground">
-               {!pix ? "WhatsApp não configurado" : "Palpites encerrados"}
+               {!pix ? "PIX não configurado" : "WhatsApp não configurado"}
              </p>
            </div>
          </section>
