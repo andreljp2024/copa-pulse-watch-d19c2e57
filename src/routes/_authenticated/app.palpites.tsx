@@ -305,7 +305,7 @@ function PalpitesPage() {
     <div class="kpi"><div class="l">Arrecadado</div><div class="v">${esc(brl(totals.arrecadado))}</div></div>
   </div>
   <table>
-    <thead><tr><th>Palpite</th><th>Torcedor</th><th>Bolão</th><th>Jogo</th><th>Palpite</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+    <thead><tr><th>Palpite</th><th>Torcedor</th><th>Bolão</th><th>Jogo</th><th>Placar</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
     <tbody>${linhas || `<tr><td colspan="8" style="text-align:center;color:#888;padding:24px">Nenhum palpite no filtro selecionado.</td></tr>`}</tbody>
   </table>
   <div class="footer">Gerado pelo sistema · ${esc(filtered.length)} registro(s)</div>
