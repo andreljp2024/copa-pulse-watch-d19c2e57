@@ -332,7 +332,7 @@ function PublicBolao() {
       setTimeout(() => setShareCopied(false), 2000);
     } catch { /* noop */ }
   }
-  const shareWa = `https://wa.me/?text=${encodeURIComponent(`Participe do bolão *${bolao.nome}* — palpite na Copa 2026! ${shareUrl}`)}`;
+  const shareWa = `https://wa.me/?text=${encodeURIComponent(`🏆⚽ Participe do bolão *${bolao.nome}* — palpite na Copa 2026! 🇧🇷🔥\n\n👉 ${shareUrl}\n\nBoa sorte! 🍀💚💛`)}`;
 
 
   return (
