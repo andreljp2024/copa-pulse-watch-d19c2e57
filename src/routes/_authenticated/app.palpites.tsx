@@ -161,10 +161,7 @@ function PalpitesPage() {
     const away = teamName(r.matches?.away_team_id);
     const protocolo = fmtProtocolo(r.codigo);
     const kickoff = r.matches?.kickoff_at
-      ? new Date(r.matches.kickoff_at).toLocaleString("pt-BR", {
-          dateStyle: "short",
-          timeStyle: "short",
-        })
+      ? formatBR(r.matches.kickoff_at, "dd/MM/yyyy 'às' HH:mm")
       : "o início do jogo";
     const msg =
       `Olá, ${r.torcedores?.nome ?? ""}!\n\n` +
