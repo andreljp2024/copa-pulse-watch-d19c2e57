@@ -145,7 +145,7 @@ function BolaoConfigPage() {
           percentual_admin: Number((b as any).percentual_admin ?? 30),
           permitir_ranking_publico: b.permitir_ranking_publico,
           permitir_ganhadores_publico: b.permitir_ganhadores_publico,
-          data_limite_palpite: b.data_limite_palpite ? b.data_limite_palpite.slice(0, 16) : "",
+          data_limite_palpite: b.data_limite_palpite ? toDatetimeLocalBR(b.data_limite_palpite) : "",
         };
         setForm(next);
         setInitialForm(next);
