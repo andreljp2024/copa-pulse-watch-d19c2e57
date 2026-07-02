@@ -132,8 +132,6 @@ function GestoresInner() {
   const { data: planos = [] } = useQuery({ queryKey: ["planos-admin"], queryFn: () => planosFn() });
 
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
-  const [showWhatsAppForm, setShowWhatsAppForm] = useState(false);
-  const [waForm, setWaForm] = useState({ nome_responsavel: "", nome_estabelecimento: "", telefone: "" });
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ email: "", nome_responsavel: "", nome_estabelecimento: "" });
   const [planoEdit, setPlanoEdit] = useState<Record<string, string>>({});
