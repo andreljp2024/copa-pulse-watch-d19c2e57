@@ -555,9 +555,71 @@ function GestoresInner() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={!!confirmSuspend} onOpenChange={(o) => !o && setConfirmSuspend(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmSuspend?.status === "active" ? "Suspender acesso?" : "Reativar acesso?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmSuspend?.status === "active"
+                ? "O gestor não conseguirá acessar o painel enquanto estiver suspenso. Os dados são preservados."
+                : "O gestor voltará a conseguir acessar o painel normalmente."}
+              <br />
+              <strong>{confirmSuspend?.nome_estabelecimento}</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirmSuspend) toggleStatus.mutate(confirmSuspend);
+                setConfirmSuspend(null);
+              }}
+            >
+              Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!recoveryLink} onOpenChange={(o) => !o && setRecoveryLink(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Link de redefinição de senha</AlertDialogTitle>
+            <AlertDialogDescription>
+              Envie este link para <strong>{recoveryLink?.email}</strong>. Ele expira em 1 hora e é
+              de uso único.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {recoveryLink?.link ? (
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 p-2">
+              <code className="text-[11px] break-all flex-1">{recoveryLink.link}</code>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(recoveryLink.link ?? "");
+                  notify("Link copiado.");
+                }}
+                className="h-8 px-2 rounded-md border border-border text-xs font-semibold inline-flex items-center gap-1"
+              >
+                <Copy className="h-3.5 w-3.5" /> Copiar
+              </button>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              O e-mail de recuperação foi disparado pelo provedor.
+            </p>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setRecoveryLink(null)}>Fechar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
+
 
 function GestorDetailSheet({
   tenantId,
