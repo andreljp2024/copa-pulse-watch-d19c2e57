@@ -239,14 +239,13 @@ function PublicBolao() {
       matches.find((m) => m.status !== "finished") ??
       null
     );
-  }, [matches]);
+  }, [matches, nowSafe]);
 
   const palpiteAberto = useMemo(() => {
     if (!bolao.data_limite_palpite) return true;
-    const now = new Date();
-    now.setHours(now.getHours() - 3);
-    return new Date(bolao.data_limite_palpite) > now;
-  }, [bolao.data_limite_palpite]);
+    if (nowMs === null) return true; // SSR-safe padrão
+    return new Date(bolao.data_limite_palpite).getTime() > nowSafe;
+  }, [bolao.data_limite_palpite, nowMs, nowSafe]);
 
   function avancarIdentidade(e: React.FormEvent) {
     e.preventDefault();
