@@ -108,6 +108,9 @@ function BolaoConfigPage() {
         .from("matches")
         .select("id, kickoff_at, status, home_team_id, away_team_id")
         .eq("status", "scheduled")
+        .not("kickoff_at", "is", null)
+        .not("home_team_id", "is", null)
+        .not("away_team_id", "is", null)
         .gte("kickoff_at", nowUtc)
         .order("kickoff_at", { ascending: true })
         .limit(50),
