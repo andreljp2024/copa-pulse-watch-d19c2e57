@@ -19,6 +19,9 @@ import {
   Loader2,
   RefreshCw,
   Shield,
+  AlertTriangle,
+  Lock,
+  MessageCircle,
 } from "lucide-react";
 
 
