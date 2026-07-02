@@ -523,9 +523,13 @@ function PalpitesPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    {teamName(r.matches?.home_team_id)}{" "}
-                    <span className="text-muted-foreground">x</span>{" "}
-                    {teamName(r.matches?.away_team_id)}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <TeamFlag flag={teamInfo(r.matches?.home_team_id)?.flag} />
+                      <span>{teamName(r.matches?.home_team_id)}</span>
+                      <span className="text-muted-foreground">x</span>
+                      <TeamFlag flag={teamInfo(r.matches?.away_team_id)?.flag} />
+                      <span>{teamName(r.matches?.away_team_id)}</span>
+                    </div>
                   </td>
                   <td className="px-4 py-3 font-bold font-mono">
                     {r.palpite_a}–{r.palpite_b}
