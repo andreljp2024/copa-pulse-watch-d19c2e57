@@ -9,14 +9,18 @@ export const Route = createFileRoute("/api/public/hooks/sync-football")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apikey = request.headers.get("apikey");
-        const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
+        const apikey = request.headers.get("apikey") ?? request.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
+        const expected =
+          process.env.SUPABASE_PUBLISHABLE_KEY ??
+          process.env.SUPABASE_ANON_KEY ??
+          process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
         if (!expected || apikey !== expected) {
-          return new Response(JSON.stringify({ error: "unauthorized" }), {
-            status: 401,
-            headers: { "Content-Type": "application/json" },
-          });
+          return new Response(
+            JSON.stringify({ error: "unauthorized", hasExpected: !!expected }),
+            { status: 401, headers: { "Content-Type": "application/json" } },
+          );
         }
+
 
         try {
           const { syncFootballData } = await import("@/lib/football-sync.server");
