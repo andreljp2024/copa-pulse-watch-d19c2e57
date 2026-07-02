@@ -42,7 +42,7 @@ function Page() {
               <div className="min-w-0 flex-1">
                 <div className="font-semibold truncate">{s.name}</div>
                 <TeamBadge
-                  team={{ name: s.team_name, code: s.team_code, flag_url: s.flag_url }}
+                  team={{ name: s.team_name ?? "—", code: s.team_code ?? "", flag_url: s.flag_url }}
                   size="sm"
                 />
               </div>
