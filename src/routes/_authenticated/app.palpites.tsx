@@ -52,6 +52,8 @@ function fmtProtocolo(c: number | null) {
 function PalpitesPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [teams, setTeams] = useState<Map<string, string>>(new Map());
   const [filters, setFilters] = useState({
     status: "todos",
@@ -62,36 +64,69 @@ function PalpitesPage() {
   });
   const [showFilters, setShowFilters] = useState(false);
 
-  async function load() {
-    const { data: u } = await supabase.auth.getUser();
-    const tRes = await supabase
-      .from("tenants")
-      .select("id")
-      .eq("owner_user_id", u.user!.id)
-      .limit(1);
-    const t = Array.isArray(tRes.data) ? tRes.data[0] : tRes.data;
-    if (!t) return;
-    const [{ data: pals }, { data: ts }] = await Promise.all([
-      supabase
-        .from("palpites")
-        .select(
-          "id, codigo, bolao_id, palpite_a, palpite_b, valor, status_pagamento, created_at, torcedores(nome, whatsapp), matches(home_team_id, away_team_id, kickoff_at), boloes(nome, slug)",
-        )
-        .eq("tenant_id", t.id)
-        .order("created_at", { ascending: false }),
-      supabase.from("teams").select("id, name"),
-    ]);
-    setRows((pals as unknown as Row[]) ?? []);
-    setTeams(new Map((ts ?? []).map((x) => [x.id, x.name])));
-    setLoading(false);
+  const teamName = (id: string | null | undefined) =>
+    ptTeamName(teams.get(id ?? "") ?? "") || "?";
+
+  async function load(silent = false) {
+    if (silent) setRefreshing(true);
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return;
+      const tRes = await supabase
+        .from("tenants")
+        .select("id")
+        .eq("owner_user_id", u.user.id)
+        .limit(1);
+      const t = Array.isArray(tRes.data) ? tRes.data[0] : tRes.data;
+      if (!t) return;
+      const [{ data: pals, error: e1 }, { data: ts, error: e2 }] = await Promise.all([
+        supabase
+          .from("palpites")
+          .select(
+            "id, codigo, bolao_id, palpite_a, palpite_b, valor, status_pagamento, created_at, torcedores(nome, whatsapp), matches(home_team_id, away_team_id, kickoff_at), boloes(nome, slug)",
+          )
+          .eq("tenant_id", t.id)
+          .order("created_at", { ascending: false }),
+        supabase.from("teams").select("id, name"),
+      ]);
+      if (e1) throw e1;
+      if (e2) throw e2;
+      setRows((pals as unknown as Row[]) ?? []);
+      setTeams(new Map((ts ?? []).map((x) => [x.id, x.name])));
+    } catch (err) {
+      console.error(err);
+      toast.error("Falha ao carregar palpites");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }
   useEffect(() => {
     void load();
   }, []);
 
   async function setStatus(id: string, status: string) {
-    await supabase.from("palpites").update({ status_pagamento: status }).eq("id", id);
-    void load();
+    setBusyId(id);
+    try {
+      const { error } = await supabase
+        .from("palpites")
+        .update({ status_pagamento: status })
+        .eq("id", id);
+      if (error) throw error;
+      setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status_pagamento: status } : r)));
+      toast.success(
+        status === "pago"
+          ? "Palpite confirmado como pago"
+          : status === "cancelado"
+            ? "Palpite cancelado"
+            : "Status atualizado",
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Não foi possível atualizar o status");
+    } finally {
+      setBusyId(null);
+    }
   }
 
   function aprovarEEnviar(r: Row) {
