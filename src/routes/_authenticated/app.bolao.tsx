@@ -189,7 +189,7 @@ function BolaoConfigPage() {
       permitir_ranking_publico: form.permitir_ranking_publico,
       permitir_ganhadores_publico: form.permitir_ganhadores_publico,
       data_limite_palpite: form.data_limite_palpite
-        ? new Date(form.data_limite_palpite).toISOString()
+        ? fromDatetimeLocalBR(form.data_limite_palpite).toISOString()
         : null,
     };
     const { error: updErr } = await supabase.from("boloes").update(payload).eq("id", bolaoId);
