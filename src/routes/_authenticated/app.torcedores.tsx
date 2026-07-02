@@ -138,6 +138,15 @@ function TorcedoresPage() {
     void loadLeads();
   }, [loadLeads]);
 
+  const firstPalpiteByTorcedor = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const l of leads) {
+      const cur = m.get(l.torcedor_id);
+      if (!cur || l.created_at < cur) m.set(l.torcedor_id, l.created_at);
+    }
+    return m;
+  }, [leads]);
+
   const filteredLeads = useMemo(() => {
     const s = q.trim().toLowerCase();
     return leads.filter((l) => {
