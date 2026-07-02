@@ -18,7 +18,9 @@ import {
   Sparkles,
   Loader2,
   RefreshCw,
+  Shield,
 } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: Dashboard,
