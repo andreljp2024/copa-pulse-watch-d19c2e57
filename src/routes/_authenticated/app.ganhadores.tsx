@@ -93,7 +93,7 @@ function GanhadoresPage() {
 
   function exportCsv() {
     const rows = [
-      ["Bolão", "Protocolo", "Nome", "WhatsApp", "Jogo", "Placar", "Palpite", "Prêmio"],
+      ["Bolão", "Palpite", "Nome", "WhatsApp", "Jogo", "Placar", "Palpite", "Prêmio"],
     ];
     for (const g of filteredGrupos) {
       for (const w of g.ganhadores) {
@@ -327,7 +327,7 @@ function GanhadorItem({
     `Você é um dos ganhadores do bolão *${bolaoNome}*!\n\n` +
     `Jogo: ${homePt} ${w.home_score ?? "?"} x ${w.away_score ?? "?"} ${awayPt}\n` +
     `Seu palpite: ${w.palpite_a} x ${w.palpite_b} ✅\n` +
-    `Protocolo: ${protocolo}\n\n` +
+    `Palpite: ${protocolo}\n\n` +
     `💰 Valor do prêmio: *${brl(premio)}*\n\n` +
     `Em breve entraremos em contato para o pagamento. Obrigado por participar! 💚💛`;
   const link = buildWhatsAppLink(w.whatsapp, msg);
