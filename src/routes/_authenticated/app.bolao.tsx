@@ -573,9 +573,7 @@ function BolaoConfigPage() {
                       onClick={() =>
                         setForm({
                           ...form,
-                          data_limite_palpite: new Date(proximoJogo.kickoff_at)
-                            .toISOString()
-                            .slice(0, 16),
+                          data_limite_palpite: toDatetimeLocalBR(proximoJogo.kickoff_at),
                         })
                       }
                       className="text-xs font-semibold text-pitch hover:underline"
