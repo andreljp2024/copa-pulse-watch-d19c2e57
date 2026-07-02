@@ -324,7 +324,33 @@ function GestoresInner() {
                 <DropdownMenuItem onClick={() => setShowForm(true)}>
                   <Mail className="mr-2 h-4 w-4" /> 📧 Convite por e-mail
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setShowWhatsAppForm(true)}>
+                <DropdownMenuItem
+                  onClick={() => {
+                    const origin = typeof window !== "undefined" ? window.location.origin : "https://copa-pulse-watch.lovable.app";
+                    const url = `${origin}/criar-bolao`;
+                    const msg =
+                      `🏆⚽ *BOLÃO AI — CONVITE ESPECIAL* 🇧🇷\n` +
+                      `━━━━━━━━━━━━━━━━━━━━\n\n` +
+                      `Fala, *craque*! 👋\n\n` +
+                      `Você foi convidado pra ser o *organizador oficial* do bolão da sua turma na *Copa 2026*! 🎉⚽\n\n` +
+                      `🎁 *É cortesia do Dev* — não é bets 🚫🎰\n` +
+                      `🤝 Só diversão entre amigos, família e colegas.\n\n` +
+                      `✨ *O QUE VOCÊ GANHA:*\n` +
+                      `📱 Palpites 100% pelo WhatsApp\n` +
+                      `💰 Pix cai *direto na sua conta*\n` +
+                      `🏅 Ranking e ganhadores no automático\n` +
+                      `📊 Painel completo pra gerenciar tudo\n` +
+                      `🆓 *Grátis até 50 palpites* — todos os recursos liberados\n\n` +
+                      `⚡ *COMO COMEÇAR (leva 2 min):*\n` +
+                      `1️⃣ Clique no link abaixo\n` +
+                      `2️⃣ Crie o seu bolão\n` +
+                      `3️⃣ Compartilhe com a galera 🚀\n\n` +
+                      `👇 *Crie o seu bolão agora:*\n${url}\n\n` +
+                      `━━━━━━━━━━━━━━━━━━━━\n` +
+                      `Bora torcer juntos pelo *HEXA*! 🇧🇷🥅🔥`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+                  }}
+                >
                   <MessageCircle className="mr-2 h-4 w-4" /> 💬 Convite por WhatsApp
                 </DropdownMenuItem>
               </DropdownMenuContent>
