@@ -8,6 +8,7 @@ import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
 import { maskPhone, isValidWhatsAppBR } from "@/lib/masks";
 import { buildPixPayload } from "@/lib/pix";
 import { ptTeamName } from "@/components/MatchCard";
+import { flagEmoji } from "@/lib/flag";
 import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered, Clock, Users, Flame, Sparkles, MapPin, Search, Share2, Link as LinkIcon, Medal, Coins } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -296,21 +297,24 @@ function PublicBolao() {
         const m = matches.find((x) => x.id === it.match_id);
         const home = teams.get(m?.home_team_id ?? "");
         const away = teams.get(m?.away_team_id ?? "");
-        linhas.push(`• ${ptTeamName(home?.name)} ${it.palpite_a} x ${it.palpite_b} ${ptTeamName(away?.name)}  (${protocolo})`);
+        const fa = flagEmoji(home?.code);
+        const fb = flagEmoji(away?.code);
+        linhas.push(`• ${fa} ${ptTeamName(home?.name)} ${it.palpite_a} x ${it.palpite_b} ${ptTeamName(away?.name)} ${fb}  (${protocolo})`);
       }
 
       const dataHora = format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
       const protocolosStr = protocolos.join(", ");
       const msg =
-        `Eu: ${form.nome}\n` +
-        `Whatsapp: ${maskPhone(whatsapp)}\n` +
+        `👤 Eu: ${form.nome}\n` +
+        `📱 Whatsapp: ${maskPhone(whatsapp)}\n` +
         `📅 ${dataHora}\n\n` +
-        `Acabei de registrar um palpite\n` +
-        `Em: *${bolao.nome}*\n` +
-        `Palpite(s): ${protocolosStr}\n` +
-        `No total de *${brl(valorTotal)}*\n\n` +
-        `Já lhe envio o comprovante\n` +
-        `Para: ${pix.chave_pix}`;
+        `⚽ Acabei de registrar um palpite\n` +
+        `🏆 Em: *${bolao.nome}*\n\n` +
+        `${linhas.join("\n")}\n\n` +
+        `🎯 Protocolo(s): ${protocolosStr}\n` +
+        `💰 Total: *${brl(valorTotal)}*\n\n` +
+        `💳 Já lhe envio o comprovante\n` +
+        `🏦 Para: ${pix.chave_pix}`;
       setDone({ link: buildWhatsAppLink(pix.numero_recebedor_whatsapp ?? "", msg), protocolos, valorTotal });
       (confetti as unknown as (opts: Record<string, unknown>) => void)({ particleCount: 120, spread: 80, origin: { y: 0.6 }, useWorker: false, disableForReducedMotion: true });
     } catch (err) {
