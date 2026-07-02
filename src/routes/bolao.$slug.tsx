@@ -149,7 +149,7 @@ function PublicBolao() {
   const [selected, setSelected] = useState<Match | null>(null);
   const [step, setStep] = useState<"identidade" | "palpites">("identidade");
   const [form, setForm] = useState({ nome: "", whatsapp: "" });
-  const [items, setItems] = useState<Array<{ match_id: string; palpite_a: number; palpite_b: number }>>([]);
+  const [items, setItems] = useState<Array<{ match_id: string; palpite_a: string; palpite_b: string }>>([]);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ link: string; protocolos: string[]; valorTotal: number } | null>(null);
   const [query, setQuery] = useState("");
