@@ -20,6 +20,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { toast } from "sonner";
 import { brl } from "@/lib/saas";
 import { maskPhone } from "@/lib/masks";
+import { ptTeamName } from "@/components/MatchCard";
 
 export const Route = createFileRoute("/_authenticated/app/torcedores")({
   component: TorcedoresPage,
