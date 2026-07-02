@@ -251,18 +251,16 @@ function WhatsAppConfigPage() {
             <Field label="WhatsApp (DDD + número)" required>
               <div className="relative mt-1">
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-mono text-muted-foreground select-none">
-                  55
+                  +55
                 </span>
                 <input
                   required
                   inputMode="numeric"
                   value={form.numero_whatsapp}
-                  onChange={(e) =>
-                    setForm({ ...form, numero_whatsapp: onlyDigits(e.target.value).slice(0, 11) })
-                  }
-                  className={`${inputCss} font-mono pl-10 ${phoneError ? "border-destructive/60 focus:ring-destructive/40" : ""}`}
-                  placeholder="11999999999"
-                  maxLength={11}
+                  onChange={(e) => update("numero_whatsapp", maskPhone(e.target.value))}
+                  className={`${inputCss} font-mono pl-12 ${phoneError ? "border-destructive/60 focus:ring-destructive/40" : ""}`}
+                  placeholder="(11) 99999-9999"
+                  maxLength={16}
                 />
               </div>
               {phoneError ? (
@@ -271,11 +269,12 @@ function WhatsAppConfigPage() {
                 </p>
               ) : (
                 <p className="mt-1 text-xs text-muted-foreground">
-                  DDI 55 (Brasil) incluso. Informe apenas DDD + número.
+                  DDI +55 (Brasil) incluso automaticamente. Informe DDD + número.
                 </p>
               )}
             </Field>
           </Section>
+
 
           <Section
             title="Templates de mensagem"
