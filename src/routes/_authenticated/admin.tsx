@@ -214,6 +214,7 @@ function AdminPage() {
             </button>
           </div>
         </div>
+
         {msg && (
           <div className="mt-4 rounded-lg border border-border bg-card p-3 text-sm">{msg}</div>
         )}
