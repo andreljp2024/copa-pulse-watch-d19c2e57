@@ -117,6 +117,28 @@ function LandingPage() {
         </div>
       </section>
 
+      <section className="mx-auto max-w-4xl px-4 py-12">
+        <div className="rounded-2xl border border-gold/30 bg-card/60 p-6 md:p-8 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-gold">
+            <Heart className="h-3.5 w-3.5" /> Você é o organizador da sua turma
+          </span>
+          <h2 className="mt-4 font-display text-3xl md:text-4xl tracking-tight">
+            Bolão entre amigos, do seu jeito 🤝⚽
+          </h2>
+          <p className="mt-4 text-muted-foreground md:text-lg leading-relaxed">
+            🧑‍💼 <strong>Todos os contatos são do organizador.</strong> 🔧 <strong>Todos os parâmetros são do organizador.</strong>
+            {" "}Junte amigos e familiares e <strong>vamos torcer juntos</strong> 💚💛! 🎉
+          </p>
+          <p className="mt-3 text-muted-foreground md:text-lg leading-relaxed">
+            💰 Os valores dos palpites são apenas uma forma de <strong>custear a confraternização
+            do torcedor</strong> 🍻🍿 — ficando <strong>apenas o organizador responsável pela sua
+            própria turma</strong>. Bolão AI é cortesia de Dev, <strong>não é bets</strong> 🚫🎰.
+          </p>
+        </div>
+      </section>
+
+
+
 
       <section className="mx-auto max-w-7xl px-4 py-16">
         <h2 className="font-display text-4xl sm:text-5xl tracking-tight text-center">
