@@ -183,8 +183,8 @@ function PalpitesPage() {
 
   const filtered = useMemo(() => {
     const q = filters.search.trim().toLowerCase();
-    const de = filters.dataDe ? new Date(filters.dataDe).getTime() : null;
-    const ate = filters.dataAte ? new Date(filters.dataAte + "T23:59:59").getTime() : null;
+    const de = filters.dataDe ? new Date(filters.dataDe + "T00:00:00-03:00").getTime() : null;
+    const ate = filters.dataAte ? new Date(filters.dataAte + "T23:59:59-03:00").getTime() : null;
     return rows.filter((r) => {
       if (filters.status !== "todos" && r.status_pagamento !== filters.status) return false;
       if (filters.bolaoSlug !== "todos" && r.boloes?.slug !== filters.bolaoSlug) return false;
