@@ -518,13 +518,13 @@ function PalpitesPage() {
                   <td className="px-4 py-3">
                     <div className="font-medium">{r.torcedores?.nome}</div>
                     <div className="text-xs text-muted-foreground font-mono">
-                      {r.torcedores?.whatsapp}
+                      {maskPhone(r.torcedores?.whatsapp ?? "")}
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    {teams.get(r.matches?.home_team_id ?? "") ?? "?"}{" "}
+                    {teamName(r.matches?.home_team_id)}{" "}
                     <span className="text-muted-foreground">x</span>{" "}
-                    {teams.get(r.matches?.away_team_id ?? "") ?? "?"}
+                    {teamName(r.matches?.away_team_id)}
                   </td>
                   <td className="px-4 py-3 font-bold font-mono">
                     {r.palpite_a}–{r.palpite_b}
@@ -544,11 +544,15 @@ function PalpitesPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex flex-wrap justify-end gap-2">
-                      {r.status_pagamento !== "pago" && (
+                    <div className="flex flex-wrap justify-end gap-2 items-center">
+                      {busyId === r.id && (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                      )}
+                      {r.status_pagamento !== "pago" && r.status_pagamento !== "cancelado" && (
                         <button
                           onClick={() => aprovarEEnviar(r)}
-                          className="inline-flex items-center gap-1 rounded-md bg-green-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-green-700"
+                          disabled={busyId === r.id}
+                          className="inline-flex items-center gap-1 rounded-md bg-green-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-green-700 disabled:opacity-60"
                         >
                           <CheckCircle2 className="h-3.5 w-3.5" /> Aprovar
                         </button>
@@ -571,10 +575,21 @@ function PalpitesPage() {
                           <MessageCircle className="h-3.5 w-3.5" /> Recibo
                         </button>
                       )}
+                      {r.status_pagamento === "cancelado" && (
+                        <button
+                          onClick={() => setStatus(r.id, "pendente")}
+                          disabled={busyId === r.id}
+                          className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted disabled:opacity-60"
+                          title="Reativar como pendente"
+                        >
+                          <Undo2 className="h-3.5 w-3.5" /> Reativar
+                        </button>
+                      )}
                       {r.status_pagamento !== "cancelado" && (
                         <button
                           onClick={() => setStatus(r.id, "cancelado")}
-                          className="inline-flex items-center gap-1 rounded-md border border-red-200 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-50"
+                          disabled={busyId === r.id}
+                          className="inline-flex items-center gap-1 rounded-md border border-red-200 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-60"
                         >
                           <XCircle className="h-3.5 w-3.5" /> Cancelar
                         </button>
