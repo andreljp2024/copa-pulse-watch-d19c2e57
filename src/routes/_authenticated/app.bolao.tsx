@@ -708,15 +708,6 @@ function BolaoConfigPage() {
                 )}
                 <button
                   type="button"
-                  onClick={loadMatches}
-                  disabled={loadingGames}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground"
-                >
-                  <RefreshCw className={`h-3 w-3 ${loadingGames ? "animate-spin" : ""}`} />{" "}
-                  Atualizar
-                </button>
-                <button
-                  type="button"
                   onClick={syncWithApi}
                   disabled={syncing}
                   className="inline-flex items-center gap-1 rounded-md border border-gold/40 bg-gold/10 px-2.5 py-1 text-xs font-semibold text-gold hover:bg-gold/20 disabled:opacity-60"
