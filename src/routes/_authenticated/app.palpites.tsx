@@ -331,6 +331,14 @@ function PalpitesPage() {
         actions={
           <>
             <button
+              onClick={() => void load(true)}
+              disabled={refreshing}
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10 disabled:opacity-60"
+              title="Atualizar"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} /> Atualizar
+            </button>
+            <button
               onClick={() => setShowFilters((v) => !v)}
               className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10"
             >
