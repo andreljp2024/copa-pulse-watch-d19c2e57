@@ -266,7 +266,7 @@ function TorcedoresPage() {
     const digits = whats.replace(/\D/g, "");
     const fone = digits.startsWith("55") ? digits : `55${digits}`;
     const primeiro = nome.split(" ")[0] || "torcedor";
-    const text = msg ?? `Olá ${primeiro}! Tudo certo com seus palpites? 🍀`;
+    const text = msg ?? `👋 Olá ${primeiro}! ⚽🏆 Tudo certo com seus palpites? 🍀💚💛`;
     return `https://wa.me/${fone}?text=${encodeURIComponent(text)}`;
   }
 
