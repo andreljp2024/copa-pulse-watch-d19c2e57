@@ -104,19 +104,21 @@ function WhatsAppConfigPage() {
         if (tErr || !t) return;
         setTenantId(t.id);
 
-        const { data: wa, error: waErr } = await supabase
-          .from("tenant_whatsapp_config")
-          .select("*")
-          .eq("tenant_id", t.id)
-          .maybeSingle();
-        if (waErr) {
-          toast.error(`Erro ao carregar: ${waErr.message}`);
+        const [waRes, pixRes] = await Promise.all([
+          supabase.from("tenant_whatsapp_config").select("*").eq("tenant_id", t.id).maybeSingle(),
+          supabase
+            .from("tenant_pix_config")
+            .select("numero_recebedor_whatsapp")
+            .eq("tenant_id", t.id)
+            .maybeSingle(),
+        ]);
+        if (waRes.error) {
+          toast.error(`Erro ao carregar: ${waRes.error.message}`);
           return;
         }
+        const wa = waRes.data;
         if (wa) {
-          const rawPhone = (wa.numero_whatsapp ?? "").replace(/^55/, "");
           setForm({
-            numero_whatsapp: maskPhone(rawPhone),
             mensagem_novo_palpite: wa.mensagem_novo_palpite ?? DEFAULT_TEMPLATES.novo_palpite,
             mensagem_confirmacao_pagamento:
               wa.mensagem_confirmacao_pagamento ?? DEFAULT_TEMPLATES.confirmacao_pagamento,
@@ -125,19 +127,24 @@ function WhatsAppConfigPage() {
               wa.mensagem_lembrete_pagamento ?? DEFAULT_TEMPLATES.lembrete_pagamento,
           });
         }
+        // Fonte única do número: módulo PIX. Fallback para o que já está gravado no whatsapp_config.
+        const pixRaw = pixRes.data?.numero_recebedor_whatsapp ?? "";
+        const waRaw = (wa?.numero_whatsapp ?? "").replace(/^55/, "");
+        const chosen = onlyDigits(pixRaw) || waRaw;
+        setPixPhoneMasked(chosen ? maskPhone(chosen) : "");
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  const phoneError = useMemo(() => {
-    const d = onlyDigits(form.numero_whatsapp);
-    if (!d) return "Informe o número";
-    if (d.length < 10 || d.length > 11)
-      return "DDD + número deve ter 10 ou 11 dígitos";
+  const pixPhoneDigits = useMemo(() => onlyDigits(pixPhoneMasked), [pixPhoneMasked]);
+  const pixPhoneError = useMemo(() => {
+    if (!pixPhoneDigits) return "Nenhum número configurado no módulo Pix";
+    if (pixPhoneDigits.length < 10 || pixPhoneDigits.length > 11)
+      return "Número do módulo Pix é inválido";
     return null;
-  }, [form.numero_whatsapp]);
+  }, [pixPhoneDigits]);
 
   const templateErrors = useMemo(() => {
     const errs: Partial<Record<TemplateKey, string>> = {};
@@ -154,10 +161,8 @@ function WhatsAppConfigPage() {
     [form, previewKey],
   );
 
-  const fullPhone = useMemo(() => {
-    const d = onlyDigits(form.numero_whatsapp);
-    return d ? `55${d}` : "";
-  }, [form.numero_whatsapp]);
+  const fullPhone = pixPhoneDigits ? `55${pixPhoneDigits}` : "";
+
 
   const testLink = useMemo(() => {
     if (phoneError || !fullPhone) return null;
