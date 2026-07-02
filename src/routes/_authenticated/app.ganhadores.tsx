@@ -24,7 +24,6 @@ import {
 import { brl, buildWhatsAppLink, onlyDigits } from "@/lib/saas";
 import { maskPhone } from "@/lib/masks";
 import { ptTeamName } from "@/components/MatchCard";
-import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/app/ganhadores")({
   head: () => ({ meta: [{ title: "Ganhadores" }] }),
@@ -123,30 +122,43 @@ function GanhadoresPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Ganhadores"
-        subtitle="Cruzamento entre palpites pagos, resultados oficiais e divisão do prêmio."
-        icon={<Trophy className="h-5 w-5" />}
-        actions={
-          <>
+      {/* HERO */}
+      <div className="relative overflow-hidden rounded-3xl border border-gold/30 bg-hero p-6 sm:p-8 shadow-card">
+        <div className="pointer-events-none absolute inset-0 bg-mesh opacity-70" />
+        <div className="pointer-events-none absolute -top-16 -right-10 h-64 w-64 rounded-full bg-gold/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-16 h-72 w-72 rounded-full bg-pitch/30 blur-3xl" />
+        <div className="relative flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-background/40 px-3 py-1 text-xs font-semibold text-gold backdrop-blur">
+              <Trophy className="h-3.5 w-3.5" /> Hall dos campeões
+            </span>
+            <h1 className="mt-2 font-display text-3xl sm:text-4xl font-black tracking-tight">
+              <span className="text-gradient-gold">Ganhadores</span>
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground max-w-xl">
+              Cruzamento entre palpites pagos, resultados oficiais e divisão do prêmio.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={exportCsv}
               disabled={grupos.length === 0}
-              className="inline-flex items-center gap-2 h-10 rounded-xl border border-border bg-card px-4 text-sm font-bold hover:bg-muted/40 disabled:opacity-50"
+              className="inline-flex items-center gap-2 h-10 rounded-xl border border-border/70 bg-card/60 px-4 text-sm font-bold backdrop-blur hover:bg-card disabled:opacity-50"
             >
               <Download className="h-4 w-4" /> CSV
             </button>
             <button
               onClick={apurar}
               disabled={busy}
-              className="inline-flex items-center gap-2 h-10 rounded-xl bg-gradient-gold px-4 font-bold text-gold-foreground shadow-gold disabled:opacity-50"
+              className="inline-flex items-center gap-2 h-10 rounded-xl bg-gradient-gold px-4 font-black text-gold-foreground shadow-gold transition hover:scale-105 disabled:opacity-50"
             >
               <RefreshCw className={`h-4 w-4 ${busy ? "animate-spin" : ""}`} />
               Apurar ganhadores
             </button>
-          </>
-        }
-      />
+          </div>
+        </div>
+      </div>
+
 
       {msg && (
         <div

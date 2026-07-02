@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Upload, FileText, CheckCircle2, Download, AlertCircle, ExternalLink } from "lucide-react";
-import { PageHeader } from "@/components/PageHeader";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -169,11 +168,24 @@ function ImportarContatos() {
 
   return (
     <div className="space-y-5 max-w-2xl mx-auto">
-      <PageHeader
-        title="Importar Contatos"
-        subtitle="Importe contatos do Google para seu bolão"
-        icon={<Upload className="h-5 w-5" />}
-      />
+      {/* HERO */}
+      <div className="relative overflow-hidden rounded-3xl border border-gold/30 bg-hero p-6 sm:p-8 shadow-card">
+        <div className="pointer-events-none absolute inset-0 bg-mesh opacity-70" />
+        <div className="pointer-events-none absolute -top-16 -right-10 h-64 w-64 rounded-full bg-gold/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-16 h-72 w-72 rounded-full bg-pitch/30 blur-3xl" />
+        <div className="relative">
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-background/40 px-3 py-1 text-xs font-semibold text-gold backdrop-blur">
+            <Upload className="h-3.5 w-3.5" /> Importação
+          </span>
+          <h1 className="mt-2 font-display text-3xl sm:text-4xl font-black tracking-tight">
+            Importar <span className="text-gradient-gold">Contatos</span>
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Importe contatos do Google para seu bolão.
+          </p>
+        </div>
+      </div>
+
 
       {/* Instruções */}
       <div className="rounded-xl border border-border bg-card p-5 space-y-3">
