@@ -8,6 +8,7 @@ import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
 import { maskPhone, isValidWhatsAppBR } from "@/lib/masks";
 import { buildPixPayload } from "@/lib/pix";
 import { ptTeamName } from "@/components/MatchCard";
+import { flagEmoji } from "@/lib/flag";
 import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered, Clock, Users, Flame, Sparkles, MapPin, Search, Share2, Link as LinkIcon, Medal, Coins } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -296,7 +297,9 @@ function PublicBolao() {
         const m = matches.find((x) => x.id === it.match_id);
         const home = teams.get(m?.home_team_id ?? "");
         const away = teams.get(m?.away_team_id ?? "");
-        linhas.push(`• ${ptTeamName(home?.name)} ${it.palpite_a} x ${it.palpite_b} ${ptTeamName(away?.name)}  (${protocolo})`);
+        const fa = flagEmoji(home?.code);
+        const fb = flagEmoji(away?.code);
+        linhas.push(`• ${fa} ${ptTeamName(home?.name)} ${it.palpite_a} x ${it.palpite_b} ${ptTeamName(away?.name)} ${fb}  (${protocolo})`);
       }
 
       const dataHora = format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
