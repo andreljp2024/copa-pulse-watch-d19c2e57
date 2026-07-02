@@ -96,14 +96,15 @@
   --chart-4: var(--brand-blue);
   --chart-5: oklch(65% 0.18 320);
 
-  --sidebar: oklch(17% 0.035 158);
+  --sidebar: oklch(24% 0.06 155);
   --sidebar-foreground: oklch(98% 0.012 95);
   --sidebar-primary: var(--brand-green);
   --sidebar-primary-foreground: oklch(14% 0.035 158);
-  --sidebar-accent: oklch(25% 0.045 158);
+  --sidebar-accent: oklch(32% 0.08 152);
   --sidebar-accent-foreground: oklch(98% 0.012 95);
-  --sidebar-border: oklch(32% 0.04 158 / 0.6);
-  --sidebar-ring: var(--brand-yellow);
+  --sidebar-border: oklch(45% 0.09 152 / 0.5);
+  --sidebar-ring: var(--brand-green);
+
 
   /* Modern gradients */
   --gradient-hero: linear-gradient(
