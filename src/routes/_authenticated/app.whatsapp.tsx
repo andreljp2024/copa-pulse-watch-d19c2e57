@@ -76,8 +76,8 @@ const MAX_TEMPLATE = 1000;
 function WhatsAppConfigPage() {
   const [loading, setLoading] = useState(true);
   const [tenantId, setTenantId] = useState<string | null>(null);
+  const [pixPhoneMasked, setPixPhoneMasked] = useState<string>("");
   const [form, setForm] = useState({
-    numero_whatsapp: "",
     mensagem_novo_palpite: DEFAULT_TEMPLATES.novo_palpite,
     mensagem_confirmacao_pagamento: DEFAULT_TEMPLATES.confirmacao_pagamento,
     mensagem_ganhador: DEFAULT_TEMPLATES.ganhador,
