@@ -454,7 +454,7 @@ function GestoresInner() {
                   <Eye className="h-3.5 w-3.5" /> Detalhes
                 </button>
                 <button
-                  onClick={() => toggleStatus.mutate(g)}
+                  onClick={() => setConfirmSuspend(g)}
                   className="h-8 px-3 rounded-md border border-border text-xs font-semibold inline-flex items-center gap-1"
                   title={g.status === "active" ? "Suspender acesso" : "Reativar acesso"}
                 >
@@ -474,13 +474,44 @@ function GestoresInner() {
                       <MoreVertical className="h-3.5 w-3.5" />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuContent align="end" className="w-60">
                     <DropdownMenuItem onClick={() => resetPwd.mutate(g.id)}>
-                      <KeyRound className="h-3.5 w-3.5 mr-2" /> Enviar redefinição de senha
+                      <KeyRound className="h-3.5 w-3.5 mr-2" /> Gerar link de redefinição
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => resendInvite.mutate(g.id)}>
                       <Send className="h-3.5 w-3.5 mr-2" /> Reenviar convite
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    {g.roles?.includes("super_admin") ? (
+                      <DropdownMenuItem
+                        onClick={() =>
+                          revokeRole.mutate({ tenant_id: g.id, role: "super_admin" })
+                        }
+                      >
+                        <ShieldMinus className="h-3.5 w-3.5 mr-2" /> Remover super admin
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onClick={() =>
+                          grantRole.mutate({ tenant_id: g.id, role: "super_admin" })
+                        }
+                      >
+                        <ShieldPlus className="h-3.5 w-3.5 mr-2" /> Promover a super admin
+                      </DropdownMenuItem>
+                    )}
+                    {g.roles?.includes("admin") ? (
+                      <DropdownMenuItem
+                        onClick={() => revokeRole.mutate({ tenant_id: g.id, role: "admin" })}
+                      >
+                        <ShieldMinus className="h-3.5 w-3.5 mr-2" /> Remover admin
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onClick={() => grantRole.mutate({ tenant_id: g.id, role: "admin" })}
+                      >
+                        <ShieldPlus className="h-3.5 w-3.5 mr-2" /> Conceder admin
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="text-destructive focus:text-destructive"
@@ -490,6 +521,7 @@ function GestoresInner() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+
               </div>
             </div>
           </div>
