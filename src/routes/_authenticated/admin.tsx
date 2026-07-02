@@ -239,8 +239,10 @@ function AdminPage() {
           {tab === "teams" && <TeamsAdmin />}
           {tab === "logs" && <LogsAdmin fn={logsFn} />}
         </div>
+        </div>
       </div>
     </AppShell>
+
   );
 }
 
