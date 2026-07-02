@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { brl, publicBolaoUrl } from "@/lib/saas";
+import { brl, publicBolaoUrl, LIMITE_PALPITES_FREE, LIMITE_PALPITES_AVISO, buildDevWhatsAppLink } from "@/lib/saas";
 import { computarGanhadores } from "@/lib/ganhadores.functions";
 import { formatBR } from "@/lib/timezone";
 import {
