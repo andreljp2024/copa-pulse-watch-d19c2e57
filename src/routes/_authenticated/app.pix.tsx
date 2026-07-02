@@ -388,18 +388,24 @@ function PixConfigPage() {
             <Field label="WhatsApp do recebedor">
               <input
                 value={form.numero_recebedor_whatsapp}
-                onChange={(e) => setForm({ ...form, numero_recebedor_whatsapp: maskPhone(e.target.value) })}
-                className={inputCss}
+                onChange={(e) => update("numero_recebedor_whatsapp", maskPhone(e.target.value))}
+                className={`${inputCss} ${whatsappError ? "border-destructive/60 focus:ring-destructive/40" : ""}`}
                 placeholder="(11) 99999-9999"
                 inputMode="numeric"
               />
-              <Hint>Número para contato direto com o recebedor.</Hint>
+              {whatsappError ? (
+                <p className="mt-1 inline-flex items-center gap-1 text-xs text-destructive">
+                  <AlertCircle className="h-3 w-3" /> {whatsappError}
+                </p>
+              ) : (
+                <Hint>Opcional. Número para contato direto com o recebedor.</Hint>
+              )}
             </Field>
           </Section>
 
           <div className="flex items-center gap-3">
             <button
-              disabled={saving || !!chaveError}
+              disabled={saving || !canSave}
               className="inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-gold px-5 font-semibold text-gold-foreground shadow-gold disabled:opacity-60"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
