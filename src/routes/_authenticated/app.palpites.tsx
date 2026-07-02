@@ -266,7 +266,7 @@ function PalpitesPage() {
         <td class="b">${esc(r.palpite_a)} x ${esc(r.palpite_b)}</td>
         <td>${esc(brl(r.valor))}</td>
         <td><span class="pill pill-${esc(r.status_pagamento)}">${esc(r.status_pagamento)}</span></td>
-        <td>${esc(new Date(r.created_at).toLocaleString("pt-BR"))}</td>
+        <td>${esc(formatBR(r.created_at, "dd/MM/yyyy HH:mm"))}</td>
       </tr>`,
       )
       .join("");
