@@ -3,20 +3,25 @@ import { createFileRoute } from "@tanstack/react-router";
 /**
  * Cron endpoint público — chamado a cada 10 min por pg_cron.
  * Sincroniza dados da Copa 2026 usando football-data.org como fonte.
- * Segurança: valida o header `x-cron-secret` contra CRON_SECRET.
+ * Segurança: valida o header `apikey` contra SUPABASE_PUBLISHABLE_KEY.
  */
 export const Route = createFileRoute("/api/public/hooks/sync-football")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const secret = request.headers.get("x-cron-secret");
-        const expected = process.env.CRON_SECRET;
-        if (!expected || secret !== expected) {
-          return new Response(JSON.stringify({ error: "unauthorized" }), {
-            status: 401,
-            headers: { "Content-Type": "application/json" },
-          });
+        const apikey = request.headers.get("apikey") ?? request.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
+        const expected =
+          process.env.SUPABASE_PUBLISHABLE_KEY ??
+          process.env.SUPABASE_ANON_KEY ??
+          process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+        if (!expected || apikey !== expected) {
+          return new Response(
+            JSON.stringify({ error: "unauthorized", hasExpected: !!expected }),
+            { status: 401, headers: { "Content-Type": "application/json" } },
+          );
         }
+
+
         try {
           const { syncFootballData } = await import("@/lib/football-sync.server");
           const result = await syncFootballData("cron:pg_cron");
