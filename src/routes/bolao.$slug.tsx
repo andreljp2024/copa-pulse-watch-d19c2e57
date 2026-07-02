@@ -225,7 +225,7 @@ function PublicBolao() {
       const next = prev.slice(0, qtd);
       while (next.length < qtd) {
         const fallback = openMatches[next.length % Math.max(openMatches.length, 1)] ?? openMatches[0];
-        next.push({ match_id: fallback?.id ?? "", palpite_a: 0, palpite_b: 0 });
+        next.push({ match_id: fallback?.id ?? "", palpite_a: "", palpite_b: "" });
       }
       return next;
     });
