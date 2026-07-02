@@ -20,7 +20,14 @@ function unwrap<T>(res: { data: T | null; error: { message: string } | null }, l
 }
 
 export const getDashboard = createServerFn({ method: "GET" }).handler(async () => {
-  const empty = { live: [], upcoming: [], recent: [], standings: [], topScorers: [], stats: { teams: 0, matches: 0, stadiums: 0 } };
+  const empty = {
+    live: [],
+    upcoming: [],
+    recent: [],
+    standings: [],
+    topScorers: [],
+    stats: { teams: 0, matches: 0, stadiums: 0 },
+  };
   let sb;
   try {
     sb = publicClient();
@@ -28,21 +35,49 @@ export const getDashboard = createServerFn({ method: "GET" }).handler(async () =
     return empty;
   }
   const now = new Date().toISOString();
+  // Janela de tolerância: partidas iniciadas há < 2h30 e ainda não finalizadas
+  // aparecem como "ao vivo" mesmo se o sync ainda não marcou status='live'.
+  const liveWindowStart = new Date(Date.now() - 150 * 60 * 1000).toISOString();
   try {
-    const [live, upcoming, recent, standings, scorers] = await Promise.all([
-      sb.from("matches").select(MATCH_SELECT).eq("status", "live").order("kickoff_at").then(r => r.error ? [] : r.data),
-      sb.from("matches").select(MATCH_SELECT).eq("status", "scheduled").gte("kickoff_at", now).order("kickoff_at").limit(6).then(r => r.error ? [] : r.data),
-      sb.from("matches").select(MATCH_SELECT).eq("status", "finished").order("kickoff_at", { ascending: false }).limit(6).then(r => r.error ? [] : r.data),
-      sb.from("v_standings").select("*").then(r => r.error ? [] : r.data),
-      sb.from("v_top_scorers").select("*").limit(8).then(r => r.error ? [] : r.data),
-    ]);
+    const [liveByStatus, liveByTime, upcoming, recent, standings, scorers, teamsC, matchesC, stadiumsC] =
+      await Promise.all([
+        sb.from("matches").select(MATCH_SELECT).eq("status", "live").order("kickoff_at").then((r) => (r.error ? [] : r.data)),
+        sb
+          .from("matches")
+          .select(MATCH_SELECT)
+          .eq("status", "scheduled")
+          .gte("kickoff_at", liveWindowStart)
+          .lte("kickoff_at", now)
+          .order("kickoff_at")
+          .then((r) => (r.error ? [] : r.data)),
+        sb
+          .from("matches")
+          .select(MATCH_SELECT)
+          .eq("status", "scheduled")
+          .gt("kickoff_at", now)
+          .order("kickoff_at")
+          .limit(6)
+          .then((r) => (r.error ? [] : r.data)),
+        sb.from("matches").select(MATCH_SELECT).eq("status", "finished").order("kickoff_at", { ascending: false }).limit(6).then((r) => (r.error ? [] : r.data)),
+        sb.from("v_standings").select("*").then((r) => (r.error ? [] : r.data)),
+        sb.from("v_top_scorers").select("*").limit(8).then((r) => (r.error ? [] : r.data)),
+        sb.from("teams").select("id", { count: "exact", head: true }).then((r) => r.count ?? 0),
+        sb.from("matches").select("id", { count: "exact", head: true }).then((r) => r.count ?? 0),
+        sb.from("stadiums").select("id", { count: "exact", head: true }).then((r) => r.count ?? 0),
+      ]);
+    // dedupe: prioridade para status='live'
+    const seen = new Set((liveByStatus ?? []).map((m: { id: string }) => m.id));
+    const live = [
+      ...(liveByStatus ?? []),
+      ...((liveByTime ?? []) as { id: string }[]).filter((m) => !seen.has(m.id)),
+    ];
     return {
-      live: live ?? [],
+      live,
       upcoming: upcoming ?? [],
       recent: recent ?? [],
       standings: standings ?? [],
       topScorers: scorers ?? [],
-      stats: { teams: 0, matches: 0, stadiums: 0 },
+      stats: { teams: teamsC, matches: matchesC, stadiums: stadiumsC },
     };
   } catch {
     return empty;
