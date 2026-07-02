@@ -295,7 +295,7 @@ function PalpitesPage() {
   <div class="meta">
     <strong>Bolão:</strong> ${esc(bolaoLabel)} · <strong>Status:</strong> ${esc(statusLabel)} · <strong>Período:</strong> ${esc(periodo)}
     ${filters.search ? ` · <strong>Busca:</strong> ${esc(filters.search)}` : ""}
-    <br/>Emitido em ${esc(new Date().toLocaleString("pt-BR"))}
+    <br/>Emitido em ${esc(formatBR(new Date(), "dd/MM/yyyy HH:mm"))}
   </div>
   <div class="grid">
     <div class="kpi"><div class="l">Palpites</div><div class="v">${totals.qtd}</div></div>
