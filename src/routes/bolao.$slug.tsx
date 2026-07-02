@@ -634,15 +634,25 @@ function PublicBolao() {
                             return <option key={om.id} value={om.id}>{ptTeamName(h?.name)} x {ptTeamName(a?.name)}</option>;
                           })}
                         </select>
-                        <div className="flex items-end gap-2 justify-center">
-                          <label className="flex flex-col items-center gap-1">
+                        <div className="flex items-end gap-3 justify-center">
+                          <label className="flex flex-col items-center gap-1.5">
+                            {home?.flag_url ? (
+                              <img src={home.flag_url} alt={ptTeamName(home?.name)} className="h-10 w-14 object-cover rounded-md ring-1 ring-gold/40" />
+                            ) : (
+                              <div className="h-10 w-14 rounded-md bg-muted grid place-items-center text-xs font-black">{home?.code ?? "?"}</div>
+                            )}
                             <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground max-w-[6rem] truncate">{ptTeamName(home?.name)}</span>
-                            <input type="number" min={0} required value={it.palpite_a} onChange={(e) => setItems(items.map((x, i) => i === idx ? { ...x, palpite_a: Number(e.target.value) } : x))} className="w-16 text-center text-xl font-black tabular-nums rounded-lg border border-border bg-background py-1.5 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
+                            <input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="–" required value={it.palpite_a} onChange={(e) => setItems(items.map((x, i) => i === idx ? { ...x, palpite_a: onlyDigits(e.target.value).slice(0, 2) } : x))} className="w-16 text-center text-xl font-black tabular-nums rounded-lg border border-border bg-background py-1.5 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
                           </label>
-                          <span className="font-bold text-muted-foreground pb-2">x</span>
-                          <label className="flex flex-col items-center gap-1">
+                          <span className="font-bold text-muted-foreground pb-8">x</span>
+                          <label className="flex flex-col items-center gap-1.5">
+                            {away?.flag_url ? (
+                              <img src={away.flag_url} alt={ptTeamName(away?.name)} className="h-10 w-14 object-cover rounded-md ring-1 ring-gold/40" />
+                            ) : (
+                              <div className="h-10 w-14 rounded-md bg-muted grid place-items-center text-xs font-black">{away?.code ?? "?"}</div>
+                            )}
                             <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground max-w-[6rem] truncate">{ptTeamName(away?.name)}</span>
-                            <input type="number" min={0} required value={it.palpite_b} onChange={(e) => setItems(items.map((x, i) => i === idx ? { ...x, palpite_b: Number(e.target.value) } : x))} className="w-16 text-center text-xl font-black tabular-nums rounded-lg border border-border bg-background py-1.5 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
+                            <input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="–" required value={it.palpite_b} onChange={(e) => setItems(items.map((x, i) => i === idx ? { ...x, palpite_b: onlyDigits(e.target.value).slice(0, 2) } : x))} className="w-16 text-center text-xl font-black tabular-nums rounded-lg border border-border bg-background py-1.5 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
                           </label>
                         </div>
                       </div>
