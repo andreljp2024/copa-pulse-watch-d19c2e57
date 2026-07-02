@@ -64,8 +64,9 @@ function PalpitesPage() {
   });
   const [showFilters, setShowFilters] = useState(false);
 
+  const teamInfo = (id: string | null | undefined) => teams.get(id ?? "") ?? null;
   const teamName = (id: string | null | undefined) =>
-    ptTeamName(teams.get(id ?? "") ?? "") || "?";
+    ptTeamName(teamInfo(id)?.name ?? "") || "?";
 
   async function load(silent = false) {
     if (silent) setRefreshing(true);
@@ -87,12 +88,12 @@ function PalpitesPage() {
           )
           .eq("tenant_id", t.id)
           .order("created_at", { ascending: false }),
-        supabase.from("teams").select("id, name"),
+        supabase.from("teams").select("id, name, flag_url"),
       ]);
       if (e1) throw e1;
       if (e2) throw e2;
       setRows((pals as unknown as Row[]) ?? []);
-      setTeams(new Map((ts ?? []).map((x) => [x.id, x.name])));
+      setTeams(new Map((ts ?? []).map((x) => [x.id, { name: x.name, flag: x.flag_url ?? null }])));
     } catch (err) {
       console.error(err);
       toast.error("Falha ao carregar palpites");
