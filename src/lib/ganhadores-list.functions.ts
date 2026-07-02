@@ -10,6 +10,8 @@ export type GanhadorRow = {
   match_id: string;
   home_team: string | null;
   away_team: string | null;
+  home_flag: string | null;
+  away_flag: string | null;
   home_score: number | null;
   away_score: number | null;
   torcedor_id: string;
@@ -53,8 +55,8 @@ export const listarGanhadores = createServerFn({ method: "GET" })
          torcedores!inner(id, nome, whatsapp),
          palpites!inner(id, codigo, palpite_a, palpite_b, valor),
          matches!inner(id, home_score, away_score,
-           home_team:teams!matches_home_team_id_fkey(name),
-           away_team:teams!matches_away_team_id_fkey(name))`,
+           home_team:teams!matches_home_team_id_fkey(name, flag_url),
+           away_team:teams!matches_away_team_id_fkey(name, flag_url))`,
       )
       .eq("tenant_id", tenant.id);
     if (gErr) throw gErr;
@@ -85,8 +87,8 @@ export const listarGanhadores = createServerFn({ method: "GET" })
         id: string;
         home_score: number | null;
         away_score: number | null;
-        home_team: { name: string } | null;
-        away_team: { name: string } | null;
+        home_team: { name: string; flag_url: string | null } | null;
+        away_team: { name: string; flag_url: string | null } | null;
       };
     }>) {
       const row: GanhadorRow = {
@@ -98,6 +100,8 @@ export const listarGanhadores = createServerFn({ method: "GET" })
         match_id: g.match_id,
         home_team: g.matches.home_team?.name ?? null,
         away_team: g.matches.away_team?.name ?? null,
+        home_flag: g.matches.home_team?.flag_url ?? null,
+        away_flag: g.matches.away_team?.flag_url ?? null,
         home_score: g.matches.home_score,
         away_score: g.matches.away_score,
         torcedor_id: g.torcedor_id,
