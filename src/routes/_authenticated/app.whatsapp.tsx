@@ -165,16 +165,15 @@ function WhatsAppConfigPage() {
 
 
   const testLink = useMemo(() => {
-    if (phoneError || !fullPhone) return null;
+    if (pixPhoneError || !fullPhone) return null;
     return buildWhatsAppLink(fullPhone, previewMessage);
-  }, [fullPhone, phoneError, previewMessage]);
+  }, [fullPhone, pixPhoneError, previewMessage]);
 
   const hasTemplateErrors = Object.keys(templateErrors).length > 0;
-  const canSave = !phoneError && !hasTemplateErrors && !!tenantId;
+  const canSave = !hasTemplateErrors && !!tenantId;
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (phoneError) return toast.error(phoneError);
     if (hasTemplateErrors) return toast.error("Revise os templates de mensagem.");
     if (!tenantId) return toast.error("Erro ao buscar dados do organizador.");
 
@@ -184,7 +183,9 @@ function WhatsAppConfigPage() {
         .from("tenant_whatsapp_config")
         .upsert({
           tenant_id: tenantId,
-          numero_whatsapp: fullPhone,
+          // Fonte única: número gravado no módulo Pix. Sincronizamos aqui para
+          // compatibilidade com consumidores existentes (RPC pública, links wa.me).
+          numero_whatsapp: fullPhone || null,
           mensagem_novo_palpite: form.mensagem_novo_palpite.trim(),
           mensagem_confirmacao_pagamento: form.mensagem_confirmacao_pagamento.trim(),
           mensagem_ganhador: form.mensagem_ganhador.trim(),
@@ -203,6 +204,7 @@ function WhatsAppConfigPage() {
       setSaving(false);
     }
   }
+
 
   function resetTemplate(key: TemplateKey, defKey: keyof typeof DEFAULT_TEMPLATES) {
     update(key, DEFAULT_TEMPLATES[defKey]);
