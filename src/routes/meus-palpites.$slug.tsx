@@ -38,10 +38,16 @@ function MeusPalpitesPage() {
   const [searched, setSearched] = useState(false);
   const [bolaoNome, setBolaoNome] = useState<string>("");
 
-  // Hidrata o valor de ?w= somente após o mount, evitando mismatch SSR/CSR.
+  // Hidrata o valor de ?w= somente após o mount, evitando mismatch SSR/CSR,
+  // e já dispara a consulta automaticamente para o link enviado por WhatsApp.
   useEffect(() => {
     const w = new URLSearchParams(window.location.search).get("w");
-    if (w) setWhatsapp(w);
+    if (w) {
+      setWhatsapp(w);
+      const digits = onlyDigits(w);
+      if (digits.length >= 8) void buscar();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
