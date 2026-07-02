@@ -432,11 +432,7 @@ function TorcedoresPage() {
               <tr>
                 <th className="px-4 py-2">Nome</th>
                 <th className="px-4 py-2">WhatsApp</th>
-                <th className="px-4 py-2">Jogo</th>
                 <th className="px-4 py-2">Data</th>
-                <th className="px-4 py-2">Palpite</th>
-                <th className="px-4 py-2">Status</th>
-                <th className="px-4 py-2 text-right">Valor</th>
                 <th className="px-4 py-2"></th>
               </tr>
             </thead>
@@ -446,19 +442,6 @@ function TorcedoresPage() {
                   <td className="px-4 py-2 font-medium">{l.nome || "—"}</td>
                   <td className="px-4 py-2 text-muted-foreground font-mono text-xs">
                     {l.whatsapp ? maskPhone(l.whatsapp) : "—"}
-                  </td>
-                  <td className="px-4 py-2">
-                    <div className="flex items-center gap-2">
-                      {l.home_flag && (
-                        <img src={l.home_flag} alt="" className="h-4 w-6 object-cover rounded-sm ring-1 ring-border" />
-                      )}
-                      <span className="font-medium">{l.home}</span>
-                      <span className="text-muted-foreground">x</span>
-                      <span className="font-medium">{l.away}</span>
-                      {l.away_flag && (
-                        <img src={l.away_flag} alt="" className="h-4 w-6 object-cover rounded-sm ring-1 ring-border" />
-                      )}
-                    </div>
                   </td>
                   <td className="px-4 py-2 text-muted-foreground text-xs whitespace-nowrap">
                     {l.kickoff_at
@@ -470,11 +453,6 @@ function TorcedoresPage() {
                         })
                       : "—"}
                   </td>
-                  <td className="px-4 py-2 font-mono">{l.palpite_a}–{l.palpite_b}</td>
-                  <td className="px-4 py-2">
-                    <StatusBadge status={l.status_pagamento} />
-                  </td>
-                  <td className="px-4 py-2 text-right font-semibold whitespace-nowrap">{brl(l.valor)}</td>
                   <td className="px-4 py-2">
                     <div className="flex justify-end gap-1.5">
                       <button
