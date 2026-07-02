@@ -215,7 +215,7 @@ function PalpitesPage() {
 
   function exportCsv() {
     const data = [
-      ["Palpite", "Torcedor", "WhatsApp", "Bolão", "Jogo", "Palpite", "Valor", "Status", "Data"],
+      ["Palpite", "Torcedor", "WhatsApp", "Bolão", "Jogo", "Placar", "Valor", "Status", "Data"],
       ...filtered.map((r) => [
         fmtPalpite(r.codigo),
         r.torcedores?.nome ?? "",
