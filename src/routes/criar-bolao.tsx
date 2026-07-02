@@ -1,22 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Trophy, MessageCircle, BarChart3, Crown, Smartphone } from "lucide-react";
+import { Check, Trophy, MessageCircle, BarChart3, Crown, Smartphone, Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { LIMITE_PALPITES_FREE, buildDevWhatsAppLink } from "@/lib/saas";
 
 export const Route = createFileRoute("/criar-bolao")({
   head: () => ({
     meta: [
-      { title: "Crie seu Bolão da Copa 2026 em minutos" },
+      { title: "Bolão AI — Cortesia para torcedores brasileiros rumo ao Hexa 🇧🇷" },
       {
         name: "description",
         content:
-          "Plataforma SaaS para administrar bolões da Copa 2026: Pix por WhatsApp, palpites, resultados automáticos e ranking de ganhadores.",
+          "Bolão AI não é bets. É cortesia de Dev para torcedores brasileiros juntarem amigos e parentes e fazerem seus próprios palpites na Copa 2026.",
       },
-      { property: "og:title", content: "Crie seu Bolão da Copa 2026 em minutos" },
+      { property: "og:title", content: "Bolão AI — Cortesia para torcedores brasileiros" },
       {
         property: "og:description",
         content:
-          "Cadastre participantes, receba Pix, controle palpites e descubra ganhadores automaticamente.",
+          "Junte amigos e parentes, faça seus palpites e torça pelo Hexa. Sem apostas, sem taxas escondidas — só torcida.",
       },
     ],
   }),
@@ -24,78 +25,33 @@ export const Route = createFileRoute("/criar-bolao")({
 });
 
 const benefits = [
-  {
-    icon: MessageCircle,
-    title: "Pix por WhatsApp",
-    desc: "Links prontos com seus dados Pix em cada palpite.",
-  },
-  {
-    icon: BarChart3,
-    title: "Gestão de palpites",
-    desc: "Painel para confirmar pagamentos e acompanhar tudo.",
-  },
-  {
-    icon: Trophy,
-    title: "Resultados automáticos",
-    desc: "Jogos da Copa 2026 sincronizados pela plataforma.",
-  },
-  {
-    icon: Crown,
-    title: "Ranking de ganhadores",
-    desc: "Veja quem acertou e divulgue os campeões.",
-  },
-  {
-    icon: Smartphone,
-    title: "Painel mobile-first",
-    desc: "Funciona perfeitamente no celular do administrador.",
-  },
+  { icon: Heart, title: "Cortesia de Dev", desc: "Feito por torcedor, para torcedor. Não é bets — é bolão entre amigos." },
+  { icon: MessageCircle, title: "Pix por WhatsApp", desc: "Links prontos com seus dados Pix em cada palpite." },
+  { icon: BarChart3, title: "Gestão de palpites", desc: "Painel para confirmar pagamentos e acompanhar tudo." },
+  { icon: Trophy, title: "Resultados automáticos", desc: "Jogos da Copa 2026 sincronizados pela plataforma." },
+  { icon: Crown, title: "Ranking de ganhadores", desc: "Veja quem acertou e divulgue os campeões." },
+  { icon: Smartphone, title: "Painel mobile-first", desc: "Funciona perfeitamente no celular do administrador." },
 ];
 
-const plans = [
-  {
-    nome: "Grátis",
-    preco: "R$ 0",
-    destaque: false,
-    items: ["Até 50 palpites", "1 bolão ativo", "Pix por WhatsApp", "Resultados automáticos"],
-  },
-  {
-    nome: "Intermediário",
-    preco: "R$ 99,90",
-    destaque: true,
-    items: [
-      "Até 100 palpites",
-      "Bolões ilimitados",
-      "Logo personalizada",
-      "Exportação CSV",
-      "Ranking de ganhadores",
-    ],
-  },
-  {
-    nome: "Ilimitado",
-    preco: "R$ 149,90",
-    destaque: false,
-    items: [
-      "Palpites ilimitados",
-      "Bolões ilimitados",
-      "WhatsApp API",
-      "Domínio personalizado",
-      "Suporte prioritário",
-    ],
-  },
-];
+const devMsg = `Olá! Quero conversar sobre limites maiores de palpites no Bolão AI. 🏆⚽`;
+const devLink = buildDevWhatsAppLink(devMsg);
 
 const faq = [
   {
+    q: "Bolão AI é uma casa de apostas?",
+    a: "Não! Bolão AI NÃO é bets. É uma cortesia de Dev para torcedores brasileiros juntarem amigos e parentes e fazerem seus próprios palpites com espírito de torcedor rumo ao Hexa 🇧🇷.",
+  },
+  {
     q: "Preciso pagar para começar?",
-    a: "Não. O plano Grátis permite até 1 bolão com 50 torcedores. Você pode evoluir quando quiser.",
+    a: `Não. O plano Grátis libera todos os recursos com até ${LIMITE_PALPITES_FREE} palpites. Quando precisar de mais, é só falar com o Dev no WhatsApp.`,
   },
   {
     q: "Como recebo os pagamentos?",
-    a: "Você cadastra seu Pix uma única vez. A plataforma gera links de WhatsApp com seus dados em cada palpite.",
+    a: "Você cadastra seu Pix uma única vez. A plataforma gera links de WhatsApp com seus dados Pix em cada palpite — o dinheiro cai direto na sua conta.",
   },
   {
     q: "Quem cuida dos jogos da Copa?",
-    a: "A plataforma sincroniza automaticamente os 72 jogos da Copa 2026. Você só gerencia palpites e pagamentos.",
+    a: "A plataforma sincroniza automaticamente os jogos da Copa 2026. Você só gerencia palpites e pagamentos com sua turma.",
   },
 ];
 
