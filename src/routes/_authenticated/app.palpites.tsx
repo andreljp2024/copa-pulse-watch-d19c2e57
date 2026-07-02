@@ -22,7 +22,7 @@ import {
   Undo2,
   Loader2,
 } from "lucide-react";
-import { PageHeader } from "@/components/PageHeader";
+
 
 export const Route = createFileRoute("/_authenticated/app/palpites")({
   component: PalpitesPage,
