@@ -3,6 +3,7 @@ import { Check, Trophy, MessageCircle, BarChart3, Crown, Smartphone, Heart } fro
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LIMITE_PALPITES_FREE, buildDevWhatsAppLink } from "@/lib/saas";
+import heroCopa from "@/assets/hero-copa.jpg";
 
 export const Route = createFileRoute("/criar-bolao")({
   head: () => ({
