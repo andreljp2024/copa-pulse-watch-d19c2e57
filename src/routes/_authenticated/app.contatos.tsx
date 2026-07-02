@@ -7,55 +7,119 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface Contato {
   nome: string;
+  numero: string; // formato E.164 sem "+": 55 + DDD(2) + 9 + 8 dígitos = 13 dígitos
+}
+
+interface LinhaRejeitada {
+  linha: number;
+  nome: string;
   numero: string;
+  motivo: string;
 }
 
 export const Route = createFileRoute("/_authenticated/app/contatos")({
   component: ImportarContatos,
 });
 
+// Aceita 10 ou 11 dígitos locais (com/sem 9), com ou sem DDI 55.
+// Só valida celulares BR: DDD 11-99 + 9 + 8 dígitos.
+function normalizarWhatsappBR(raw: string): { ok: true; e164: string } | { ok: false; motivo: string } {
+  const somenteDig = (raw || "").replace(/\D/g, "");
+  if (!somenteDig) return { ok: false, motivo: "número vazio" };
+  let local = somenteDig;
+  if (local.startsWith("55") && local.length > 11) local = local.slice(2);
+  if (local.length === 10) local = local.slice(0, 2) + "9" + local.slice(2); // adiciona 9º dígito
+  if (local.length !== 11) return { ok: false, motivo: "número precisa ter 10 ou 11 dígitos" };
+  const ddd = Number(local.slice(0, 2));
+  if (ddd < 11 || ddd > 99) return { ok: false, motivo: `DDD inválido (${local.slice(0, 2)})` };
+  if (local[2] !== "9") return { ok: false, motivo: "não é celular (falta 9º dígito)" };
+  return { ok: true, e164: "55" + local };
+}
+
+function parseCsvLinha(linha: string): string[] {
+  const out: string[] = [];
+  let cur = "";
+  let dentroAspas = false;
+  for (let i = 0; i < linha.length; i++) {
+    const c = linha[i];
+    if (dentroAspas) {
+      if (c === '"' && linha[i + 1] === '"') { cur += '"'; i++; }
+      else if (c === '"') dentroAspas = false;
+      else cur += c;
+    } else {
+      if (c === '"') dentroAspas = true;
+      else if (c === "," || c === ";") { out.push(cur); cur = ""; }
+      else cur += c;
+    }
+  }
+  out.push(cur);
+  return out.map((v) => v.trim());
+}
+
 function ImportarContatos() {
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [preview, setPreview] = useState<Contato[]>([]);
+  const [rejeitadas, setRejeitadas] = useState<LinhaRejeitada[]>([]);
   const [importando, setImportando] = useState(false);
   const [resumo, setResumo] = useState<{
     total: number;
     importados: number;
     duplicados: number;
+    rejeitados: number;
   } | null>(null);
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setArquivo(file);
+    setPreview([]);
+    setRejeitadas([]);
 
     const reader = new FileReader();
     reader.onload = () => {
       try {
         const text = reader.result as string;
-        const linhas = text.split("\n").map((l) => l.trim()).filter(Boolean);
+        const linhas = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
         if (linhas.length < 2) { toast.error("CSV sem dados."); return; }
-        const cabecalho = linhas[0].split(",").map((h) => h.replace(/^"|"$/g, "").toLowerCase().trim());
+        const cabecalho = parseCsvLinha(linhas[0]).map((h) => h.toLowerCase().trim());
         const contatos: Contato[] = [];
+        const erros: LinhaRejeitada[] = [];
+        const jaAdicionados = new Set<string>();
         for (let i = 1; i < linhas.length; i++) {
-          const vals = linhas[i].split(",").map((v) => v.replace(/^"|"$/g, "").trim());
+          const vals = parseCsvLinha(linhas[i]);
           const linha: Record<string, string> = {};
           cabecalho.forEach((h, idx) => { linha[h] = vals[idx] || ""; });
-          const nome = linha.nome || linha.name || linha["first name"] || "";
-          const numero = (linha.numero || linha.phone || linha["mobile phone"] || linha.telefone || "")
-            .replace(/\D/g, "")
-            .replace(/^55/, "")
-            .padStart(13, "55");
-          if (nome && numero.length >= 12) contatos.push({ nome, numero });
+          const nomeRaw = (linha.nome || linha.name || linha["first name"] || "").trim();
+          const numeroRaw = (linha.numero || linha.phone || linha["mobile phone"] || linha.telefone || linha.celular || "").trim();
+
+          if (!nomeRaw || nomeRaw.length < 2) {
+            erros.push({ linha: i + 1, nome: nomeRaw, numero: numeroRaw, motivo: "nome vazio ou inválido" });
+            continue;
+          }
+          const normalizado = normalizarWhatsappBR(numeroRaw);
+          if (!normalizado.ok) {
+            erros.push({ linha: i + 1, nome: nomeRaw, numero: numeroRaw, motivo: normalizado.motivo });
+            continue;
+          }
+          if (jaAdicionados.has(normalizado.e164)) {
+            erros.push({ linha: i + 1, nome: nomeRaw, numero: numeroRaw, motivo: "duplicado no arquivo" });
+            continue;
+          }
+          jaAdicionados.add(normalizado.e164);
+          contatos.push({ nome: nomeRaw.slice(0, 100), numero: normalizado.e164 });
         }
         setPreview(contatos);
+        setRejeitadas(erros);
         if (contatos.length === 0) toast.error("Nenhum contato válido encontrado no CSV.");
+        else if (erros.length > 0) toast.warning(`${contatos.length} válidos, ${erros.length} ignorados.`);
+        else toast.success(`${contatos.length} contatos válidos.`);
       } catch {
         toast.error("Erro ao ler o arquivo CSV.");
       }
     };
     reader.readAsText(file);
   };
+
 
   const handleImport = async () => {
     if (preview.length === 0) return;
@@ -80,7 +144,7 @@ function ImportarContatos() {
       const duplicados = preview.length - novos.length;
 
       if (novos.length === 0) {
-        setResumo({ total: preview.length, importados: 0, duplicados });
+        setResumo({ total: preview.length, importados: 0, duplicados, rejeitados: rejeitadas.length });
         return;
       }
 
@@ -94,7 +158,7 @@ function ImportarContatos() {
       );
       if (error) throw new Error(error.message);
 
-      setResumo({ total: preview.length, importados: novos.length, duplicados });
+      setResumo({ total: preview.length, importados: novos.length, duplicados, rejeitados: rejeitadas.length });
       toast.success(`${novos.length} contatos importados!`);
     } catch (e: any) {
       toast.error(e.message);
@@ -188,6 +252,25 @@ function ImportarContatos() {
                 )}
               </div>
 
+              {rejeitadas.length > 0 && (
+                <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-amber-700">
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    {rejeitadas.length} linha(s) ignorada(s) — apenas nomes válidos e WhatsApp BR (DDD + 9 + 8 dígitos) são aceitos
+                  </div>
+                  <div className="max-h-32 overflow-y-auto space-y-1 text-xs text-muted-foreground">
+                    {rejeitadas.slice(0, 10).map((r, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <span className="font-mono text-[10px]">L{r.linha}</span>
+                        <span className="truncate flex-1">{r.nome || "(sem nome)"} — {r.numero || "(sem número)"}</span>
+                        <span className="text-amber-700">{r.motivo}</span>
+                      </div>
+                    ))}
+                    {rejeitadas.length > 10 && <p className="pt-1">+ {rejeitadas.length - 10} outras</p>}
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={handleImport}
                 disabled={importando}
@@ -214,10 +297,14 @@ function ImportarContatos() {
               <span className="text-yellow-600">Já existentes (ignorados):</span>
               <span className="font-medium text-yellow-600">{resumo.duplicados}</span>
             </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-amber-600">Rejeitados (nome/WhatsApp inválido):</span>
+              <span className="font-medium text-amber-600">{resumo.rejeitados}</span>
+            </div>
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => { setResumo(null); setArquivo(null); setPreview([]); }}
+              onClick={() => { setResumo(null); setArquivo(null); setPreview([]); setRejeitadas([]); }}
               className="flex-1 h-10 rounded-lg border border-border text-sm font-semibold hover:bg-accent/10"
             >
               Nova importação
