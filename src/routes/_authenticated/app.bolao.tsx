@@ -36,9 +36,10 @@ export const Route = createFileRoute("/_authenticated/app/bolao")({
 const SUGESTAO_REGRAS = `📜 *REGRAS DO BOLÃO* 🏆⚽
 
 ⏱️ *1. Placar considerado*
-✅ Tempo normal (com acréscimos) e prorrogação, se houver.
-⚠️ Em caso de prorrogação, o placar após os 120 minutos é o oficial.
-❌ Pênaltis *NÃO* contam — servem só para definir quem avança.
+✅ Vale o placar do *tempo normal* (com acréscimos) + *prorrogação* (se houver).
+⚽ Gols marcados *dentro dos 120 minutos* (tempo normal + prorrogação) *CONTAM* normalmente.
+❌ *Disputa de pênaltis NÃO conta* — serve apenas para definir quem avança na competição.
+📌 Ou seja: se o jogo terminar empatado após os 120 min, o *placar oficial do bolão é o empate*, independente de quem vencer nos pênaltis.
 
 💰 *2. Valor e prazo do palpite*
 💵 R$ 10,00 por jogo.
