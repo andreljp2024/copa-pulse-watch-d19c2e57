@@ -141,6 +141,7 @@ function BolaoConfigPage() {
     }
   }
 
+  useEffect(() => {
     (async () => {
       const { data: u, error: userErr } = await supabase.auth.getUser();
       if (userErr || !u?.user) {
