@@ -1284,6 +1284,10 @@ export type Database = {
       }
     }
     Functions: {
+      apurar_ganhadores_para_match: {
+        Args: { p_match_id: string }
+        Returns: number
+      }
       consultar_palpites_por_whatsapp: {
         Args: { p_slug: string; p_whatsapp: string }
         Returns: {
