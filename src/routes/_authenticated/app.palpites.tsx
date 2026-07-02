@@ -54,7 +54,7 @@ function PalpitesPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [teams, setTeams] = useState<Map<string, string>>(new Map());
+  const [teams, setTeams] = useState<Map<string, { name: string; flag: string | null }>>(new Map());
   const [filters, setFilters] = useState({
     status: "todos",
     bolaoSlug: "todos",
