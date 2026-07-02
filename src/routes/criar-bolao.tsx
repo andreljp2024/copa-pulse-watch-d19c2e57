@@ -84,19 +84,27 @@ function LandingPage() {
         </div>
       </header>
 
-      <section className="relative overflow-hidden bg-hero">
-        <div className="absolute inset-0 pitch-lines opacity-60" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
-        <div className="relative mx-auto max-w-5xl px-4 pt-20 pb-28 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-gold backdrop-blur">
+      <section className="relative overflow-hidden">
+        <img
+          src={heroCopa}
+          alt="Torcedora brasileira comemorando com a bandeira do Brasil em estádio da Copa"
+          width={1920}
+          height={1280}
+          className="absolute inset-0 h-full w-full object-cover object-center"
+          fetchPriority="high"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/60 to-background" />
+        <div className="absolute inset-0 pitch-lines opacity-20" />
+        <div className="relative mx-auto max-w-5xl px-4 pt-24 pb-32 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold/50 bg-background/60 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-gold backdrop-blur-md shadow-gold">
             <Heart className="h-3.5 w-3.5" /> Cortesia de Dev · Rumo ao Hexa 🇧🇷
           </span>
-          <h1 className="mt-6 font-display text-5xl leading-[0.95] tracking-tight md:text-7xl lg:text-8xl">
+          <h1 className="mt-6 font-display text-5xl leading-[0.95] tracking-tight md:text-7xl lg:text-8xl drop-shadow-2xl">
             <span className="text-gradient-gold">Bolão AI</span> não é bets.
             <br />
             É bolão entre <span className="text-gradient-gold">amigos.</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-base text-muted-foreground md:text-lg">
+          <p className="mx-auto mt-6 max-w-2xl text-base text-foreground/90 md:text-lg font-medium drop-shadow-md">
             Uma cortesia de Dev para os torcedores brasileiros juntarem amigos e parentes e fazerem
             seus próprios palpites na Copa 2026 — com o espírito de quem torce pelo Hexa 💚💛.
             Sem apostas, sem taxas escondidas: só torcida.
@@ -104,13 +112,13 @@ function LandingPage() {
           <div className="mt-10 flex flex-wrap justify-center gap-3">
             <Link
               to={ctaTo}
-              className="inline-flex h-12 items-center rounded-full bg-gradient-gold px-7 text-base font-bold text-gold-foreground shadow-gold hover:opacity-95"
+              className="inline-flex h-12 items-center rounded-full bg-gradient-gold px-7 text-base font-bold text-gold-foreground shadow-gold hover:scale-105 transition-transform"
             >
               Criar meu bolão grátis
             </Link>
             <a
               href="#planos"
-              className="inline-flex h-12 items-center rounded-full border border-border bg-card/60 px-7 text-base font-semibold backdrop-blur hover:bg-card"
+              className="inline-flex h-12 items-center rounded-full border border-gold/40 bg-background/60 px-7 text-base font-semibold backdrop-blur-md hover:bg-background/80 transition-colors"
             >
               Ver planos
             </a>
