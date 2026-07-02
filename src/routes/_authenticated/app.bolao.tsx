@@ -121,7 +121,26 @@ function BolaoConfigPage() {
     setLoadingGames(false);
   }
 
-  useEffect(() => {
+  async function syncWithApi() {
+    setSyncing(true);
+    try {
+      const res = (await syncApiFn()) as {
+        teams_upserted?: number;
+        matches_upserted?: number;
+        source?: string;
+      };
+      toast.success(
+        `Sincronizado (${res.source ?? "api"}): ${res.matches_upserted ?? 0} jogos, ${res.teams_upserted ?? 0} seleções`,
+      );
+      await loadMatches();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(`Falha ao sincronizar: ${msg}`);
+    } finally {
+      setSyncing(false);
+    }
+  }
+
     (async () => {
       const { data: u, error: userErr } = await supabase.auth.getUser();
       if (userErr || !u?.user) {
