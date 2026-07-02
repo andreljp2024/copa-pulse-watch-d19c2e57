@@ -97,13 +97,13 @@ export const upsertTeam = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-// ---------- football-data.org integration ----------
+// ---------- Integração worldcup26.ir (fonte principal WC 2026) ----------
 export const syncFromExternalApi = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { syncFootballData } = await import("@/lib/football-sync.server");
-    return syncFootballData(context.userId);
+    const { syncWorldCup2026 } = await import("@/lib/worldcup26-sync.server");
+    return syncWorldCup2026(context.userId);
   });
 
 export const listSyncLogs = createServerFn({ method: "GET" })
