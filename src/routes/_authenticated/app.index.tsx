@@ -309,6 +309,8 @@ function Dashboard() {
         </div>
       </div>
 
+      <LimiteBanner totalPalpites={stats.palpites} bolaoNome={stats.bolao?.nome ?? null} />
+
       {stats.bolao && (
         <div className="rounded-2xl border border-gold/30 bg-card/60 p-5 backdrop-blur shadow-card">
           <p className="text-xs uppercase tracking-wide font-semibold text-gold">
