@@ -141,45 +141,79 @@ function LandingPage() {
       <section id="planos" className="bg-muted/30 py-16">
         <div className="mx-auto max-w-7xl px-4">
           <h2 className="font-display text-4xl sm:text-5xl tracking-tight text-center">
-            Planos para todo bolão
+            Planos simples e honestos
           </h2>
           <p className="mt-2 text-center text-muted-foreground">
-            Comece grátis. Faça upgrade quando seu bolão crescer.
+            Comece grátis com todos os recursos. Precisou de mais? Fale com o Dev.
           </p>
-          <div className="mt-10 grid gap-4 md:grid-cols-3 max-w-5xl mx-auto">
-            {plans.map((p) => (
-              <div
-                key={p.nome}
-                className={`rounded-2xl border bg-card p-6 flex flex-col ${p.destaque ? "border-pitch ring-2 ring-pitch/30" : "border-border"}`}
-              >
-                {p.destaque && (
-                  <span className="self-start mb-2 rounded-full bg-pitch px-2 py-0.5 text-xs font-bold text-primary-foreground">
-                    Mais popular
-                  </span>
-                )}
-                <h3 className="text-xl font-black">{p.nome}</h3>
-                <div className="mt-2 text-3xl font-black text-pitch">
-                  {p.preco}
-                  <span className="text-sm font-medium text-muted-foreground">/mês</span>
-                </div>
-                <ul className="mt-4 flex-1 space-y-2 text-sm">
-                  {p.items.map((it) => (
-                    <li key={it} className="flex items-start gap-2">
-                      <Check className="h-4 w-4 text-pitch shrink-0 mt-0.5" /> <span>{it}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to={ctaTo}
-                  className="mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-pitch px-4 text-sm font-semibold text-primary-foreground"
-                >
-                  Começar
-                </Link>
+          <div className="mt-10 grid gap-4 md:grid-cols-2 max-w-4xl mx-auto">
+            <article className="rounded-2xl border border-pitch ring-2 ring-pitch/30 bg-card p-6 flex flex-col">
+              <span className="self-start mb-2 rounded-full bg-pitch px-2 py-0.5 text-xs font-bold text-primary-foreground">
+                Recomendado
+              </span>
+              <h3 className="text-2xl font-black">Grátis</h3>
+              <div className="mt-2 text-4xl font-black text-pitch">
+                R$ 0<span className="text-sm font-medium text-muted-foreground">/sempre</span>
               </div>
-            ))}
+              <p className="mt-1 text-sm text-muted-foreground">
+                Todos os recursos, até {LIMITE_PALPITES_FREE} palpites no total.
+              </p>
+              <ul className="mt-4 flex-1 space-y-2 text-sm">
+                {[
+                  `Até ${LIMITE_PALPITES_FREE} palpites no total`,
+                  "Todos os recursos liberados",
+                  "Pix por WhatsApp",
+                  "Ranking e ganhadores automáticos",
+                  "Resultados oficiais da Copa 2026",
+                  "Painel mobile-first",
+                ].map((it) => (
+                  <li key={it} className="flex items-start gap-2">
+                    <Check className="h-4 w-4 text-pitch shrink-0 mt-0.5" /> <span>{it}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to={ctaTo}
+                className="mt-6 inline-flex h-11 items-center justify-center rounded-lg bg-gradient-gold px-4 text-sm font-bold text-gold-foreground shadow-gold"
+              >
+                Começar grátis
+              </Link>
+            </article>
+
+            <article className="rounded-2xl border border-border bg-card p-6 flex flex-col">
+              <span className="self-start mb-2 rounded-full border border-gold/40 bg-gold/10 px-2 py-0.5 text-xs font-bold text-gold">
+                Bolão maior
+              </span>
+              <h3 className="text-2xl font-black">Consulte o Dev</h3>
+              <div className="mt-2 text-4xl font-black text-gold">Sob consulta</div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Para bolões acima de {LIMITE_PALPITES_FREE} palpites, fale direto no WhatsApp.
+              </p>
+              <ul className="mt-4 flex-1 space-y-2 text-sm">
+                {[
+                  "Limites maiores de palpites",
+                  "Acompanhamento personalizado",
+                  "Suporte direto com o Dev",
+                  "Atendimento humano por WhatsApp",
+                ].map((it) => (
+                  <li key={it} className="flex items-start gap-2">
+                    <Check className="h-4 w-4 text-gold shrink-0 mt-0.5" /> <span>{it}</span>
+                  </li>
+                ))}
+              </ul>
+              <a
+                href={devLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-pitch px-4 text-sm font-bold text-primary-foreground"
+              >
+                <MessageCircle className="h-4 w-4" /> Falar com o Dev
+              </a>
+            </article>
           </div>
         </div>
       </section>
+
 
       <section className="mx-auto max-w-3xl px-4 py-16">
         <h2 className="font-display text-4xl sm:text-5xl tracking-tight text-center">
