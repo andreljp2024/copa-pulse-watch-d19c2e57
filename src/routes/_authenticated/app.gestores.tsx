@@ -356,20 +356,20 @@ function GestoresInner() {
         </form>
       )}
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card/60 p-3 backdrop-blur">
         <div className="relative flex-1 min-w-[220px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gold" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar por nome, e-mail, WhatsApp, cidade…"
-            className="w-full h-10 pl-9 pr-3 rounded-lg border border-border bg-background text-sm"
+            className="w-full h-10 pl-9 pr-3 rounded-lg border border-border bg-background text-sm focus:border-gold/50 focus:ring-2 focus:ring-gold/20 transition"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-          className="h-10 px-3 rounded-lg border border-border bg-background text-sm"
+          className="h-10 px-3 rounded-lg border border-border bg-background text-sm focus:border-gold/50"
         >
           <option value="all">Todos status</option>
           <option value="active">Ativos</option>
@@ -378,7 +378,7 @@ function GestoresInner() {
         <select
           value={planoFilter}
           onChange={(e) => setPlanoFilter(e.target.value)}
-          className="h-10 px-3 rounded-lg border border-border bg-background text-sm"
+          className="h-10 px-3 rounded-lg border border-border bg-background text-sm focus:border-gold/50"
         >
           <option value="all">Todos planos</option>
           {planoNames.map((p) => (
@@ -389,13 +389,18 @@ function GestoresInner() {
         </select>
       </div>
 
-      <div className="rounded-xl border border-border bg-card divide-y divide-border">
+      <div className="rounded-2xl border border-border bg-card/60 divide-y divide-border overflow-hidden backdrop-blur">
         {isLoading && <p className="p-6 text-center text-sm text-muted-foreground">Carregando…</p>}
         {!isLoading && filtered.length === 0 && (
           <p className="p-6 text-center text-sm text-muted-foreground">Nenhum gestor encontrado.</p>
         )}
         {filtered.map((g: any) => (
-          <div key={g.id} className="p-4 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3">
+          <div
+            key={g.id}
+            className="group relative p-4 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 transition-colors hover:bg-gradient-to-r hover:from-pitch/10 hover:via-transparent hover:to-gold/10"
+          >
+            <span className="absolute left-0 top-0 h-full w-1 bg-gradient-pitch opacity-0 group-hover:opacity-100 transition-opacity" />
+
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <button
