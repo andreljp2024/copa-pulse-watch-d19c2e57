@@ -220,9 +220,9 @@ function PalpitesPage() {
       ...filtered.map((r) => [
         fmtProtocolo(r.codigo),
         r.torcedores?.nome ?? "",
-        r.torcedores?.whatsapp ?? "",
+        maskPhone(r.torcedores?.whatsapp ?? ""),
         r.boloes?.nome ?? "",
-        `${teams.get(r.matches?.home_team_id ?? "") ?? "?"} x ${teams.get(r.matches?.away_team_id ?? "") ?? "?"}`,
+        `${teamName(r.matches?.home_team_id)} x ${teamName(r.matches?.away_team_id)}`,
         `${r.palpite_a} x ${r.palpite_b}`,
         brl(r.valor),
         r.status_pagamento,
@@ -232,7 +232,7 @@ function PalpitesPage() {
     const csv = data
       .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
       .join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
