@@ -1,5 +1,16 @@
 // Helpers para o SaaS Bolão Copa 2026
 
+// Contato do Dev responsável pelo Bolão AI (cortesia para torcedores brasileiros).
+// Ajuste este número (formato internacional, só dígitos) para o WhatsApp real do dev.
+export const DEV_WHATSAPP = "5511999999999";
+export const DEV_NOME = "Dev do Bolão AI";
+export const LIMITE_PALPITES_FREE = 50;
+export const LIMITE_PALPITES_AVISO = 40;
+
+export function buildDevWhatsAppLink(mensagem: string): string {
+  return `https://wa.me/${DEV_WHATSAPP}?text=${encodeURIComponent(mensagem)}`;
+}
+
 export function slugify(input: string): string {
   return input
     .normalize("NFD")
