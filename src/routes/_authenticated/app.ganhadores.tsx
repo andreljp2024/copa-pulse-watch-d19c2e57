@@ -69,15 +69,16 @@ function GanhadoresPage() {
   const filteredGrupos = useMemo(() => {
     let g = grupos;
     if (bolaoFilter !== "todos") g = g.filter((x) => x.bolao_id === bolaoFilter);
-    if (q.trim()) {
-      const needle = q.trim().toLowerCase();
+    const needle = q.trim().toLowerCase();
+    const digits = onlyDigits(q);
+    if (needle) {
       g = g
         .map((grp) => ({
           ...grp,
           ganhadores: grp.ganhadores.filter(
             (w) =>
               w.nome.toLowerCase().includes(needle) ||
-              w.whatsapp.includes(needle) ||
+              (digits && onlyDigits(w.whatsapp).includes(digits)) ||
               String(w.codigo).includes(needle),
           ),
         }))
