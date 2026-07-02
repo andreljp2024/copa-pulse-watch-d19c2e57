@@ -22,7 +22,7 @@ import {
   Undo2,
   Loader2,
 } from "lucide-react";
-import { PageHeader } from "@/components/PageHeader";
+
 
 export const Route = createFileRoute("/_authenticated/app/palpites")({
   component: PalpitesPage,
@@ -326,41 +326,54 @@ function PalpitesPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        title="Palpites"
-        subtitle="Gerencie pagamentos, envie mensagens e exporte relatórios profissionais."
-        icon={<ListChecks className="h-5 w-5" />}
-        actions={
-          <>
+      {/* HERO */}
+      <div className="relative overflow-hidden rounded-3xl border border-gold/30 bg-hero p-6 sm:p-8 shadow-card">
+        <div className="pointer-events-none absolute inset-0 bg-mesh opacity-70" />
+        <div className="pointer-events-none absolute -top-16 -right-10 h-64 w-64 rounded-full bg-gold/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-16 h-72 w-72 rounded-full bg-pitch/30 blur-3xl" />
+        <div className="relative flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-background/40 px-3 py-1 text-xs font-semibold text-gold backdrop-blur">
+              <ListChecks className="h-3.5 w-3.5" /> Central de palpites
+            </span>
+            <h1 className="mt-2 font-display text-3xl sm:text-4xl font-black tracking-tight">
+              <span className="text-gradient-gold">Palpites</span>
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground max-w-xl">
+              Gerencie pagamentos, envie mensagens e exporte relatórios profissionais.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => void load(true)}
               disabled={refreshing}
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10 disabled:opacity-60"
+              className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border/70 bg-card/60 px-3 text-sm font-semibold backdrop-blur hover:bg-card disabled:opacity-60"
               title="Atualizar"
             >
               <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} /> Atualizar
             </button>
             <button
               onClick={() => setShowFilters((v) => !v)}
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10"
+              className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border/70 bg-card/60 px-3 text-sm font-semibold backdrop-blur hover:bg-card"
             >
               <Filter className="h-4 w-4" /> Filtros
             </button>
             <button
               onClick={exportCsv}
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10"
+              className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-border/70 bg-card/60 px-3 text-sm font-semibold backdrop-blur hover:bg-card"
             >
               <Download className="h-4 w-4" /> CSV
             </button>
             <button
               onClick={exportPdf}
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-gradient-gold px-3 text-sm font-bold text-gold-foreground shadow-gold"
+              className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-gradient-gold px-3 text-sm font-black text-gold-foreground shadow-gold transition hover:scale-105"
             >
               <FileText className="h-4 w-4" /> Relatório PDF
             </button>
-          </>
-        }
-      />
+          </div>
+        </div>
+      </div>
+
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
