@@ -316,12 +316,21 @@ function GestoresInner() {
                 </a>
               );
             })()}
-            <button
-              onClick={() => setShowForm((s) => !s)}
-              className="group inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-gold px-5 text-sm font-black text-primary-foreground shadow-md transition-transform hover:scale-105"
-            >
-              <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" /> Novo organizador
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="group inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-gold px-5 text-sm font-black text-primary-foreground shadow-md transition-transform hover:scale-105">
+                  <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" /> Novo organizador <ChevronDown className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={() => setShowForm(true)}>
+                  <Mail className="mr-2 h-4 w-4" /> 📧 Convite por e-mail
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowWhatsAppForm(true)}>
+                  <MessageCircle className="mr-2 h-4 w-4" /> 💬 Convite por WhatsApp
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
