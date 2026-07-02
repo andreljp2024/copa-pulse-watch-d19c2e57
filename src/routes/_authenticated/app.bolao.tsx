@@ -253,7 +253,7 @@ function BolaoConfigPage() {
     setTimeout(() => setCopied(false), 2000);
   }
   function shareWhatsApp() {
-    const text = `Participe do ${form.nome}! Faça seu palpite: ${shareUrl}`;
+    const text = `🏆⚽ Bora participar do *${form.nome}*! 🇧🇷🔥\n\n🎯 Faça seu palpite agora 👉 ${shareUrl}\n\nBoa sorte! 🍀💚💛`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   }
 
