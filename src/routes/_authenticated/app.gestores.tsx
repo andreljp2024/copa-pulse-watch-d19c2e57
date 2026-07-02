@@ -129,6 +129,10 @@ function GestoresInner() {
   const [planoFilter, setPlanoFilter] = useState<string>("all");
   const [detailId, setDetailId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; nome: string } | null>(null);
+  const [confirmSuspend, setConfirmSuspend] = useState<any | null>(null);
+  const [recoveryLink, setRecoveryLink] = useState<{ email: string; link: string | null } | null>(
+    null,
+  );
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["gestores"] });
   const notify = (text: string, kind: "ok" | "err" = "ok") => setMsg({ kind, text });
