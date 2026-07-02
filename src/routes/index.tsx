@@ -172,8 +172,8 @@ function Dashboard() {
               { v: String(data.stats.matches), l: "Partidas" },
               { v: String(data.stats.stadiums), l: "Cidades Sede" },
               {
-                v: data.live.length > 0 ? String(data.live.length) : "—",
-                l: data.live.length > 0 ? "Ao Vivo Agora" : "Campeão",
+                v: String(data.live.length),
+                l: "Ao Vivo Agora",
               },
             ].map((s) => (
               <div key={s.l} className="text-center">
