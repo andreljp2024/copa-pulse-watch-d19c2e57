@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { brl, buildWhatsAppLink } from "@/lib/saas";
 import { maskPhone } from "@/lib/masks";
 import { ptTeamName } from "@/components/MatchCard";
+import { formatBR } from "@/lib/timezone";
 import { toast } from "sonner";
 import {
   CheckCircle2,
@@ -530,6 +531,11 @@ function PalpitesPage() {
                       <TeamFlag flag={teamInfo(r.matches?.away_team_id)?.flag} />
                       <span>{teamName(r.matches?.away_team_id)}</span>
                     </div>
+                    {r.matches?.kickoff_at && (
+                      <div className="mt-1 text-xs text-muted-foreground font-mono">
+                        {formatBR(r.matches.kickoff_at, "dd/MM/yyyy 'às' HH:mm")}
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3 font-bold font-mono">
                     {r.palpite_a}–{r.palpite_b}
