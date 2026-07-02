@@ -293,11 +293,7 @@ function BolaoConfigPage() {
   const divulgacaoTexto = useMemo(() => {
     const sel = matches.filter((m) => selectedMatchIds.has(m.id));
     if (sel.length === 0) return "";
-    const flagEmoji = (code?: string) => {
-      const c = (code ?? "").trim().toUpperCase();
-      if (c.length !== 2 || !/^[A-Z]{2}$/.test(c)) return "🏳️";
-      return String.fromCodePoint(...[...c].map((ch) => 0x1f1e6 + ch.charCodeAt(0) - 65));
-    };
+    const flagEmoji = flagEmojiFromCode;
     const linhas = sel.map((m) => {
       const h = teams.get(m.home_team_id);
       const a = teams.get(m.away_team_id);
