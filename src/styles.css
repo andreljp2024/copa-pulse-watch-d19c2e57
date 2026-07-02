@@ -87,7 +87,7 @@
 
   --pitch: var(--brand-green);
   --gold: var(--brand-yellow);
-  --gold-foreground: oklch(14% 0.035 158);
+  --gold-foreground: oklch(0% 0 0);
   --live: var(--brand-samba);
 
   --chart-1: var(--brand-green);
