@@ -39,6 +39,7 @@ import { Route as AuthenticatedAppGestoresRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppGanhadoresRouteImport } from './routes/_authenticated/app.ganhadores'
 import { Route as AuthenticatedAppContatosRouteImport } from './routes/_authenticated/app.contatos'
 import { Route as AuthenticatedAppBolaoRouteImport } from './routes/_authenticated/app.bolao'
+import { Route as ApiPublicHooksSyncFootballRouteImport } from './routes/api/public/hooks/sync-football'
 
 const SelecoesRoute = SelecoesRouteImport.update({
   id: '/selecoes',
@@ -195,6 +196,12 @@ const AuthenticatedAppBolaoRoute = AuthenticatedAppBolaoRouteImport.update({
   path: '/bolao',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const ApiPublicHooksSyncFootballRoute =
+  ApiPublicHooksSyncFootballRouteImport.update({
+    id: '/api/public/hooks/sync-football',
+    path: '/api/public/hooks/sync-football',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -226,6 +233,7 @@ export interface FileRoutesByFullPath {
   '/auth/v1/$': typeof AuthV1SplatRoute
   '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/api/public/hooks/sync-football': typeof ApiPublicHooksSyncFootballRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -256,6 +264,7 @@ export interface FileRoutesByTo {
   '/auth/v1/$': typeof AuthV1SplatRoute
   '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/api/public/hooks/sync-football': typeof ApiPublicHooksSyncFootballRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -289,6 +298,7 @@ export interface FileRoutesById {
   '/auth/v1/$': typeof AuthV1SplatRoute
   '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/api/public/hooks/sync-football': typeof ApiPublicHooksSyncFootballRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -322,6 +332,7 @@ export interface FileRouteTypes {
     | '/auth/v1/$'
     | '/bolao/$slug/ranking'
     | '/app/'
+    | '/api/public/hooks/sync-football'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -352,6 +363,7 @@ export interface FileRouteTypes {
     | '/auth/v1/$'
     | '/bolao/$slug/ranking'
     | '/app'
+    | '/api/public/hooks/sync-football'
   id:
     | '__root__'
     | '/'
@@ -384,6 +396,7 @@ export interface FileRouteTypes {
     | '/auth/v1/$'
     | '/bolao/$slug/ranking'
     | '/_authenticated/app/'
+    | '/api/public/hooks/sync-football'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -402,6 +415,7 @@ export interface RootRouteChildren {
   BolaoSlugRoute: typeof BolaoSlugRouteWithChildren
   MeusPalpitesSlugRoute: typeof MeusPalpitesSlugRoute
   PartidasIdRoute: typeof PartidasIdRoute
+  ApiPublicHooksSyncFootballRoute: typeof ApiPublicHooksSyncFootballRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -616,6 +630,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBolaoRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/api/public/hooks/sync-football': {
+      id: '/api/public/hooks/sync-football'
+      path: '/api/public/hooks/sync-football'
+      fullPath: '/api/public/hooks/sync-football'
+      preLoaderRoute: typeof ApiPublicHooksSyncFootballRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -711,6 +732,7 @@ const rootRouteChildren: RootRouteChildren = {
   BolaoSlugRoute: BolaoSlugRouteWithChildren,
   MeusPalpitesSlugRoute: MeusPalpitesSlugRoute,
   PartidasIdRoute: PartidasIdRoute,
+  ApiPublicHooksSyncFootballRoute: ApiPublicHooksSyncFootballRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
