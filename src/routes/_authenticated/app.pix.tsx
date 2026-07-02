@@ -149,12 +149,25 @@ function PixConfigPage() {
     })();
   }, []);
 
+  const update = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
+    setForm((f) => ({ ...f, [key]: value }));
+
   const chaveError = useMemo(
     () => (form.chave_pix ? validateChave(form.tipo_chave_pix, form.chave_pix) : null),
     [form.tipo_chave_pix, form.chave_pix],
   );
 
+  const whatsappError = useMemo(() => {
+    const v = form.numero_recebedor_whatsapp.trim();
+    if (!v) return null;
+    return isValidPhoneBR(v) ? null : "WhatsApp inválido";
+  }, [form.numero_recebedor_whatsapp]);
+
+  const cidadeWarn = form.cidade.trim().length === 0;
+  const nomeError = form.nome_recebedor.trim().length === 0 ? "Informe o nome" : null;
+
   const canPreview = !!form.nome_recebedor && !!form.chave_pix && !chaveError;
+  const canSave = !nomeError && !chaveError && !whatsappError && !!form.chave_pix;
 
   const payload = useMemo(() => {
     if (!canPreview) return "";
@@ -174,29 +187,44 @@ function PixConfigPage() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!tenantId) return;
-    if (chaveError) {
-      toast.error(chaveError);
+    if (!canSave) {
+      toast.error(chaveError ?? whatsappError ?? nomeError ?? "Revise os campos");
       return;
     }
     setSaving(true);
     // Normaliza para armazenamento (sem máscara em CPF/CNPJ/telefone).
-    const normalized = {
-      ...form,
-      chave_pix:
-        form.tipo_chave_pix === "cpf" ||
-        form.tipo_chave_pix === "cnpj" ||
-        form.tipo_chave_pix === "telefone"
-          ? onlyDigits(form.chave_pix)
-          : form.chave_pix.trim(),
-      numero_recebedor_whatsapp: onlyDigits(form.numero_recebedor_whatsapp),
+    const chaveNormalizada =
+      form.tipo_chave_pix === "cpf" ||
+      form.tipo_chave_pix === "cnpj" ||
+      form.tipo_chave_pix === "telefone"
+        ? onlyDigits(form.chave_pix)
+        : form.chave_pix.trim();
+    const whats = onlyDigits(form.numero_recebedor_whatsapp);
+    const valor = Number(form.valor_padrao_palpite);
+    const payload = {
+      tenant_id: tenantId,
+      nome_recebedor: form.nome_recebedor.trim(),
+      tipo_chave_pix: form.tipo_chave_pix,
+      chave_pix: chaveNormalizada,
+      banco: form.banco.trim() || null,
+      cidade: form.cidade.trim() || null,
+      valor_padrao_palpite: Number.isFinite(valor) && valor >= 0 ? valor : 0,
+      instrucoes_pagamento: form.instrucoes_pagamento.trim() || null,
+      numero_recebedor_whatsapp: whats || null,
     };
     const { error } = await supabase
       .from("tenant_pix_config")
-      .upsert({ tenant_id: tenantId, ...normalized }, { onConflict: "tenant_id" });
+      .upsert(payload, { onConflict: "tenant_id" });
     setSaving(false);
-    if (error) toast.error(`Erro ao salvar: ${error.message}`);
-    else toast.success("Configuração Pix salva com sucesso!");
+    if (error) {
+      toast.error(`Erro ao salvar: ${error.message}`);
+      return;
+    }
+    // Reflete a chave normalizada de volta com máscara na UI.
+    update("chave_pix", formatChave(form.tipo_chave_pix, chaveNormalizada));
+    toast.success("Configuração Pix salva com sucesso!");
   }
+
 
   async function copyCode() {
     if (!payload) return;
