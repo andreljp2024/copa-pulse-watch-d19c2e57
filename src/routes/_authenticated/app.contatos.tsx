@@ -297,10 +297,14 @@ function ImportarContatos() {
               <span className="text-yellow-600">Já existentes (ignorados):</span>
               <span className="font-medium text-yellow-600">{resumo.duplicados}</span>
             </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-amber-600">Rejeitados (nome/WhatsApp inválido):</span>
+              <span className="font-medium text-amber-600">{resumo.rejeitados}</span>
+            </div>
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => { setResumo(null); setArquivo(null); setPreview([]); }}
+              onClick={() => { setResumo(null); setArquivo(null); setPreview([]); setRejeitadas([]); }}
               className="flex-1 h-10 rounded-lg border border-border text-sm font-semibold hover:bg-accent/10"
             >
               Nova importação
