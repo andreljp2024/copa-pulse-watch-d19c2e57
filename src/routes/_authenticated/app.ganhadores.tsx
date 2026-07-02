@@ -21,7 +21,7 @@ import {
   type GanhadoresBolaoGroup,
   type GanhadorRow,
 } from "@/lib/ganhadores-list.functions";
-import { brl, buildWhatsAppLink, onlyDigits } from "@/lib/saas";
+import { brl, buildWhatsAppLink, DEFAULT_TEMPLATES, interpolate, onlyDigits } from "@/lib/saas";
 import { maskPhone } from "@/lib/masks";
 import { ptTeamName } from "@/components/MatchCard";
 
