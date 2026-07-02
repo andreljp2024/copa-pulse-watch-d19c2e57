@@ -735,7 +735,11 @@ function SuccessPanel({
       <button
         type="button"
         onClick={copyPix}
-        className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-xl border border-border bg-background font-semibold text-sm hover:border-gold/40 transition-colors"
+        className={`w-full inline-flex items-center justify-center gap-2 h-11 rounded-xl border font-bold text-sm transition-colors ${
+          copied
+            ? "bg-background border-border text-foreground"
+            : "animate-attn-pix border-transparent"
+        }`}
       >
         {copied ? <Check className="h-4 w-4 text-pitch" /> : <Copy className="h-4 w-4" />}
         {copied ? "Copiado!" : "Copiar Pix copia e cola"}
