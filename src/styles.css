@@ -55,11 +55,13 @@
 :root {
   --radius: 0.875rem;
 
-  /* Brand colors (Bandeira do Brasil) */
-  --brand-green: oklch(62% 0.19 148); /* verde-bandeira */
-  --brand-yellow: oklch(86% 0.17 92); /* amarelo-ouro */
-  --brand-blue: oklch(38% 0.18 255); /* azul-bandeira */
+  /* Brand colors (Bandeira do Brasil) — verde mais claro e moderno */
+  --brand-green: oklch(72% 0.20 152); /* verde-lima moderno */
+  --brand-green-deep: oklch(52% 0.18 150);
+  --brand-yellow: oklch(88% 0.17 92); /* amarelo-ouro vibrante */
+  --brand-blue: oklch(42% 0.19 255); /* azul-bandeira */
   --brand-samba: oklch(70% 0.22 27); /* vermelho-samba (acento quente) */
+
 
   /* Surfaces — deep emerald night */
   --background: oklch(14% 0.035 158);
