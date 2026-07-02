@@ -56,9 +56,15 @@ function MeusPalpitesPage() {
       });
   }, [slug]);
 
-  async function buscar(e?: React.FormEvent) {
-    e?.preventDefault();
-    const digits = onlyDigits(whatsapp);
+  async function buscar(e?: React.FormEvent | string) {
+    let source: string;
+    if (typeof e === "string") {
+      source = e;
+    } else {
+      e?.preventDefault?.();
+      source = whatsapp;
+    }
+    const digits = onlyDigits(source);
     if (digits.length < 8) return;
     setLoading(true);
     const { data, error } = await supabase.rpc("consultar_palpites_por_whatsapp", {
@@ -76,7 +82,7 @@ function MeusPalpitesPage() {
 
   useEffect(() => {
     const w = new URLSearchParams(window.location.search).get("w");
-    if (w) void buscar();
+    if (w) void buscar(w);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
