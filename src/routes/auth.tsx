@@ -37,7 +37,7 @@ function Page() {
     try {
       const res = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin,
-        extraParams: { hd: "gmail.com", prompt: "select_account" },
+        extraParams: { prompt: "select_account" },
       });
       if (res.error) throw res.error;
     } catch (err) {
