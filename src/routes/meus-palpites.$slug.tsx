@@ -24,11 +24,29 @@ type Row = {
   kickoff_at: string | null;
   home_team: string | null;
   away_team: string | null;
+  home_flag: string | null;
+  away_flag: string | null;
   placar_a: number | null;
   placar_b: number | null;
   match_status: string | null;
   ganhou: boolean;
 };
+
+function TeamBadge({ name, flag }: { name: string | null; flag: string | null }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      {flag ? (
+        <img
+          src={flag}
+          alt=""
+          className="h-5 w-7 rounded-sm object-cover ring-1 ring-border"
+          loading="lazy"
+        />
+      ) : null}
+      <span>{name ?? "?"}</span>
+    </span>
+  );
+}
 
 function MeusPalpitesPage() {
   const { slug } = Route.useParams();
@@ -125,7 +143,7 @@ function MeusPalpitesPage() {
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex h-12 items-center gap-2 rounded-xl bg-gradient-gold px-5 text-sm font-bold text-gold-foreground shadow-gold disabled:opacity-50 hover:scale-[1.02] transition-transform"
+            className="inline-flex h-12 items-center gap-2 rounded-xl bg-gradient-gold px-5 text-sm font-bold text-black shadow-gold disabled:opacity-50 hover:scale-[1.02] transition-transform"
           >
             <Search className="h-4 w-4" /> Buscar
           </button>
@@ -150,13 +168,13 @@ function MeusPalpitesPage() {
             {ganhadores.length > 0 ? (
               <div className="relative overflow-hidden rounded-2xl border border-accent/40 bg-gradient-gold p-6 shadow-gold">
                 <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/20 blur-2xl" />
-                <div className="relative flex items-center gap-3 font-display text-2xl font-black text-gold-foreground">
-                  <Trophy className="h-7 w-7" /> GOOOL! 🏆
+                <div className="relative flex items-center gap-3 font-display text-2xl font-black text-black">
+                  <Trophy className="h-7 w-7" /> GOOOL! 🏆 🇧🇷
                 </div>
-                <p className="relative mt-2 font-semibold text-gold-foreground">
+                <p className="relative mt-2 font-semibold text-black">
                   Parabéns, torcedor! Você acertou {ganhadores.length} palpite(s).
                 </p>
-                <p className="relative text-sm text-gold-foreground/80">
+                <p className="relative text-sm text-black/80">
                   Aguarde o contato do organizador para receber seu prêmio.
                 </p>
               </div>
@@ -185,10 +203,10 @@ function MeusPalpitesPage() {
                     </span>
                     <StatusBadge r={r} />
                   </div>
-                  <div className="mt-2 font-display text-base font-bold">
-                    {r.home_team ?? "?"}{" "}
-                    <span className="text-muted-foreground font-normal">x</span>{" "}
-                    {r.away_team ?? "?"}
+                  <div className="mt-2 font-display text-base font-bold flex items-center gap-2 flex-wrap">
+                    <TeamBadge name={r.home_team} flag={r.home_flag} />
+                    <span className="text-muted-foreground font-normal">x</span>
+                    <TeamBadge name={r.away_team} flag={r.away_flag} />
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {r.kickoff_at ? new Date(r.kickoff_at).toLocaleString("pt-BR") : ""}
@@ -229,7 +247,7 @@ function MeusPalpitesPage() {
 function StatusBadge({ r }: { r: Row }) {
   if (r.ganhou)
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-gradient-gold px-2.5 py-0.5 font-bold text-gold-foreground shadow-gold">
+      <span className="inline-flex items-center gap-1 rounded-full bg-gradient-gold px-2.5 py-0.5 font-bold text-black shadow-gold">
         <Trophy className="h-3 w-3" /> Ganhou
       </span>
     );

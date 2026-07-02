@@ -1291,10 +1291,12 @@ export type Database = {
       consultar_palpites_por_whatsapp: {
         Args: { p_slug: string; p_whatsapp: string }
         Returns: {
+          away_flag: string
           away_team: string
           codigo: number
           created_at: string
           ganhou: boolean
+          home_flag: string
           home_team: string
           kickoff_at: string
           match_status: string
