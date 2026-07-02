@@ -108,6 +108,9 @@ function BolaoConfigPage() {
         .from("matches")
         .select("id, kickoff_at, status, home_team_id, away_team_id")
         .eq("status", "scheduled")
+        .not("kickoff_at", "is", null)
+        .not("home_team_id", "is", null)
+        .not("away_team_id", "is", null)
         .gte("kickoff_at", nowUtc)
         .order("kickoff_at", { ascending: true })
         .limit(50),
@@ -706,15 +709,6 @@ function BolaoConfigPage() {
                       : "Selecionar todos"}
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={loadMatches}
-                  disabled={loadingGames}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground"
-                >
-                  <RefreshCw className={`h-3 w-3 ${loadingGames ? "animate-spin" : ""}`} />{" "}
-                  Atualizar
-                </button>
                 <button
                   type="button"
                   onClick={syncWithApi}
