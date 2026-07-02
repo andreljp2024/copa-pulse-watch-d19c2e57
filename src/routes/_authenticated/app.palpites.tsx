@@ -161,10 +161,7 @@ function PalpitesPage() {
     const away = teamName(r.matches?.away_team_id);
     const protocolo = fmtProtocolo(r.codigo);
     const kickoff = r.matches?.kickoff_at
-      ? new Date(r.matches.kickoff_at).toLocaleString("pt-BR", {
-          dateStyle: "short",
-          timeStyle: "short",
-        })
+      ? formatBR(r.matches.kickoff_at, "dd/MM/yyyy 'às' HH:mm")
       : "o início do jogo";
     const msg =
       `Olá, ${r.torcedores?.nome ?? ""}!\n\n` +
@@ -186,8 +183,8 @@ function PalpitesPage() {
 
   const filtered = useMemo(() => {
     const q = filters.search.trim().toLowerCase();
-    const de = filters.dataDe ? new Date(filters.dataDe).getTime() : null;
-    const ate = filters.dataAte ? new Date(filters.dataAte + "T23:59:59").getTime() : null;
+    const de = filters.dataDe ? new Date(filters.dataDe + "T00:00:00-03:00").getTime() : null;
+    const ate = filters.dataAte ? new Date(filters.dataAte + "T23:59:59-03:00").getTime() : null;
     return rows.filter((r) => {
       if (filters.status !== "todos" && r.status_pagamento !== filters.status) return false;
       if (filters.bolaoSlug !== "todos" && r.boloes?.slug !== filters.bolaoSlug) return false;
@@ -228,7 +225,7 @@ function PalpitesPage() {
         `${r.palpite_a} x ${r.palpite_b}`,
         brl(r.valor),
         r.status_pagamento,
-        new Date(r.created_at).toLocaleString("pt-BR"),
+        formatBR(r.created_at, "dd/MM/yyyy HH:mm"),
       ]),
     ];
     const csv = data
@@ -269,7 +266,7 @@ function PalpitesPage() {
         <td class="b">${esc(r.palpite_a)} x ${esc(r.palpite_b)}</td>
         <td>${esc(brl(r.valor))}</td>
         <td><span class="pill pill-${esc(r.status_pagamento)}">${esc(r.status_pagamento)}</span></td>
-        <td>${esc(new Date(r.created_at).toLocaleString("pt-BR"))}</td>
+        <td>${esc(formatBR(r.created_at, "dd/MM/yyyy HH:mm"))}</td>
       </tr>`,
       )
       .join("");
@@ -298,7 +295,7 @@ function PalpitesPage() {
   <div class="meta">
     <strong>Bolão:</strong> ${esc(bolaoLabel)} · <strong>Status:</strong> ${esc(statusLabel)} · <strong>Período:</strong> ${esc(periodo)}
     ${filters.search ? ` · <strong>Busca:</strong> ${esc(filters.search)}` : ""}
-    <br/>Emitido em ${esc(new Date().toLocaleString("pt-BR"))}
+    <br/>Emitido em ${esc(formatBR(new Date(), "dd/MM/yyyy HH:mm"))}
   </div>
   <div class="grid">
     <div class="kpi"><div class="l">Palpites</div><div class="v">${totals.qtd}</div></div>
@@ -316,7 +313,7 @@ function PalpitesPage() {
 </body></html>`;
     const w = window.open("", "_blank", "noopener,noreferrer");
     if (!w) {
-      alert("Permita pop-ups para gerar o PDF.");
+      toast.error("Permita pop-ups para gerar o PDF.");
       return;
     }
     w.document.open();
@@ -482,7 +479,11 @@ function PalpitesPage() {
       )}
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Carregando…</p>
+        <div className="space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-14 rounded-xl border border-border bg-card animate-pulse" />
+          ))}
+        </div>
       ) : rows.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
           <ListChecks className="mx-auto h-8 w-8 text-muted-foreground/50" />
