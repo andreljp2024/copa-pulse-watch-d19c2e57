@@ -247,21 +247,40 @@ function GestoresInner() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-black">Gestores de bolão</h1>
-          <p className="text-sm text-muted-foreground">
-            {totals.total} no total · {totals.ativos} ativos · {totals.suspensos} suspensos ·{" "}
-            {totals.semLogin} nunca logaram
-          </p>
+      {/* Hero verde-amarelo — espírito do Hexa */}
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-hero p-6 shadow-lg">
+        <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:var(--gradient-mesh)]" />
+        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-gradient-gold blur-3xl opacity-30" />
+        <div className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-gradient-pitch blur-3xl opacity-30" />
+        <div className="relative flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-background/40 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-gold backdrop-blur">
+              <Shield className="h-3 w-3" /> Painel do Super Admin · Rumo ao Hexa 🇧🇷
+            </div>
+            <h1 className="mt-3 font-display text-3xl font-black tracking-tight sm:text-4xl">
+              Gestores de <span className="text-gradient-gold">Bolão</span>
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Comanda o time de organizadores com a garra da torcida brasileira.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowForm((s) => !s)}
+            className="group inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-gold px-5 text-sm font-black text-primary-foreground shadow-md transition-transform hover:scale-105"
+          >
+            <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" /> Novo gestor
+          </button>
         </div>
-        <button
-          onClick={() => setShowForm((s) => !s)}
-          className="inline-flex h-10 items-center gap-2 rounded-lg bg-pitch px-4 text-sm font-bold text-primary-foreground"
-        >
-          <UserPlus className="h-4 w-4" /> Novo gestor
-        </button>
+
+        {/* KPIs */}
+        <div className="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <KpiCard label="No total" value={totals.total} tone="gold" />
+          <KpiCard label="Ativos" value={totals.ativos} tone="pitch" />
+          <KpiCard label="Suspensos" value={totals.suspensos} tone="samba" />
+          <KpiCard label="Nunca logaram" value={totals.semLogin} tone="muted" />
+        </div>
       </div>
+
 
       {msg && (
         <div
