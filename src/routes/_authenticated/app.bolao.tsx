@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify, publicBolaoUrl } from "@/lib/saas";
-import { saveBolaoMatches, type SaveBolaoInput, type SaveBolaoResult } from "@/lib/bolao.functions";
+import { saveBolao, type SaveBolaoResult } from "@/lib/bolao.functions";
 import { syncMatchesForTenant } from "@/lib/sync.functions";
 import { toast } from "sonner";
 import { toDatetimeLocalBR, fromDatetimeLocalBR } from "@/lib/timezone";
@@ -85,10 +85,7 @@ function BolaoConfigPage() {
   const [initialSelectedIds, setInitialSelectedIds] = useState<Set<string>>(new Set());
   const [divulgCopied, setDivulgCopied] = useState(false);
   const [tab, setTab] = useState<TabId>("config");
-  const saveBolaoMut = useServerFn(saveBolaoMatches) as (opts: {
-    data: { bolao_id: string; match_ids: string[] };
-    headers: Record<string, string>;
-  }) => Promise<SaveBolaoResult>;
+  const saveBolaoFn = useServerFn(saveBolao);
   const syncApiFn = useServerFn(syncMatchesForTenant);
   const [syncing, setSyncing] = useState(false);
 
@@ -205,51 +202,33 @@ function BolaoConfigPage() {
     setMsg(null);
     const s = slugify(form.slug || form.nome);
 
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
-    if (!token) {
-      setSaving(false);
-      toast.error("Sessão expirada. Faça login novamente.");
-      return;
-    }
-
-    const payload = {
-      nome: form.nome,
-      slug: s,
-      descricao: form.descricao,
-      regras: form.regras,
-      valor_palpite: form.valor_palpite,
-      percentual_admin: form.percentual_admin,
-      permitir_ranking_publico: form.permitir_ranking_publico,
-      permitir_ganhadores_publico: form.permitir_ganhadores_publico,
-      data_limite_palpite: form.data_limite_palpite
-        ? fromDatetimeLocalBR(form.data_limite_palpite).toISOString()
-        : null,
-    };
-    const { error: updErr } = await supabase.from("boloes").update(payload).eq("id", bolaoId);
-    if (updErr) {
-      setSaving(false);
-      setMsg({ kind: "err", text: updErr.message });
-      toast.error(updErr.message);
-      return;
-    }
-
     try {
-      const matchIds = [...selectedMatchIds];
-      const result = await saveBolaoMut({
-        data: { bolao_id: bolaoId, match_ids: matchIds },
-        headers: { Authorization: `Bearer ${token}` },
+      const result = await saveBolaoFn({
+        data: {
+          bolao_id: bolaoId,
+          nome: form.nome,
+          slug: s,
+          descricao: form.descricao,
+          regras: form.regras,
+          valor_palpite: form.valor_palpite,
+          percentual_admin: form.percentual_admin,
+          permitir_ranking_publico: form.permitir_ranking_publico,
+          permitir_ganhadores_publico: form.permitir_ganhadores_publico,
+          data_limite_palpite: form.data_limite_palpite
+            ? fromDatetimeLocalBR(form.data_limite_palpite).toISOString()
+            : null,
+          match_ids: [...selectedMatchIds],
+        },
       });
+      setSaving(false);
       if (!result?.ok) {
-        setSaving(false);
-        const msg = result?.message ?? "Erro desconhecido ao salvar.";
-        setMsg({ kind: "err", text: msg });
-        toast.error(msg);
+        const errMsg = result?.message ?? "Erro desconhecido ao salvar.";
+        setMsg({ kind: "err", text: errMsg });
+        toast.error(errMsg);
         return;
       }
-      setSaving(false);
-      setMsg({ kind: "ok", text: result.message || "Alterações salvas." });
-      toast.success("Bolão salvo com sucesso!");
+      setMsg({ kind: "ok", text: result.message });
+      toast.success(result.message);
       const savedForm = { ...form, slug: s };
       setForm(savedForm);
       setInitialForm(savedForm);
@@ -257,7 +236,7 @@ function BolaoConfigPage() {
       setTimeout(() => setMsg(null), 3000);
     } catch (err: any) {
       setSaving(false);
-      const message = err?.message ?? "Erro ao salvar jogos. Tente novamente.";
+      const message = err?.message ?? "Erro ao salvar. Tente novamente.";
       console.error("[save] Erro:", message);
       setMsg({ kind: "err", text: message });
       toast.error(message);
