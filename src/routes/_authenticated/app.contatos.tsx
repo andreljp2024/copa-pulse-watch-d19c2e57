@@ -144,7 +144,7 @@ function ImportarContatos() {
       const duplicados = preview.length - novos.length;
 
       if (novos.length === 0) {
-        setResumo({ total: preview.length, importados: 0, duplicados });
+        setResumo({ total: preview.length, importados: 0, duplicados, rejeitados: rejeitadas.length });
         return;
       }
 
@@ -158,7 +158,7 @@ function ImportarContatos() {
       );
       if (error) throw new Error(error.message);
 
-      setResumo({ total: preview.length, importados: novos.length, duplicados });
+      setResumo({ total: preview.length, importados: novos.length, duplicados, rejeitados: rejeitadas.length });
       toast.success(`${novos.length} contatos importados!`);
     } catch (e: any) {
       toast.error(e.message);
