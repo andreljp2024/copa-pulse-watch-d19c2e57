@@ -2,6 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, buildWhatsAppLink } from "@/lib/saas";
+import { maskPhone } from "@/lib/masks";
+import { ptTeamName } from "@/components/MatchCard";
+import { toast } from "sonner";
 import {
   CheckCircle2,
   XCircle,
@@ -14,6 +17,9 @@ import {
   Clock,
   Ban,
   Search,
+  RefreshCw,
+  Undo2,
+  Loader2,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
