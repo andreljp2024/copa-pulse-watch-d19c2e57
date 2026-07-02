@@ -2,6 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, buildWhatsAppLink } from "@/lib/saas";
+import { maskPhone } from "@/lib/masks";
+import { ptTeamName } from "@/components/MatchCard";
+import { toast } from "sonner";
 import {
   CheckCircle2,
   XCircle,
@@ -14,6 +17,9 @@ import {
   Clock,
   Ban,
   Search,
+  RefreshCw,
+  Undo2,
+  Loader2,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
@@ -46,6 +52,8 @@ function fmtProtocolo(c: number | null) {
 function PalpitesPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [teams, setTeams] = useState<Map<string, string>>(new Map());
   const [filters, setFilters] = useState({
     status: "todos",
@@ -56,41 +64,74 @@ function PalpitesPage() {
   });
   const [showFilters, setShowFilters] = useState(false);
 
-  async function load() {
-    const { data: u } = await supabase.auth.getUser();
-    const tRes = await supabase
-      .from("tenants")
-      .select("id")
-      .eq("owner_user_id", u.user!.id)
-      .limit(1);
-    const t = Array.isArray(tRes.data) ? tRes.data[0] : tRes.data;
-    if (!t) return;
-    const [{ data: pals }, { data: ts }] = await Promise.all([
-      supabase
-        .from("palpites")
-        .select(
-          "id, codigo, bolao_id, palpite_a, palpite_b, valor, status_pagamento, created_at, torcedores(nome, whatsapp), matches(home_team_id, away_team_id, kickoff_at), boloes(nome, slug)",
-        )
-        .eq("tenant_id", t.id)
-        .order("created_at", { ascending: false }),
-      supabase.from("teams").select("id, name"),
-    ]);
-    setRows((pals as unknown as Row[]) ?? []);
-    setTeams(new Map((ts ?? []).map((x) => [x.id, x.name])));
-    setLoading(false);
+  const teamName = (id: string | null | undefined) =>
+    ptTeamName(teams.get(id ?? "") ?? "") || "?";
+
+  async function load(silent = false) {
+    if (silent) setRefreshing(true);
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return;
+      const tRes = await supabase
+        .from("tenants")
+        .select("id")
+        .eq("owner_user_id", u.user.id)
+        .limit(1);
+      const t = Array.isArray(tRes.data) ? tRes.data[0] : tRes.data;
+      if (!t) return;
+      const [{ data: pals, error: e1 }, { data: ts, error: e2 }] = await Promise.all([
+        supabase
+          .from("palpites")
+          .select(
+            "id, codigo, bolao_id, palpite_a, palpite_b, valor, status_pagamento, created_at, torcedores(nome, whatsapp), matches(home_team_id, away_team_id, kickoff_at), boloes(nome, slug)",
+          )
+          .eq("tenant_id", t.id)
+          .order("created_at", { ascending: false }),
+        supabase.from("teams").select("id, name"),
+      ]);
+      if (e1) throw e1;
+      if (e2) throw e2;
+      setRows((pals as unknown as Row[]) ?? []);
+      setTeams(new Map((ts ?? []).map((x) => [x.id, x.name])));
+    } catch (err) {
+      console.error(err);
+      toast.error("Falha ao carregar palpites");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }
   useEffect(() => {
     void load();
   }, []);
 
   async function setStatus(id: string, status: string) {
-    await supabase.from("palpites").update({ status_pagamento: status }).eq("id", id);
-    void load();
+    setBusyId(id);
+    try {
+      const { error } = await supabase
+        .from("palpites")
+        .update({ status_pagamento: status })
+        .eq("id", id);
+      if (error) throw error;
+      setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status_pagamento: status } : r)));
+      toast.success(
+        status === "pago"
+          ? "Palpite confirmado como pago"
+          : status === "cancelado"
+            ? "Palpite cancelado"
+            : "Status atualizado",
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Não foi possível atualizar o status");
+    } finally {
+      setBusyId(null);
+    }
   }
 
   function aprovarEEnviar(r: Row) {
-    const home = teams.get(r.matches?.home_team_id ?? "") ?? "?";
-    const away = teams.get(r.matches?.away_team_id ?? "") ?? "?";
+    const home = teamName(r.matches?.home_team_id);
+    const away = teamName(r.matches?.away_team_id);
     const protocolo = fmtProtocolo(r.codigo);
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     const slug = r.boloes?.slug ?? "";
@@ -114,8 +155,8 @@ function PalpitesPage() {
   }
 
   function lembrarPagamento(r: Row) {
-    const home = teams.get(r.matches?.home_team_id ?? "") ?? "?";
-    const away = teams.get(r.matches?.away_team_id ?? "") ?? "?";
+    const home = teamName(r.matches?.home_team_id);
+    const away = teamName(r.matches?.away_team_id);
     const protocolo = fmtProtocolo(r.codigo);
     const kickoff = r.matches?.kickoff_at
       ? new Date(r.matches.kickoff_at).toLocaleString("pt-BR", {
@@ -152,8 +193,10 @@ function PalpitesPage() {
       if (de !== null && ts < de) return false;
       if (ate !== null && ts > ate) return false;
       if (q) {
+        const home = teamName(r.matches?.home_team_id);
+        const away = teamName(r.matches?.away_team_id);
         const hay =
-          `${r.torcedores?.nome ?? ""} ${r.torcedores?.whatsapp ?? ""} ${fmtProtocolo(r.codigo)}`.toLowerCase();
+          `${r.torcedores?.nome ?? ""} ${r.torcedores?.whatsapp ?? ""} ${fmtProtocolo(r.codigo)} ${home} ${away} ${r.boloes?.nome ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -177,9 +220,9 @@ function PalpitesPage() {
       ...filtered.map((r) => [
         fmtProtocolo(r.codigo),
         r.torcedores?.nome ?? "",
-        r.torcedores?.whatsapp ?? "",
+        maskPhone(r.torcedores?.whatsapp ?? ""),
         r.boloes?.nome ?? "",
-        `${teams.get(r.matches?.home_team_id ?? "") ?? "?"} x ${teams.get(r.matches?.away_team_id ?? "") ?? "?"}`,
+        `${teamName(r.matches?.home_team_id)} x ${teamName(r.matches?.away_team_id)}`,
         `${r.palpite_a} x ${r.palpite_b}`,
         brl(r.valor),
         r.status_pagamento,
@@ -189,7 +232,7 @@ function PalpitesPage() {
     const csv = data
       .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
       .join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -218,9 +261,9 @@ function PalpitesPage() {
         (r) => `
       <tr>
         <td class="mono">${esc(fmtProtocolo(r.codigo))}</td>
-        <td>${esc(r.torcedores?.nome ?? "")}<div class="sub">${esc(r.torcedores?.whatsapp ?? "")}</div></td>
+        <td>${esc(r.torcedores?.nome ?? "")}<div class="sub">${esc(maskPhone(r.torcedores?.whatsapp ?? ""))}</div></td>
         <td>${esc(r.boloes?.nome ?? "")}</td>
-        <td>${esc((teams.get(r.matches?.home_team_id ?? "") ?? "?") + " x " + (teams.get(r.matches?.away_team_id ?? "") ?? "?"))}</td>
+        <td>${esc(teamName(r.matches?.home_team_id) + " x " + teamName(r.matches?.away_team_id))}</td>
         <td class="b">${esc(r.palpite_a)} x ${esc(r.palpite_b)}</td>
         <td>${esc(brl(r.valor))}</td>
         <td><span class="pill pill-${esc(r.status_pagamento)}">${esc(r.status_pagamento)}</span></td>
@@ -287,6 +330,14 @@ function PalpitesPage() {
         icon={<ListChecks className="h-5 w-5" />}
         actions={
           <>
+            <button
+              onClick={() => void load(true)}
+              disabled={refreshing}
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10 disabled:opacity-60"
+              title="Atualizar"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} /> Atualizar
+            </button>
             <button
               onClick={() => setShowFilters((v) => !v)}
               className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-accent/10"
@@ -467,13 +518,13 @@ function PalpitesPage() {
                   <td className="px-4 py-3">
                     <div className="font-medium">{r.torcedores?.nome}</div>
                     <div className="text-xs text-muted-foreground font-mono">
-                      {r.torcedores?.whatsapp}
+                      {maskPhone(r.torcedores?.whatsapp ?? "")}
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    {teams.get(r.matches?.home_team_id ?? "") ?? "?"}{" "}
+                    {teamName(r.matches?.home_team_id)}{" "}
                     <span className="text-muted-foreground">x</span>{" "}
-                    {teams.get(r.matches?.away_team_id ?? "") ?? "?"}
+                    {teamName(r.matches?.away_team_id)}
                   </td>
                   <td className="px-4 py-3 font-bold font-mono">
                     {r.palpite_a}–{r.palpite_b}
@@ -493,11 +544,15 @@ function PalpitesPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex flex-wrap justify-end gap-2">
-                      {r.status_pagamento !== "pago" && (
+                    <div className="flex flex-wrap justify-end gap-2 items-center">
+                      {busyId === r.id && (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                      )}
+                      {r.status_pagamento !== "pago" && r.status_pagamento !== "cancelado" && (
                         <button
                           onClick={() => aprovarEEnviar(r)}
-                          className="inline-flex items-center gap-1 rounded-md bg-green-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-green-700"
+                          disabled={busyId === r.id}
+                          className="inline-flex items-center gap-1 rounded-md bg-green-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-green-700 disabled:opacity-60"
                         >
                           <CheckCircle2 className="h-3.5 w-3.5" /> Aprovar
                         </button>
@@ -520,10 +575,21 @@ function PalpitesPage() {
                           <MessageCircle className="h-3.5 w-3.5" /> Recibo
                         </button>
                       )}
+                      {r.status_pagamento === "cancelado" && (
+                        <button
+                          onClick={() => setStatus(r.id, "pendente")}
+                          disabled={busyId === r.id}
+                          className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted disabled:opacity-60"
+                          title="Reativar como pendente"
+                        >
+                          <Undo2 className="h-3.5 w-3.5" /> Reativar
+                        </button>
+                      )}
                       {r.status_pagamento !== "cancelado" && (
                         <button
                           onClick={() => setStatus(r.id, "cancelado")}
-                          className="inline-flex items-center gap-1 rounded-md border border-red-200 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-50"
+                          disabled={busyId === r.id}
+                          className="inline-flex items-center gap-1 rounded-md border border-red-200 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-60"
                         >
                           <XCircle className="h-3.5 w-3.5" /> Cancelar
                         </button>
