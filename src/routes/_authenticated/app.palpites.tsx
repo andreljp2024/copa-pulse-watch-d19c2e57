@@ -193,8 +193,10 @@ function PalpitesPage() {
       if (de !== null && ts < de) return false;
       if (ate !== null && ts > ate) return false;
       if (q) {
+        const home = teamName(r.matches?.home_team_id);
+        const away = teamName(r.matches?.away_team_id);
         const hay =
-          `${r.torcedores?.nome ?? ""} ${r.torcedores?.whatsapp ?? ""} ${fmtProtocolo(r.codigo)}`.toLowerCase();
+          `${r.torcedores?.nome ?? ""} ${r.torcedores?.whatsapp ?? ""} ${fmtProtocolo(r.codigo)} ${home} ${away} ${r.boloes?.nome ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
