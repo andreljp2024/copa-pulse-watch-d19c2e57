@@ -339,82 +339,70 @@ function BolaoConfigPage() {
   const ready = checksOk === checks.length;
 
   return (
-    <div
-      className="max-w-5xl space-y-6 pb-32 bg-background text-foreground p-4 sm:p-6 rounded-2xl"
-      style={
-        {
-          // Tema claro escopado ao módulo "Meu Bolão" — mantém verde-amarelo BR
-          ["--background" as any]: "oklch(98% 0.012 145)",
-          ["--foreground" as any]: "oklch(20% 0.04 158)",
-          ["--card" as any]: "oklch(100% 0 0)",
-          ["--card-foreground" as any]: "oklch(20% 0.04 158)",
-          ["--popover" as any]: "oklch(100% 0 0)",
-          ["--popover-foreground" as any]: "oklch(20% 0.04 158)",
-          ["--muted" as any]: "oklch(95% 0.02 145)",
-          ["--muted-foreground" as any]: "oklch(42% 0.03 158)",
-          ["--secondary" as any]: "oklch(94% 0.03 145)",
-          ["--secondary-foreground" as any]: "oklch(22% 0.04 158)",
-          ["--border" as any]: "oklch(90% 0.02 145)",
-          ["--input" as any]: "oklch(92% 0.02 145)",
-          ["--accent" as any]: "oklch(92% 0.06 92)",
-          ["--accent-foreground" as any]: "oklch(22% 0.04 158)",
-        } as React.CSSProperties
-      }
-    >
-      {/* HEADER */}
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            <Trophy className="h-3.5 w-3.5 text-pitch" /> Meu bolão
+    <div className="max-w-5xl space-y-6 pb-32">
+      {/* HERO */}
+      <div className="relative overflow-hidden rounded-3xl border border-gold/30 bg-hero p-6 sm:p-8 shadow-card">
+        <div className="pointer-events-none absolute inset-0 bg-mesh opacity-70" />
+        <div className="pointer-events-none absolute -top-16 -right-10 h-64 w-64 rounded-full bg-gold/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-16 h-72 w-72 rounded-full bg-pitch/30 blur-3xl" />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-background/40 px-3 py-1 text-xs font-semibold text-gold backdrop-blur">
+              <Trophy className="h-3.5 w-3.5" /> Meu bolão
+            </span>
+            <h1 className="mt-2 font-display text-3xl sm:text-4xl font-black leading-tight tracking-tight">
+              {form.nome ? (
+                <span className="text-gradient-gold">{form.nome}</span>
+              ) : (
+                <span className="text-muted-foreground">Sem nome ainda</span>
+              )}
+            </h1>
+            {shareUrl && (
+              <a
+                href={shareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-gold"
+              >
+                <Eye className="h-3 w-3" /> {shareUrl.replace(/^https?:\/\//, "")}
+              </a>
+            )}
           </div>
-          <h1 className="mt-1 text-3xl font-black leading-tight">
-            {form.nome || "Sem nome ainda"}
-          </h1>
-          {shareUrl && (
-            <a
-              href={shareUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-pitch"
-            >
-              <Eye className="h-3 w-3" /> {shareUrl.replace(/^https?:\/\//, "")}
-            </a>
-          )}
+          <div className="grid grid-cols-3 gap-2 text-center sm:text-right">
+            <Stat
+              icon={<DollarSign className="h-3.5 w-3.5" />}
+              label="Valor"
+              value={`R$ ${Number(form.valor_palpite || 0).toFixed(0)}`}
+            />
+            <Stat
+              icon={<Calendar className="h-3.5 w-3.5" />}
+              label="Jogos"
+              value={String(selectedMatchIds.size)}
+            />
+            <Stat
+              icon={<Clock className="h-3.5 w-3.5" />}
+              label="Limite"
+              value={
+                form.data_limite_palpite
+                  ? new Date(form.data_limite_palpite).toLocaleString("pt-BR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "Início do jogo"
+              }
+            />
+          </div>
         </div>
-        <div className="grid grid-cols-3 gap-2 text-center sm:text-right">
-          <Stat
-            icon={<DollarSign className="h-3.5 w-3.5" />}
-            label="Valor"
-            value={`R$ ${Number(form.valor_palpite || 0).toFixed(0)}`}
-          />
-          <Stat
-            icon={<Calendar className="h-3.5 w-3.5" />}
-            label="Jogos"
-            value={String(selectedMatchIds.size)}
-          />
-          <Stat
-            icon={<Clock className="h-3.5 w-3.5" />}
-            label="Limite"
-            value={
-              form.data_limite_palpite
-                ? new Date(form.data_limite_palpite).toLocaleString("pt-BR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "Início do jogo"
-            }
-          />
-        </div>
-      </header>
+      </div>
 
       {/* CHECKLIST DE PRONTIDÃO */}
       {!ready && (
-        <div className="rounded-2xl border border-pitch/30 bg-pitch/5 p-4">
+        <div className="rounded-2xl border border-gold/30 bg-card/60 p-4 backdrop-blur shadow-card">
           <div className="flex items-center justify-between gap-3 mb-2">
             <div className="flex items-center gap-2">
-              <div className="grid h-7 w-7 place-items-center rounded-full bg-pitch text-primary-foreground text-xs font-black">
+              <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-gold text-[color:var(--gold-foreground)] text-xs font-black shadow-gold">
                 {checksOk}/{checks.length}
               </div>
               <div>
@@ -426,7 +414,7 @@ function BolaoConfigPage() {
             </div>
             <button
               onClick={() => setTab("config")}
-              className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-pitch hover:underline"
+              className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-gold hover:underline"
             >
               Ir para configuração <ChevronRight className="h-3 w-3" />
             </button>
@@ -438,7 +426,7 @@ function BolaoConfigPage() {
                 className={`flex items-center gap-2 ${c.ok ? "text-muted-foreground line-through" : "text-foreground"}`}
               >
                 <span
-                  className={`grid h-4 w-4 place-items-center rounded-full ${c.ok ? "bg-green-600 text-white" : "border border-border bg-background"}`}
+                  className={`grid h-4 w-4 place-items-center rounded-full ${c.ok ? "bg-pitch text-primary-foreground" : "border border-border bg-background"}`}
                 >
                   {c.ok && <Check className="h-2.5 w-2.5" />}
                 </span>
@@ -450,7 +438,7 @@ function BolaoConfigPage() {
       )}
 
       {/* TABS — 2 only */}
-      <nav className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-muted/40 p-1">
+      <nav className="grid grid-cols-2 gap-1 rounded-2xl border border-gold/20 bg-card/60 p-1 backdrop-blur">
         {[
           {
             id: "config" as TabId,
@@ -469,10 +457,14 @@ function BolaoConfigPage() {
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
-            className={`flex flex-col items-start gap-0.5 rounded-lg px-4 py-2.5 text-left transition-all ${tab === t.id ? "bg-card shadow-sm ring-1 ring-border" : "hover:bg-card/50"}`}
+            className={`flex flex-col items-start gap-0.5 rounded-xl px-4 py-2.5 text-left transition-all ${
+              tab === t.id
+                ? "bg-gradient-to-br from-pitch/25 to-transparent ring-1 ring-gold/40 shadow-glow"
+                : "hover:bg-card/60"
+            }`}
           >
             <span
-              className={`inline-flex items-center gap-1.5 text-sm font-bold ${tab === t.id ? "text-foreground" : "text-muted-foreground"}`}
+              className={`inline-flex items-center gap-1.5 text-sm font-bold ${tab === t.id ? "text-gold" : "text-muted-foreground"}`}
             >
               {t.icon} {t.label}
             </span>
@@ -480,6 +472,7 @@ function BolaoConfigPage() {
           </button>
         ))}
       </nav>
+
 
       {/* TAB: CONFIGURAR */}
       {tab === "config" && (
