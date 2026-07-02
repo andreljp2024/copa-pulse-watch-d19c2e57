@@ -941,7 +941,7 @@ function TeamChip({ team }: { team?: Team }) {
           {team?.code ?? "?"}
         </span>
       )}
-      <span className="truncate font-medium">{team?.name ?? "?"}</span>
+      <span className="truncate font-medium">{ptTeamName(team?.name) || "?"}</span>
     </span>
   );
 }
