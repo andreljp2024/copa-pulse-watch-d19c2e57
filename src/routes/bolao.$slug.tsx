@@ -155,6 +155,15 @@ function PublicBolao() {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"abertos" | "ao_vivo" | "encerrados" | "todos">("abertos");
   const [shareCopied, setShareCopied] = useState(false);
+  // Evita mismatch de hidratação: `null` durante SSR/1º render, valor real após mount.
+  const [nowMs, setNowMs] = useState<number | null>(null);
+  useEffect(() => {
+    const tick = () => setNowMs(Date.now() - 3 * 3600_000);
+    tick();
+    const id = setInterval(tick, 30_000);
+    return () => clearInterval(id);
+  }, []);
+  const nowSafe = nowMs ?? 0;
 
   const ranking = useQuery({
     queryKey: ["bolao", slug, "ranking"],
@@ -171,15 +180,15 @@ function PublicBolao() {
   const premioEstimado = arrecadado * 0.9;
 
   const openMatches = useMemo(() => {
-    const now = Date.now() - 3 * 3600_000;
+    const now = nowSafe;
     return matches.filter((m) => {
       const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= now : false;
       return !kickoffPassed && m.status !== "live" && m.status !== "finished";
     });
-  }, [matches]);
+  }, [matches, nowSafe]);
 
   const filteredMatches = useMemo(() => {
-    const now = Date.now() - 3 * 3600_000;
+    const now = nowSafe;
     const q = query.trim().toLowerCase();
     return matches.filter((m) => {
       const home = teams.get(m.home_team_id ?? "");
@@ -197,7 +206,7 @@ function PublicBolao() {
       }
       return true;
     });
-  }, [matches, teams, query, statusFilter]);
+  }, [matches, teams, query, statusFilter, nowSafe]);
 
   const valorTotal = items.length * valorUnit;
 
@@ -224,20 +233,19 @@ function PublicBolao() {
 
 
   const featured = useMemo(() => {
-    const now = Date.now() - 3 * 3600_000;
+    const now = nowSafe;
     return (
       matches.find((m) => m.status !== "finished" && m.kickoff_at && new Date(m.kickoff_at).getTime() > now) ??
       matches.find((m) => m.status !== "finished") ??
       null
     );
-  }, [matches]);
+  }, [matches, nowSafe]);
 
   const palpiteAberto = useMemo(() => {
     if (!bolao.data_limite_palpite) return true;
-    const now = new Date();
-    now.setHours(now.getHours() - 3);
-    return new Date(bolao.data_limite_palpite) > now;
-  }, [bolao.data_limite_palpite]);
+    if (nowMs === null) return true; // SSR-safe padrão
+    return new Date(bolao.data_limite_palpite).getTime() > nowSafe;
+  }, [bolao.data_limite_palpite, nowMs, nowSafe]);
 
   function avancarIdentidade(e: React.FormEvent) {
     e.preventDefault();
@@ -531,7 +539,7 @@ function PublicBolao() {
             {filteredMatches.slice(0, 60).map((m) => {
               const home = teams.get(m.home_team_id ?? "");
               const away = teams.get(m.away_team_id ?? "");
-              const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= Date.now() - 3 * 3600_000 : false;
+              const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= nowSafe : false;
               const matchOpen = palpiteAberto && !kickoffPassed && m.status !== "live" && m.status !== "finished";
               return (
                 <div key={m.id} className="rounded-xl border border-border bg-gradient-card p-3 flex items-center gap-3 card-elevated transition-colors hover:border-gold/40">
