@@ -89,6 +89,8 @@ function BolaoConfigPage() {
     data: { bolao_id: string; match_ids: string[] };
     headers: Record<string, string>;
   }) => Promise<SaveBolaoResult>;
+  const syncApiFn = useServerFn(syncMatchesForTenant);
+  const [syncing, setSyncing] = useState(false);
 
   const shareUrl = useMemo(() => (form.slug ? publicBolaoUrl(form.slug) : ""), [form.slug]);
   const selectionDirty = useMemo(() => {
