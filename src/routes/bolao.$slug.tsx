@@ -233,7 +233,7 @@ function PublicBolao() {
 
 
   const featured = useMemo(() => {
-    const now = Date.now() - 3 * 3600_000;
+    const now = nowSafe;
     return (
       matches.find((m) => m.status !== "finished" && m.kickoff_at && new Date(m.kickoff_at).getTime() > now) ??
       matches.find((m) => m.status !== "finished") ??
