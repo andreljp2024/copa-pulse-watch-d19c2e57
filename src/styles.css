@@ -78,7 +78,7 @@
   --muted: oklch(22% 0.035 158);
   --muted-foreground: oklch(74% 0.025 140);
   --accent: var(--brand-yellow);
-  --accent-foreground: oklch(14% 0.035 158);
+  --accent-foreground: oklch(0% 0 0);
   --destructive: oklch(66% 0.22 27);
   --destructive-foreground: oklch(99% 0 0);
   --border: oklch(32% 0.04 158 / 0.6);
@@ -87,7 +87,7 @@
 
   --pitch: var(--brand-green);
   --gold: var(--brand-yellow);
-  --gold-foreground: oklch(14% 0.035 158);
+  --gold-foreground: oklch(0% 0 0);
   --live: var(--brand-samba);
 
   --chart-1: var(--brand-green);
@@ -191,6 +191,14 @@
   }
   .bg-gradient-gold {
     background-image: var(--gradient-gold);
+    color: #000;
+  }
+  .bg-gradient-gold * {
+    color: inherit;
+  }
+  .bg-accent,
+  .bg-gold {
+    color: #000;
   }
   .bg-gradient-pitch {
     background-image: var(--gradient-pitch);
