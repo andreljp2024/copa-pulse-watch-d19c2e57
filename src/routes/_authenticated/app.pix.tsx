@@ -149,12 +149,25 @@ function PixConfigPage() {
     })();
   }, []);
 
+  const update = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
+    setForm((f) => ({ ...f, [key]: value }));
+
   const chaveError = useMemo(
     () => (form.chave_pix ? validateChave(form.tipo_chave_pix, form.chave_pix) : null),
     [form.tipo_chave_pix, form.chave_pix],
   );
 
+  const whatsappError = useMemo(() => {
+    const v = form.numero_recebedor_whatsapp.trim();
+    if (!v) return null;
+    return isValidPhoneBR(v) ? null : "WhatsApp inválido";
+  }, [form.numero_recebedor_whatsapp]);
+
+  const cidadeWarn = form.cidade.trim().length === 0;
+  const nomeError = form.nome_recebedor.trim().length === 0 ? "Informe o nome" : null;
+
   const canPreview = !!form.nome_recebedor && !!form.chave_pix && !chaveError;
+  const canSave = !nomeError && !chaveError && !whatsappError && !!form.chave_pix;
 
   const payload = useMemo(() => {
     if (!canPreview) return "";
@@ -174,29 +187,44 @@ function PixConfigPage() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!tenantId) return;
-    if (chaveError) {
-      toast.error(chaveError);
+    if (!canSave) {
+      toast.error(chaveError ?? whatsappError ?? nomeError ?? "Revise os campos");
       return;
     }
     setSaving(true);
     // Normaliza para armazenamento (sem máscara em CPF/CNPJ/telefone).
-    const normalized = {
-      ...form,
-      chave_pix:
-        form.tipo_chave_pix === "cpf" ||
-        form.tipo_chave_pix === "cnpj" ||
-        form.tipo_chave_pix === "telefone"
-          ? onlyDigits(form.chave_pix)
-          : form.chave_pix.trim(),
-      numero_recebedor_whatsapp: onlyDigits(form.numero_recebedor_whatsapp),
+    const chaveNormalizada =
+      form.tipo_chave_pix === "cpf" ||
+      form.tipo_chave_pix === "cnpj" ||
+      form.tipo_chave_pix === "telefone"
+        ? onlyDigits(form.chave_pix)
+        : form.chave_pix.trim();
+    const whats = onlyDigits(form.numero_recebedor_whatsapp);
+    const valor = Number(form.valor_padrao_palpite);
+    const payload = {
+      tenant_id: tenantId,
+      nome_recebedor: form.nome_recebedor.trim(),
+      tipo_chave_pix: form.tipo_chave_pix,
+      chave_pix: chaveNormalizada,
+      banco: form.banco.trim() || null,
+      cidade: form.cidade.trim() || null,
+      valor_padrao_palpite: Number.isFinite(valor) && valor >= 0 ? valor : 0,
+      instrucoes_pagamento: form.instrucoes_pagamento.trim() || null,
+      numero_recebedor_whatsapp: whats || null,
     };
     const { error } = await supabase
       .from("tenant_pix_config")
-      .upsert({ tenant_id: tenantId, ...normalized }, { onConflict: "tenant_id" });
+      .upsert(payload, { onConflict: "tenant_id" });
     setSaving(false);
-    if (error) toast.error(`Erro ao salvar: ${error.message}`);
-    else toast.success("Configuração Pix salva com sucesso!");
+    if (error) {
+      toast.error(`Erro ao salvar: ${error.message}`);
+      return;
+    }
+    // Reflete a chave normalizada de volta com máscara na UI.
+    update("chave_pix", formatChave(form.tipo_chave_pix, chaveNormalizada));
+    toast.success("Configuração Pix salva com sucesso!");
   }
+
 
   async function copyCode() {
     if (!payload) return;
@@ -257,10 +285,15 @@ function PixConfigPage() {
                 <input
                   maxLength={15}
                   value={form.cidade}
-                  onChange={(e) => setForm({ ...form, cidade: e.target.value })}
+                  onChange={(e) => update("cidade", e.target.value)}
                   className={inputCss}
-                  placeholder="Ex.: São Paulo"
+                  placeholder="Ex.: SAO PAULO"
                 />
+                {cidadeWarn ? (
+                  <Hint>Se vazio, será usado "BRASIL" no QR Code.</Hint>
+                ) : (
+                  <Hint>Sem acentos, até 15 caracteres (padrão BR Code).</Hint>
+                )}
               </Field>
             </div>
           </Section>
@@ -355,18 +388,24 @@ function PixConfigPage() {
             <Field label="WhatsApp do recebedor">
               <input
                 value={form.numero_recebedor_whatsapp}
-                onChange={(e) => setForm({ ...form, numero_recebedor_whatsapp: maskPhone(e.target.value) })}
-                className={inputCss}
+                onChange={(e) => update("numero_recebedor_whatsapp", maskPhone(e.target.value))}
+                className={`${inputCss} ${whatsappError ? "border-destructive/60 focus:ring-destructive/40" : ""}`}
                 placeholder="(11) 99999-9999"
                 inputMode="numeric"
               />
-              <Hint>Número para contato direto com o recebedor.</Hint>
+              {whatsappError ? (
+                <p className="mt-1 inline-flex items-center gap-1 text-xs text-destructive">
+                  <AlertCircle className="h-3 w-3" /> {whatsappError}
+                </p>
+              ) : (
+                <Hint>Opcional. Número para contato direto com o recebedor.</Hint>
+              )}
             </Field>
           </Section>
 
           <div className="flex items-center gap-3">
             <button
-              disabled={saving || !!chaveError}
+              disabled={saving || !canSave}
               className="inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-gold px-5 font-semibold text-gold-foreground shadow-gold disabled:opacity-60"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
