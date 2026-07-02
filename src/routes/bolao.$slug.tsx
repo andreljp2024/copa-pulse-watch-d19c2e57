@@ -285,8 +285,8 @@ function PublicBolao() {
           p_nome: form.nome.trim(),
           p_whatsapp: whatsapp,
           p_match_id: it.match_id,
-          p_palpite_a: it.palpite_a,
-          p_palpite_b: it.palpite_b,
+          p_palpite_a: Number(it.palpite_a) || 0,
+          p_palpite_b: Number(it.palpite_b) || 0,
         });
         if (rErr) throw rErr;
         const protocolo = Array.isArray(rData) && rData[0]?.codigo
