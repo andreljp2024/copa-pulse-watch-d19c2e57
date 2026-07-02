@@ -206,7 +206,7 @@ function PublicBolao() {
       }
       return true;
     });
-  }, [matches, teams, query, statusFilter]);
+  }, [matches, teams, query, statusFilter, nowSafe]);
 
   const valorTotal = items.length * valorUnit;
 
