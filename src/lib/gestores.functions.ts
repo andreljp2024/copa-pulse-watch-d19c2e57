@@ -282,13 +282,17 @@ export const resetGestorPassword = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!t?.email) throw new Error("Tenant sem e-mail cadastrado.");
     const origin = process.env.SITE_URL ?? "https://bolao.ai.slz.br";
-    const { error } = await supabaseAdmin.auth.admin.generateLink({
+    const { data: link, error } = await supabaseAdmin.auth.admin.generateLink({
       type: "recovery",
       email: t.email,
       options: { redirectTo: `${origin}/reset-password` },
     });
     if (error) throw new Error(error.message);
-    return { ok: true, email: t.email };
+    return {
+      ok: true,
+      email: t.email,
+      action_link: link?.properties?.action_link ?? null,
+    };
   });
 
 export const resendGestorInvite = createServerFn({ method: "POST" })
@@ -311,3 +315,55 @@ export const resendGestorInvite = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true, email: t.email };
   });
+
+const roleSchema = z.object({
+  tenant_id: z.string().uuid(),
+  role: z.enum(["super_admin", "admin"]),
+});
+
+export const grantGestorRole = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => roleSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: t } = await supabaseAdmin
+      .from("tenants")
+      .select("owner_user_id")
+      .eq("id", data.tenant_id)
+      .maybeSingle();
+    if (!t?.owner_user_id) throw new Error("Tenant sem usuário vinculado.");
+    const { error } = await supabaseAdmin
+      .from("user_roles")
+      .upsert(
+        { user_id: t.owner_user_id, role: data.role },
+        { onConflict: "user_id,role", ignoreDuplicates: true },
+      );
+    if (error) throw error;
+    return { ok: true };
+  });
+
+export const revokeGestorRole = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => roleSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: t } = await supabaseAdmin
+      .from("tenants")
+      .select("owner_user_id")
+      .eq("id", data.tenant_id)
+      .maybeSingle();
+    if (!t?.owner_user_id) throw new Error("Tenant sem usuário vinculado.");
+    if (t.owner_user_id === context.userId && data.role === "super_admin") {
+      throw new Error("Você não pode remover seu próprio super_admin.");
+    }
+    const { error } = await supabaseAdmin
+      .from("user_roles")
+      .delete()
+      .eq("user_id", t.owner_user_id)
+      .eq("role", data.role);
+    if (error) throw error;
+    return { ok: true };
+  });
+
