@@ -38,7 +38,7 @@ export const DEFAULT_TEMPLATES = {
   novo_palpite:
     "Olá! Quero participar do {{nome_bolao}}.\n\nMeu nome: {{nome_torcedor}}\n\nWhatsApp: {{whatsapp_torcedor}}\n\nJogo: {{selecao_a}} x {{selecao_b}}\n\nPalpite: {{palpite_a}} x {{palpite_b}}\n\nValor: R$ {{valor_palpite}}\n\nIrei confirmar o palpite e envio o comprovante por aqui.",
   confirmacao_pagamento:
-    "Olá, {{nome_torcedor}}!\n\nSeu pagamento foi confirmado no {{nome_bolao}}.\n\nJogo: {{selecao_a}} x {{selecao_b}}\nSeu palpite: {{palpite_a}} x {{palpite_b}}\nStatus: Pago\n\nBoa sorte!",
+    "Olá, {{nome_torcedor}}!\n\nSeu palpite foi confirmado no {{nome_bolao}}.\n\nJogo: {{selecao_a}} x {{selecao_b}}\n\nSeu palpite: {{palpite_a}} x {{palpite_b}}\n\nStatus: *Confirmado*\n\nBoa sorte!",
   ganhador:
     "Parabéns, {{nome_torcedor}}!\n\nVocê acertou o placar do jogo:\n\n{{selecao_a}} {{placar_a}} x {{placar_b}} {{selecao_b}}\n\nSeu palpite:\n{{palpite_a}} x {{palpite_b}}\n\nVocê está na lista de ganhadores do {{nome_bolao}}.",
   lembrete_pagamento:
