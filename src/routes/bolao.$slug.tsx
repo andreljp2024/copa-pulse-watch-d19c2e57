@@ -786,7 +786,8 @@ function FeaturedMatchCard({
 }) {
   const cd = useCountdown(match.kickoff_at);
   const isLive = match.status === "live";
-  const kickoffPassed = match.kickoff_at ? new Date(match.kickoff_at).getTime() <= Date.now() : false;
+  // cd é null durante SSR/1º render; só considera kickoff passado após o mount para evitar mismatch de hidratação
+  const kickoffPassed = cd ? cd.live : false;
   const podePalpitar = !kickoffPassed && palpiteAberto && !isLive && match.status !== "finished" && !!pix && !!pix.numero_recebedor_whatsapp;
 
   return (
