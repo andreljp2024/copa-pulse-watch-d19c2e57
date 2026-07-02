@@ -40,7 +40,7 @@ export const DEFAULT_TEMPLATES = {
   confirmacao_pagamento:
     "👍 Olá, {{nome_torcedor}}!\n\n✅ Seu palpite foi *confirmado* no *{{nome_bolao}}* 🏆\n\n🆚 Jogo: {{bandeira_a}} {{selecao_a}} x {{bandeira_b}} {{selecao_b}}\n🎯 Seu palpite: *{{palpite_a}} x {{palpite_b}}*\n💵 Valor: R$ {{valor_palpite}}\n📌 Status: *Pago ✅*\n\nBoa sorte! 🍀⚽",
   ganhador:
-    "🏆 PARABÉNS, {{nome_torcedor}}! 🎉\n\n⚽ Você *acertou o placar* do jogo:\n{{bandeira_a}} {{selecao_a}} *{{placar_a}} x {{placar_b}}* {{bandeira_b}} {{selecao_b}}\n\n🎯 Seu palpite: *{{palpite_a}} x {{palpite_b}}*\n\n💰 Você está na lista de *ganhadores* do *{{nome_bolao}}*.\n📞 Em breve entramos em contato para o pagamento do prêmio. 🥇🍀",
+    "🏆🎉🥳 PARABÉNS, {{nome_torcedor}}! 🎊✨\n\n🤩 Não acreditamos... VOCÊ CRAVOU! 😱⚽\n\n🎯 Placar oficial:\n{{bandeira_a}} {{selecao_a}} *{{placar_a}} x {{placar_b}}* {{bandeira_b}} {{selecao_b}} 🥅🔥\n\n🎲 Seu palpite: *{{palpite_a}} x {{palpite_b}}* ✅\n\n💰🥇 Você entrou para a lista de *GANHADORES* do *{{nome_bolao}}*! 🏅💚💛\n\n🤝 Em breve entramos em contato para combinar o pagamento do prêmio. 🎁\n\nAproveita e comemora! 🕺💃🎶🍻",
   lembrete_pagamento:
     "⏰ Olá, {{nome_torcedor}}!\n\nSeu palpite no *{{nome_bolao}}* ainda está *pendente de pagamento* 💳\n\n🏦 Pix para: *{{nome_recebedor}}*\n🔑 Chave: `{{chave_pix}}`\n🏛️ Banco: {{banco}}\n\n📎 Envie o comprovante por aqui para confirmarmos. 🙌⚽",
 };
