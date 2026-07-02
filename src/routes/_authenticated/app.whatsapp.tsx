@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { DEFAULT_TEMPLATES, buildWhatsAppLink, interpolate } from "@/lib/saas";
@@ -256,11 +256,11 @@ function WhatsAppConfigPage() {
             icon={<Info className="h-4 w-4 text-gold" />}
           >
             {pixPhoneError ? (
-              <p className="inline-flex items-center gap-1 text-xs text-destructive">
+              <p className="inline-flex flex-wrap items-center gap-1 text-xs text-destructive">
                 <AlertCircle className="h-3 w-3" /> {pixPhoneError}. Configure em{" "}
-                <a href="/app/pix" className="underline hover:text-foreground">
+                <Link to="/app/pix" className="underline hover:text-foreground">
                   Módulo Pix
-                </a>
+                </Link>
                 .
               </p>
             ) : (
@@ -284,6 +284,7 @@ function WhatsAppConfigPage() {
                 <button
                   key={v}
                   type="button"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => insertVariable(previewKey, v)}
                   title={`Inserir em "${TEMPLATES.find((t) => t.key === previewKey)?.label}"`}
                   className="rounded-md border border-border bg-card px-2 py-0.5 text-[11px] font-mono hover:border-gold/40 hover:text-gold transition-colors"
