@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify, publicBolaoUrl } from "@/lib/saas";
 import { ptTeamName } from "@/components/MatchCard";
+import { flagEmojiFromCode } from "@/lib/flags";
 import { saveBolao, type SaveBolaoResult } from "@/lib/bolao.functions";
 import { syncMatchesForTenant } from "@/lib/sync.functions";
 import { toast } from "sonner";
