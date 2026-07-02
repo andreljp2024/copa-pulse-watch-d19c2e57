@@ -95,7 +95,7 @@ function Page() {
     console.log("[Auth] Starting Google OAuth...");
     setError(null);
     try {
-      const res = await lovable.auth.signInWithOAuth("google", { redirectTo: window.location.origin + "/admin" });
+      const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
       console.log("[Auth] OAuth result:", res);
       if (res.error) throw res.error;
     } catch (err) {
