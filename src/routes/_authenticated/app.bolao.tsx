@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { slugify, publicBolaoUrl } from "@/lib/saas";
 import { saveBolaoMatches, type SaveBolaoInput, type SaveBolaoResult } from "@/lib/bolao.functions";
 import { toast } from "sonner";
+import { toDatetimeLocalBR, fromDatetimeLocalBR } from "@/lib/timezone";
 import {
   Loader2,
   Save,
@@ -144,7 +145,7 @@ function BolaoConfigPage() {
           percentual_admin: Number((b as any).percentual_admin ?? 30),
           permitir_ranking_publico: b.permitir_ranking_publico,
           permitir_ganhadores_publico: b.permitir_ganhadores_publico,
-          data_limite_palpite: b.data_limite_palpite ? b.data_limite_palpite.slice(0, 16) : "",
+          data_limite_palpite: b.data_limite_palpite ? toDatetimeLocalBR(b.data_limite_palpite) : "",
         };
         setForm(next);
         setInitialForm(next);
@@ -188,7 +189,7 @@ function BolaoConfigPage() {
       permitir_ranking_publico: form.permitir_ranking_publico,
       permitir_ganhadores_publico: form.permitir_ganhadores_publico,
       data_limite_palpite: form.data_limite_palpite
-        ? new Date(form.data_limite_palpite).toISOString()
+        ? fromDatetimeLocalBR(form.data_limite_palpite).toISOString()
         : null,
     };
     const { error: updErr } = await supabase.from("boloes").update(payload).eq("id", bolaoId);
@@ -572,9 +573,7 @@ function BolaoConfigPage() {
                       onClick={() =>
                         setForm({
                           ...form,
-                          data_limite_palpite: new Date(proximoJogo.kickoff_at)
-                            .toISOString()
-                            .slice(0, 16),
+                          data_limite_palpite: toDatetimeLocalBR(proximoJogo.kickoff_at),
                         })
                       }
                       className="text-xs font-semibold text-pitch hover:underline"

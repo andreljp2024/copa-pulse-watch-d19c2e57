@@ -1,4 +1,4 @@
-import { formatInTimeZone, toZonedTime } from "date-fns-tz";
+import { formatInTimeZone, toZonedTime, fromZonedTime } from "date-fns-tz";
 import { ptBR } from "date-fns/locale";
 
 // Fuso padrão do sistema: America/Sao_Paulo (UTC-3).
@@ -47,4 +47,14 @@ export function isLiveNow(kickoffAt: string, status: string): boolean {
 /** Data "agora" convertida para o fuso de São Paulo (uso raro; prefira formatBR). */
 export function nowInBR(): Date {
   return toZonedTime(new Date(), BRAZIL_TZ);
+}
+
+/** Converte UTC ISO -> string "yyyy-MM-ddTHH:mm" no fuso BR para input datetime-local. */
+export function toDatetimeLocalBR(iso: string | Date): string {
+  return formatInTimeZone(iso, BRAZIL_TZ, "yyyy-MM-dd'T'HH:mm");
+}
+
+/** Converte string "yyyy-MM-ddTHH:mm" (assumida como BR) -> Date UTC. */
+export function fromDatetimeLocalBR(local: string): Date {
+  return fromZonedTime(local, BRAZIL_TZ);
 }
