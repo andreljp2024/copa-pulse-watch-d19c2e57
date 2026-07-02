@@ -185,7 +185,7 @@ function WhatsAppConfigPage() {
           tenant_id: tenantId,
           // Fonte única: número gravado no módulo Pix. Sincronizamos aqui para
           // compatibilidade com consumidores existentes (RPC pública, links wa.me).
-          numero_whatsapp: fullPhone || null,
+          numero_whatsapp: fullPhone,
           mensagem_novo_palpite: form.mensagem_novo_palpite.trim(),
           mensagem_confirmacao_pagamento: form.mensagem_confirmacao_pagamento.trim(),
           mensagem_ganhador: form.mensagem_ganhador.trim(),
