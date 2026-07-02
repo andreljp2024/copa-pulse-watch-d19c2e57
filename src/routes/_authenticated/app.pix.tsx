@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/PageHeader";
+
 import { buildPixPayload } from "@/lib/pix";
 import { brl } from "@/lib/saas";
 import {
@@ -246,11 +246,24 @@ function PixConfigPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Configuração do Pix"
-        subtitle="Dados usados nas mensagens automáticas, na página pública e no QR Code de cobrança."
-        icon={<CreditCard className="h-5 w-5" />}
-      />
+      {/* HERO */}
+      <div className="relative overflow-hidden rounded-3xl border border-gold/30 bg-hero p-6 sm:p-8 shadow-card">
+        <div className="pointer-events-none absolute inset-0 bg-mesh opacity-70" />
+        <div className="pointer-events-none absolute -top-16 -right-10 h-64 w-64 rounded-full bg-gold/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-16 h-72 w-72 rounded-full bg-pitch/30 blur-3xl" />
+        <div className="relative">
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-background/40 px-3 py-1 text-xs font-semibold text-gold backdrop-blur">
+            <CreditCard className="h-3.5 w-3.5" /> Cobrança Pix
+          </span>
+          <h1 className="mt-2 font-display text-3xl sm:text-4xl font-black tracking-tight">
+            Configuração do <span className="text-gradient-gold">Pix</span>
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground max-w-2xl">
+            Dados usados nas mensagens automáticas, na página pública e no QR Code de cobrança.
+          </p>
+        </div>
+      </div>
+
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         {/* Formulário */}
