@@ -46,7 +46,7 @@ type Row = {
   boloes: { nome: string; slug: string } | null;
 };
 
-function fmtProtocolo(c: number | null) {
+function fmtPalpite(c: number | null) {
   return c ? `BOL-${String(c).padStart(4, "0")}` : "—";
 }
 
@@ -134,7 +134,7 @@ function PalpitesPage() {
   function aprovarEEnviar(r: Row) {
     const home = teamName(r.matches?.home_team_id);
     const away = teamName(r.matches?.away_team_id);
-    const protocolo = fmtProtocolo(r.codigo);
+    const protocolo = fmtPalpite(r.codigo);
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     const slug = r.boloes?.slug ?? "";
     const whatsappDigits = (r.torcedores?.whatsapp ?? "").replace(/\D+/g, "");
@@ -142,7 +142,7 @@ function PalpitesPage() {
     const msg =
       `Obrigado, ${r.torcedores?.nome ?? ""}! 🙏\n\n` +
       `Confirmamos o recebimento do seu pagamento de *${brl(r.valor)}* no *${r.boloes?.nome ?? ""}*.\n\n` +
-      `Protocolo: *${protocolo}*\n` +
+      `Palpite: *${protocolo}*\n` +
       `Jogo: ${home} x ${away}\n` +
       `Seu palpite: *${r.palpite_a} x ${r.palpite_b}*\n` +
       `Status: *Pago ✅*\n\n` +
@@ -159,13 +159,13 @@ function PalpitesPage() {
   function lembrarPagamento(r: Row) {
     const home = teamName(r.matches?.home_team_id);
     const away = teamName(r.matches?.away_team_id);
-    const protocolo = fmtProtocolo(r.codigo);
+    const protocolo = fmtPalpite(r.codigo);
     const kickoff = r.matches?.kickoff_at
       ? formatBR(r.matches.kickoff_at, "dd/MM/yyyy 'às' HH:mm")
       : "o início do jogo";
     const msg =
       `Olá, ${r.torcedores?.nome ?? ""}!\n\n` +
-      `Recebemos seu palpite no ${r.boloes?.nome ?? ""} (Protocolo ${protocolo}).\n` +
+      `Recebemos seu palpite no ${r.boloes?.nome ?? ""} (Palpite ${protocolo}).\n` +
       `Jogo: ${home} x ${away}\n` +
       `Palpite: ${r.palpite_a} x ${r.palpite_b}\n` +
       `Valor: ${brl(r.valor)}\n\n` +
@@ -195,7 +195,7 @@ function PalpitesPage() {
         const home = teamName(r.matches?.home_team_id);
         const away = teamName(r.matches?.away_team_id);
         const hay =
-          `${r.torcedores?.nome ?? ""} ${r.torcedores?.whatsapp ?? ""} ${fmtProtocolo(r.codigo)} ${home} ${away} ${r.boloes?.nome ?? ""}`.toLowerCase();
+          `${r.torcedores?.nome ?? ""} ${r.torcedores?.whatsapp ?? ""} ${fmtPalpite(r.codigo)} ${home} ${away} ${r.boloes?.nome ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -215,9 +215,9 @@ function PalpitesPage() {
 
   function exportCsv() {
     const data = [
-      ["Protocolo", "Torcedor", "WhatsApp", "Bolão", "Jogo", "Palpite", "Valor", "Status", "Data"],
+      ["Palpite", "Torcedor", "WhatsApp", "Bolão", "Jogo", "Placar", "Valor", "Status", "Data"],
       ...filtered.map((r) => [
-        fmtProtocolo(r.codigo),
+        fmtPalpite(r.codigo),
         r.torcedores?.nome ?? "",
         maskPhone(r.torcedores?.whatsapp ?? ""),
         r.boloes?.nome ?? "",
@@ -259,7 +259,7 @@ function PalpitesPage() {
       .map(
         (r) => `
       <tr>
-        <td class="mono">${esc(fmtProtocolo(r.codigo))}</td>
+        <td class="mono">${esc(fmtPalpite(r.codigo))}</td>
         <td>${esc(r.torcedores?.nome ?? "")}<div class="sub">${esc(maskPhone(r.torcedores?.whatsapp ?? ""))}</div></td>
         <td>${esc(r.boloes?.nome ?? "")}</td>
         <td>${esc(teamName(r.matches?.home_team_id) + " x " + teamName(r.matches?.away_team_id))}</td>
@@ -305,7 +305,7 @@ function PalpitesPage() {
     <div class="kpi"><div class="l">Arrecadado</div><div class="v">${esc(brl(totals.arrecadado))}</div></div>
   </div>
   <table>
-    <thead><tr><th>Protocolo</th><th>Torcedor</th><th>Bolão</th><th>Jogo</th><th>Palpite</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+    <thead><tr><th>Palpite</th><th>Torcedor</th><th>Bolão</th><th>Jogo</th><th>Placar</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
     <tbody>${linhas || `<tr><td colspan="8" style="text-align:center;color:#888;padding:24px">Nenhum palpite no filtro selecionado.</td></tr>`}</tbody>
   </table>
   <div class="footer">Gerado pelo sistema · ${esc(filtered.length)} registro(s)</div>
@@ -500,7 +500,7 @@ function PalpitesPage() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
-                <th className="px-4 py-3">Protocolo</th>
+                <th className="px-4 py-3">Palpite</th>
                 <th className="px-4 py-3">Torcedor</th>
                 <th className="px-4 py-3">Jogo</th>
                 <th className="px-4 py-3">Palpite</th>
@@ -516,7 +516,7 @@ function PalpitesPage() {
                   className="border-t border-border hover:bg-muted/20 transition-colors"
                 >
                   <td className="px-4 py-3 font-mono text-xs font-bold">
-                    <div>{fmtProtocolo(r.codigo)}</div>
+                    <div>{fmtPalpite(r.codigo)}</div>
                     <div className="mt-1 text-[10px] font-normal text-muted-foreground">
                       {formatBR(r.created_at, "dd/MM/yyyy 'às' HH:mm")}
                     </div>
