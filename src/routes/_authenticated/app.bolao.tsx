@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify, publicBolaoUrl } from "@/lib/saas";
+import { ptTeamName } from "@/components/MatchCard";
 import { saveBolao, type SaveBolaoResult } from "@/lib/bolao.functions";
 import { syncMatchesForTenant } from "@/lib/sync.functions";
 import { toast } from "sonner";
@@ -307,7 +308,7 @@ function BolaoConfigPage() {
         hour: "2-digit",
         minute: "2-digit",
       });
-      return `⚽ ${dt} — ${flagEmoji(h?.code)} ${h?.name ?? "?"} 🆚 ${flagEmoji(a?.code)} ${a?.name ?? "?"}`;
+      return `⚽ ${dt} — ${flagEmoji(h?.code)} ${ptTeamName(h?.name) || "?"} 🆚 ${flagEmoji(a?.code)} ${ptTeamName(a?.name) || "?"}`;
     });
     const isUm = sel.length === 1;
     return [
