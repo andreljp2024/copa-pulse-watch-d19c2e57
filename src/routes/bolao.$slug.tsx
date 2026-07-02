@@ -4,7 +4,7 @@ import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query"
 import { QRCodeSVG } from "qrcode.react";
 import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
-import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
+import { brl, buildWhatsAppLink, interpolate, onlyDigits, LIMITE_PALPITES_FREE, buildDevWhatsAppLink } from "@/lib/saas";
 import { maskPhone, isValidWhatsAppBR } from "@/lib/masks";
 import { buildPixPayload } from "@/lib/pix";
 import { ptTeamName } from "@/components/MatchCard";
