@@ -193,13 +193,18 @@ export async function syncFootballData(triggeredBy: string): Promise<SyncResult>
     }
 
     if (matchRows.length) {
-      // Requires UNIQUE (home_team_id, away_team_id, kickoff_at) — added via migration.
-      const { error, count } = await sb
-        .from("matches")
-        .upsert(matchRows, { onConflict: "home_team_id,away_team_id,kickoff_at", count: "exact" });
-      if (error) throw error;
-      summary.matches_upserted = matchRows.length;
-      summary.matches_updated = count ?? 0;
+      try {
+        // Requires UNIQUE (home_team_id, away_team_id, kickoff_at) — added via migration.
+        const { error, count } = await sb
+          .from("matches")
+          .upsert(matchRows, { onConflict: "home_team_id,away_team_id,kickoff_at", count: "exact" });
+        if (error) throw error;
+        summary.matches_upserted = matchRows.length;
+        summary.matches_updated = count ?? 0;
+      } catch (mErr) {
+        const msg = mErr instanceof Error ? mErr.message : JSON.stringify(mErr);
+        console.warn("Matches sync failed (non-fatal, continuando artilheiros):", msg);
+      }
     }
 
     // 3) Scorers — fetch and upsert into dedicated table
