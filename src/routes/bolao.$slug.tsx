@@ -149,7 +149,7 @@ function PublicBolao() {
   const [selected, setSelected] = useState<Match | null>(null);
   const [step, setStep] = useState<"identidade" | "palpites">("identidade");
   const [form, setForm] = useState({ nome: "", whatsapp: "" });
-  const [items, setItems] = useState<Array<{ match_id: string; palpite_a: number; palpite_b: number }>>([]);
+  const [items, setItems] = useState<Array<{ match_id: string; palpite_a: string; palpite_b: string }>>([]);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ link: string; protocolos: string[]; valorTotal: number } | null>(null);
   const [query, setQuery] = useState("");
@@ -215,7 +215,7 @@ function PublicBolao() {
     setSelected(first);
     setStep("identidade");
     setForm({ nome: "", whatsapp: "" });
-    setItems(first ? [{ match_id: first.id, palpite_a: 0, palpite_b: 0 }] : []);
+    setItems(first ? [{ match_id: first.id, palpite_a: "", palpite_b: "" }] : []);
     setDone(null);
   }
 
@@ -225,7 +225,7 @@ function PublicBolao() {
       const next = prev.slice(0, qtd);
       while (next.length < qtd) {
         const fallback = openMatches[next.length % Math.max(openMatches.length, 1)] ?? openMatches[0];
-        next.push({ match_id: fallback?.id ?? "", palpite_a: 0, palpite_b: 0 });
+        next.push({ match_id: fallback?.id ?? "", palpite_a: "", palpite_b: "" });
       }
       return next;
     });
@@ -285,8 +285,8 @@ function PublicBolao() {
           p_nome: form.nome.trim(),
           p_whatsapp: whatsapp,
           p_match_id: it.match_id,
-          p_palpite_a: it.palpite_a,
-          p_palpite_b: it.palpite_b,
+          p_palpite_a: Number(it.palpite_a) || 0,
+          p_palpite_b: Number(it.palpite_b) || 0,
         });
         if (rErr) throw rErr;
         const protocolo = Array.isArray(rData) && rData[0]?.codigo
@@ -634,15 +634,25 @@ function PublicBolao() {
                             return <option key={om.id} value={om.id}>{ptTeamName(h?.name)} x {ptTeamName(a?.name)}</option>;
                           })}
                         </select>
-                        <div className="flex items-end gap-2 justify-center">
-                          <label className="flex flex-col items-center gap-1">
+                        <div className="flex items-end gap-3 justify-center">
+                          <label className="flex flex-col items-center gap-1.5">
+                            {home?.flag_url ? (
+                              <img src={home.flag_url} alt={ptTeamName(home?.name)} className="h-10 w-14 object-cover rounded-md ring-1 ring-gold/40" />
+                            ) : (
+                              <div className="h-10 w-14 rounded-md bg-muted grid place-items-center text-xs font-black">{home?.code ?? "?"}</div>
+                            )}
                             <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground max-w-[6rem] truncate">{ptTeamName(home?.name)}</span>
-                            <input type="number" min={0} required value={it.palpite_a} onChange={(e) => setItems(items.map((x, i) => i === idx ? { ...x, palpite_a: Number(e.target.value) } : x))} className="w-16 text-center text-xl font-black tabular-nums rounded-lg border border-border bg-background py-1.5 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
+                            <input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="–" required value={it.palpite_a} onChange={(e) => setItems(items.map((x, i) => i === idx ? { ...x, palpite_a: onlyDigits(e.target.value).slice(0, 2) } : x))} className="w-16 text-center text-xl font-black tabular-nums rounded-lg border border-border bg-background py-1.5 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
                           </label>
-                          <span className="font-bold text-muted-foreground pb-2">x</span>
-                          <label className="flex flex-col items-center gap-1">
+                          <span className="font-bold text-muted-foreground pb-8">x</span>
+                          <label className="flex flex-col items-center gap-1.5">
+                            {away?.flag_url ? (
+                              <img src={away.flag_url} alt={ptTeamName(away?.name)} className="h-10 w-14 object-cover rounded-md ring-1 ring-gold/40" />
+                            ) : (
+                              <div className="h-10 w-14 rounded-md bg-muted grid place-items-center text-xs font-black">{away?.code ?? "?"}</div>
+                            )}
                             <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground max-w-[6rem] truncate">{ptTeamName(away?.name)}</span>
-                            <input type="number" min={0} required value={it.palpite_b} onChange={(e) => setItems(items.map((x, i) => i === idx ? { ...x, palpite_b: Number(e.target.value) } : x))} className="w-16 text-center text-xl font-black tabular-nums rounded-lg border border-border bg-background py-1.5 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
+                            <input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="–" required value={it.palpite_b} onChange={(e) => setItems(items.map((x, i) => i === idx ? { ...x, palpite_b: onlyDigits(e.target.value).slice(0, 2) } : x))} className="w-16 text-center text-xl font-black tabular-nums rounded-lg border border-border bg-background py-1.5 text-gold focus:outline-none focus:ring-2 focus:ring-gold" />
                           </label>
                         </div>
                       </div>
