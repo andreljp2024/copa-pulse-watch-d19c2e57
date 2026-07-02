@@ -252,6 +252,25 @@ function ImportarContatos() {
                 )}
               </div>
 
+              {rejeitadas.length > 0 && (
+                <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-amber-700">
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    {rejeitadas.length} linha(s) ignorada(s) — apenas nomes válidos e WhatsApp BR (DDD + 9 + 8 dígitos) são aceitos
+                  </div>
+                  <div className="max-h-32 overflow-y-auto space-y-1 text-xs text-muted-foreground">
+                    {rejeitadas.slice(0, 10).map((r, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <span className="font-mono text-[10px]">L{r.linha}</span>
+                        <span className="truncate flex-1">{r.nome || "(sem nome)"} — {r.numero || "(sem número)"}</span>
+                        <span className="text-amber-700">{r.motivo}</span>
+                      </div>
+                    ))}
+                    {rejeitadas.length > 10 && <p className="pt-1">+ {rejeitadas.length - 10} outras</p>}
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={handleImport}
                 disabled={importando}
