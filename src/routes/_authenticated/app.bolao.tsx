@@ -68,7 +68,7 @@ function BolaoConfigPage() {
     descricao: "",
     regras: "",
     valor_palpite: 10,
-    percentual_admin: 30,
+    percentual_admin: 20,
     permitir_ranking_publico: true,
     permitir_ganhadores_publico: true,
     data_limite_palpite: "",
