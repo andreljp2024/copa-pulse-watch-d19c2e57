@@ -55,8 +55,8 @@ export const listarGanhadores = createServerFn({ method: "GET" })
          torcedores!inner(id, nome, whatsapp),
          palpites!inner(id, codigo, palpite_a, palpite_b, valor),
          matches!inner(id, home_score, away_score,
-           home_team:teams!matches_home_team_id_fkey(name),
-           away_team:teams!matches_away_team_id_fkey(name))`,
+           home_team:teams!matches_home_team_id_fkey(name, flag_url),
+           away_team:teams!matches_away_team_id_fkey(name, flag_url))`,
       )
       .eq("tenant_id", tenant.id);
     if (gErr) throw gErr;
