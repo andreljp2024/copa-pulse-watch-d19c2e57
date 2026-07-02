@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { DEFAULT_TEMPLATES, buildWhatsAppLink, interpolate } from "@/lib/saas";
-import { onlyDigits } from "@/lib/masks";
+import { onlyDigits, maskPhone } from "@/lib/masks";
 import { PageHeader } from "@/components/PageHeader";
-import { Loader2, Save, MessageCircle, Phone, AlertCircle, Eye, ExternalLink } from "lucide-react";
+import { Loader2, Save, MessageCircle, Phone, AlertCircle, Eye, ExternalLink, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/app/whatsapp")({
@@ -71,6 +71,8 @@ const PREVIEW_VARS: Record<string, string> = {
   banco: "Nubank",
 };
 
+const MAX_TEMPLATE = 1000;
+
 function WhatsAppConfigPage() {
   const [loading, setLoading] = useState(true);
   const [tenantId, setTenantId] = useState<string | null>(null);
@@ -83,44 +85,49 @@ function WhatsAppConfigPage() {
   });
   const [saving, setSaving] = useState(false);
   const [previewKey, setPreviewKey] = useState<TemplateKey>("mensagem_novo_palpite");
+  const textareaRefs = useRef<Partial<Record<TemplateKey, HTMLTextAreaElement | null>>>({});
+
+  const update = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
+    setForm((f) => ({ ...f, [key]: value }));
 
   useEffect(() => {
     (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+      try {
+        const { data: { user }, error: userErr } = await supabase.auth.getUser();
+        if (userErr || !user) return;
 
-      const { data: tRes } = await supabase
-        .from("tenants")
-        .select("id")
-        .eq("owner_user_id", user.id)
-        .limit(1);
-      const t = Array.isArray(tRes) ? tRes[0] : null;
-      if (!t) {
-        setLoading(false);
-        return;
-      }
-      setTenantId(t.id);
+        const { data: t, error: tErr } = await supabase
+          .from("tenants")
+          .select("id")
+          .eq("owner_user_id", user.id)
+          .maybeSingle();
+        if (tErr || !t) return;
+        setTenantId(t.id);
 
-      const { data: wa } = await supabase
-        .from("tenant_whatsapp_config")
-        .select("*")
-        .eq("tenant_id", t.id)
-        .maybeSingle();
-      if (wa) {
-        setForm({
-          numero_whatsapp: (wa.numero_whatsapp ?? "").replace(/^55/, ""),
-          mensagem_novo_palpite: wa.mensagem_novo_palpite ?? DEFAULT_TEMPLATES.novo_palpite,
-          mensagem_confirmacao_pagamento:
-            wa.mensagem_confirmacao_pagamento ?? DEFAULT_TEMPLATES.confirmacao_pagamento,
-          mensagem_ganhador: wa.mensagem_ganhador ?? DEFAULT_TEMPLATES.ganhador,
-          mensagem_lembrete_pagamento:
-            wa.mensagem_lembrete_pagamento ?? DEFAULT_TEMPLATES.lembrete_pagamento,
-        });
+        const { data: wa, error: waErr } = await supabase
+          .from("tenant_whatsapp_config")
+          .select("*")
+          .eq("tenant_id", t.id)
+          .maybeSingle();
+        if (waErr) {
+          toast.error(`Erro ao carregar: ${waErr.message}`);
+          return;
+        }
+        if (wa) {
+          const rawPhone = (wa.numero_whatsapp ?? "").replace(/^55/, "");
+          setForm({
+            numero_whatsapp: maskPhone(rawPhone),
+            mensagem_novo_palpite: wa.mensagem_novo_palpite ?? DEFAULT_TEMPLATES.novo_palpite,
+            mensagem_confirmacao_pagamento:
+              wa.mensagem_confirmacao_pagamento ?? DEFAULT_TEMPLATES.confirmacao_pagamento,
+            mensagem_ganhador: wa.mensagem_ganhador ?? DEFAULT_TEMPLATES.ganhador,
+            mensagem_lembrete_pagamento:
+              wa.mensagem_lembrete_pagamento ?? DEFAULT_TEMPLATES.lembrete_pagamento,
+          });
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     })();
   }, []);
 
@@ -128,9 +135,19 @@ function WhatsAppConfigPage() {
     const d = onlyDigits(form.numero_whatsapp);
     if (!d) return "Informe o número";
     if (d.length < 10 || d.length > 11)
-      return "DDD + número deve ter 10 ou 11 dígitos (ex.: 11999999999)";
+      return "DDD + número deve ter 10 ou 11 dígitos";
     return null;
   }, [form.numero_whatsapp]);
+
+  const templateErrors = useMemo(() => {
+    const errs: Partial<Record<TemplateKey, string>> = {};
+    for (const t of TEMPLATES) {
+      const v = form[t.key];
+      if (!v.trim()) errs[t.key] = "Template não pode ficar vazio";
+      else if (v.length > MAX_TEMPLATE) errs[t.key] = `Máximo de ${MAX_TEMPLATE} caracteres`;
+    }
+    return errs;
+  }, [form]);
 
   const previewMessage = useMemo(
     () => interpolate(form[previewKey], PREVIEW_VARS),
@@ -147,20 +164,15 @@ function WhatsAppConfigPage() {
     return buildWhatsAppLink(fullPhone, previewMessage);
   }, [fullPhone, phoneError, previewMessage]);
 
+  const hasTemplateErrors = Object.keys(templateErrors).length > 0;
+  const canSave = !phoneError && !hasTemplateErrors && !!tenantId;
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (phoneError) {
-      toast.error(phoneError);
-      return;
-    }
-    if (!fullPhone) {
-      toast.error("Informe um número de WhatsApp válido.");
-      return;
-    }
-    if (!tenantId) {
-      toast.error("Erro ao buscar dados do organizador.");
-      return;
-    }
+    if (phoneError) return toast.error(phoneError);
+    if (hasTemplateErrors) return toast.error("Revise os templates de mensagem.");
+    if (!tenantId) return toast.error("Erro ao buscar dados do organizador.");
+
     setSaving(true);
     try {
       const { error } = await supabase
@@ -168,21 +180,19 @@ function WhatsAppConfigPage() {
         .upsert({
           tenant_id: tenantId,
           numero_whatsapp: fullPhone,
-          mensagem_novo_palpite: form.mensagem_novo_palpite || null,
-          mensagem_confirmacao_pagamento: form.mensagem_confirmacao_pagamento || null,
-          mensagem_ganhador: form.mensagem_ganhador || null,
-          mensagem_lembrete_pagamento: form.mensagem_lembrete_pagamento || null,
+          mensagem_novo_palpite: form.mensagem_novo_palpite.trim(),
+          mensagem_confirmacao_pagamento: form.mensagem_confirmacao_pagamento.trim(),
+          mensagem_ganhador: form.mensagem_ganhador.trim(),
+          mensagem_lembrete_pagamento: form.mensagem_lembrete_pagamento.trim(),
           integracao_modo: "link",
         }, { onConflict: "tenant_id" });
 
       if (error) {
-        console.error("[app.whatsapp] Erro do servidor:", error.message);
         toast.error(error.message);
       } else {
-        toast.success("Salvo!");
+        toast.success("Configuração salva!");
       }
     } catch (err: unknown) {
-      console.error("[app.whatsapp] Erro inesperado:", err);
       toast.error(err instanceof Error ? err.message : "Erro ao salvar configuração");
     } finally {
       setSaving(false);
@@ -190,13 +200,30 @@ function WhatsAppConfigPage() {
   }
 
   function resetTemplate(key: TemplateKey, defKey: keyof typeof DEFAULT_TEMPLATES) {
-    setForm((f) => ({ ...f, [key]: DEFAULT_TEMPLATES[defKey] }));
+    update(key, DEFAULT_TEMPLATES[defKey]);
     toast.success("Template restaurado para o padrão.");
   }
 
   function insertVariable(key: TemplateKey, variable: string) {
-    setForm((f) => ({ ...f, [key]: `${f[key]} {{${variable}}}` }));
+    const token = `{{${variable}}}`;
+    const el = textareaRefs.current[key];
+    const current = form[key];
+    if (el && document.activeElement === el) {
+      const start = el.selectionStart ?? current.length;
+      const end = el.selectionEnd ?? current.length;
+      const next = current.slice(0, start) + token + current.slice(end);
+      update(key, next.slice(0, MAX_TEMPLATE));
+      requestAnimationFrame(() => {
+        el.focus();
+        const pos = start + token.length;
+        el.setSelectionRange(pos, pos);
+      });
+    } else {
+      const sep = current.endsWith(" ") || current.length === 0 ? "" : " ";
+      update(key, `${current}${sep}${token}`.slice(0, MAX_TEMPLATE));
+    }
   }
+
 
   if (loading) {
     return (
@@ -224,18 +251,16 @@ function WhatsAppConfigPage() {
             <Field label="WhatsApp (DDD + número)" required>
               <div className="relative mt-1">
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-mono text-muted-foreground select-none">
-                  55
+                  +55
                 </span>
                 <input
                   required
                   inputMode="numeric"
                   value={form.numero_whatsapp}
-                  onChange={(e) =>
-                    setForm({ ...form, numero_whatsapp: onlyDigits(e.target.value).slice(0, 11) })
-                  }
-                  className={`${inputCss} font-mono pl-10 ${phoneError ? "border-destructive/60 focus:ring-destructive/40" : ""}`}
-                  placeholder="11999999999"
-                  maxLength={11}
+                  onChange={(e) => update("numero_whatsapp", maskPhone(e.target.value))}
+                  className={`${inputCss} font-mono pl-12 ${phoneError ? "border-destructive/60 focus:ring-destructive/40" : ""}`}
+                  placeholder="(11) 99999-9999"
+                  maxLength={16}
                 />
               </div>
               {phoneError ? (
@@ -244,11 +269,12 @@ function WhatsAppConfigPage() {
                 </p>
               ) : (
                 <p className="mt-1 text-xs text-muted-foreground">
-                  DDI 55 (Brasil) incluso. Informe apenas DDD + número.
+                  DDI +55 (Brasil) incluso automaticamente. Informe DDD + número.
                 </p>
               )}
             </Field>
           </Section>
+
 
           <Section
             title="Templates de mensagem"
@@ -269,37 +295,66 @@ function WhatsAppConfigPage() {
               ))}
             </div>
 
-            {TEMPLATES.map((tpl) => (
-              <Field key={tpl.key} label={tpl.label}>
-                <div className="relative">
-                  <textarea
-                    rows={tpl.rows}
-                    value={form[tpl.key]}
-                    onFocus={() => setPreviewKey(tpl.key)}
-                    onChange={(e) => setForm({ ...form, [tpl.key]: e.target.value })}
-                    className={`${inputCss} font-mono text-xs`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => resetTemplate(tpl.key, tpl.defaultKey)}
-                    className="absolute right-2 top-2 rounded-md border border-border bg-card px-2 py-0.5 text-[10px] font-semibold text-muted-foreground hover:text-foreground hover:border-gold/40"
-                  >
-                    Restaurar padrão
-                  </button>
-                </div>
-              </Field>
-            ))}
+            {TEMPLATES.map((tpl) => {
+              const value = form[tpl.key];
+              const err = templateErrors[tpl.key];
+              const isActive = previewKey === tpl.key;
+              return (
+                <Field key={tpl.key} label={tpl.label}>
+                  <div className="relative">
+                    <textarea
+                      ref={(el) => {
+                        textareaRefs.current[tpl.key] = el;
+                      }}
+                      rows={tpl.rows}
+                      value={value}
+                      maxLength={MAX_TEMPLATE}
+                      onFocus={() => setPreviewKey(tpl.key)}
+                      onChange={(e) => update(tpl.key, e.target.value)}
+                      className={`${inputCss} font-mono text-xs pr-2 pt-8 ${
+                        err ? "border-destructive/60 focus:ring-destructive/40" : ""
+                      } ${isActive ? "ring-1 ring-gold/30" : ""}`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => resetTemplate(tpl.key, tpl.defaultKey)}
+                      title="Restaurar padrão"
+                      className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-0.5 text-[10px] font-semibold text-muted-foreground hover:text-foreground hover:border-gold/40"
+                    >
+                      <RotateCcw className="h-3 w-3" /> Padrão
+                    </button>
+                  </div>
+                  <div className="mt-1 flex items-center justify-between text-[11px]">
+                    {err ? (
+                      <span className="inline-flex items-center gap-1 text-destructive">
+                        <AlertCircle className="h-3 w-3" /> {err}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {isActive ? "Editando — visível na pré-visualização" : "Clique para pré-visualizar"}
+                      </span>
+                    )}
+                    <span
+                      className={`font-mono ${value.length > MAX_TEMPLATE * 0.9 ? "text-destructive" : "text-muted-foreground"}`}
+                    >
+                      {value.length}/{MAX_TEMPLATE}
+                    </span>
+                  </div>
+                </Field>
+              );
+            })}
           </Section>
 
           <button
             type="submit"
-            disabled={saving || !!phoneError}
+            disabled={saving || !canSave}
             className="inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-gold px-5 font-semibold text-gold-foreground shadow-gold disabled:opacity-60"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Salvar configuração
           </button>
         </form>
+
 
         <aside className="lg:sticky lg:top-6 self-start">
           <div className="rounded-2xl border border-gold/30 bg-gradient-card p-5 card-elevated">
