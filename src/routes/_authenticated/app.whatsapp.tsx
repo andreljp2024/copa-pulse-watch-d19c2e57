@@ -295,37 +295,66 @@ function WhatsAppConfigPage() {
               ))}
             </div>
 
-            {TEMPLATES.map((tpl) => (
-              <Field key={tpl.key} label={tpl.label}>
-                <div className="relative">
-                  <textarea
-                    rows={tpl.rows}
-                    value={form[tpl.key]}
-                    onFocus={() => setPreviewKey(tpl.key)}
-                    onChange={(e) => setForm({ ...form, [tpl.key]: e.target.value })}
-                    className={`${inputCss} font-mono text-xs`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => resetTemplate(tpl.key, tpl.defaultKey)}
-                    className="absolute right-2 top-2 rounded-md border border-border bg-card px-2 py-0.5 text-[10px] font-semibold text-muted-foreground hover:text-foreground hover:border-gold/40"
-                  >
-                    Restaurar padrão
-                  </button>
-                </div>
-              </Field>
-            ))}
+            {TEMPLATES.map((tpl) => {
+              const value = form[tpl.key];
+              const err = templateErrors[tpl.key];
+              const isActive = previewKey === tpl.key;
+              return (
+                <Field key={tpl.key} label={tpl.label}>
+                  <div className="relative">
+                    <textarea
+                      ref={(el) => {
+                        textareaRefs.current[tpl.key] = el;
+                      }}
+                      rows={tpl.rows}
+                      value={value}
+                      maxLength={MAX_TEMPLATE}
+                      onFocus={() => setPreviewKey(tpl.key)}
+                      onChange={(e) => update(tpl.key, e.target.value)}
+                      className={`${inputCss} font-mono text-xs pr-2 pt-8 ${
+                        err ? "border-destructive/60 focus:ring-destructive/40" : ""
+                      } ${isActive ? "ring-1 ring-gold/30" : ""}`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => resetTemplate(tpl.key, tpl.defaultKey)}
+                      title="Restaurar padrão"
+                      className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-0.5 text-[10px] font-semibold text-muted-foreground hover:text-foreground hover:border-gold/40"
+                    >
+                      <RotateCcw className="h-3 w-3" /> Padrão
+                    </button>
+                  </div>
+                  <div className="mt-1 flex items-center justify-between text-[11px]">
+                    {err ? (
+                      <span className="inline-flex items-center gap-1 text-destructive">
+                        <AlertCircle className="h-3 w-3" /> {err}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {isActive ? "Editando — visível na pré-visualização" : "Clique para pré-visualizar"}
+                      </span>
+                    )}
+                    <span
+                      className={`font-mono ${value.length > MAX_TEMPLATE * 0.9 ? "text-destructive" : "text-muted-foreground"}`}
+                    >
+                      {value.length}/{MAX_TEMPLATE}
+                    </span>
+                  </div>
+                </Field>
+              );
+            })}
           </Section>
 
           <button
             type="submit"
-            disabled={saving || !!phoneError}
+            disabled={saving || !canSave}
             className="inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-gold px-5 font-semibold text-gold-foreground shadow-gold disabled:opacity-60"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Salvar configuração
           </button>
         </form>
+
 
         <aside className="lg:sticky lg:top-6 self-start">
           <div className="rounded-2xl border border-gold/30 bg-gradient-card p-5 card-elevated">
