@@ -92,7 +92,7 @@ const FAQ = [
       "Acesse /admin para gerenciar partidas e times",
       "Use 'Sincronizar API' para atualizar dados da Copa",
       "Edite placares manualmente se necessário",
-      "Notificações de novos gestores aparecem no painel",
+      "Notificações de novos organizadores aparecem no painel",
     ],
   },
   {

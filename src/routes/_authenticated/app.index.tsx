@@ -266,7 +266,7 @@ function Dashboard() {
               <Shield className="h-3.5 w-3.5" /> Rumo ao Hexa 🇧🇷
             </span>
             <h1 className="font-display text-3xl sm:text-4xl font-black tracking-tight">
-              Painel do <span className="text-gradient-gold">gestor</span>
+              Painel do <span className="text-gradient-gold">organizador</span>
             </h1>
             {stats.bolao ? (
               <p className="text-sm text-muted-foreground">
