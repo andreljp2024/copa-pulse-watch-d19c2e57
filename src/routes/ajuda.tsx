@@ -128,13 +128,13 @@ export default function HelpPage() {
             Tire suas dúvidas com o administrador
           </p>
           <a
-            href="https://wa.me/5598996068024?text=Olá! Preciso de ajuda com o Bolão AI."
+            href={`https://wa.me/5598996068024?text=${encodeURIComponent("Gostaria de tirar duvidas do BolãoAi")}`}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-green-600 px-6 py-3 text-sm font-bold text-white hover:bg-green-700 transition-colors"
           >
             <MessageCircle className="h-5 w-5" />
-            (98) 9 9606-8024 — Suporte Bolão AI
+            Contato
           </a>
         </div>
 
