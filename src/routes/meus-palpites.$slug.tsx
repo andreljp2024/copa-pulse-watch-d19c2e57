@@ -24,11 +24,29 @@ type Row = {
   kickoff_at: string | null;
   home_team: string | null;
   away_team: string | null;
+  home_flag: string | null;
+  away_flag: string | null;
   placar_a: number | null;
   placar_b: number | null;
   match_status: string | null;
   ganhou: boolean;
 };
+
+function TeamBadge({ name, flag }: { name: string | null; flag: string | null }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      {flag ? (
+        <img
+          src={flag}
+          alt=""
+          className="h-5 w-7 rounded-sm object-cover ring-1 ring-border"
+          loading="lazy"
+        />
+      ) : null}
+      <span>{name ?? "?"}</span>
+    </span>
+  );
+}
 
 function MeusPalpitesPage() {
   const { slug } = Route.useParams();
