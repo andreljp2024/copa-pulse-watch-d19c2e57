@@ -621,6 +621,8 @@ function TeamFlag({ flag }: { flag?: string | null }) {
       className="h-4 w-6 rounded-sm object-cover ring-1 ring-border"
     />
   );
+}
+
 
 function StatCard({
   label,
