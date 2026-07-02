@@ -35,21 +35,10 @@ export const getDashboard = createServerFn({ method: "GET" }).handler(async () =
     return empty;
   }
   const now = new Date().toISOString();
-  // Janela de tolerância: partidas iniciadas há < 2h30 e ainda não finalizadas
-  // aparecem como "ao vivo" mesmo se o sync ainda não marcou status='live'.
-  const liveWindowStart = new Date(Date.now() - 150 * 60 * 1000).toISOString();
   try {
-    const [liveByStatus, liveByTime, upcoming, recent, standings, scorers, teamsC, matchesC, stadiumsC] =
+    const [liveData, upcoming, recent, standings, scorers, teamsC, matchesC, stadiumsC] =
       await Promise.all([
         sb.from("matches").select(MATCH_SELECT).eq("status", "live").order("kickoff_at").then((r) => (r.error ? [] : r.data)),
-        sb
-          .from("matches")
-          .select(MATCH_SELECT)
-          .eq("status", "scheduled")
-          .gte("kickoff_at", liveWindowStart)
-          .lte("kickoff_at", now)
-          .order("kickoff_at")
-          .then((r) => (r.error ? [] : r.data)),
         sb
           .from("matches")
           .select(MATCH_SELECT)
@@ -65,12 +54,7 @@ export const getDashboard = createServerFn({ method: "GET" }).handler(async () =
         sb.from("matches").select("id", { count: "exact", head: true }).then((r) => r.count ?? 0),
         sb.from("stadiums").select("id", { count: "exact", head: true }).then((r) => r.count ?? 0),
       ]);
-    // dedupe: prioridade para status='live'
-    const seen = new Set((liveByStatus ?? []).map((m: { id: string }) => m.id));
-    const live = [
-      ...(liveByStatus ?? []),
-      ...((liveByTime ?? []) as { id: string }[]).filter((m) => !seen.has(m.id)),
-    ];
+    const live = liveData ?? [];
     return {
       live,
       upcoming: upcoming ?? [],
