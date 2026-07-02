@@ -292,9 +292,14 @@ function BolaoConfigPage() {
   const divulgacaoTexto = useMemo(() => {
     const sel = matches.filter((m) => selectedMatchIds.has(m.id));
     if (sel.length === 0) return "";
+    const flagEmoji = (code?: string) => {
+      const c = (code ?? "").trim().toUpperCase();
+      if (c.length !== 2 || !/^[A-Z]{2}$/.test(c)) return "🏳️";
+      return String.fromCodePoint(...[...c].map((ch) => 0x1f1e6 + ch.charCodeAt(0) - 65));
+    };
     const linhas = sel.map((m) => {
-      const home = teams.get(m.home_team_id)?.name ?? "?";
-      const away = teams.get(m.away_team_id)?.name ?? "?";
+      const h = teams.get(m.home_team_id);
+      const a = teams.get(m.away_team_id);
       const dt = new Date(m.kickoff_at).toLocaleString("pt-BR", {
         weekday: "short",
         day: "2-digit",
@@ -302,20 +307,31 @@ function BolaoConfigPage() {
         hour: "2-digit",
         minute: "2-digit",
       });
-      return `⚽ ${dt} — ${home} x ${away}`;
+      return `⚽ ${dt} — ${flagEmoji(h?.code)} ${h?.name ?? "?"} 🆚 ${flagEmoji(a?.code)} ${a?.name ?? "?"}`;
     });
+    const isUm = sel.length === 1;
     return [
-      `🏆 ${form.nome || "Bolão"}`,
+      `🏆🇧🇷 *${form.nome || "Bolão da Copa 2026"}* 🇧🇷🏆`,
+      `🔥 O maior bolão entre amigos vai rolar — bora participar? 🤝⚽`,
       ``,
-      `Palpite nos próximos jogos:`,
+      isUm ? `🎯 Palpite pra este jogão:` : `🎯 Palpite nesses jogaços:`,
       ...linhas,
       ``,
-      form.valor_palpite ? `💰 R$ ${Number(form.valor_palpite).toFixed(2)} por palpite` : "",
-      shareUrl ? `👉 ${shareUrl}` : "",
+      `💚💛 Regras rápidas:`,
+      `• 🥇 Acertou o placar exato = PRÊMIO! 💰`,
+      `• ⏱️ Palpites até o apito inicial`,
+      `• 📱 Tudo pelo WhatsApp, simples e rápido`,
+      form.valor_palpite
+        ? `\n💵 Valor: *R$ ${Number(form.valor_palpite).toFixed(2)}* por palpite 💳`
+        : "",
+      shareUrl ? `\n👉 Entre agora: ${shareUrl}` : "",
+      ``,
+      `🍀 Boa sorte e que vença o melhor palpiteiro! 🏅🎉`,
     ]
       .filter(Boolean)
       .join("\n");
   }, [matches, selectedMatchIds, teams, form.nome, form.valor_palpite, shareUrl]);
+
 
   async function copyDivulgacao() {
     if (!divulgacaoTexto) return;
