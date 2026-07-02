@@ -249,13 +249,19 @@ export async function syncFootballData(triggeredBy: string): Promise<SyncResult>
     });
     return { ok: true, status: "success", message, summary };
   } catch (e: unknown) {
-    const message = `Falha na sincronização: ${e instanceof Error ? e.message : String(e)}`;
+    let detail: string;
+    if (e instanceof Error) detail = e.message;
+    else if (e && typeof e === "object") {
+      const anyE = e as { message?: string; details?: string; hint?: string; code?: string };
+      detail = anyE.message ?? anyE.details ?? anyE.hint ?? JSON.stringify(e);
+    } else detail = String(e);
+    const message = `Falha na sincronização: ${detail}`;
     await sb.from("api_sync_logs").insert({
       source: "football-data",
       action: "sync_all",
       status: "error",
       message,
-      payload: { triggered_by: triggeredBy },
+      payload: { triggered_by: triggeredBy, summary },
     });
     return { ok: false, status: "error", message };
   }
