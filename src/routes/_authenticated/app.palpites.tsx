@@ -225,7 +225,7 @@ function PalpitesPage() {
         `${r.palpite_a} x ${r.palpite_b}`,
         brl(r.valor),
         r.status_pagamento,
-        new Date(r.created_at).toLocaleString("pt-BR"),
+        formatBR(r.created_at, "dd/MM/yyyy HH:mm"),
       ]),
     ];
     const csv = data
