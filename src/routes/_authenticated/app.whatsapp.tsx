@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { DEFAULT_TEMPLATES, buildWhatsAppLink, interpolate } from "@/lib/saas";
 import { onlyDigits, maskPhone } from "@/lib/masks";
-import { PageHeader } from "@/components/PageHeader";
+
 import { Loader2, Save, MessageCircle, AlertCircle, Eye, ExternalLink, RotateCcw, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
