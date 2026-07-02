@@ -215,7 +215,7 @@ function PublicBolao() {
     setSelected(first);
     setStep("identidade");
     setForm({ nome: "", whatsapp: "" });
-    setItems(first ? [{ match_id: first.id, palpite_a: 0, palpite_b: 0 }] : []);
+    setItems(first ? [{ match_id: first.id, palpite_a: "", palpite_b: "" }] : []);
     setDone(null);
   }
 
