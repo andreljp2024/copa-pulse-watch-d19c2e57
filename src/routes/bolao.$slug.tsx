@@ -806,7 +806,8 @@ function FeaturedMatchCard({
 }) {
   const cd = useCountdown(match.kickoff_at);
   const isLive = match.status === "live";
-  const podePalpitar = palpiteAberto && !isLive && match.status !== "finished" && !!pix && !!pix.numero_recebedor_whatsapp;
+  const kickoffPassed = match.kickoff_at ? new Date(match.kickoff_at).getTime() <= Date.now() : false;
+  const podePalpitar = !kickoffPassed && palpiteAberto && !isLive && match.status !== "finished" && !!pix && !!pix.numero_recebedor_whatsapp;
 
   return (
     <div className="relative overflow-hidden rounded-3xl border border-gold/30 bg-gradient-card shadow-gold ring-conic">
