@@ -261,9 +261,9 @@ function PalpitesPage() {
         (r) => `
       <tr>
         <td class="mono">${esc(fmtProtocolo(r.codigo))}</td>
-        <td>${esc(r.torcedores?.nome ?? "")}<div class="sub">${esc(r.torcedores?.whatsapp ?? "")}</div></td>
+        <td>${esc(r.torcedores?.nome ?? "")}<div class="sub">${esc(maskPhone(r.torcedores?.whatsapp ?? ""))}</div></td>
         <td>${esc(r.boloes?.nome ?? "")}</td>
-        <td>${esc((teams.get(r.matches?.home_team_id ?? "") ?? "?") + " x " + (teams.get(r.matches?.away_team_id ?? "") ?? "?"))}</td>
+        <td>${esc(teamName(r.matches?.home_team_id) + " x " + teamName(r.matches?.away_team_id))}</td>
         <td class="b">${esc(r.palpite_a)} x ${esc(r.palpite_b)}</td>
         <td>${esc(brl(r.valor))}</td>
         <td><span class="pill pill-${esc(r.status_pagamento)}">${esc(r.status_pagamento)}</span></td>
