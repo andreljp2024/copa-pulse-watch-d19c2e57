@@ -479,7 +479,11 @@ function PalpitesPage() {
       )}
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Carregando…</p>
+        <div className="space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-14 rounded-xl border border-border bg-card animate-pulse" />
+          ))}
+        </div>
       ) : rows.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
           <ListChecks className="mx-auto h-8 w-8 text-muted-foreground/50" />
