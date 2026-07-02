@@ -180,7 +180,7 @@ function PublicBolao() {
   const premioEstimado = arrecadado * 0.9;
 
   const openMatches = useMemo(() => {
-    const now = Date.now() - 3 * 3600_000;
+    const now = nowSafe;
     return matches.filter((m) => {
       const kickoffPassed = m.kickoff_at ? new Date(m.kickoff_at).getTime() <= now : false;
       return !kickoffPassed && m.status !== "live" && m.status !== "finished";
