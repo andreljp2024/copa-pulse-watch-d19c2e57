@@ -21,6 +21,7 @@ import {
   ShieldPlus,
   ShieldMinus,
   Copy,
+  Share2,
 } from "lucide-react";
 import {
   isSuperAdmin,
@@ -264,12 +265,40 @@ function GestoresInner() {
               Comanda o time de organizadores com a garra da torcida brasileira.
             </p>
           </div>
-          <button
-            onClick={() => setShowForm((s) => !s)}
-            className="group inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-gold px-5 text-sm font-black text-primary-foreground shadow-md transition-transform hover:scale-105"
-          >
-            <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" /> Novo organizador
-          </button>
+          <div className="flex flex-wrap gap-2">
+            {(() => {
+              const url =
+                typeof window !== "undefined"
+                  ? `${window.location.origin}/criar-bolao`
+                  : "https://copa-pulse-watch.lovable.app/criar-bolao";
+              const msg =
+                `🏆⚽ *Bolão AI — Rumo ao Hexa 🇧🇷💚💛*\n\n` +
+                `🎉 Convido você a organizar o *bolão da sua turma* na Copa 2026!\n\n` +
+                `✨ *É cortesia de Dev, não é bets* 🚫🎰 — só torcida entre amigos e familiares 🤝\n` +
+                `📱 Palpites via WhatsApp\n💰 Pix direto na *sua* conta\n🏅 Ranking e ganhadores automáticos\n🆓 *Grátis* até 50 palpites — todos os recursos liberados\n\n` +
+                `👇 Crie o bolão da sua turma agora:\n${url}\n\n` +
+                `Bora torcer juntos pelo *Hexa*! 🇧🇷🥅🔥`;
+              const shareLink = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+              return (
+                <a
+                  href={shareLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex h-11 items-center gap-2 rounded-xl bg-[#25D366] px-5 text-sm font-black text-white shadow-md transition-transform hover:scale-105"
+                  title="Divulgar a plataforma no WhatsApp"
+                >
+                  <Share2 className="h-4 w-4 transition-transform group-hover:rotate-12" />
+                  📣 Divulgar no WhatsApp
+                </a>
+              );
+            })()}
+            <button
+              onClick={() => setShowForm((s) => !s)}
+              className="group inline-flex h-11 items-center gap-2 rounded-xl bg-gradient-gold px-5 text-sm font-black text-primary-foreground shadow-md transition-transform hover:scale-105"
+            >
+              <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" /> Novo organizador
+            </button>
+          </div>
         </div>
 
         {/* KPIs */}
