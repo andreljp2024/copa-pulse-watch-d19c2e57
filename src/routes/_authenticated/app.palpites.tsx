@@ -137,7 +137,10 @@ function PalpitesPage() {
     const protocolo = fmtPalpite(r.codigo);
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     const slug = r.boloes?.slug ?? "";
-    const whatsappDigits = (r.torcedores?.whatsapp ?? "").replace(/\D+/g, "");
+    const rawDigits = (r.torcedores?.whatsapp ?? "").replace(/\D+/g, "");
+    // Normaliza para DDD+número (11 dígitos), removendo o código do país 55 se presente
+    const whatsappDigits =
+      rawDigits.length > 11 && rawDigits.startsWith("55") ? rawDigits.slice(2) : rawDigits;
     const linkConsulta = slug ? `${origin}/meus-palpites/${slug}?w=${whatsappDigits}` : "";
     const msg =
       `Obrigado, ${r.torcedores?.nome ?? ""}! 🙏\n\n` +
