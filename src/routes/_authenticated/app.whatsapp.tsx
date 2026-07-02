@@ -71,6 +71,8 @@ const PREVIEW_VARS: Record<string, string> = {
   banco: "Nubank",
 };
 
+const MAX_TEMPLATE = 1000;
+
 function WhatsAppConfigPage() {
   const [loading, setLoading] = useState(true);
   const [tenantId, setTenantId] = useState<string | null>(null);
@@ -83,44 +85,49 @@ function WhatsAppConfigPage() {
   });
   const [saving, setSaving] = useState(false);
   const [previewKey, setPreviewKey] = useState<TemplateKey>("mensagem_novo_palpite");
+  const textareaRefs = useRef<Partial<Record<TemplateKey, HTMLTextAreaElement | null>>>({});
+
+  const update = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
+    setForm((f) => ({ ...f, [key]: value }));
 
   useEffect(() => {
     (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+      try {
+        const { data: { user }, error: userErr } = await supabase.auth.getUser();
+        if (userErr || !user) return;
 
-      const { data: tRes } = await supabase
-        .from("tenants")
-        .select("id")
-        .eq("owner_user_id", user.id)
-        .limit(1);
-      const t = Array.isArray(tRes) ? tRes[0] : null;
-      if (!t) {
-        setLoading(false);
-        return;
-      }
-      setTenantId(t.id);
+        const { data: t, error: tErr } = await supabase
+          .from("tenants")
+          .select("id")
+          .eq("owner_user_id", user.id)
+          .maybeSingle();
+        if (tErr || !t) return;
+        setTenantId(t.id);
 
-      const { data: wa } = await supabase
-        .from("tenant_whatsapp_config")
-        .select("*")
-        .eq("tenant_id", t.id)
-        .maybeSingle();
-      if (wa) {
-        setForm({
-          numero_whatsapp: (wa.numero_whatsapp ?? "").replace(/^55/, ""),
-          mensagem_novo_palpite: wa.mensagem_novo_palpite ?? DEFAULT_TEMPLATES.novo_palpite,
-          mensagem_confirmacao_pagamento:
-            wa.mensagem_confirmacao_pagamento ?? DEFAULT_TEMPLATES.confirmacao_pagamento,
-          mensagem_ganhador: wa.mensagem_ganhador ?? DEFAULT_TEMPLATES.ganhador,
-          mensagem_lembrete_pagamento:
-            wa.mensagem_lembrete_pagamento ?? DEFAULT_TEMPLATES.lembrete_pagamento,
-        });
+        const { data: wa, error: waErr } = await supabase
+          .from("tenant_whatsapp_config")
+          .select("*")
+          .eq("tenant_id", t.id)
+          .maybeSingle();
+        if (waErr) {
+          toast.error(`Erro ao carregar: ${waErr.message}`);
+          return;
+        }
+        if (wa) {
+          const rawPhone = (wa.numero_whatsapp ?? "").replace(/^55/, "");
+          setForm({
+            numero_whatsapp: maskPhone(rawPhone),
+            mensagem_novo_palpite: wa.mensagem_novo_palpite ?? DEFAULT_TEMPLATES.novo_palpite,
+            mensagem_confirmacao_pagamento:
+              wa.mensagem_confirmacao_pagamento ?? DEFAULT_TEMPLATES.confirmacao_pagamento,
+            mensagem_ganhador: wa.mensagem_ganhador ?? DEFAULT_TEMPLATES.ganhador,
+            mensagem_lembrete_pagamento:
+              wa.mensagem_lembrete_pagamento ?? DEFAULT_TEMPLATES.lembrete_pagamento,
+          });
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     })();
   }, []);
 
@@ -128,9 +135,19 @@ function WhatsAppConfigPage() {
     const d = onlyDigits(form.numero_whatsapp);
     if (!d) return "Informe o número";
     if (d.length < 10 || d.length > 11)
-      return "DDD + número deve ter 10 ou 11 dígitos (ex.: 11999999999)";
+      return "DDD + número deve ter 10 ou 11 dígitos";
     return null;
   }, [form.numero_whatsapp]);
+
+  const templateErrors = useMemo(() => {
+    const errs: Partial<Record<TemplateKey, string>> = {};
+    for (const t of TEMPLATES) {
+      const v = form[t.key];
+      if (!v.trim()) errs[t.key] = "Template não pode ficar vazio";
+      else if (v.length > MAX_TEMPLATE) errs[t.key] = `Máximo de ${MAX_TEMPLATE} caracteres`;
+    }
+    return errs;
+  }, [form]);
 
   const previewMessage = useMemo(
     () => interpolate(form[previewKey], PREVIEW_VARS),
@@ -147,20 +164,15 @@ function WhatsAppConfigPage() {
     return buildWhatsAppLink(fullPhone, previewMessage);
   }, [fullPhone, phoneError, previewMessage]);
 
+  const hasTemplateErrors = Object.keys(templateErrors).length > 0;
+  const canSave = !phoneError && !hasTemplateErrors && !!tenantId;
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (phoneError) {
-      toast.error(phoneError);
-      return;
-    }
-    if (!fullPhone) {
-      toast.error("Informe um número de WhatsApp válido.");
-      return;
-    }
-    if (!tenantId) {
-      toast.error("Erro ao buscar dados do organizador.");
-      return;
-    }
+    if (phoneError) return toast.error(phoneError);
+    if (hasTemplateErrors) return toast.error("Revise os templates de mensagem.");
+    if (!tenantId) return toast.error("Erro ao buscar dados do organizador.");
+
     setSaving(true);
     try {
       const { error } = await supabase
@@ -168,21 +180,19 @@ function WhatsAppConfigPage() {
         .upsert({
           tenant_id: tenantId,
           numero_whatsapp: fullPhone,
-          mensagem_novo_palpite: form.mensagem_novo_palpite || null,
-          mensagem_confirmacao_pagamento: form.mensagem_confirmacao_pagamento || null,
-          mensagem_ganhador: form.mensagem_ganhador || null,
-          mensagem_lembrete_pagamento: form.mensagem_lembrete_pagamento || null,
+          mensagem_novo_palpite: form.mensagem_novo_palpite.trim(),
+          mensagem_confirmacao_pagamento: form.mensagem_confirmacao_pagamento.trim(),
+          mensagem_ganhador: form.mensagem_ganhador.trim(),
+          mensagem_lembrete_pagamento: form.mensagem_lembrete_pagamento.trim(),
           integracao_modo: "link",
         }, { onConflict: "tenant_id" });
 
       if (error) {
-        console.error("[app.whatsapp] Erro do servidor:", error.message);
         toast.error(error.message);
       } else {
-        toast.success("Salvo!");
+        toast.success("Configuração salva!");
       }
     } catch (err: unknown) {
-      console.error("[app.whatsapp] Erro inesperado:", err);
       toast.error(err instanceof Error ? err.message : "Erro ao salvar configuração");
     } finally {
       setSaving(false);
@@ -190,13 +200,30 @@ function WhatsAppConfigPage() {
   }
 
   function resetTemplate(key: TemplateKey, defKey: keyof typeof DEFAULT_TEMPLATES) {
-    setForm((f) => ({ ...f, [key]: DEFAULT_TEMPLATES[defKey] }));
+    update(key, DEFAULT_TEMPLATES[defKey]);
     toast.success("Template restaurado para o padrão.");
   }
 
   function insertVariable(key: TemplateKey, variable: string) {
-    setForm((f) => ({ ...f, [key]: `${f[key]} {{${variable}}}` }));
+    const token = `{{${variable}}}`;
+    const el = textareaRefs.current[key];
+    const current = form[key];
+    if (el && document.activeElement === el) {
+      const start = el.selectionStart ?? current.length;
+      const end = el.selectionEnd ?? current.length;
+      const next = current.slice(0, start) + token + current.slice(end);
+      update(key, next.slice(0, MAX_TEMPLATE));
+      requestAnimationFrame(() => {
+        el.focus();
+        const pos = start + token.length;
+        el.setSelectionRange(pos, pos);
+      });
+    } else {
+      const sep = current.endsWith(" ") || current.length === 0 ? "" : " ";
+      update(key, `${current}${sep}${token}`.slice(0, MAX_TEMPLATE));
+    }
   }
+
 
   if (loading) {
     return (
