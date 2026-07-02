@@ -473,11 +473,11 @@ function PublicBolao() {
          </section>
         )}
 
-        {!pix || !pix.numero_recebedor_whatsapp && (
+        {(!pix || !pix.numero_recebedor_whatsapp) && (
          <section className="mx-auto max-w-5xl px-4 pt-6 print:hidden">
            <div className="rounded-2xl border border-border bg-card p-5 text-center">
              <p className="text-sm text-muted-foreground">
-               {!pix ? "WhatsApp não configurado" : "Palpites encerrados"}
+               {!pix ? "PIX não configurado" : "WhatsApp não configurado"}
              </p>
            </div>
          </section>
@@ -806,7 +806,8 @@ function FeaturedMatchCard({
 }) {
   const cd = useCountdown(match.kickoff_at);
   const isLive = match.status === "live";
-  const podePalpitar = palpiteAberto && !isLive && match.status !== "finished" && !!pix && !!pix.numero_recebedor_whatsapp;
+  const kickoffPassed = match.kickoff_at ? new Date(match.kickoff_at).getTime() <= Date.now() : false;
+  const podePalpitar = !kickoffPassed && palpiteAberto && !isLive && match.status !== "finished" && !!pix && !!pix.numero_recebedor_whatsapp;
 
   return (
     <div className="relative overflow-hidden rounded-3xl border border-gold/30 bg-gradient-card shadow-gold ring-conic">
