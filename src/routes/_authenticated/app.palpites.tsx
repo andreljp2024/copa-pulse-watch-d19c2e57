@@ -515,7 +515,10 @@ function PalpitesPage() {
                   className="border-t border-border hover:bg-muted/20 transition-colors"
                 >
                   <td className="px-4 py-3 font-mono text-xs font-bold">
-                    {fmtProtocolo(r.codigo)}
+                    <div>{fmtProtocolo(r.codigo)}</div>
+                    <div className="mt-1 text-[10px] font-normal text-muted-foreground">
+                      {formatBR(r.created_at, "dd/MM/yyyy 'às' HH:mm")}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="font-medium">{r.torcedores?.nome}</div>
