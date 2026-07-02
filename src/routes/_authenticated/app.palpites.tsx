@@ -611,6 +611,17 @@ function PalpitesPage() {
   );
 }
 
+function TeamFlag({ flag }: { flag?: string | null }) {
+  if (!flag) return <span className="inline-block h-4 w-6 rounded-sm bg-muted" aria-hidden />;
+  return (
+    <img
+      src={flag}
+      alt=""
+      loading="lazy"
+      className="h-4 w-6 rounded-sm object-cover ring-1 ring-border"
+    />
+  );
+
 function StatCard({
   label,
   value,
