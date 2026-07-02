@@ -305,15 +305,16 @@ function PublicBolao() {
       const dataHora = format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
       const protocolosStr = protocolos.join(", ");
       const msg =
-        `Eu: ${form.nome}\n` +
-        `Whatsapp: ${maskPhone(whatsapp)}\n` +
+        `👤 Eu: ${form.nome}\n` +
+        `📱 Whatsapp: ${maskPhone(whatsapp)}\n` +
         `📅 ${dataHora}\n\n` +
-        `Acabei de registrar um palpite\n` +
-        `Em: *${bolao.nome}*\n` +
-        `Palpite(s): ${protocolosStr}\n` +
-        `No total de *${brl(valorTotal)}*\n\n` +
-        `Já lhe envio o comprovante\n` +
-        `Para: ${pix.chave_pix}`;
+        `⚽ Acabei de registrar um palpite\n` +
+        `🏆 Em: *${bolao.nome}*\n\n` +
+        `${linhas.join("\n")}\n\n` +
+        `🎯 Protocolo(s): ${protocolosStr}\n` +
+        `💰 Total: *${brl(valorTotal)}*\n\n` +
+        `💳 Já lhe envio o comprovante\n` +
+        `🏦 Para: ${pix.chave_pix}`;
       setDone({ link: buildWhatsAppLink(pix.numero_recebedor_whatsapp ?? "", msg), protocolos, valorTotal });
       (confetti as unknown as (opts: Record<string, unknown>) => void)({ particleCount: 120, spread: 80, origin: { y: 0.6 }, useWorker: false, disableForReducedMotion: true });
     } catch (err) {
