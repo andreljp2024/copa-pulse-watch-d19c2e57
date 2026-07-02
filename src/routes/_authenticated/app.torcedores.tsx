@@ -453,14 +453,18 @@ function TorcedoresPage() {
                     {l.whatsapp ? maskPhone(l.whatsapp) : "—"}
                   </td>
                   <td className="px-4 py-2 text-muted-foreground text-xs whitespace-nowrap">
-                    {l.kickoff_at
-                      ? new Date(l.kickoff_at).toLocaleString("pt-BR", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                      : "—"}
+                    {(() => {
+                      const first = firstPalpiteByTorcedor.get(l.torcedor_id);
+                      return first
+                        ? new Date(first).toLocaleString("pt-BR", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "—";
+                    })()}
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex justify-end gap-1.5">
