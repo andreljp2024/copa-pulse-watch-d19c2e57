@@ -4,7 +4,7 @@ import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query"
 import { QRCodeSVG } from "qrcode.react";
 import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
-import { brl, buildWhatsAppLink, interpolate, onlyDigits } from "@/lib/saas";
+import { brl, buildWhatsAppLink, interpolate, onlyDigits, LIMITE_PALPITES_FREE, buildDevWhatsAppLink } from "@/lib/saas";
 import { maskPhone, isValidWhatsAppBR } from "@/lib/masks";
 import { buildPixPayload } from "@/lib/pix";
 import { ptTeamName } from "@/components/MatchCard";
@@ -266,6 +266,15 @@ function PublicBolao() {
   async function submitPalpite(e: React.FormEvent) {
     e.preventDefault();
     if (items.length === 0) return;
+    if (totalPalpites + items.length > LIMITE_PALPITES_FREE) {
+      const msg = `Olá! Tentei palpitar no bolão *${bolao.nome}* mas ele atingiu o limite de ${LIMITE_PALPITES_FREE} palpites do plano Grátis. Poderia liberar?`;
+      const link = buildDevWhatsAppLink(msg);
+      alert(
+        `Este bolão atingiu o limite de ${LIMITE_PALPITES_FREE} palpites do plano Grátis do Bolão AI.\n\nPeça ao organizador para falar com o Dev no WhatsApp para desbloquear:\n${link}`,
+      );
+      window.open(link, "_blank", "noopener,noreferrer");
+      return;
+    }
     if (!pix) {
       alert("Configuração PIX não encontrada. O organizador precisa configurar a chave PIX antes de aceitar palpites.");
       return;

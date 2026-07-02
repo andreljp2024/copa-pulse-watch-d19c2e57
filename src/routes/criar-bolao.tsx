@@ -1,22 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Trophy, MessageCircle, BarChart3, Crown, Smartphone } from "lucide-react";
+import { Check, Trophy, MessageCircle, BarChart3, Crown, Smartphone, Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { LIMITE_PALPITES_FREE, buildDevWhatsAppLink } from "@/lib/saas";
 
 export const Route = createFileRoute("/criar-bolao")({
   head: () => ({
     meta: [
-      { title: "Crie seu Bolão da Copa 2026 em minutos" },
+      { title: "Bolão AI — Cortesia para torcedores brasileiros rumo ao Hexa 🇧🇷" },
       {
         name: "description",
         content:
-          "Plataforma SaaS para administrar bolões da Copa 2026: Pix por WhatsApp, palpites, resultados automáticos e ranking de ganhadores.",
+          "Bolão AI não é bets. É cortesia de Dev para torcedores brasileiros juntarem amigos e parentes e fazerem seus próprios palpites na Copa 2026.",
       },
-      { property: "og:title", content: "Crie seu Bolão da Copa 2026 em minutos" },
+      { property: "og:title", content: "Bolão AI — Cortesia para torcedores brasileiros" },
       {
         property: "og:description",
         content:
-          "Cadastre participantes, receba Pix, controle palpites e descubra ganhadores automaticamente.",
+          "Junte amigos e parentes, faça seus palpites e torça pelo Hexa. Sem apostas, sem taxas escondidas — só torcida.",
       },
     ],
   }),
@@ -24,78 +25,33 @@ export const Route = createFileRoute("/criar-bolao")({
 });
 
 const benefits = [
-  {
-    icon: MessageCircle,
-    title: "Pix por WhatsApp",
-    desc: "Links prontos com seus dados Pix em cada palpite.",
-  },
-  {
-    icon: BarChart3,
-    title: "Gestão de palpites",
-    desc: "Painel para confirmar pagamentos e acompanhar tudo.",
-  },
-  {
-    icon: Trophy,
-    title: "Resultados automáticos",
-    desc: "Jogos da Copa 2026 sincronizados pela plataforma.",
-  },
-  {
-    icon: Crown,
-    title: "Ranking de ganhadores",
-    desc: "Veja quem acertou e divulgue os campeões.",
-  },
-  {
-    icon: Smartphone,
-    title: "Painel mobile-first",
-    desc: "Funciona perfeitamente no celular do administrador.",
-  },
+  { icon: Heart, title: "Cortesia de Dev", desc: "Feito por torcedor, para torcedor. Não é bets — é bolão entre amigos." },
+  { icon: MessageCircle, title: "Pix por WhatsApp", desc: "Links prontos com seus dados Pix em cada palpite." },
+  { icon: BarChart3, title: "Gestão de palpites", desc: "Painel para confirmar pagamentos e acompanhar tudo." },
+  { icon: Trophy, title: "Resultados automáticos", desc: "Jogos da Copa 2026 sincronizados pela plataforma." },
+  { icon: Crown, title: "Ranking de ganhadores", desc: "Veja quem acertou e divulgue os campeões." },
+  { icon: Smartphone, title: "Painel mobile-first", desc: "Funciona perfeitamente no celular do administrador." },
 ];
 
-const plans = [
-  {
-    nome: "Grátis",
-    preco: "R$ 0",
-    destaque: false,
-    items: ["Até 50 palpites", "1 bolão ativo", "Pix por WhatsApp", "Resultados automáticos"],
-  },
-  {
-    nome: "Intermediário",
-    preco: "R$ 99,90",
-    destaque: true,
-    items: [
-      "Até 100 palpites",
-      "Bolões ilimitados",
-      "Logo personalizada",
-      "Exportação CSV",
-      "Ranking de ganhadores",
-    ],
-  },
-  {
-    nome: "Ilimitado",
-    preco: "R$ 149,90",
-    destaque: false,
-    items: [
-      "Palpites ilimitados",
-      "Bolões ilimitados",
-      "WhatsApp API",
-      "Domínio personalizado",
-      "Suporte prioritário",
-    ],
-  },
-];
+const devMsg = `Olá! Quero conversar sobre limites maiores de palpites no Bolão AI. 🏆⚽`;
+const devLink = buildDevWhatsAppLink(devMsg);
 
 const faq = [
   {
+    q: "Bolão AI é uma casa de apostas?",
+    a: "Não! Bolão AI NÃO é bets. É uma cortesia de Dev para torcedores brasileiros juntarem amigos e parentes e fazerem seus próprios palpites com espírito de torcedor rumo ao Hexa 🇧🇷.",
+  },
+  {
     q: "Preciso pagar para começar?",
-    a: "Não. O plano Grátis permite até 1 bolão com 50 torcedores. Você pode evoluir quando quiser.",
+    a: `Não. O plano Grátis libera todos os recursos com até ${LIMITE_PALPITES_FREE} palpites. Quando precisar de mais, é só falar com o Dev no WhatsApp.`,
   },
   {
     q: "Como recebo os pagamentos?",
-    a: "Você cadastra seu Pix uma única vez. A plataforma gera links de WhatsApp com seus dados em cada palpite.",
+    a: "Você cadastra seu Pix uma única vez. A plataforma gera links de WhatsApp com seus dados Pix em cada palpite — o dinheiro cai direto na sua conta.",
   },
   {
     q: "Quem cuida dos jogos da Copa?",
-    a: "A plataforma sincroniza automaticamente os 72 jogos da Copa 2026. Você só gerencia palpites e pagamentos.",
+    a: "A plataforma sincroniza automaticamente os jogos da Copa 2026. Você só gerencia palpites e pagamentos com sua turma.",
   },
 ];
 
@@ -131,18 +87,18 @@ function LandingPage() {
         <div className="absolute inset-0 pitch-lines opacity-60" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
         <div className="relative mx-auto max-w-5xl px-4 pt-20 pb-28 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-4 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur">
-            <Trophy className="h-3.5 w-3.5 text-gold" /> Plataforma oficial multiempresa · Copa do
-            Mundo 2026
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/60 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-gold backdrop-blur">
+            <Heart className="h-3.5 w-3.5" /> Cortesia de Dev · Rumo ao Hexa 🇧🇷
           </span>
           <h1 className="mt-6 font-display text-5xl leading-[0.95] tracking-tight md:text-7xl lg:text-8xl">
-            Crie seu <span className="text-gradient-gold">Bolão da Copa</span>
+            <span className="text-gradient-gold">Bolão AI</span> não é bets.
             <br />
-            em minutos
+            É bolão entre <span className="text-gradient-gold">amigos.</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base text-muted-foreground md:text-lg">
-            Cadastre participantes, receba via Pix, controle palpites pelo WhatsApp e descubra os
-            ganhadores automaticamente.
+            Uma cortesia de Dev para os torcedores brasileiros juntarem amigos e parentes e fazerem
+            seus próprios palpites na Copa 2026 — com o espírito de quem torce pelo Hexa 💚💛.
+            Sem apostas, sem taxas escondidas: só torcida.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
             <Link
@@ -160,6 +116,7 @@ function LandingPage() {
           </div>
         </div>
       </section>
+
 
       <section className="mx-auto max-w-7xl px-4 py-16">
         <h2 className="font-display text-4xl sm:text-5xl tracking-tight text-center">
@@ -184,45 +141,79 @@ function LandingPage() {
       <section id="planos" className="bg-muted/30 py-16">
         <div className="mx-auto max-w-7xl px-4">
           <h2 className="font-display text-4xl sm:text-5xl tracking-tight text-center">
-            Planos para todo bolão
+            Planos simples e honestos
           </h2>
           <p className="mt-2 text-center text-muted-foreground">
-            Comece grátis. Faça upgrade quando seu bolão crescer.
+            Comece grátis com todos os recursos. Precisou de mais? Fale com o Dev.
           </p>
-          <div className="mt-10 grid gap-4 md:grid-cols-3 max-w-5xl mx-auto">
-            {plans.map((p) => (
-              <div
-                key={p.nome}
-                className={`rounded-2xl border bg-card p-6 flex flex-col ${p.destaque ? "border-pitch ring-2 ring-pitch/30" : "border-border"}`}
-              >
-                {p.destaque && (
-                  <span className="self-start mb-2 rounded-full bg-pitch px-2 py-0.5 text-xs font-bold text-primary-foreground">
-                    Mais popular
-                  </span>
-                )}
-                <h3 className="text-xl font-black">{p.nome}</h3>
-                <div className="mt-2 text-3xl font-black text-pitch">
-                  {p.preco}
-                  <span className="text-sm font-medium text-muted-foreground">/mês</span>
-                </div>
-                <ul className="mt-4 flex-1 space-y-2 text-sm">
-                  {p.items.map((it) => (
-                    <li key={it} className="flex items-start gap-2">
-                      <Check className="h-4 w-4 text-pitch shrink-0 mt-0.5" /> <span>{it}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to={ctaTo}
-                  className="mt-6 inline-flex h-10 items-center justify-center rounded-lg bg-pitch px-4 text-sm font-semibold text-primary-foreground"
-                >
-                  Começar
-                </Link>
+          <div className="mt-10 grid gap-4 md:grid-cols-2 max-w-4xl mx-auto">
+            <article className="rounded-2xl border border-pitch ring-2 ring-pitch/30 bg-card p-6 flex flex-col">
+              <span className="self-start mb-2 rounded-full bg-pitch px-2 py-0.5 text-xs font-bold text-primary-foreground">
+                Recomendado
+              </span>
+              <h3 className="text-2xl font-black">Grátis</h3>
+              <div className="mt-2 text-4xl font-black text-pitch">
+                R$ 0<span className="text-sm font-medium text-muted-foreground">/sempre</span>
               </div>
-            ))}
+              <p className="mt-1 text-sm text-muted-foreground">
+                Todos os recursos, até {LIMITE_PALPITES_FREE} palpites no total.
+              </p>
+              <ul className="mt-4 flex-1 space-y-2 text-sm">
+                {[
+                  `Até ${LIMITE_PALPITES_FREE} palpites no total`,
+                  "Todos os recursos liberados",
+                  "Pix por WhatsApp",
+                  "Ranking e ganhadores automáticos",
+                  "Resultados oficiais da Copa 2026",
+                  "Painel mobile-first",
+                ].map((it) => (
+                  <li key={it} className="flex items-start gap-2">
+                    <Check className="h-4 w-4 text-pitch shrink-0 mt-0.5" /> <span>{it}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to={ctaTo}
+                className="mt-6 inline-flex h-11 items-center justify-center rounded-lg bg-gradient-gold px-4 text-sm font-bold text-gold-foreground shadow-gold"
+              >
+                Começar grátis
+              </Link>
+            </article>
+
+            <article className="rounded-2xl border border-border bg-card p-6 flex flex-col">
+              <span className="self-start mb-2 rounded-full border border-gold/40 bg-gold/10 px-2 py-0.5 text-xs font-bold text-gold">
+                Bolão maior
+              </span>
+              <h3 className="text-2xl font-black">Consulte o Dev</h3>
+              <div className="mt-2 text-4xl font-black text-gold">Sob consulta</div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Para bolões acima de {LIMITE_PALPITES_FREE} palpites, fale direto no WhatsApp.
+              </p>
+              <ul className="mt-4 flex-1 space-y-2 text-sm">
+                {[
+                  "Limites maiores de palpites",
+                  "Acompanhamento personalizado",
+                  "Suporte direto com o Dev",
+                  "Atendimento humano por WhatsApp",
+                ].map((it) => (
+                  <li key={it} className="flex items-start gap-2">
+                    <Check className="h-4 w-4 text-gold shrink-0 mt-0.5" /> <span>{it}</span>
+                  </li>
+                ))}
+              </ul>
+              <a
+                href={devLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-pitch px-4 text-sm font-bold text-primary-foreground"
+              >
+                <MessageCircle className="h-4 w-4" /> Falar com o Dev
+              </a>
+            </article>
           </div>
         </div>
       </section>
+
 
       <section className="mx-auto max-w-3xl px-4 py-16">
         <h2 className="font-display text-4xl sm:text-5xl tracking-tight text-center">

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { brl, publicBolaoUrl } from "@/lib/saas";
+import { brl, publicBolaoUrl, LIMITE_PALPITES_FREE, LIMITE_PALPITES_AVISO, buildDevWhatsAppLink } from "@/lib/saas";
 import { computarGanhadores } from "@/lib/ganhadores.functions";
 import { formatBR } from "@/lib/timezone";
 import {
@@ -19,6 +19,9 @@ import {
   Loader2,
   RefreshCw,
   Shield,
+  AlertTriangle,
+  Lock,
+  MessageCircle,
 } from "lucide-react";
 
 
@@ -306,6 +309,8 @@ function Dashboard() {
         </div>
       </div>
 
+      <LimiteBanner totalPalpites={stats.palpites} bolaoNome={stats.bolao?.nome ?? null} />
+
       {stats.bolao && (
         <div className="rounded-2xl border border-gold/30 bg-card/60 p-5 backdrop-blur shadow-card">
           <p className="text-xs uppercase tracking-wide font-semibold text-gold">
@@ -357,6 +362,45 @@ function Dashboard() {
 
 
       <Sparkline serie={stats.serie} />
+    </div>
+  );
+}
+
+function LimiteBanner({ totalPalpites, bolaoNome }: { totalPalpites: number; bolaoNome: string | null }) {
+  if (totalPalpites < LIMITE_PALPITES_AVISO) return null;
+  const bloqueado = totalPalpites >= LIMITE_PALPITES_FREE;
+  const msg = bloqueado
+    ? `Olá! Meu bolão *${bolaoNome ?? "Bolão AI"}* atingiu ${totalPalpites}/${LIMITE_PALPITES_FREE} palpites e travou. Preciso desbloquear para continuar recebendo palpites. 🏆⚽`
+    : `Olá! Meu bolão *${bolaoNome ?? "Bolão AI"}* já está com ${totalPalpites}/${LIMITE_PALPITES_FREE} palpites. Quero conversar sobre limites maiores. 🏆⚽`;
+  const link = buildDevWhatsAppLink(msg);
+  return (
+    <div
+      className={`rounded-2xl border p-5 shadow-card ${bloqueado ? "border-destructive/50 bg-destructive/10" : "border-gold/40 bg-gold/10"}`}
+      role="alert"
+    >
+      <div className="flex items-start gap-3">
+        <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${bloqueado ? "bg-destructive text-destructive-foreground" : "bg-gold text-gold-foreground"}`}>
+          {bloqueado ? <Lock className="h-5 w-5" /> : <AlertTriangle className="h-5 w-5" />}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className={`text-sm font-black uppercase tracking-wide ${bloqueado ? "text-destructive" : "text-gold"}`}>
+            {bloqueado ? "Bolão travado — limite do plano Grátis atingido" : "Você está chegando no limite do plano Grátis"}
+          </p>
+          <p className="mt-1 text-sm text-foreground">
+            {bloqueado
+              ? `Seu bolão atingiu ${totalPalpites}/${LIMITE_PALPITES_FREE} palpites. Fale com o Dev pelo WhatsApp para desbloquear e continuar recebendo palpites.`
+              : `Você já tem ${totalPalpites}/${LIMITE_PALPITES_FREE} palpites. A partir de ${LIMITE_PALPITES_FREE} o sistema trava. Fale com o Dev para consultar limites maiores.`}
+          </p>
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`mt-3 inline-flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-bold ${bloqueado ? "bg-destructive text-destructive-foreground" : "bg-gradient-gold text-gold-foreground shadow-gold"}`}
+          >
+            <MessageCircle className="h-4 w-4" /> {bloqueado ? "Desbloquear com o Dev" : "Falar com o Dev"}
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
