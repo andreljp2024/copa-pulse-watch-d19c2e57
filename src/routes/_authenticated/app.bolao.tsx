@@ -85,9 +85,7 @@ function BolaoConfigPage() {
   const [initialSelectedIds, setInitialSelectedIds] = useState<Set<string>>(new Set());
   const [divulgCopied, setDivulgCopied] = useState(false);
   const [tab, setTab] = useState<TabId>("config");
-  const saveBolaoFn = useServerFn(saveBolao) as (opts: {
-    data: Parameters<typeof saveBolao>[0]["data"];
-  }) => Promise<SaveBolaoResult>;
+  const saveBolaoFn = useServerFn(saveBolao);
   const syncApiFn = useServerFn(syncMatchesForTenant);
   const [syncing, setSyncing] = useState(false);
 
