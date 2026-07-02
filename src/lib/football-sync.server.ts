@@ -193,13 +193,18 @@ export async function syncFootballData(triggeredBy: string): Promise<SyncResult>
     }
 
     if (matchRows.length) {
-      // Requires UNIQUE (home_team_id, away_team_id, kickoff_at) — added via migration.
-      const { error, count } = await sb
-        .from("matches")
-        .upsert(matchRows, { onConflict: "home_team_id,away_team_id,kickoff_at", count: "exact" });
-      if (error) throw error;
-      summary.matches_upserted = matchRows.length;
-      summary.matches_updated = count ?? 0;
+      try {
+        // Requires UNIQUE (home_team_id, away_team_id, kickoff_at) — added via migration.
+        const { error, count } = await sb
+          .from("matches")
+          .upsert(matchRows, { onConflict: "home_team_id,away_team_id,kickoff_at", count: "exact" });
+        if (error) throw error;
+        summary.matches_upserted = matchRows.length;
+        summary.matches_updated = count ?? 0;
+      } catch (mErr) {
+        const msg = mErr instanceof Error ? mErr.message : JSON.stringify(mErr);
+        console.warn("Matches sync failed (non-fatal, continuando artilheiros):", msg);
+      }
     }
 
     // 3) Scorers — fetch and upsert into dedicated table
@@ -249,13 +254,19 @@ export async function syncFootballData(triggeredBy: string): Promise<SyncResult>
     });
     return { ok: true, status: "success", message, summary };
   } catch (e: unknown) {
-    const message = `Falha na sincronização: ${e instanceof Error ? e.message : String(e)}`;
+    let detail: string;
+    if (e instanceof Error) detail = e.message;
+    else if (e && typeof e === "object") {
+      const anyE = e as { message?: string; details?: string; hint?: string; code?: string };
+      detail = anyE.message ?? anyE.details ?? anyE.hint ?? JSON.stringify(e);
+    } else detail = String(e);
+    const message = `Falha na sincronização: ${detail}`;
     await sb.from("api_sync_logs").insert({
       source: "football-data",
       action: "sync_all",
       status: "error",
       message,
-      payload: { triggered_by: triggeredBy },
+      payload: { triggered_by: triggeredBy, summary },
     });
     return { ok: false, status: "error", message };
   }
