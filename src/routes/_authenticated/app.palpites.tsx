@@ -130,8 +130,8 @@ function PalpitesPage() {
   }
 
   function aprovarEEnviar(r: Row) {
-    const home = teams.get(r.matches?.home_team_id ?? "") ?? "?";
-    const away = teams.get(r.matches?.away_team_id ?? "") ?? "?";
+    const home = teamName(r.matches?.home_team_id);
+    const away = teamName(r.matches?.away_team_id);
     const protocolo = fmtProtocolo(r.codigo);
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     const slug = r.boloes?.slug ?? "";
@@ -155,8 +155,8 @@ function PalpitesPage() {
   }
 
   function lembrarPagamento(r: Row) {
-    const home = teams.get(r.matches?.home_team_id ?? "") ?? "?";
-    const away = teams.get(r.matches?.away_team_id ?? "") ?? "?";
+    const home = teamName(r.matches?.home_team_id);
+    const away = teamName(r.matches?.away_team_id);
     const protocolo = fmtProtocolo(r.codigo);
     const kickoff = r.matches?.kickoff_at
       ? new Date(r.matches.kickoff_at).toLocaleString("pt-BR", {
