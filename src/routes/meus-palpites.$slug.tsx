@@ -247,7 +247,7 @@ function MeusPalpitesPage() {
 function StatusBadge({ r }: { r: Row }) {
   if (r.ganhou)
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-gradient-gold px-2.5 py-0.5 font-bold text-gold-foreground shadow-gold">
+      <span className="inline-flex items-center gap-1 rounded-full bg-gradient-gold px-2.5 py-0.5 font-bold text-black shadow-gold">
         <Trophy className="h-3 w-3" /> Ganhou
       </span>
     );
