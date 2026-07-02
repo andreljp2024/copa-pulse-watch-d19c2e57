@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { DEFAULT_TEMPLATES, buildWhatsAppLink, interpolate } from "@/lib/saas";
 import { onlyDigits, maskPhone } from "@/lib/masks";
 import { PageHeader } from "@/components/PageHeader";
-import { Loader2, Save, MessageCircle, Phone, AlertCircle, Eye, ExternalLink, RotateCcw } from "lucide-react";
+import { Loader2, Save, MessageCircle, AlertCircle, Eye, ExternalLink, RotateCcw, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/app/whatsapp")({
@@ -76,8 +76,8 @@ const MAX_TEMPLATE = 1000;
 function WhatsAppConfigPage() {
   const [loading, setLoading] = useState(true);
   const [tenantId, setTenantId] = useState<string | null>(null);
+  const [pixPhoneMasked, setPixPhoneMasked] = useState<string>("");
   const [form, setForm] = useState({
-    numero_whatsapp: "",
     mensagem_novo_palpite: DEFAULT_TEMPLATES.novo_palpite,
     mensagem_confirmacao_pagamento: DEFAULT_TEMPLATES.confirmacao_pagamento,
     mensagem_ganhador: DEFAULT_TEMPLATES.ganhador,
@@ -104,19 +104,21 @@ function WhatsAppConfigPage() {
         if (tErr || !t) return;
         setTenantId(t.id);
 
-        const { data: wa, error: waErr } = await supabase
-          .from("tenant_whatsapp_config")
-          .select("*")
-          .eq("tenant_id", t.id)
-          .maybeSingle();
-        if (waErr) {
-          toast.error(`Erro ao carregar: ${waErr.message}`);
+        const [waRes, pixRes] = await Promise.all([
+          supabase.from("tenant_whatsapp_config").select("*").eq("tenant_id", t.id).maybeSingle(),
+          supabase
+            .from("tenant_pix_config")
+            .select("numero_recebedor_whatsapp")
+            .eq("tenant_id", t.id)
+            .maybeSingle(),
+        ]);
+        if (waRes.error) {
+          toast.error(`Erro ao carregar: ${waRes.error.message}`);
           return;
         }
+        const wa = waRes.data;
         if (wa) {
-          const rawPhone = (wa.numero_whatsapp ?? "").replace(/^55/, "");
           setForm({
-            numero_whatsapp: maskPhone(rawPhone),
             mensagem_novo_palpite: wa.mensagem_novo_palpite ?? DEFAULT_TEMPLATES.novo_palpite,
             mensagem_confirmacao_pagamento:
               wa.mensagem_confirmacao_pagamento ?? DEFAULT_TEMPLATES.confirmacao_pagamento,
@@ -125,19 +127,24 @@ function WhatsAppConfigPage() {
               wa.mensagem_lembrete_pagamento ?? DEFAULT_TEMPLATES.lembrete_pagamento,
           });
         }
+        // Fonte única do número: módulo PIX. Fallback para o que já está gravado no whatsapp_config.
+        const pixRaw = pixRes.data?.numero_recebedor_whatsapp ?? "";
+        const waRaw = (wa?.numero_whatsapp ?? "").replace(/^55/, "");
+        const chosen = onlyDigits(pixRaw) || waRaw;
+        setPixPhoneMasked(chosen ? maskPhone(chosen) : "");
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  const phoneError = useMemo(() => {
-    const d = onlyDigits(form.numero_whatsapp);
-    if (!d) return "Informe o número";
-    if (d.length < 10 || d.length > 11)
-      return "DDD + número deve ter 10 ou 11 dígitos";
+  const pixPhoneDigits = useMemo(() => onlyDigits(pixPhoneMasked), [pixPhoneMasked]);
+  const pixPhoneError = useMemo(() => {
+    if (!pixPhoneDigits) return "Nenhum número configurado no módulo Pix";
+    if (pixPhoneDigits.length < 10 || pixPhoneDigits.length > 11)
+      return "Número do módulo Pix é inválido";
     return null;
-  }, [form.numero_whatsapp]);
+  }, [pixPhoneDigits]);
 
   const templateErrors = useMemo(() => {
     const errs: Partial<Record<TemplateKey, string>> = {};
@@ -154,22 +161,19 @@ function WhatsAppConfigPage() {
     [form, previewKey],
   );
 
-  const fullPhone = useMemo(() => {
-    const d = onlyDigits(form.numero_whatsapp);
-    return d ? `55${d}` : "";
-  }, [form.numero_whatsapp]);
+  const fullPhone = pixPhoneDigits ? `55${pixPhoneDigits}` : "";
+
 
   const testLink = useMemo(() => {
-    if (phoneError || !fullPhone) return null;
+    if (pixPhoneError || !fullPhone) return null;
     return buildWhatsAppLink(fullPhone, previewMessage);
-  }, [fullPhone, phoneError, previewMessage]);
+  }, [fullPhone, pixPhoneError, previewMessage]);
 
   const hasTemplateErrors = Object.keys(templateErrors).length > 0;
-  const canSave = !phoneError && !hasTemplateErrors && !!tenantId;
+  const canSave = !hasTemplateErrors && !!tenantId;
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (phoneError) return toast.error(phoneError);
     if (hasTemplateErrors) return toast.error("Revise os templates de mensagem.");
     if (!tenantId) return toast.error("Erro ao buscar dados do organizador.");
 
@@ -179,6 +183,8 @@ function WhatsAppConfigPage() {
         .from("tenant_whatsapp_config")
         .upsert({
           tenant_id: tenantId,
+          // Fonte única: número gravado no módulo Pix. Sincronizamos aqui para
+          // compatibilidade com consumidores existentes (RPC pública, links wa.me).
           numero_whatsapp: fullPhone,
           mensagem_novo_palpite: form.mensagem_novo_palpite.trim(),
           mensagem_confirmacao_pagamento: form.mensagem_confirmacao_pagamento.trim(),
@@ -198,6 +204,7 @@ function WhatsAppConfigPage() {
       setSaving(false);
     }
   }
+
 
   function resetTemplate(key: TemplateKey, defKey: keyof typeof DEFAULT_TEMPLATES) {
     update(key, DEFAULT_TEMPLATES[defKey]);
@@ -244,36 +251,27 @@ function WhatsAppConfigPage() {
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         <form onSubmit={handleSave} className="space-y-6">
           <Section
-            title="Número do recebedor"
-            description="Número do WhatsApp que aparece nos links wa.me."
-            icon={<Phone className="h-4 w-4 text-gold" />}
+            title="Número de recebimento"
+            description="O número usado nos links wa.me é o mesmo configurado no módulo Pix."
+            icon={<Info className="h-4 w-4 text-gold" />}
           >
-            <Field label="WhatsApp (DDD + número)" required>
-              <div className="relative mt-1">
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-mono text-muted-foreground select-none">
-                  +55
-                </span>
-                <input
-                  required
-                  inputMode="numeric"
-                  value={form.numero_whatsapp}
-                  onChange={(e) => update("numero_whatsapp", maskPhone(e.target.value))}
-                  className={`${inputCss} font-mono pl-12 ${phoneError ? "border-destructive/60 focus:ring-destructive/40" : ""}`}
-                  placeholder="(11) 99999-9999"
-                  maxLength={16}
-                />
-              </div>
-              {phoneError ? (
-                <p className="mt-1 inline-flex items-center gap-1 text-xs text-destructive">
-                  <AlertCircle className="h-3 w-3" /> {phoneError}
-                </p>
-              ) : (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  DDI +55 (Brasil) incluso automaticamente. Informe DDD + número.
-                </p>
-              )}
-            </Field>
+            {pixPhoneError ? (
+              <p className="inline-flex items-center gap-1 text-xs text-destructive">
+                <AlertCircle className="h-3 w-3" /> {pixPhoneError}. Configure em{" "}
+                <a href="/app/pix" className="underline hover:text-foreground">
+                  Módulo Pix
+                </a>
+                .
+              </p>
+            ) : (
+              <p className="text-sm">
+                <span className="text-muted-foreground">Número atual:</span>{" "}
+                <strong className="font-mono">+55 {pixPhoneMasked}</strong>
+              </p>
+            )}
           </Section>
+
+
 
 
           <Section
