@@ -364,3 +364,95 @@ function Onboarding() {
     </div>
   );
 }
+
+function Form({
+  title,
+  children,
+  onSubmit,
+  loading,
+}: {
+  title: string;
+  children: React.ReactNode;
+  onSubmit: () => void;
+  loading: boolean;
+}) {
+  return (
+    <form
+      className="space-y-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}
+    >
+      <h2 className="text-xl font-bold">{title}</h2>
+      {children}
+      <button
+        type="submit"
+        disabled={loading}
+        className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-pitch px-4 font-semibold text-primary-foreground disabled:opacity-60"
+      >
+        {loading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <>
+            <Check className="h-4 w-4" /> Continuar <ChevronRight className="h-4 w-4" />
+          </>
+        )}
+      </button>
+    </form>
+  );
+}
+
+function Input(p: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  inputMode?: "text" | "numeric" | "tel" | "email";
+  required?: boolean;
+  type?: string;
+  prefix?: string;
+  hint?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="text-sm font-medium">{p.label}</span>
+      <div className="mt-1 flex items-center rounded-lg border border-border bg-background focus-within:ring-2 focus-within:ring-pitch/30">
+        {p.prefix && (
+          <span className="px-3 text-sm text-muted-foreground">{p.prefix}</span>
+        )}
+        <input
+          className="w-full bg-transparent px-3 py-2 text-sm outline-none"
+          value={p.value}
+          onChange={(e) => p.onChange(e.target.value)}
+          placeholder={p.placeholder}
+          inputMode={p.inputMode}
+          required={p.required}
+          type={p.type}
+        />
+      </div>
+      {p.hint && <span className="mt-1 block text-xs text-muted-foreground">{p.hint}</span>}
+    </label>
+  );
+}
+
+function Textarea(p: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  rows?: number;
+  placeholder?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="text-sm font-medium">{p.label}</span>
+      <textarea
+        className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pitch/30"
+        value={p.value}
+        onChange={(e) => p.onChange(e.target.value)}
+        rows={p.rows ?? 4}
+        placeholder={p.placeholder}
+      />
+    </label>
+  );
+}
