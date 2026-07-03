@@ -13,11 +13,13 @@ Documentação oficial do projeto **Bolão SaaS** (TanStack Start + Lovable Clou
 5. [Conectar o projeto ao GitHub](#5-conectar-o-projeto-ao-github)
 6. [Fluxo de trabalho com GitHub](#6-fluxo-de-trabalho-com-github)
    6.1 [Deploy no Coolify (Docker self-hosted)](#61-deploy-no-coolify-docker-self-hosted)
+   6.2 [Deploy em VPS pura (Docker + Nginx)](#62-deploy-em-vps-pura-docker--nginx)
 7. [Domínio personalizado](#7-domínio-personalizado)
 8. [Deploy fora do Lovable (self-hosting)](#8-deploy-fora-do-lovable-self-hosting)
 9. [Banco de dados e migrações](#9-banco-de-dados-e-migrações)
-10. [Checklist de produção](#10-checklist-de-produção)
-11. [Troubleshooting](#11-troubleshooting)
+10. [Super Admin](#10-super-admin)
+11. [Checklist de produção](#11-checklist-de-produção)
+12. [Troubleshooting](#12-troubleshooting)
 
 ---
 
@@ -197,6 +199,146 @@ GitHub.
 
 ---
 
+## 6.2. Deploy em VPS pura (Docker + Nginx)
+
+Cenário sem Coolify: uma VPS Ubuntu 22.04+ com Docker e Nginx reverso, publicando em **https://bolao.ai.slz.br**.
+
+### Pré-requisitos na VPS
+
+```bash
+# Docker + Compose
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+
+# Nginx + Certbot (SSL)
+sudo apt install -y nginx certbot python3-certbot-nginx
+```
+
+Aponte no DNS de `slz.br`:
+
+| Tipo | Host        | Valor        |
+| ---- | ----------- | ------------ |
+| `A`  | `bolao.ai`  | IP da VPS    |
+
+### Estrutura na VPS
+
+```bash
+mkdir -p /opt/bolao && cd /opt/bolao
+git clone git@github.com:<org>/<repo>.git app
+cd app
+```
+
+### `.env` (raiz da app, permissão 600)
+
+```bash
+# Build vars (bakadas no bundle client)
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_PUBLISHABLE_KEY=...
+VITE_SUPABASE_PROJECT_ID=...
+
+# Runtime vars (server functions)
+SUPABASE_URL=...
+SUPABASE_PUBLISHABLE_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...   # SECRET
+FOOTBALL_API_KEY=...            # SECRET
+LOVABLE_API_KEY=...             # SECRET (opcional)
+CRON_SECRET=...                 # SECRET (cron pg_cron)
+```
+
+```bash
+chmod 600 .env
+```
+
+### `docker-compose.yml`
+
+```yaml
+services:
+  web:
+    build:
+      context: .
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY}
+        VITE_SUPABASE_PROJECT_ID: ${VITE_SUPABASE_PROJECT_ID}
+    env_file: .env
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+```
+
+Suba o container:
+
+```bash
+docker compose up -d --build
+docker compose logs -f web
+```
+
+### Nginx reverso — `/etc/nginx/sites-available/bolao.ai.slz.br`
+
+```nginx
+server {
+    listen 80;
+    server_name bolao.ai.slz.br;
+
+    client_max_body_size 20M;
+
+    location / {
+        proxy_pass         http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_set_header   Upgrade           $http_upgrade;
+        proxy_set_header   Connection        "upgrade";
+        proxy_read_timeout 60s;
+    }
+}
+```
+
+```bash
+sudo ln -s /etc/nginx/sites-available/bolao.ai.slz.br /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+sudo certbot --nginx -d bolao.ai.slz.br --redirect --agree-tos -m admin@slz.br --non-interactive
+```
+
+Certbot cuida da renovação automática via systemd timer.
+
+### Redeploy contínuo
+
+Faça um pull-and-rebuild ao receber push no `main`:
+
+```bash
+# /opt/bolao/deploy.sh
+#!/usr/bin/env bash
+set -euo pipefail
+cd /opt/bolao/app
+git pull --ff-only
+docker compose up -d --build
+docker image prune -f
+```
+
+Rode manualmente via SSH, ou plugue um webhook GitHub Actions → SSH.
+
+### Hardening mínimo
+
+- `ufw allow 22,80,443/tcp && ufw enable`.
+- Fail2ban no SSH.
+- Backup diário: `pg_dump` do banco Supabase para bucket externo (S3/Backblaze).
+- `docker compose logs --tail=200 web` no monitoramento.
+
+### Troubleshooting VPS
+
+| Sintoma                                | Causa                     | Ação                                                     |
+| -------------------------------------- | ------------------------- | -------------------------------------------------------- |
+| 502 no navegador                       | Container caiu ou porta X | `docker compose ps` + `logs web`                         |
+| `VITE_*` indefinido no client          | Var faltou como build-arg | Confirme `args:` no `docker-compose.yml`                 |
+| SSL falhou no Certbot                  | DNS ainda não propagou    | Espere e rode `certbot --nginx -d ...` de novo           |
+| Cron `sync-football` 401               | `CRON_SECRET` divergente  | Ajuste no `.env` e no pg_cron via migração               |
+
+---
+
+
 ## 7. Domínio personalizado
 
 ### 7.1 Produção oficial — `bolao.ai.slz.br`
@@ -267,22 +409,49 @@ Configure todas as variáveis da seção [3](#3-variáveis-de-ambiente) no prove
 
 ---
 
-## 10. Checklist de produção
+---
+
+## 10. Super Admin
+
+O papel `super_admin` (definido em `public.app_role`) tem acesso total ao painel de gestão, bypass de RLS via `has_role()` e recebe as notificações administrativas do sistema.
+
+### Conta oficial
+
+| Campo    | Valor                                         |
+| -------- | --------------------------------------------- |
+| E-mail   | `andreljp@gmail.com`                          |
+| WhatsApp | `+55 98 8603-0534`                            |
+| Role     | `super_admin` (concedido via trigger de auth) |
+
+O trigger `assign_default_roles_on_confirm` (em `supabase/migrations/`) atribui `super_admin` automaticamente após a confirmação de e-mail para `andreljp@gmail.com`. Qualquer novo organizador cadastrado gera notificação WhatsApp para `+55 98 8603-0534` (secret `SUPER_ADMIN_WHATSAPP_LOGIN_PASSWORD` + webhook em `src/routes/auth.tsx`).
+
+### Trocar o super admin
+
+1. Ajuste o e-mail alvo no trigger `assign_default_roles_on_confirm` via nova migração.
+2. Atualize o número em `src/routes/auth.tsx` (variável `SUPER_ADMIN_WHATSAPP`) e em qualquer template WhatsApp que use o número diretamente.
+3. Rode a migração e faça redeploy.
+
+> Nunca armazene o número do super admin em código client-side sem também aplicá-lo em uma env var (`SUPER_ADMIN_WHATSAPP`) para permitir rotação sem redeploy do frontend.
+
+---
+
+## 11. Checklist de produção
 
 - [ ] Título, meta description e OG tags configurados em `src/routes/__root.tsx` e rotas-chave.
 - [ ] Favicon e ícones presentes.
 - [ ] RLS habilitado em todas as tabelas de `public`.
 - [ ] `GRANT`s explícitos para `authenticated` / `service_role`.
-- [ ] Secrets configurados (`FOOTBALL_API_KEY`, etc.).
+- [ ] Secrets configurados (`FOOTBALL_API_KEY`, `CRON_SECRET`, `SUPER_ADMIN_WHATSAPP_LOGIN_PASSWORD`, etc.).
 - [ ] Provider Google OAuth configurado se houver login social.
 - [ ] Scan de segurança executado (**Project Settings → Security**).
 - [ ] Domínio de produção `bolao.ai.slz.br` conectado, marcado como Primary e SSL ativo.
 - [ ] `robots.txt` e `sitemap.xml` apontando para `https://bolao.ai.slz.br`.
+- [ ] Super admin (`andreljp@gmail.com` / `+55 98 8603-0534`) com role atribuído e recebendo notificações.
 - [ ] Backup/export de dados antes de migrações destrutivas.
 
 ---
 
-## 11. Troubleshooting
+## 12. Troubleshooting
 
 | Sintoma                                      | Causa provável                                       | Ação                                                                               |
 | -------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------- |
