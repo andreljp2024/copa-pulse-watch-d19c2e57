@@ -2,8 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, onlyDigits } from "@/lib/saas";
-import { Search, Trophy, XCircle, Clock, CheckCircle2, Sparkles } from "lucide-react";
+import { Search, Trophy, XCircle, Clock, CheckCircle2, Sparkles, Bell, BellOff } from "lucide-react";
 import { formatBR } from "@/lib/timezone";
+import { pushSupported, subscribePush, unsubscribePush } from "@/lib/push";
 
 export const Route = createFileRoute("/meus-palpites/$slug")({
   component: MeusPalpitesPage,
