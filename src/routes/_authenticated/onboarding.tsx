@@ -5,13 +5,11 @@ import { slugify, DEFAULT_TEMPLATES } from "@/lib/saas";
 import {
   maskPhone,
   maskCpf,
-  maskCep,
   onlyDigits,
-  fetchCep,
   isValidCpf,
   isValidPhoneBR,
 } from "@/lib/masks";
-import { Check, ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 function isValidChavePix(tipo: string, chave: string): boolean {
   const v = (chave || "").trim();
@@ -43,35 +41,7 @@ function Onboarding() {
     nome_responsavel: "",
     cpf_cnpj: "",
     whatsapp: "",
-    cep: "",
-    logradouro: "",
-    numero: "",
-    bairro: "",
-    complemento: "",
-    cidade: "",
-    estado: "",
   });
-  const [cepLoading, setCepLoading] = useState(false);
-  const [cepErr, setCepErr] = useState<string | null>(null);
-
-  async function lookupCep(raw: string) {
-    setCepErr(null);
-    if (onlyDigits(raw).length !== 8) return;
-    setCepLoading(true);
-    const r = await fetchCep(raw);
-    setCepLoading(false);
-    if (!r) {
-      setCepErr("CEP não encontrado.");
-      return;
-    }
-    setS1((v) => ({
-      ...v,
-      cidade: r.localidade,
-      estado: r.uf,
-      logradouro: r.logradouro ?? v.logradouro,
-      bairro: r.bairro ?? v.bairro,
-    }));
-  }
   // Step 2
   const [s2, setS2] = useState({
     nome_recebedor: "",
@@ -109,8 +79,6 @@ function Onboarding() {
           ...v,
           nome_responsavel: t.nome_responsavel ?? v.nome_responsavel,
           whatsapp: t.whatsapp ? maskPhone(t.whatsapp) : "",
-          cidade: t.cidade ?? "",
-          estado: t.estado ?? "",
         }));
         // Retomada inteligente: pula para o passo pendente
         const [{ data: pix }, { data: wa }, { data: bo }] = await Promise.all([
@@ -136,9 +104,9 @@ function Onboarding() {
       }
       setS3((v) => ({
         ...v,
-        numero_whatsapp: u.user.user_metadata?.whatsapp
-          ? maskPhone(u.user.user_metadata.whatsapp)
-          : "",
+        numero_whatsapp:
+          v.numero_whatsapp ||
+          (u.user.user_metadata?.whatsapp ? maskPhone(u.user.user_metadata.whatsapp) : ""),
       }));
     })();
   }, [navigate]);
@@ -157,28 +125,15 @@ function Onboarding() {
       setError("WhatsApp inválido — informe DDD + número.");
       return;
     }
-    if (onlyDigits(s1.cep).length !== 8) {
-      setError("CEP inválido.");
-      return;
-    }
-    if (!s1.numero.trim()) {
-      setError("Informe o número do endereço.");
-      return;
-    }
-    if (!isValidChavePix(s2.tipo_chave_pix, s2.chave_pix)) {
-      setError("Chave Pix inválida para o tipo selecionado.");
-      return;
-    }
     setLoading(true);
     try {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Sessão expirada");
       const payload = {
-        ...s1,
+        nome_responsavel: s1.nome_responsavel.trim(),
         nome_estabelecimento: s1.nome_responsavel.trim(),
         whatsapp: onlyDigits(s1.whatsapp),
         cpf_cnpj: onlyDigits(s1.cpf_cnpj),
-        cep: onlyDigits(s1.cep),
         owner_user_id: u.user.id,
         email: u.user.email ?? "",
       };
@@ -305,10 +260,10 @@ function Onboarding() {
     }
   }
 
-  // Ao entrar no step 2, pré-preenche cidade a partir do endereço
+  // Ao chegar no step 3, herda o WhatsApp do responsável (evita reentrada duplicada)
   useEffect(() => {
-    if (step === 2 && !s2.cidade && s1.cidade) {
-      setS2((v) => ({ ...v, cidade: s1.cidade }));
+    if (step === 3 && !s3.numero_whatsapp && s1.whatsapp) {
+      setS3((v) => ({ ...v, numero_whatsapp: s1.whatsapp }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
@@ -382,100 +337,6 @@ function Onboarding() {
                 inputMode="tel"
                 required
               />
-              <div>
-                <label className="block">
-                  <span className="text-sm font-medium">
-                    CEP<span className="text-red-500">*</span>
-                  </span>
-                  <div className="mt-1 flex gap-2">
-                    <input
-                      value={s1.cep}
-                      onChange={(e) => {
-                        const m = maskCep(e.target.value);
-                        setS1((v) => ({ ...v, cep: m }));
-                        if (onlyDigits(m).length === 8) lookupCep(m);
-                      }}
-                      onBlur={(e) => lookupCep(e.target.value)}
-                      placeholder="00000-000"
-                      inputMode="numeric"
-                      required
-                      className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pitch/40"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => lookupCep(s1.cep)}
-                      disabled={cepLoading}
-                      className="inline-flex h-10 items-center gap-1 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted disabled:opacity-60"
-                    >
-                      {cepLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Search className="h-4 w-4" />
-                      )}{" "}
-                      Buscar
-                    </button>
-                  </div>
-                  {cepErr && <span className="text-xs text-red-600">{cepErr}</span>}
-                </label>
-              </div>
-              <div className="grid grid-cols-[1fr_120px] gap-3">
-                <Input
-                  label="Logradouro (rua, avenida)"
-                  value={s1.logradouro}
-                  onChange={(v) => setS1({ ...s1, logradouro: v })}
-                />
-                <Input
-                  label="Número"
-                  value={s1.numero}
-                  onChange={(v) => setS1({ ...s1, numero: v })}
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Input
-                  label="Bairro"
-                  value={s1.bairro}
-                  onChange={(v) => setS1({ ...s1, bairro: v })}
-                />
-                <Input
-                  label="Complemento"
-                  value={s1.complemento}
-                  onChange={(v) => setS1({ ...s1, complemento: v })}
-                />
-              </div>
-              <div className="grid grid-cols-[1fr_100px] gap-3">
-                <Input
-                  label="Cidade"
-                  value={s1.cidade}
-                  onChange={(v) => setS1({ ...s1, cidade: v })}
-                />
-                <Input
-                  label="UF"
-                  value={s1.estado}
-                  onChange={(v) => setS1({ ...s1, estado: v.toUpperCase().slice(0, 2) })}
-                />
-              </div>
-              <div className="mt-2 rounded-lg border border-dashed border-border p-3">
-                <p className="mb-2 text-sm font-semibold">Chave Pix para recebimento</p>
-                <Select
-                  label="Tipo de chave"
-                  value={s2.tipo_chave_pix}
-                  onChange={(v) => setS2({ ...s2, tipo_chave_pix: v })}
-                  options={[
-                    ["cpf", "CPF"],
-                    ["cnpj", "CNPJ"],
-                    ["email", "E-mail"],
-                    ["telefone", "Telefone"],
-                    ["aleatoria", "Aleatória"],
-                  ]}
-                />
-                <Input
-                  label="Chave Pix"
-                  value={s2.chave_pix}
-                  onChange={(v) => setS2({ ...s2, chave_pix: v })}
-                  required
-                />
-              </div>
             </Form>
           )}
           {step === 2 && (
