@@ -176,9 +176,9 @@
   h4,
   .font-display {
     font-family: var(--font-display);
-    letter-spacing: 0.005em;
-    line-height: 0.95;
-    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1.08;
+    font-weight: 700;
   }
   ::selection {
     background: var(--brand-yellow);
