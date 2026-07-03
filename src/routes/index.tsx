@@ -8,6 +8,7 @@ import { getDashboard } from "@/lib/copa.functions";
 import { Trophy, Goal, CalendarDays, Flame } from "lucide-react";
 import heroStadium from "@/assets/hero-stadium.jpg";
 import heroTrophy from "@/assets/hero-trophy.jpg";
+import sectionPitch from "@/assets/section-pitch.jpg";
 
 const dashboardOpts = queryOptions({ queryKey: ["dashboard"], queryFn: () => getDashboard() });
 
@@ -52,7 +53,7 @@ function Dashboard() {
           aria-hidden="true"
           width={1920}
           height={1280}
-          className="absolute inset-0 h-full w-full object-cover opacity-45 pointer-events-none select-none"
+          className="absolute inset-0 h-full w-full object-cover opacity-70 pointer-events-none select-none"
         />
         {/* Conic samba glow */}
         <div
@@ -187,6 +188,16 @@ function Dashboard() {
         </div>
       </section>
 
+      <div
+        className="relative"
+        style={{
+          backgroundImage: `linear-gradient(to bottom, hsl(var(--background)) 0%, hsl(var(--background)/0.92) 30%, hsl(var(--background)/0.92) 70%, hsl(var(--background)) 100%), url(${sectionPitch})`,
+          backgroundSize: "cover, 1200px auto",
+          backgroundPosition: "center, center top",
+          backgroundAttachment: "scroll, fixed",
+          backgroundRepeat: "no-repeat, repeat-y",
+        }}
+      >
       <div className="mx-auto max-w-7xl px-4 py-10 space-y-12">
         {data.live.length > 0 && (
           <section>
@@ -288,6 +299,7 @@ function Dashboard() {
             </div>
           </div>
         </section>
+      </div>
       </div>
     </AppShell>
   );
