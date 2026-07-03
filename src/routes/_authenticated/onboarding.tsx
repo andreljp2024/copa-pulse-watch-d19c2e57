@@ -486,24 +486,6 @@ function Onboarding() {
                 onChange={(v) => setS2({ ...s2, nome_recebedor: v })}
                 required
               />
-              <Select
-                label="Tipo de chave"
-                value={s2.tipo_chave_pix}
-                onChange={(v) => setS2({ ...s2, tipo_chave_pix: v })}
-                options={[
-                  ["cpf", "CPF"],
-                  ["cnpj", "CNPJ"],
-                  ["email", "E-mail"],
-                  ["telefone", "Telefone"],
-                  ["aleatoria", "Aleatória"],
-                ]}
-              />
-              <Input
-                label="Chave Pix"
-                value={s2.chave_pix}
-                onChange={(v) => setS2({ ...s2, chave_pix: v })}
-                required
-              />
               <div className="grid grid-cols-2 gap-3">
                 <Input
                   label="Banco"
