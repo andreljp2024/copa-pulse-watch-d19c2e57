@@ -93,9 +93,9 @@ function Dashboard() {
               </div>
               <h1 className="font-display uppercase text-white leading-[0.95] [text-wrap:balance] [font-size:clamp(2.25rem,6vw,5.5rem)]">
                 Bolão dos <br />
-                <span className="text-gradient-samba whitespace-nowrap">Amigos</span>
+                <span className="text-gradient-samba whitespace-nowrap">Junte seus</span>
                 <br />
-                <span className="text-gradient-samba whitespace-nowrap">Brasileiros</span>
+                <span className="text-gradient-samba whitespace-nowrap">amigos</span>
               </h1>
               <p className="max-w-md text-sm sm:text-base md:text-lg leading-relaxed text-muted-foreground">
                 Acompanhe cada lance, simule resultados e dispute o topo do ranking no maior portal
