@@ -103,56 +103,35 @@ function Dashboard() {
         .maybeSingle();
 
       const desde14 = new Date(Date.now() - 13 * 86400000).toISOString();
-      const [torCount, palTotal, palPagos, valoresPagos, ganCount, serieRows, notifPend, notifSent] =
-        await Promise.all([
-          supabase
-            .from("torcedores")
-            .select("id", { count: "exact", head: true })
-            .eq("tenant_id", t.id),
-          supabase
-            .from("palpites")
-            .select("id", { count: "exact", head: true })
-            .eq("tenant_id", t.id),
-          supabase
-            .from("palpites")
-            .select("id", { count: "exact", head: true })
-            .eq("tenant_id", t.id)
-            .eq("status_pagamento", "pago"),
-          supabase
-            .from("palpites")
-            .select("valor")
-            .eq("tenant_id", t.id)
-            .eq("status_pagamento", "pago")
-            .limit(10000),
-          supabase
-            .from("ganhadores")
-            .select("id", { count: "exact", head: true })
-            .eq("tenant_id", t.id),
-          supabase
-            .from("palpites")
-            .select("created_at")
-            .eq("tenant_id", t.id)
-            .gte("created_at", desde14)
-            .limit(10000),
-          supabase
-            .from("notification_queue")
-            .select("id", { count: "exact", head: true })
-            .eq("tenant_id", t.id)
-            .in("status", ["pending", "sending"]),
-          supabase
-            .from("notification_queue")
-            .select("id", { count: "exact", head: true })
-            .eq("tenant_id", t.id)
-            .eq("status", "sent"),
-        ]);
+      const [dash, serieRows, notifPend, notifSent] = await Promise.all([
+        // MV agregada — substitui 5 counts/somas
+        supabase.rpc("get_dashboard_organizador"),
+        supabase
+          .from("palpites")
+          .select("created_at")
+          .eq("tenant_id", t.id)
+          .gte("created_at", desde14)
+          .limit(10000),
+        supabase
+          .from("notification_queue")
+          .select("id", { count: "exact", head: true })
+          .eq("tenant_id", t.id)
+          .in("status", ["pending", "sending"]),
+        supabase
+          .from("notification_queue")
+          .select("id", { count: "exact", head: true })
+          .eq("tenant_id", t.id)
+          .eq("status", "sent"),
+      ]);
 
-      const total = palTotal.count ?? 0;
-      const pagos = palPagos.count ?? 0;
-      const torcedoresCount = torCount.count ?? 0;
-      const arrecadado = (valoresPagos.data ?? []).reduce(
-        (s, p) => s + Number(p.valor ?? 0),
-        0,
-      );
+      if (dash.error) throw dash.error;
+      const row = (dash.data ?? []).find((r) => r.tenant_id === t.id) ?? null;
+      const total = Number(row?.total_palpites ?? 0);
+      const pagos = Number(row?.palpites_pagos ?? 0);
+      const pendentes = Number(row?.palpites_pendentes ?? 0);
+      const torcedoresCount = Number(row?.total_torcedores ?? 0);
+      const arrecadado = Number(row?.receita_paga ?? 0);
+      const ganhadoresCount = Number(row?.total_ganhadores ?? 0);
       const pct = Number((bo as { percentual_admin?: number } | null)?.percentual_admin ?? 30);
       const taxa_admin = arrecadado * (pct / 100);
       const premio_torcedores = arrecadado - taxa_admin;
