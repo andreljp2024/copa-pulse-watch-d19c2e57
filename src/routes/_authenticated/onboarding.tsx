@@ -165,6 +165,10 @@ function Onboarding() {
       setError("Informe o número do endereço.");
       return;
     }
+    if (!isValidChavePix(s2.tipo_chave_pix, s2.chave_pix)) {
+      setError("Chave Pix inválida para o tipo selecionado.");
+      return;
+    }
     setLoading(true);
     try {
       const { data: u } = await supabase.auth.getUser();
@@ -451,6 +455,27 @@ function Onboarding() {
                   onChange={(v) => setS1({ ...s1, estado: v.toUpperCase().slice(0, 2) })}
                 />
               </div>
+              <div className="mt-2 rounded-lg border border-dashed border-border p-3">
+                <p className="mb-2 text-sm font-semibold">Chave Pix para recebimento</p>
+                <Select
+                  label="Tipo de chave"
+                  value={s2.tipo_chave_pix}
+                  onChange={(v) => setS2({ ...s2, tipo_chave_pix: v })}
+                  options={[
+                    ["cpf", "CPF"],
+                    ["cnpj", "CNPJ"],
+                    ["email", "E-mail"],
+                    ["telefone", "Telefone"],
+                    ["aleatoria", "Aleatória"],
+                  ]}
+                />
+                <Input
+                  label="Chave Pix"
+                  value={s2.chave_pix}
+                  onChange={(v) => setS2({ ...s2, chave_pix: v })}
+                  required
+                />
+              </div>
             </Form>
           )}
           {step === 2 && (
@@ -459,24 +484,6 @@ function Onboarding() {
                 label="Nome do recebedor"
                 value={s2.nome_recebedor}
                 onChange={(v) => setS2({ ...s2, nome_recebedor: v })}
-                required
-              />
-              <Select
-                label="Tipo de chave"
-                value={s2.tipo_chave_pix}
-                onChange={(v) => setS2({ ...s2, tipo_chave_pix: v })}
-                options={[
-                  ["cpf", "CPF"],
-                  ["cnpj", "CNPJ"],
-                  ["email", "E-mail"],
-                  ["telefone", "Telefone"],
-                  ["aleatoria", "Aleatória"],
-                ]}
-              />
-              <Input
-                label="Chave Pix"
-                value={s2.chave_pix}
-                onChange={(v) => setS2({ ...s2, chave_pix: v })}
                 required
               />
               <div className="grid grid-cols-2 gap-3">
