@@ -10,8 +10,7 @@ import { buildPixPayload } from "@/lib/pix";
 import { ptTeamName } from "@/components/MatchCard";
 import { flagEmoji } from "@/lib/flag";
 import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered, Clock, Users, Flame, Sparkles, MapPin, Search, Share2, Link as LinkIcon, Medal, Coins } from "lucide-react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { formatBR } from "@/lib/timezone";
 
 type Match = {
   id: string;
@@ -311,7 +310,7 @@ function PublicBolao() {
         linhas.push(`• ${fa} ${ptTeamName(home?.name)} ${it.palpite_a} x ${it.palpite_b} ${ptTeamName(away?.name)} ${fb}  (${protocolo})`);
       }
 
-      const dataHora = format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+      const dataHora = formatBR(new Date(), "dd/MM/yyyy 'às' HH:mm");
       const protocolosStr = protocolos.join(", ");
       const msg =
         `👤 Eu: ${form.nome}\n` +
@@ -534,7 +533,7 @@ function PublicBolao() {
                     {away?.flag_url && <img src={away.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
                     {m.kickoff_at && (
                       <span className="hidden sm:inline ml-3 text-[11px] text-muted-foreground">
-                        {format(new Date(m.kickoff_at), "dd/MM HH:mm", { locale: ptBR })}
+                        {formatBR(m.kickoff_at, "dd/MM HH:mm")}
                       </span>
                     )}
                   </div>
@@ -837,7 +836,7 @@ function FeaturedMatchCard({
             match.kickoff_at && (
               <span className="text-[11px] text-muted-foreground inline-flex items-center gap-1.5">
                 <Clock className="h-3 w-3" />
-                {format(new Date(match.kickoff_at), "EEE, dd MMM • HH:mm", { locale: ptBR })}
+                {formatBR(match.kickoff_at, "EEE, dd MMM • HH:mm")}
               </span>
             )
           )}

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, onlyDigits } from "@/lib/saas";
 import { Search, Trophy, XCircle, Clock, CheckCircle2, Sparkles } from "lucide-react";
+import { formatBR } from "@/lib/timezone";
 
 export const Route = createFileRoute("/meus-palpites/$slug")({
   component: MeusPalpitesPage,
@@ -209,7 +210,7 @@ function MeusPalpitesPage() {
                     <TeamBadge name={r.away_team} flag={r.away_flag} />
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {r.kickoff_at ? new Date(r.kickoff_at).toLocaleString("pt-BR") : ""}
+                    {r.kickoff_at ? formatBR(r.kickoff_at) : ""}
                   </div>
                   <div className="mt-3 flex items-center gap-4 text-sm flex-wrap">
                     <div className="rounded-lg bg-background/60 px-3 py-1.5 border border-border">
