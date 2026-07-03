@@ -363,15 +363,9 @@ function Onboarding() {
                 required
               />
               <Input
-                label="Nome do estabelecimento ou bolão"
-                value={s1.nome_estabelecimento}
-                onChange={(v) => setS1({ ...s1, nome_estabelecimento: v })}
-                required
-              />
-              <Input
-                label="CPF ou CNPJ"
+                label="CPF"
                 value={s1.cpf_cnpj}
-                onChange={(v) => setS1({ ...s1, cpf_cnpj: maskCpfCnpj(v) })}
+                onChange={(v) => setS1({ ...s1, cpf_cnpj: maskCpf(v) })}
                 placeholder="000.000.000-00"
                 inputMode="numeric"
                 required
