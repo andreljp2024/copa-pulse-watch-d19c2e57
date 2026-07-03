@@ -84,6 +84,11 @@ function Dashboard() {
           ganhadores: 0,
           taxa_admin: 0,
           premio_torcedores: 0,
+          taxa_conversao: 0,
+          ticket_medio: 0,
+          ltv_torcedor: 0,
+          notif_pendentes: 0,
+          notif_enviadas: 0,
           bolao: null,
           serie: [],
         });
