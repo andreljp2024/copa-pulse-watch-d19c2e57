@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import { signInSuperAdminByWhatsApp } from "@/lib/auth.functions";
 import { friendlyError } from "@/lib/errors";
 import { Trophy } from "lucide-react";
 
@@ -38,6 +40,7 @@ function toSyntheticEmail(digitsSemDDI: string): string {
 
 function Page() {
   const navigate = useNavigate();
+  const signInSuperAdmin = useServerFn(signInSuperAdminByWhatsApp);
   const [mode, setMode] = useState<Mode>("login");
   const [whatsMasked, setWhatsMasked] = useState("");
   const [password, setPassword] = useState("");
@@ -75,7 +78,17 @@ function Page() {
         email: toSyntheticEmail(digits),
         password,
       });
-      if (error) throw error;
+      if (error) {
+        const raw = `${error.code ?? ""} ${error.message ?? ""}`.toLowerCase();
+        if (raw.includes("email_provider_disabled") || raw.includes("email logins are disabled")) {
+          const session = await signInSuperAdmin({ data: { whatsapp: `55${digits}`, password } });
+          const { error: setSessionError } = await supabase.auth.setSession(session);
+          if (setSessionError) throw setSessionError;
+          navigate({ to: "/app" });
+          return;
+        }
+        throw error;
+      }
     } catch (err) {
       setError(friendlyError(err, "WhatsApp ou senha inválidos."));
     } finally {
