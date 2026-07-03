@@ -284,6 +284,7 @@ function Onboarding() {
                 value={s3.numero_whatsapp}
                 onChange={(v) => setS3({ ...s3, numero_whatsapp: maskPhone(v) })}
                 placeholder="(11) 99999-9999"
+                prefix="+55"
                 inputMode="tel"
                 required
               />
