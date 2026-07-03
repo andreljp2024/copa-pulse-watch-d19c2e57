@@ -43,17 +43,19 @@ export async function subscribePush(params: {
   }
 
   const json = sub.toJSON();
-  await supabase.from("push_subscriptions").upsert(
-    {
-      endpoint: sub.endpoint,
-      p256dh: json.keys?.p256dh ?? "",
-      auth: json.keys?.auth ?? "",
-      user_agent: navigator.userAgent,
-      bolao_id: params.bolao_id ?? null,
-      torcedor_id: params.torcedor_id ?? null,
-    },
-    { onConflict: "endpoint" },
-  );
+  if (!params.bolao_id || !params.torcedor_id) {
+    // Vínculo obrigatório para registrar a inscrição
+    return false;
+  }
+  const { error } = await supabase.rpc("register_push_subscription", {
+    p_bolao_id: params.bolao_id,
+    p_torcedor_id: params.torcedor_id,
+    p_endpoint: sub.endpoint,
+    p_p256dh: json.keys?.p256dh ?? "",
+    p_auth: json.keys?.auth ?? "",
+    p_user_agent: navigator.userAgent,
+  });
+  if (error) return false;
   return true;
 }
 
@@ -62,7 +64,7 @@ export async function unsubscribePush(): Promise<void> {
   const reg = await navigator.serviceWorker.ready;
   const sub = await reg.pushManager.getSubscription();
   if (sub) {
-    await supabase.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
+    await supabase.rpc("unregister_push_subscription", { p_endpoint: sub.endpoint });
     await sub.unsubscribe();
   }
 }
