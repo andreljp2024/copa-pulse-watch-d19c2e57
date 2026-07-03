@@ -26,6 +26,17 @@ import {
   Eye,
 } from "lucide-react";
 
+const MODELO_INSTRUCOES = `💰 *Instruções de pagamento* 💰
+
+✅ *1.* Copie a chave Pix ou use o QR Code acima 📲
+✅ *2.* Efetue o pagamento no valor do palpite 💵
+✅ *3.* Envie o comprovante no WhatsApp 📎
+
+⚠️ *Importante:* seu palpite só é confirmado após o pagamento ser validado pelo organizador. ⏳
+🕐 Palpites não são aceitos após o início da partida.
+
+🍀 Boa sorte e que vença o melhor palpiteiro! 🏆⚽`;
+
 export const Route = createFileRoute("/_authenticated/app/pix")({
   component: PixConfigPage,
 });
