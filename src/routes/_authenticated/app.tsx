@@ -51,9 +51,12 @@ const baseNav: NavItem[] = [
   { to: "/app/torcedores", label: "Torcedores", icon: Users },
   { to: "/app/palpites", label: "Palpites", icon: ListChecks },
   { to: "/app/ganhadores", label: "Ganhadores", icon: Trophy },
+  { to: "/ajuda" as "/app", label: "Ajuda", icon: HelpCircle },
+];
+
+const superAdminNav: NavItem[] = [
   { to: "/app/seguranca", label: "Segurança", icon: Shield },
   { to: "/app/auditoria", label: "Auditoria", icon: FileText },
-  { to: "/ajuda" as "/app", label: "Ajuda", icon: HelpCircle },
 ];
 
 function AppLayout() {
@@ -67,7 +70,7 @@ function AppLayout() {
     queryFn: () => checkSuper(),
   });
   const nav: NavItem[] = superCheck?.isSuperAdmin
-    ? [...baseNav, { to: "/app/gestores", label: "Organizadores", icon: Shield }]
+    ? [...baseNav, ...superAdminNav, { to: "/app/gestores", label: "Organizadores", icon: Shield }]
     : baseNav;
   const currentLabel =
     nav.find((n) => (n.exact ? pathname === n.to : pathname.startsWith(n.to)))?.label ?? "Painel";
