@@ -75,8 +75,16 @@ function Page() {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       if (session?.user) navigate({ to: "/app" });
     });
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.user) navigate({ to: "/app" });
+    supabase.auth.getSession().then(async ({ data, error }) => {
+      // Refresh token inválido/expirado no localStorage → limpa silenciosamente
+      if (error || !data.session) {
+        const msg = error?.message?.toLowerCase() ?? "";
+        if (msg.includes("refresh") || msg.includes("token")) {
+          await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+        }
+        return;
+      }
+      if (data.session.user) navigate({ to: "/app" });
     });
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
