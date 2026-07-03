@@ -64,7 +64,7 @@ export async function unsubscribePush(): Promise<void> {
   const reg = await navigator.serviceWorker.ready;
   const sub = await reg.pushManager.getSubscription();
   if (sub) {
-    await supabase.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
+    await supabase.rpc("unregister_push_subscription", { p_endpoint: sub.endpoint });
     await sub.unsubscribe();
   }
 }
