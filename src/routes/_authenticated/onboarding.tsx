@@ -5,13 +5,11 @@ import { slugify, DEFAULT_TEMPLATES } from "@/lib/saas";
 import {
   maskPhone,
   maskCpf,
-  maskCep,
   onlyDigits,
-  fetchCep,
   isValidCpf,
   isValidPhoneBR,
 } from "@/lib/masks";
-import { Check, ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 function isValidChavePix(tipo: string, chave: string): boolean {
   const v = (chave || "").trim();
