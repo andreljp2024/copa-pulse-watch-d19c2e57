@@ -16,6 +16,8 @@ export const Route = createFileRoute("/meus-palpites/$slug")({
 });
 
 type Row = {
+  torcedor_id: string;
+  bolao_id: string;
   codigo: number;
   nome_torcedor: string;
   palpite_a: number;
