@@ -38,6 +38,11 @@ type Stats = {
   ganhadores: number;
   taxa_admin: number;
   premio_torcedores: number;
+  taxa_conversao: number;
+  ticket_medio: number;
+  ltv_torcedor: number;
+  notif_pendentes: number;
+  notif_enviadas: number;
   bolao: {
     id: string;
     nome: string;
