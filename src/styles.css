@@ -47,7 +47,9 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-display: "Barlow Condensed", "Oswald", "Arial Narrow", system-ui, sans-serif;
+  --font-display: "Sora", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-serif: "Fraunces", "Georgia", serif;
+  --font-stats: "Barlow Condensed", "Oswald", "Arial Narrow", system-ui, sans-serif;
   --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
@@ -55,34 +57,35 @@
 :root {
   --radius: 0.875rem;
 
-  /* Brand colors (Bandeira do Brasil) — verde mais claro e moderno */
-  --brand-green: oklch(72% 0.20 152); /* verde-lima moderno */
-  --brand-green-deep: oklch(52% 0.18 150);
-  --brand-yellow: oklch(88% 0.17 92); /* amarelo-ouro vibrante */
-  --brand-blue: oklch(42% 0.19 255); /* azul-bandeira */
-  --brand-samba: oklch(70% 0.22 27); /* vermelho-samba (acento quente) */
+  /* Brand colors — Brasil moderno, mais amigável e sofisticado */
+  --brand-green: oklch(74% 0.18 155); /* verde-menta acolhedor */
+  --brand-green-deep: oklch(48% 0.16 152);
+  --brand-yellow: oklch(87% 0.16 88); /* amarelo-mel */
+  --brand-blue: oklch(58% 0.16 245); /* azul-céu confiante */
+  --brand-samba: oklch(72% 0.19 30); /* coral-samba suave */
+  --brand-cream: oklch(96% 0.02 92); /* creme para superfícies claras */
 
 
-  /* Surfaces — deep emerald night */
-  --background: oklch(14% 0.035 158);
-  --foreground: oklch(98% 0.012 95);
-  --card: oklch(19% 0.042 158);
-  --card-foreground: oklch(98% 0.012 95);
-  --popover: oklch(19% 0.042 158);
-  --popover-foreground: oklch(98% 0.012 95);
+  /* Surfaces — deep emerald night, um pouco mais quente */
+  --background: oklch(16% 0.032 160);
+  --foreground: oklch(97% 0.014 92);
+  --card: oklch(21% 0.04 158);
+  --card-foreground: oklch(97% 0.014 92);
+  --popover: oklch(21% 0.04 158);
+  --popover-foreground: oklch(97% 0.014 92);
 
   --primary: var(--brand-green);
   --primary-foreground: oklch(14% 0.035 158);
-  --secondary: oklch(25% 0.045 158);
-  --secondary-foreground: oklch(98% 0.012 95);
-  --muted: oklch(22% 0.035 158);
-  --muted-foreground: oklch(74% 0.025 140);
+  --secondary: oklch(27% 0.045 158);
+  --secondary-foreground: oklch(97% 0.014 92);
+  --muted: oklch(24% 0.035 158);
+  --muted-foreground: oklch(78% 0.028 135);
   --accent: var(--brand-yellow);
   --accent-foreground: oklch(0% 0 0);
   --destructive: oklch(66% 0.22 27);
   --destructive-foreground: oklch(99% 0 0);
-  --border: oklch(32% 0.04 158 / 0.6);
-  --input: oklch(30% 0.04 158);
+  --border: oklch(36% 0.045 158 / 0.55);
+  --input: oklch(32% 0.04 158);
   --ring: var(--brand-yellow);
 
   --pitch: var(--brand-green);
@@ -94,15 +97,15 @@
   --chart-2: var(--brand-yellow);
   --chart-3: var(--brand-samba);
   --chart-4: var(--brand-blue);
-  --chart-5: oklch(65% 0.18 320);
+  --chart-5: oklch(70% 0.16 320);
 
-  --sidebar: oklch(24% 0.06 155);
-  --sidebar-foreground: oklch(98% 0.012 95);
+  --sidebar: oklch(22% 0.055 156);
+  --sidebar-foreground: oklch(97% 0.014 92);
   --sidebar-primary: var(--brand-green);
   --sidebar-primary-foreground: oklch(14% 0.035 158);
-  --sidebar-accent: oklch(32% 0.08 152);
-  --sidebar-accent-foreground: oklch(98% 0.012 95);
-  --sidebar-border: oklch(45% 0.09 152 / 0.5);
+  --sidebar-accent: oklch(30% 0.08 152);
+  --sidebar-accent-foreground: oklch(97% 0.014 92);
+  --sidebar-border: oklch(42% 0.09 152 / 0.45);
   --sidebar-ring: var(--brand-green);
 
 
@@ -173,9 +176,9 @@
   h4,
   .font-display {
     font-family: var(--font-display);
-    letter-spacing: 0.005em;
-    line-height: 0.95;
-    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1.08;
+    font-weight: 700;
   }
   ::selection {
     background: var(--brand-yellow);
@@ -186,6 +189,16 @@
 @layer utilities {
   .font-display {
     font-family: var(--font-display);
+  }
+  .font-serif {
+    font-family: var(--font-serif);
+    letter-spacing: -0.01em;
+  }
+  .font-stats {
+    font-family: var(--font-stats);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
   }
   .bg-hero {
     background-image: var(--gradient-hero);
