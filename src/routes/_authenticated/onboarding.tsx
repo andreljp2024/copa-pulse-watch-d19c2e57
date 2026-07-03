@@ -79,8 +79,6 @@ function Onboarding() {
           ...v,
           nome_responsavel: t.nome_responsavel ?? v.nome_responsavel,
           whatsapp: t.whatsapp ? maskPhone(t.whatsapp) : "",
-          cidade: t.cidade ?? "",
-          estado: t.estado ?? "",
         }));
         // Retomada inteligente: pula para o passo pendente
         const [{ data: pix }, { data: wa }, { data: bo }] = await Promise.all([
