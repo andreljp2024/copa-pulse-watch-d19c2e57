@@ -125,14 +125,6 @@ function Onboarding() {
       setError("WhatsApp inválido — informe DDD + número.");
       return;
     }
-    if (onlyDigits(s1.cep).length !== 8) {
-      setError("CEP inválido.");
-      return;
-    }
-    if (!s1.numero.trim()) {
-      setError("Informe o número do endereço.");
-      return;
-    }
     if (!isValidChavePix(s2.tipo_chave_pix, s2.chave_pix)) {
       setError("Chave Pix inválida para o tipo selecionado.");
       return;
@@ -142,11 +134,10 @@ function Onboarding() {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Sessão expirada");
       const payload = {
-        ...s1,
+        nome_responsavel: s1.nome_responsavel.trim(),
         nome_estabelecimento: s1.nome_responsavel.trim(),
         whatsapp: onlyDigits(s1.whatsapp),
         cpf_cnpj: onlyDigits(s1.cpf_cnpj),
-        cep: onlyDigits(s1.cep),
         owner_user_id: u.user.id,
         email: u.user.email ?? "",
       };
