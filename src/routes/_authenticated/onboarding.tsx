@@ -83,6 +83,7 @@ function Onboarding() {
         ...v,
         numero_whatsapp:
           v.numero_whatsapp ||
+          (t?.whatsapp ? maskPhone(t.whatsapp) : "") ||
           (u.user.user_metadata?.whatsapp ? maskPhone(u.user.user_metadata.whatsapp) : ""),
       }));
     })();
