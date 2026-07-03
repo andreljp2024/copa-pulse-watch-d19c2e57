@@ -312,15 +312,38 @@ function Onboarding() {
         <div className="mb-8">
           <h1 className="text-3xl font-black">Configurar meu bolão</h1>
           <p className="text-sm text-muted-foreground">Passo {step} de 4</p>
-          <div className="mt-3 flex gap-1">
+          <div className="mt-3 flex items-center gap-2">
             {[1, 2, 3, 4].map((n) => (
-              <div
-                key={n}
-                className={`h-2 flex-1 rounded-full ${n <= step ? "bg-pitch" : "bg-muted"}`}
-              />
+              <div key={n} className="flex flex-1 items-center gap-2">
+                <div
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                    n < step
+                      ? "bg-pitch text-primary-foreground"
+                      : n === step
+                        ? "bg-pitch text-primary-foreground ring-2 ring-pitch/30"
+                        : "bg-muted text-muted-foreground"
+                  }`}
+                  aria-current={n === step ? "step" : undefined}
+                >
+                  {n < step ? <Check className="h-3.5 w-3.5" /> : n}
+                </div>
+                {n < 4 && (
+                  <div className={`h-1 flex-1 rounded-full ${n < step ? "bg-pitch" : "bg-muted"}`} />
+                )}
+              </div>
             ))}
           </div>
+          {step > 1 && (
+            <button
+              type="button"
+              onClick={() => setStep((s) => (Math.max(1, s - 1) as Step))}
+              className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              <ChevronLeft className="h-4 w-4" /> Voltar ao passo anterior
+            </button>
+          )}
         </div>
+
 
         <div className="rounded-2xl border border-border bg-card p-6">
           {step === 1 && (
