@@ -10,7 +10,13 @@ import heroStadium from "@/assets/hero-stadium.jpg";
 import heroTrophy from "@/assets/hero-trophy.jpg";
 import sectionPitch from "@/assets/section-pitch.jpg";
 
-const dashboardOpts = queryOptions({ queryKey: ["dashboard"], queryFn: () => getDashboard() });
+const dashboardOpts = queryOptions({
+  queryKey: ["dashboard"],
+  queryFn: () => getDashboard(),
+  refetchInterval: 30_000,
+  refetchIntervalInBackground: false,
+  staleTime: 15_000,
+});
 
 export const Route = createFileRoute("/")({
   head: () => ({
