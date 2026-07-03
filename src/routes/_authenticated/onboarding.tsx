@@ -100,14 +100,14 @@ function Onboarding() {
       if (!u.user) return;
       const { data: t } = await supabase
         .from("tenants")
-        .select("id, nome_estabelecimento, whatsapp, cidade, estado")
+        .select("id, nome_responsavel, whatsapp, cidade, estado")
         .eq("owner_user_id", u.user.id)
         .maybeSingle();
       if (t) {
         setTenantId(t.id);
         setS1((v) => ({
           ...v,
-          nome_estabelecimento: t.nome_estabelecimento ?? "",
+          nome_responsavel: t.nome_responsavel ?? v.nome_responsavel,
           whatsapp: t.whatsapp ? maskPhone(t.whatsapp) : "",
           cidade: t.cidade ?? "",
           estado: t.estado ?? "",
