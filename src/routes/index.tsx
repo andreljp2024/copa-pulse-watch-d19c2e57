@@ -118,27 +118,26 @@ function Dashboard() {
             <div className="h-[320px] sm:h-[500px]">
               <Link
                 to="/criar-bolao"
-                className="group relative overflow-hidden h-full w-full rounded-2xl bg-gradient-gold p-4 sm:p-6 flex flex-col justify-end transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="group relative overflow-hidden h-full w-full rounded-2xl bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-900 p-4 sm:p-6 flex flex-col items-center justify-center transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background shadow-2xl"
               >
-                <img
-                  src={heroTrophy}
-                  alt=""
-                  aria-hidden="true"
-                  loading="lazy"
-                  width={1280}
-                  height={1280}
-                  className="absolute inset-0 h-full w-full object-cover mix-blend-multiply opacity-70 pointer-events-none select-none transition-transform duration-700 group-hover:scale-105"
-                />
                 <div
-                  className="absolute inset-0 bg-gradient-to-t from-gold/80 via-gold/20 to-transparent pointer-events-none"
+                  className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--gold)/0.25),transparent_60%)] pointer-events-none"
                   aria-hidden="true"
                 />
-                <h3 className="relative font-display text-4xl sm:text-6xl leading-none text-gold-foreground mb-3 sm:mb-4">
+                <div className="relative flex h-40 w-40 sm:h-56 sm:w-56 items-center justify-center rounded-full bg-emerald-500/20 ring-4 ring-emerald-400/30 backdrop-blur-sm transition-transform duration-500 group-hover:scale-110">
+                  <div className="absolute inset-2 rounded-full bg-emerald-600/40 ring-2 ring-emerald-300/40" aria-hidden="true" />
+                  <Trophy
+                    className="relative h-20 w-20 sm:h-28 sm:w-28 text-gold drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
+                    strokeWidth={1.5}
+                    aria-hidden="true"
+                  />
+                </div>
+                <h3 className="relative mt-6 font-display text-3xl sm:text-5xl leading-none text-center text-white">
                   CRIE SEU
                   <br />
                   BOLÃO
                 </h3>
-                <p className="relative text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gold-foreground/80">
+                <p className="relative mt-3 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-emerald-100/80">
                   Prêmios exclusivos
                 </p>
               </Link>
