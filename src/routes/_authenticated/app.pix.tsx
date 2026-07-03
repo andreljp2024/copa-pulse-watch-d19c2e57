@@ -26,6 +26,17 @@ import {
   Eye,
 } from "lucide-react";
 
+const MODELO_INSTRUCOES = `💰 *Instruções de pagamento* 💰
+
+✅ *1.* Copie a chave Pix ou use o QR Code acima 📲
+✅ *2.* Efetue o pagamento no valor do palpite 💵
+✅ *3.* Envie o comprovante no WhatsApp 📎
+
+⚠️ *Importante:* seu palpite só é confirmado após o pagamento ser validado pelo organizador. ⏳
+🕐 Palpites não são aceitos após o início da partida.
+
+🍀 Boa sorte e que vença o melhor palpiteiro! 🏆⚽`;
+
 export const Route = createFileRoute("/_authenticated/app/pix")({
   component: PixConfigPage,
 });
@@ -78,7 +89,7 @@ function PixConfigPage() {
     banco: "",
     cidade: "",
     valor_padrao_palpite: 10,
-    instrucoes_pagamento: "",
+    instrucoes_pagamento: MODELO_INSTRUCOES,
     numero_recebedor_whatsapp: "",
   });
   const [saving, setSaving] = useState(false);
@@ -135,7 +146,7 @@ function PixConfigPage() {
             banco: pixRes.data.banco ?? "",
             cidade: pixRes.data.cidade ?? "",
             valor_padrao_palpite: Number(pixRes.data.valor_padrao_palpite ?? 10),
-            instrucoes_pagamento: pixRes.data.instrucoes_pagamento ?? "",
+            instrucoes_pagamento: pixRes.data.instrucoes_pagamento ?? MODELO_INSTRUCOES,
             numero_recebedor_whatsapp: maskPhone(pixRes.data.numero_recebedor_whatsapp ?? ""),
           });
         } else {
@@ -391,12 +402,21 @@ function PixConfigPage() {
           >
             <Field label="Instruções de pagamento">
               <textarea
-                rows={4}
+                rows={10}
                 value={form.instrucoes_pagamento}
                 onChange={(e) => setForm({ ...form, instrucoes_pagamento: e.target.value })}
-                className={inputCss}
-                placeholder="Ex.: Após o pagamento, envie o comprovante no WhatsApp para confirmação."
+                className={`${inputCss} font-mono text-xs whitespace-pre-wrap`}
+                placeholder={MODELO_INSTRUCOES}
               />
+              <div className="mt-2">
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, instrucoes_pagamento: MODELO_INSTRUCOES })}
+                  className="inline-flex items-center gap-1 rounded-md border border-gold/40 bg-gold/10 px-2.5 py-1 text-xs font-semibold text-gold hover:bg-gold/20"
+                >
+                  Usar modelo com emojis
+                </button>
+              </div>
             </Field>
             <Field label="WhatsApp do recebedor">
               <input
