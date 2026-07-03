@@ -149,6 +149,11 @@ function RootComponent() {
     document.documentElement.classList.toggle("dark", isDark);
   }, []);
 
+  // Registro do Service Worker (offline-first) — só em produção real.
+  useEffect(() => {
+    void import("@/lib/register-sw").then((m) => m.registerServiceWorker());
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
