@@ -399,7 +399,7 @@ function BolaoConfigPage() {
             <Stat
               icon={<DollarSign className="h-3.5 w-3.5" />}
               label="Valor"
-              value={`R$ ${Number(form.valor_palpite || 0).toFixed(0)}`}
+              value={`R$ ${Number(form.valor_palpite || 0).toFixed(2).replace(".", ",")}`}
             />
             <Stat
               icon={<Calendar className="h-3.5 w-3.5" />}
