@@ -95,15 +95,49 @@ supabase/migrations/              SQL versionado
 
 ---
 
-## 4. Segurança
+## 4. Módulos avançados (2026)
+
+### 4.1 Notificações
+- Fila persistente em `notification_queue` alimentada por triggers (`tg_enqueue_ganhador_notif`, `tg_enqueue_ganhador_push`).
+- Dispatcher WhatsApp: `/api/public/hooks/dispatch-notifications` (backoff exponencial).
+- Push nativo (Web Push RFC 8291 + VAPID): `/api/public/hooks/dispatch-push` com criptografia AES-128-GCM via Web Crypto.
+- Cron `pg_cron` dispara ambos a cada minuto.
+
+### 4.2 PWA offline-first
+- `vite-plugin-pwa` com `NetworkFirst` (HTML), `CacheFirst` (bandeiras) e `StaleWhileRevalidate` (assets).
+- Registro do Service Worker via `src/lib/register-sw.ts` — só em produção, nunca em iframe.
+
+### 4.3 Segurança e anti-fraude
+- `rate_limits` + `check_rate_limit()` — 10 palpites/min por WhatsApp em `submit_palpite`.
+- View `fraud_signals` (≥20 palpites em 10min ou >50 pendentes).
+- Painel `/app/seguranca`: bloqueio/desbloqueio de torcedor via `set_torcedor_bloqueado()`.
+- Flag `bloqueado` em `torcedores` verificada em `submit_palpite`.
+
+### 4.4 Performance
+- MV `mv_ranking_torcedores` — `get_bolao_ranking` lê em O(log n). Refresh 5min via `pg_cron`.
+- MV `mv_dashboard_organizador` — `get_dashboard_organizador` consolida 6 KPIs em uma leitura. Refresh 5min.
+- MVs **não expostas** via Data API — acesso somente por RPC `SECURITY DEFINER`.
+
+### 4.5 Auditoria e Backup (`/app/auditoria`)
+- Tabela `audit_log` + trigger genérico `tg_audit_generic` em: `boloes`, `tenants`, `assinaturas`, `user_roles`, `torcedores.bloqueado`, `tenant_pix_config`, `tenant_whatsapp_config`.
+- `list_audit_log(limit, offset)` — leitura paginada com RLS por tenant + super admin.
+- `log_audit_event()` — registro custom (não-DML).
+- `export_bolao(uuid)` — backup JSON completo (bolão + jogos + torcedores + palpites + ganhadores). Exportação é auditada.
+
+---
+
+## 5. Segurança
 
 - **RLS habilitada** em todas as tabelas de `public`. Políticas escopadas por `auth.uid()` + `has_role()`.
 - **Roles em tabela separada** (`user_roles` + enum `app_role`) — nunca no perfil.
 - Função `has_role(_user_id, _role)` `SECURITY DEFINER` para evitar recursão em políticas.
-- RPCs públicos (`submit_palpite`, `consultar_palpites_por_whatsapp`, `get_bolao_public_payment`, `get_bolao_ranking`) são `SECURITY DEFINER` e validam internamente slug, status e prazos.
-- `SUPABASE_SERVICE_ROLE_KEY` é lido **apenas** dentro de `.server.ts` via `await import(...)` em handlers — nunca no bundle do cliente.
-- Auth exclusivamente server-side (`requireSupabaseAuth` middleware). Zero verificação de role no client.
-- Fuso horário centralizado em `src/lib/timezone.ts` — usar sempre `formatBR`.
+- **RPCs anônimas explícitas** (única superfície pública): `submit_palpite`, `consultar_palpites_por_whatsapp`, `get_bolao_public_payment`, `get_bolao_ranking`, `check_rate_limit`. Todas as demais RPCs `SECURITY DEFINER` tiveram `EXECUTE` revogado de `anon`.
+- Materialized views revogadas de `anon`/`authenticated` — acesso apenas via RPC autorizada.
+- `SUPABASE_SERVICE_ROLE_KEY` lido **apenas** dentro de `.server.ts` via `await import(...)` — nunca no bundle do cliente.
+- Auth server-side com `requireSupabaseAuth` (middleware) + bearer attacher no `src/start.ts`. Zero verificação de role no client.
+- Fuso horário centralizado em `src/lib/timezone.ts` — usar sempre `formatBR*`.
+
+
 
 ---
 
