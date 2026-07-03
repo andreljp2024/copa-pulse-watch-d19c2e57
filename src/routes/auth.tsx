@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
-import { signInSuperAdminByWhatsApp } from "@/lib/auth.functions";
+import { signInSuperAdminByWhatsApp, signUpOrganizerByWhatsApp } from "@/lib/auth.functions";
 import { friendlyError } from "@/lib/errors";
 import { Trophy } from "lucide-react";
 import { toast } from "sonner";
