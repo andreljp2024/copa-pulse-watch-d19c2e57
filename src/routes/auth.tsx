@@ -12,16 +12,36 @@ export const Route = createFileRoute("/auth")({
 
 // WhatsApp do administrador (98) 98603-0534 — recebe aviso a cada novo organizador
 const ADMIN_WHATSAPP = "5598986030534";
+// Domínio sintético usado para o e-mail interno do Supabase (login é pelo WhatsApp)
+const WA_EMAIL_DOMAIN = "wa.bolao.local";
 
 type Mode = "login" | "signup";
+
+/** Aplica máscara (DD) DDDDD-DDDD sobre os dígitos do usuário (sem o DDI 55). */
+function maskWhats(digits: string): string {
+  const d = digits.replace(/\D/g, "").slice(0, 11);
+  if (d.length === 0) return "";
+  if (d.length <= 2) return `(${d}`;
+  if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
+
+/** Retorna somente os dígitos (DDD+número, sem DDI). */
+function onlyDigits(v: string): string {
+  return v.replace(/\D/g, "").slice(0, 11);
+}
+
+/** Monta o e-mail sintético usado internamente. */
+function toSyntheticEmail(digitsSemDDI: string): string {
+  return `55${digitsSemDDI}@${WA_EMAIL_DOMAIN}`;
+}
 
 function Page() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>("login");
-  const [email, setEmail] = useState("");
+  const [whatsMasked, setWhatsMasked] = useState("");
   const [password, setPassword] = useState("");
   const [nome, setNome] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,15 +57,27 @@ function Page() {
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
 
+  function onWhatsChange(v: string) {
+    setWhatsMasked(maskWhats(v));
+  }
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    const digits = onlyDigits(whatsMasked);
+    if (digits.length < 10) {
+      setError("Informe seu WhatsApp com DDD (ex.: (98) 98603-0534).");
+      return;
+    }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({
+        email: toSyntheticEmail(digits),
+        password,
+      });
       if (error) throw error;
     } catch (err) {
-      setError(friendlyError(err, "Falha ao entrar."));
+      setError(friendlyError(err, "WhatsApp ou senha inválidos."));
     } finally {
       setLoading(false);
     }
@@ -63,29 +95,27 @@ function Page() {
       setError("A senha deve ter ao menos 8 caracteres.");
       return;
     }
-    const whatsDigits = whatsapp.replace(/\D/g, "");
-    if (whatsDigits.length < 10) {
+    const digits = onlyDigits(whatsMasked);
+    if (digits.length < 10) {
       setError("Informe um WhatsApp válido com DDD.");
       return;
     }
     setLoading(true);
     try {
       const { error } = await supabase.auth.signUp({
-        email,
+        email: toSyntheticEmail(digits),
         password,
         options: {
           emailRedirectTo: window.location.origin,
-          data: { full_name: nome, whatsapp: whatsDigits },
+          data: { full_name: nome, whatsapp: `55${digits}` },
         },
       });
       if (error) throw error;
 
-      // Abre WhatsApp para o administrador com aviso do novo organizador
       const msg =
         `🆕 Novo organizador cadastrado no Bolão dos Amigos Brasileiros\n\n` +
         `👤 Nome: ${nome}\n` +
-        `📧 E-mail: ${email}\n` +
-        `📱 WhatsApp: ${whatsapp}\n\n` +
+        `📱 WhatsApp: +55 ${whatsMasked}\n\n` +
         `Cadastro realizado em ${new Date().toLocaleString("pt-BR")}.`;
       const url = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(msg)}`;
       window.open(url, "_blank", "noopener,noreferrer");
@@ -108,7 +138,7 @@ function Page() {
           <div>
             <h1 className="text-2xl font-black">Bolão dos Amigos Brasileiros</h1>
             <p className="text-sm text-muted-foreground">
-              {mode === "login" ? "Entre com e-mail e senha" : "Cadastre-se como organizador"}
+              {mode === "login" ? "Entre com seu WhatsApp" : "Cadastre-se como organizador"}
             </p>
           </div>
         </div>
@@ -135,91 +165,65 @@ function Page() {
         </div>
 
         <div className="rounded-xl border border-border bg-card p-6 card-elevated space-y-5">
-          {mode === "login" ? (
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">E-mail</label>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-11 rounded-lg border border-border bg-background px-3"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Senha</label>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-11 rounded-lg border border-border bg-background px-3"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full h-12 rounded-lg bg-pitch text-primary-foreground font-bold hover:opacity-90 disabled:opacity-40 transition"
-              >
-                {loading ? "Entrando…" : "Entrar"}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleSignup} className="space-y-4">
-              <div className="rounded-lg bg-muted/60 p-4 text-sm leading-relaxed text-foreground/90 space-y-2">
-                <p className="font-semibold">Termo de participação</p>
-                <p>
-                  Ao me cadastrar como organizador, confirmo que sou{" "}
-                  <strong>maior de 18 anos</strong> e que o bolão é entre amigos convidados,
-                  também maiores de idade. O <strong>PIX pessoal</strong> serve apenas para
-                  organizar palpites entre amigos — <strong>não é aposta e não visa lucro</strong>.
-                </p>
-              </div>
+          <form onSubmit={mode === "login" ? handleLogin : handleSignup} className="space-y-4">
+            {mode === "signup" && (
+              <>
+                <div className="rounded-lg bg-muted/60 p-4 text-sm leading-relaxed text-foreground/90 space-y-2">
+                  <p className="font-semibold">Termo de participação</p>
+                  <p>
+                    Ao me cadastrar como organizador, confirmo que sou{" "}
+                    <strong>maior de 18 anos</strong>. O <strong>PIX pessoal</strong> serve apenas
+                    para organizar palpites entre amigos — <strong>não é aposta e não visa lucro</strong>.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Nome completo</label>
+                  <input
+                    type="text"
+                    required
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    className="w-full h-11 rounded-lg border border-border bg-background px-3"
+                  />
+                </div>
+              </>
+            )}
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Nome completo</label>
-                <input
-                  type="text"
-                  required
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  className="w-full h-11 rounded-lg border border-border bg-background px-3"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">WhatsApp (com DDD)</label>
+            <div>
+              <label className="block text-sm font-medium mb-1">WhatsApp</label>
+              <div className="flex items-stretch rounded-lg border border-border bg-background overflow-hidden focus-within:ring-2 focus-within:ring-pitch/40">
+                <span className="grid place-items-center px-3 bg-muted text-sm font-semibold text-foreground/80 select-none">
+                  +55
+                </span>
                 <input
                   type="tel"
                   required
+                  inputMode="numeric"
+                  autoComplete="tel-national"
                   placeholder="(98) 98603-0534"
-                  value={whatsapp}
-                  onChange={(e) => setWhatsapp(e.target.value)}
-                  className="w-full h-11 rounded-lg border border-border bg-background px-3"
+                  value={whatsMasked}
+                  onChange={(e) => onWhatsChange(e.target.value)}
+                  className="flex-1 h-11 bg-background px-3 outline-none"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">E-mail</label>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-11 rounded-lg border border-border bg-background px-3"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Senha (mín. 8 caracteres)</label>
-                <input
-                  type="password"
-                  required
-                  minLength={8}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-11 rounded-lg border border-border bg-background px-3"
-                />
-              </div>
+              <p className="text-xs text-muted-foreground mt-1">DDD + número. O DDI 55 já está incluso.</p>
+            </div>
 
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Senha{mode === "signup" ? " (mín. 8 caracteres)" : ""}
+              </label>
+              <input
+                type="password"
+                required
+                minLength={mode === "signup" ? 8 : undefined}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full h-11 rounded-lg border border-border bg-background px-3"
+              />
+            </div>
+
+            {mode === "signup" && (
               <label className="flex items-start gap-3 cursor-pointer select-none">
                 <input
                   type="checkbox"
@@ -231,20 +235,24 @@ function Page() {
                   Sou maior de <strong>18 anos</strong> e concordo com o termo acima.
                 </span>
               </label>
+            )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full h-12 rounded-lg bg-pitch text-primary-foreground font-bold hover:opacity-90 disabled:opacity-40 transition"
-              >
-                {loading ? "Cadastrando…" : "Cadastrar e avisar administrador"}
-              </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full h-12 rounded-lg bg-pitch text-primary-foreground font-bold hover:opacity-90 disabled:opacity-40 transition"
+            >
+              {loading
+                ? (mode === "login" ? "Entrando…" : "Cadastrando…")
+                : (mode === "login" ? "Entrar" : "Cadastrar e avisar administrador")}
+            </button>
 
+            {mode === "signup" && (
               <p className="text-xs text-muted-foreground text-center">
                 Ao finalizar, uma mensagem no WhatsApp será aberta para avisar o administrador.
               </p>
-            </form>
-          )}
+            )}
+          </form>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
           {info && <p className="text-sm text-emerald-600">{info}</p>}
