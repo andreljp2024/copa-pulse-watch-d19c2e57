@@ -109,18 +109,38 @@ function Onboarding() {
         setS1((v) => ({
           ...v,
           nome_estabelecimento: t.nome_estabelecimento ?? "",
-          whatsapp: t.whatsapp ?? "",
+          whatsapp: t.whatsapp ? maskPhone(t.whatsapp) : "",
           cidade: t.cidade ?? "",
           estado: t.estado ?? "",
         }));
-        const { data: bo } = await supabase
-          .from("boloes")
-          .select("id")
-          .eq("tenant_id", t.id)
-          .limit(1);
-        if (bo && bo.length > 0) navigate({ to: "/app" });
+        // Retomada inteligente: pula para o passo pendente
+        const [{ data: pix }, { data: wa }, { data: bo }] = await Promise.all([
+          supabase.from("tenant_pix_config").select("tenant_id").eq("tenant_id", t.id).maybeSingle(),
+          supabase.from("tenant_whatsapp_config").select("tenant_id").eq("tenant_id", t.id).maybeSingle(),
+          supabase.from("boloes").select("id").eq("tenant_id", t.id).limit(1),
+        ]);
+        if (bo && bo.length > 0) {
+          navigate({ to: "/app" });
+          return;
+        }
+        if (pix && wa) setStep(4);
+        else if (pix) setStep(3);
+        else setStep(2);
+      } else {
+        // Pré-preencher com metadados do cadastro
+        const meta = (u.user.user_metadata ?? {}) as Record<string, string>;
+        setS1((v) => ({
+          ...v,
+          nome_responsavel: meta.nome ?? meta.full_name ?? v.nome_responsavel,
+          whatsapp: meta.whatsapp ? maskPhone(meta.whatsapp) : v.whatsapp,
+        }));
       }
-      setS3((v) => ({ ...v, numero_whatsapp: u.user.user_metadata?.whatsapp ?? "" }));
+      setS3((v) => ({
+        ...v,
+        numero_whatsapp: u.user.user_metadata?.whatsapp
+          ? maskPhone(u.user.user_metadata.whatsapp)
+          : "",
+      }));
     })();
   }, [navigate]);
 
