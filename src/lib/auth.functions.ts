@@ -82,3 +82,81 @@ export const signInSuperAdminByWhatsApp = createServerFn({ method: "POST" })
       refresh_token: verified.session.refresh_token,
     };
   });
+
+const signupSchema = z.object({
+  whatsapp: z.string().min(10),
+  password: z.string().min(8).max(72),
+  nome: z.string().trim().min(2).max(120),
+  birth_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+
+export const signUpOrganizerByWhatsApp = createServerFn({ method: "POST" })
+  .inputValidator((data) => signupSchema.parse(data))
+  .handler(async ({ data }) => {
+    const whatsapp = normalizeWhatsApp(data.whatsapp);
+    if (whatsapp.length < 12) throw new Error("WhatsApp inválido.");
+
+    // Idade >= 18
+    const [y, m, d] = data.birth_date.split("-").map(Number);
+    const dob = new Date(y, m - 1, d);
+    const now = new Date();
+    let age = now.getFullYear() - dob.getFullYear();
+    const md = now.getMonth() - dob.getMonth();
+    if (md < 0 || (md === 0 && now.getDate() < dob.getDate())) age--;
+    if (age < 18) throw new Error("É necessário ter no mínimo 18 anos.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: allowed, error: rateError } = await supabaseAdmin.rpc("check_rate_limit", {
+      p_chave: whatsapp,
+      p_escopo: "signup_whatsapp",
+      p_max: 5,
+      p_janela_segundos: 600,
+    });
+    if (rateError) throw new Error("Falha ao validar cadastro.");
+    if (!allowed) throw new Error("Muitas tentativas. Aguarde alguns minutos.");
+
+    const email = `${whatsapp}@${WA_EMAIL_DOMAIN}`;
+
+    const { data: created, error: createError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password: data.password,
+      email_confirm: true,
+      user_metadata: { full_name: data.nome, whatsapp, birth_date: data.birth_date },
+    });
+    if (createError) {
+      const msg = (createError.message || "").toLowerCase();
+      if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
+        throw new Error("Este WhatsApp já está cadastrado. Faça login.");
+      }
+      throw new Error(createError.message || "Falha ao criar organizador.");
+    }
+    if (!created.user) throw new Error("Falha ao criar organizador.");
+
+    const { data: link, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: "magiclink",
+      email,
+    });
+    if (linkError || !link.properties?.hashed_token) {
+      throw new Error("Conta criada. Faça login para continuar.");
+    }
+
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabasePublic = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_PUBLISHABLE_KEY!,
+      { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
+    );
+    const { data: verified, error: verifyError } = await supabasePublic.auth.verifyOtp({
+      token_hash: link.properties.hashed_token,
+      type: "magiclink",
+    });
+    if (verifyError || !verified.session) {
+      throw new Error("Conta criada. Faça login para continuar.");
+    }
+
+    return {
+      access_token: verified.session.access_token,
+      refresh_token: verified.session.refresh_token,
+    };
+  });
