@@ -84,7 +84,7 @@ function Dashboard() {
                 />
                 Vai, Brasil! · Rumo ao Hexa 2026
               </div>
-              <h1 className="font-display text-4xl sm:text-6xl md:text-8xl lg:text-9xl leading-[0.9] uppercase bg-gradient-to-b from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
+              <h1 className="font-display text-4xl sm:text-6xl md:text-8xl lg:text-9xl leading-[0.9] uppercase text-white">
                 Bolão dos <br />
                 <span className="text-gradient-samba">Amigos Brasileiros</span>
               </h1>
