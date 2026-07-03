@@ -836,7 +836,7 @@ function FeaturedMatchCard({
             match.kickoff_at && (
               <span className="text-[11px] text-muted-foreground inline-flex items-center gap-1.5">
                 <Clock className="h-3 w-3" />
-                {format(new Date(match.kickoff_at), "EEE, dd MMM • HH:mm", { locale: ptBR })}
+                {formatBR(match.kickoff_at, "EEE, dd MMM • HH:mm")}
               </span>
             )
           )}
