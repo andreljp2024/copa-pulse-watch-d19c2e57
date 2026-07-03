@@ -316,30 +316,19 @@ function Onboarding() {
         <div className="rounded-2xl border border-border bg-card p-6">
           {step === 1 && (
             <Form
-              title="Dados do responsável / estabelecimento"
+              title="Confirme seu CPF"
               onSubmit={saveStep1}
               loading={loading}
             >
-              <Input
-                label="Nome do responsável"
-                value={s1.nome_responsavel}
-                onChange={(v) => setS1({ ...s1, nome_responsavel: v })}
-                required
-              />
+              <p className="text-sm text-muted-foreground">
+                Nome e WhatsApp já foram informados no cadastro. Só precisamos do seu CPF para continuar.
+              </p>
               <Input
                 label="CPF"
                 value={s1.cpf_cnpj}
                 onChange={(v) => setS1({ ...s1, cpf_cnpj: maskCpf(v) })}
                 placeholder="000.000.000-00"
                 inputMode="numeric"
-                required
-              />
-              <Input
-                label="WhatsApp (com DDD)"
-                value={s1.whatsapp}
-                onChange={(v) => setS1({ ...s1, whatsapp: maskPhone(v) })}
-                placeholder="(11) 99999-9999"
-                inputMode="tel"
                 required
               />
             </Form>
