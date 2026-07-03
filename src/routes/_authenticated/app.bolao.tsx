@@ -95,6 +95,7 @@ function BolaoConfigPage() {
   const saveBolaoFn = useServerFn(saveBolao);
   const syncApiFn = useServerFn(syncMatchesForTenant);
   const [syncing, setSyncing] = useState(false);
+  const [pixInfo, setPixInfo] = useState<{ nome_recebedor: string; chave_pix: string; banco: string | null; tipo_chave_pix: string | null } | null>(null);
 
   const shareUrl = useMemo(() => (form.slug ? publicBolaoUrl(form.slug) : ""), [form.slug]);
   const selectionDirty = useMemo(() => {
