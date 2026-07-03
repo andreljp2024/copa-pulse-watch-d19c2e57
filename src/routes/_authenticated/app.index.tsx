@@ -264,7 +264,7 @@ function Dashboard() {
     { label: "LTV do torcedor", value: brl(stats.ltv_torcedor), icon: Users, hint: "Arrecadado ÷ nº torcedores" },
     { label: "Arrecadado", value: brl(stats.arrecadado), icon: DollarSign },
     {
-      label: `Taxa admin (${stats.bolao?.percentual_admin ?? 30}%)`,
+      label: `Taxa de organização (${stats.bolao?.percentual_admin ?? 20}%)`,
       value: brl(stats.taxa_admin),
       icon: DollarSign,
     },
