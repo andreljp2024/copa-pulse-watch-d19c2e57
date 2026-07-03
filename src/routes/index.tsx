@@ -139,7 +139,7 @@ function Dashboard() {
                   BOLÃO
                 </h3>
                 <p className="relative mt-3 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-emerald-100/80">
-                  JUNTES SEUS AMIGOS E VENHA TORCER.
+                  JUNTE SEUS AMIGOS E VENHA TORCER.
                 </p>
               </Link>
             </div>
