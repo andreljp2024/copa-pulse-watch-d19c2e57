@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
-import { signInSuperAdminByWhatsApp } from "@/lib/auth.functions";
+import { signInSuperAdminByWhatsApp, signUpOrganizerByWhatsApp } from "@/lib/auth.functions";
 import { friendlyError } from "@/lib/errors";
 import { Trophy } from "lucide-react";
 import { toast } from "sonner";
@@ -59,6 +59,7 @@ function maskDate(v: string): string {
 function Page() {
   const navigate = useNavigate();
   const signInSuperAdmin = useServerFn(signInSuperAdminByWhatsApp);
+  const signUpOrganizer = useServerFn(signUpOrganizerByWhatsApp);
   const [mode, setMode] = useState<Mode>("login");
   const [whatsMasked, setWhatsMasked] = useState("");
   const [password, setPassword] = useState("");
@@ -149,6 +150,7 @@ function Page() {
     if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
     if (age < 18) {
       setBirthDate("");
+      (document.activeElement as HTMLElement | null)?.blur();
       setUnderageOpen(true);
       toast.error("⚠️ Cadastro bloqueado — menor de 18 anos", {
         description: "🚫 Fale com seu responsável.",
@@ -166,15 +168,36 @@ function Page() {
     }
     setLoading(true);
     try {
+      const birth = `${yyyy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
+      const signUpViaServer = async () => {
+        const session = await signUpOrganizer({
+          data: { whatsapp: `55${digits}`, password, nome, birth_date: birth },
+        });
+        const { error: setErr } = await supabase.auth.setSession(session);
+        if (setErr) throw setErr;
+      };
+
       const { error } = await supabase.auth.signUp({
         email: toSyntheticEmail(digits),
         password,
         options: {
           emailRedirectTo: window.location.origin,
-          data: { full_name: nome, whatsapp: `55${digits}`, birth_date: `${yyyy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}` },
+          data: { full_name: nome, whatsapp: `55${digits}`, birth_date: birth },
         },
       });
-      if (error) throw error;
+      if (error) {
+        const raw = `${error.code ?? ""} ${error.message ?? ""}`.toLowerCase();
+        if (
+          raw.includes("email_provider_disabled") ||
+          raw.includes("signups not allowed") ||
+          raw.includes("email logins are disabled")
+        ) {
+          await signUpViaServer();
+        } else {
+          throw error;
+        }
+      }
+
 
       const msg =
         `🆕 Novo organizador cadastrado no Bolão dos Amigos Brasileiros\n\n` +
