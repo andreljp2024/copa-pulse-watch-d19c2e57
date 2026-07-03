@@ -310,7 +310,7 @@ function PublicBolao() {
         linhas.push(`• ${fa} ${ptTeamName(home?.name)} ${it.palpite_a} x ${it.palpite_b} ${ptTeamName(away?.name)} ${fb}  (${protocolo})`);
       }
 
-      const dataHora = format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+      const dataHora = formatBR(new Date(), "dd/MM/yyyy 'às' HH:mm");
       const protocolosStr = protocolos.join(", ");
       const msg =
         `👤 Eu: ${form.nome}\n` +
