@@ -163,7 +163,7 @@ function Page() {
         password,
         options: {
           emailRedirectTo: window.location.origin,
-          data: { full_name: nome, whatsapp: `55${digits}`, birth_date: birthDate },
+          data: { full_name: nome, whatsapp: `55${digits}`, birth_date: `${yyyy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}` },
         },
       });
       if (error) throw error;
