@@ -48,7 +48,7 @@ function TeamBadge({ name, flag }: { name: string | null; flag: string | null })
           loading="lazy"
         />
       ) : null}
-      <span>{name ?? "?"}</span>
+      <span>{ptTeamName(name) || "?"}</span>
     </span>
   );
 }
