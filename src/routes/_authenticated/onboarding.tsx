@@ -4,11 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { slugify, DEFAULT_TEMPLATES } from "@/lib/saas";
 import {
   maskPhone,
-  maskCpfCnpj,
+  maskCpf,
   maskCep,
   onlyDigits,
   fetchCep,
-  isValidCpfCnpj,
+  isValidCpf,
   isValidPhoneBR,
 } from "@/lib/masks";
 import { Check, ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
