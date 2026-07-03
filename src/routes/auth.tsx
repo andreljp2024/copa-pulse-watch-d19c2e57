@@ -149,6 +149,7 @@ function Page() {
     if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
     if (age < 18) {
       setBirthDate("");
+      (document.activeElement as HTMLElement | null)?.blur();
       setUnderageOpen(true);
       toast.error("⚠️ Cadastro bloqueado — menor de 18 anos", {
         description: "🚫 Fale com seu responsável.",
