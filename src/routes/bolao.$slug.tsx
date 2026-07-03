@@ -10,8 +10,7 @@ import { buildPixPayload } from "@/lib/pix";
 import { ptTeamName } from "@/components/MatchCard";
 import { flagEmoji } from "@/lib/flag";
 import { Trophy, MessageCircle, Loader2, Copy, Check, ListOrdered, Clock, Users, Flame, Sparkles, MapPin, Search, Share2, Link as LinkIcon, Medal, Coins } from "lucide-react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { formatBR } from "@/lib/timezone";
 
 type Match = {
   id: string;
