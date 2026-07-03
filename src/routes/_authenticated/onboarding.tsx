@@ -135,9 +135,9 @@ function Onboarding() {
         return;
       }
       const payload = {
-        nome_responsavel: s1.nome_responsavel.trim(),
-        nome_estabelecimento: s1.nome_responsavel.trim(),
-        whatsapp: onlyDigits(s1.whatsapp),
+        nome_responsavel: nome,
+        nome_estabelecimento: nome,
+        whatsapp: whatsappDigits,
         cpf_cnpj: onlyDigits(s1.cpf_cnpj),
         owner_user_id: u.user.id,
         email: u.user.email ?? "",
