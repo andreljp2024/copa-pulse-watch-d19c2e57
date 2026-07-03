@@ -1596,13 +1596,21 @@ export type Database = {
       }
       get_dashboard_organizador: {
         Args: never
-        Returns: unknown[]
-        SetofOptions: {
-          from: "*"
-          to: "mv_dashboard_organizador"
-          isOneToOne: false
-          isSetofReturn: true
-        }
+        Returns: {
+          boloes_ativos: number
+          palpites_7d: number
+          palpites_pagos: number
+          palpites_pendentes: number
+          receita_paga: number
+          receita_pendente: number
+          refreshed_at: string
+          tenant_id: string
+          torcedores_bloqueados: number
+          total_boloes: number
+          total_ganhadores: number
+          total_palpites: number
+          total_torcedores: number
+        }[]
       }
       has_role: {
         Args: {
