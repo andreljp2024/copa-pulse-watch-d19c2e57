@@ -199,15 +199,41 @@ GitHub.
 
 ## 7. Domínio personalizado
 
-1. **Project Settings → Domains → Connect Domain**.
-2. Insira o domínio (ex.: `meubolao.com.br`).
-3. Configure no seu registrador:
-   - `A` @ → `185.158.133.1`
-   - `A` www → `185.158.133.1`
-   - `TXT` `_lovable` → valor fornecido pelo Lovable
-4. Aguarde propagação DNS (até 72h). SSL é provisionado automaticamente.
+### 7.1 Produção oficial — `bolao.ai.slz.br`
 
-> Se usar Cloudflare em modo proxy, marque **Advanced → "Domain uses Cloudflare or a similar proxy"** para usar verificação por CNAME.
+Domínio oficial de produção: **https://bolao.ai.slz.br**
+
+Passo a passo (registrador do domínio `slz.br`):
+
+1. No editor Lovable, abra **Project Settings → Domains → Connect Domain** e insira `bolao.ai.slz.br`.
+2. Lovable exibirá dois registros. Como é um subdomínio de terceiro nível, use o **host** `bolao.ai` na zona DNS de `slz.br`:
+
+   | Tipo  | Host (name)      | Valor                       | TTL  |
+   | ----- | ---------------- | --------------------------- | ---- |
+   | `A`   | `bolao.ai`       | `185.158.133.1`             | 3600 |
+   | `TXT` | `_lovable.bolao.ai` | `lovable_verify=...` (Lovable) | 3600 |
+
+   > Se o registrador exigir FQDN, use `bolao.ai.slz.br` e `_lovable.bolao.ai.slz.br`.
+   > **Não** crie registro `www` — este é um subdomínio, não um domínio raiz.
+
+3. Se `slz.br` estiver atrás de **Cloudflare** (ou proxy semelhante), marque
+   **Advanced → "Domain uses Cloudflare or a similar proxy"** antes de salvar
+   no Lovable — a verificação passa a ser via `CNAME` em vez de `A`.
+4. Aguarde propagação DNS (5min–72h). Confira com
+   `dig bolao.ai.slz.br +short` (deve retornar `185.158.133.1`).
+5. O SSL (Let's Encrypt) é provisionado automaticamente. O status na tela de
+   Domains passa por `Verifying → Setting up → Active`.
+6. Marque `bolao.ai.slz.br` como **Primary** para que a URL `*.lovable.app`
+   redirecione para o domínio final.
+7. Após o status `Active`, publique novamente (**Publish → Update**) para
+   propagar a build atual para produção.
+
+### 7.2 Outros domínios
+
+Para conectar qualquer outro domínio (raiz ou subdomínio), repita o fluxo
+acima ajustando os registros conforme instrução do painel do Lovable.
+
+
 
 ---
 
@@ -250,7 +276,8 @@ Configure todas as variáveis da seção [3](#3-variáveis-de-ambiente) no prove
 - [ ] Secrets configurados (`FOOTBALL_API_KEY`, etc.).
 - [ ] Provider Google OAuth configurado se houver login social.
 - [ ] Scan de segurança executado (**Project Settings → Security**).
-- [ ] Domínio customizado conectado (se aplicável).
+- [ ] Domínio de produção `bolao.ai.slz.br` conectado, marcado como Primary e SSL ativo.
+- [ ] `robots.txt` e `sitemap.xml` apontando para `https://bolao.ai.slz.br`.
 - [ ] Backup/export de dados antes de migrações destrutivas.
 
 ---
