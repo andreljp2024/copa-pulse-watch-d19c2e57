@@ -113,26 +113,31 @@ function Onboarding() {
 
   async function saveStep1() {
     setError(null);
-    if (!s1.nome_responsavel.trim()) {
-      setError("Informe o nome do responsável.");
-      return;
-    }
     if (!isValidCpf(s1.cpf_cnpj)) {
       setError("CPF inválido.");
-      return;
-    }
-    if (!isValidPhoneBR(s1.whatsapp)) {
-      setError("WhatsApp inválido — informe DDD + número.");
       return;
     }
     setLoading(true);
     try {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Sessão expirada");
+      const meta = (u.user.user_metadata ?? {}) as Record<string, string>;
+      const nome = (s1.nome_responsavel || meta.nome || meta.full_name || "").trim();
+      const whatsappDigits = onlyDigits(s1.whatsapp || meta.whatsapp || "");
+      if (!nome) {
+        setError("Nome não encontrado no cadastro. Contate o suporte.");
+        setLoading(false);
+        return;
+      }
+      if (!isValidPhoneBR(whatsappDigits)) {
+        setError("WhatsApp não encontrado no cadastro. Contate o suporte.");
+        setLoading(false);
+        return;
+      }
       const payload = {
-        nome_responsavel: s1.nome_responsavel.trim(),
-        nome_estabelecimento: s1.nome_responsavel.trim(),
-        whatsapp: onlyDigits(s1.whatsapp),
+        nome_responsavel: nome,
+        nome_estabelecimento: nome,
+        whatsapp: whatsappDigits,
         cpf_cnpj: onlyDigits(s1.cpf_cnpj),
         owner_user_id: u.user.id,
         email: u.user.email ?? "",
@@ -311,30 +316,19 @@ function Onboarding() {
         <div className="rounded-2xl border border-border bg-card p-6">
           {step === 1 && (
             <Form
-              title="Dados do responsável / estabelecimento"
+              title="Confirme seu CPF"
               onSubmit={saveStep1}
               loading={loading}
             >
-              <Input
-                label="Nome do responsável"
-                value={s1.nome_responsavel}
-                onChange={(v) => setS1({ ...s1, nome_responsavel: v })}
-                required
-              />
+              <p className="text-sm text-muted-foreground">
+                Nome e WhatsApp já foram informados no cadastro. Só precisamos do seu CPF para continuar.
+              </p>
               <Input
                 label="CPF"
                 value={s1.cpf_cnpj}
                 onChange={(v) => setS1({ ...s1, cpf_cnpj: maskCpf(v) })}
                 placeholder="000.000.000-00"
                 inputMode="numeric"
-                required
-              />
-              <Input
-                label="WhatsApp (com DDD)"
-                value={s1.whatsapp}
-                onChange={(v) => setS1({ ...s1, whatsapp: maskPhone(v) })}
-                placeholder="(11) 99999-9999"
-                inputMode="tel"
                 required
               />
             </Form>
