@@ -89,7 +89,7 @@ function PixConfigPage() {
     banco: "",
     cidade: "",
     valor_padrao_palpite: 10,
-    instrucoes_pagamento: "",
+    instrucoes_pagamento: MODELO_INSTRUCOES,
     numero_recebedor_whatsapp: "",
   });
   const [saving, setSaving] = useState(false);
