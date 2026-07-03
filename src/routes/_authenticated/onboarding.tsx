@@ -153,7 +153,7 @@ function Onboarding() {
       const { error } = await supabase
         .from("tenant_whatsapp_config")
         .upsert(
-          { tenant_id: tenantId, ...s3, numero_whatsapp: onlyDigits(s3.numero_whatsapp) },
+          { tenant_id: tenantId, ...s3, numero_whatsapp: "55" + onlyDigits(s3.numero_whatsapp) },
           { onConflict: "tenant_id" },
         );
       if (error) throw error;
