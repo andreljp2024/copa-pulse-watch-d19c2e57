@@ -87,6 +87,13 @@ export type Database = {
             foreignKeyName: "assinaturas_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
+            referencedRelation: "mv_dashboard_organizador"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "assinaturas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
@@ -188,6 +195,13 @@ export type Database = {
             foreignKeyName: "boloes_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
+            referencedRelation: "mv_dashboard_organizador"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "boloes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
@@ -272,6 +286,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "palpites"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ganhadores_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "mv_dashboard_organizador"
+            referencedColumns: ["tenant_id"]
           },
           {
             foreignKeyName: "ganhadores_tenant_id_fkey"
@@ -694,6 +715,13 @@ export type Database = {
             foreignKeyName: "notification_queue_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
+            referencedRelation: "mv_dashboard_organizador"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "notification_queue_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
@@ -800,6 +828,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "matches"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "palpites_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "mv_dashboard_organizador"
+            referencedColumns: ["tenant_id"]
           },
           {
             foreignKeyName: "palpites_tenant_id_fkey"
@@ -1214,6 +1249,13 @@ export type Database = {
             foreignKeyName: "tenant_pix_config_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: true
+            referencedRelation: "mv_dashboard_organizador"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "tenant_pix_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
@@ -1266,6 +1308,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tenant_whatsapp_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "mv_dashboard_organizador"
+            referencedColumns: ["tenant_id"]
+          },
           {
             foreignKeyName: "tenant_whatsapp_config_tenant_id_fkey"
             columns: ["tenant_id"]
@@ -1384,6 +1433,13 @@ export type Database = {
             foreignKeyName: "torcedores_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
+            referencedRelation: "mv_dashboard_organizador"
+            referencedColumns: ["tenant_id"]
+          },
+          {
+            foreignKeyName: "torcedores_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
@@ -1432,6 +1488,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      mv_dashboard_organizador: {
+        Row: {
+          boloes_ativos: number | null
+          palpites_7d: number | null
+          palpites_pagos: number | null
+          palpites_pendentes: number | null
+          receita_paga: number | null
+          receita_pendente: number | null
+          refreshed_at: string | null
+          tenant_id: string | null
+          torcedores_bloqueados: number | null
+          total_boloes: number | null
+          total_ganhadores: number | null
+          total_palpites: number | null
+          total_torcedores: number | null
+        }
+        Relationships: []
       }
       mv_ranking_torcedores: {
         Row: {
@@ -1586,6 +1660,30 @@ export type Database = {
           total: number
         }[]
       }
+      get_dashboard_organizador: {
+        Args: never
+        Returns: {
+          boloes_ativos: number | null
+          palpites_7d: number | null
+          palpites_pagos: number | null
+          palpites_pendentes: number | null
+          receita_paga: number | null
+          receita_pendente: number | null
+          refreshed_at: string | null
+          tenant_id: string | null
+          torcedores_bloqueados: number | null
+          total_boloes: number | null
+          total_ganhadores: number | null
+          total_palpites: number | null
+          total_torcedores: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "mv_dashboard_organizador"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1593,7 +1691,26 @@ export type Database = {
         }
         Returns: boolean
       }
+      list_fraud_signals: {
+        Args: never
+        Returns: {
+          bloqueado: boolean
+          bolao_id: string
+          bolao_nome: string
+          nome: string
+          pendentes: number
+          torcedor_id: string
+          total_palpites: number
+          ultimos_10min: number
+          whatsapp: string
+        }[]
+      }
+      refresh_dashboard_organizador: { Args: never; Returns: undefined }
       refresh_ranking: { Args: never; Returns: undefined }
+      set_torcedor_bloqueado: {
+        Args: { p_bloqueado: boolean; p_torcedor_id: string }
+        Returns: undefined
+      }
       submit_palpite: {
         Args: {
           p_bolao_id: string

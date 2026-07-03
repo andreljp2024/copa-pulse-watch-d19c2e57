@@ -33,6 +33,7 @@ import { Route as BolaoSlugRankingRouteImport } from './routes/bolao.$slug.ranki
 import { Route as AuthV1SplatRouteImport } from './routes/auth/v1/$'
 import { Route as AuthenticatedAppWhatsappRouteImport } from './routes/_authenticated/app.whatsapp'
 import { Route as AuthenticatedAppTorcedoresRouteImport } from './routes/_authenticated/app.torcedores'
+import { Route as AuthenticatedAppSegurancaRouteImport } from './routes/_authenticated/app.seguranca'
 import { Route as AuthenticatedAppPixRouteImport } from './routes/_authenticated/app.pix'
 import { Route as AuthenticatedAppPalpitesRouteImport } from './routes/_authenticated/app.palpites'
 import { Route as AuthenticatedAppGestoresRouteImport } from './routes/_authenticated/app.gestores'
@@ -164,6 +165,12 @@ const AuthenticatedAppTorcedoresRoute =
     path: '/torcedores',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppSegurancaRoute =
+  AuthenticatedAppSegurancaRouteImport.update({
+    id: '/seguranca',
+    path: '/seguranca',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppPixRoute = AuthenticatedAppPixRouteImport.update({
   id: '/pix',
   path: '/pix',
@@ -242,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/app/gestores': typeof AuthenticatedAppGestoresRoute
   '/app/palpites': typeof AuthenticatedAppPalpitesRoute
   '/app/pix': typeof AuthenticatedAppPixRoute
+  '/app/seguranca': typeof AuthenticatedAppSegurancaRoute
   '/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
   '/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
   '/auth/v1/$': typeof AuthV1SplatRoute
@@ -275,6 +283,7 @@ export interface FileRoutesByTo {
   '/app/gestores': typeof AuthenticatedAppGestoresRoute
   '/app/palpites': typeof AuthenticatedAppPalpitesRoute
   '/app/pix': typeof AuthenticatedAppPixRoute
+  '/app/seguranca': typeof AuthenticatedAppSegurancaRoute
   '/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
   '/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
   '/auth/v1/$': typeof AuthV1SplatRoute
@@ -311,6 +320,7 @@ export interface FileRoutesById {
   '/_authenticated/app/gestores': typeof AuthenticatedAppGestoresRoute
   '/_authenticated/app/palpites': typeof AuthenticatedAppPalpitesRoute
   '/_authenticated/app/pix': typeof AuthenticatedAppPixRoute
+  '/_authenticated/app/seguranca': typeof AuthenticatedAppSegurancaRoute
   '/_authenticated/app/torcedores': typeof AuthenticatedAppTorcedoresRoute
   '/_authenticated/app/whatsapp': typeof AuthenticatedAppWhatsappRoute
   '/auth/v1/$': typeof AuthV1SplatRoute
@@ -347,6 +357,7 @@ export interface FileRouteTypes {
     | '/app/gestores'
     | '/app/palpites'
     | '/app/pix'
+    | '/app/seguranca'
     | '/app/torcedores'
     | '/app/whatsapp'
     | '/auth/v1/$'
@@ -380,6 +391,7 @@ export interface FileRouteTypes {
     | '/app/gestores'
     | '/app/palpites'
     | '/app/pix'
+    | '/app/seguranca'
     | '/app/torcedores'
     | '/app/whatsapp'
     | '/auth/v1/$'
@@ -415,6 +427,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/gestores'
     | '/_authenticated/app/palpites'
     | '/_authenticated/app/pix'
+    | '/_authenticated/app/seguranca'
     | '/_authenticated/app/torcedores'
     | '/_authenticated/app/whatsapp'
     | '/auth/v1/$'
@@ -616,6 +629,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppTorcedoresRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/seguranca': {
+      id: '/_authenticated/app/seguranca'
+      path: '/seguranca'
+      fullPath: '/app/seguranca'
+      preLoaderRoute: typeof AuthenticatedAppSegurancaRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/pix': {
       id: '/_authenticated/app/pix'
       path: '/pix'
@@ -689,6 +709,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppGestoresRoute: typeof AuthenticatedAppGestoresRoute
   AuthenticatedAppPalpitesRoute: typeof AuthenticatedAppPalpitesRoute
   AuthenticatedAppPixRoute: typeof AuthenticatedAppPixRoute
+  AuthenticatedAppSegurancaRoute: typeof AuthenticatedAppSegurancaRoute
   AuthenticatedAppTorcedoresRoute: typeof AuthenticatedAppTorcedoresRoute
   AuthenticatedAppWhatsappRoute: typeof AuthenticatedAppWhatsappRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
@@ -701,6 +722,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppGestoresRoute: AuthenticatedAppGestoresRoute,
   AuthenticatedAppPalpitesRoute: AuthenticatedAppPalpitesRoute,
   AuthenticatedAppPixRoute: AuthenticatedAppPixRoute,
+  AuthenticatedAppSegurancaRoute: AuthenticatedAppSegurancaRoute,
   AuthenticatedAppTorcedoresRoute: AuthenticatedAppTorcedoresRoute,
   AuthenticatedAppWhatsappRoute: AuthenticatedAppWhatsappRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
@@ -782,13 +804,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
