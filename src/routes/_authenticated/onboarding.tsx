@@ -197,12 +197,28 @@ function Onboarding() {
 
   async function saveStep2() {
     if (!tenantId) return;
-    setLoading(true);
     setError(null);
+    if (!s2.nome_recebedor.trim()) {
+      setError("Informe o nome do recebedor.");
+      return;
+    }
+    if (!isValidChavePix(s2.tipo_chave_pix, s2.chave_pix)) {
+      setError("Chave Pix inválida para o tipo selecionado.");
+      return;
+    }
+    if (!(s2.valor_padrao_palpite > 0)) {
+      setError("Valor padrão do palpite deve ser maior que zero.");
+      return;
+    }
+    setLoading(true);
     try {
+      const chave =
+        s2.tipo_chave_pix === "cpf" || s2.tipo_chave_pix === "cnpj" || s2.tipo_chave_pix === "telefone"
+          ? onlyDigits(s2.chave_pix)
+          : s2.chave_pix.trim();
       const { error } = await supabase
         .from("tenant_pix_config")
-        .upsert({ tenant_id: tenantId, ...s2 }, { onConflict: "tenant_id" });
+        .upsert({ tenant_id: tenantId, ...s2, chave_pix: chave }, { onConflict: "tenant_id" });
       if (error) throw error;
       setStep(3);
     } catch (e) {
@@ -214,8 +230,12 @@ function Onboarding() {
 
   async function saveStep3() {
     if (!tenantId) return;
-    setLoading(true);
     setError(null);
+    if (!isValidPhoneBR(s3.numero_whatsapp)) {
+      setError("Número de WhatsApp inválido.");
+      return;
+    }
+    setLoading(true);
     try {
       const { error } = await supabase
         .from("tenant_whatsapp_config")
@@ -234,13 +254,36 @@ function Onboarding() {
 
   async function saveStep4() {
     if (!tenantId) return;
-    setLoading(true);
     setError(null);
+    if (!s4.nome.trim()) {
+      setError("Informe o nome do bolão.");
+      return;
+    }
+    const slug = slugify(s4.slug || s4.nome);
+    if (slug.length < 3) {
+      setError("Slug inválido — use ao menos 3 caracteres.");
+      return;
+    }
+    if (!(s4.valor_palpite > 0)) {
+      setError("Valor do palpite deve ser maior que zero.");
+      return;
+    }
+    setLoading(true);
     try {
-      const slug = s4.slug || slugify(s4.nome);
+      // Checagem de unicidade do slug
+      const { data: existing } = await supabase
+        .from("boloes")
+        .select("id")
+        .eq("slug", slug)
+        .limit(1);
+      if (existing && existing.length > 0) {
+        setError("Este slug já está em uso. Escolha outro.");
+        setLoading(false);
+        return;
+      }
       const { error } = await supabase.from("boloes").insert({
         tenant_id: tenantId,
-        nome: s4.nome,
+        nome: s4.nome.trim(),
         slug,
         descricao: s4.descricao,
         valor_palpite: s4.valor_palpite,
@@ -253,6 +296,15 @@ function Onboarding() {
       setLoading(false);
     }
   }
+
+  // Ao entrar no step 2, pré-preenche cidade a partir do endereço
+  useEffect(() => {
+    if (step === 2 && !s2.cidade && s1.cidade) {
+      setS2((v) => ({ ...v, cidade: s1.cidade }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
 
   return (
     <div className="min-h-screen bg-muted/20 py-10">
