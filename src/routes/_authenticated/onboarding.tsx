@@ -4,11 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { slugify, DEFAULT_TEMPLATES } from "@/lib/saas";
 import {
   maskPhone,
-  maskCpfCnpj,
+  maskCpf,
   maskCep,
   onlyDigits,
   fetchCep,
-  isValidCpfCnpj,
+  isValidCpf,
   isValidPhoneBR,
 } from "@/lib/masks";
 import { Check, ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
@@ -41,7 +41,6 @@ function Onboarding() {
   // Step 1
   const [s1, setS1] = useState({
     nome_responsavel: "",
-    nome_estabelecimento: "",
     cpf_cnpj: "",
     whatsapp: "",
     cep: "",
@@ -101,14 +100,14 @@ function Onboarding() {
       if (!u.user) return;
       const { data: t } = await supabase
         .from("tenants")
-        .select("id, nome_estabelecimento, whatsapp, cidade, estado")
+        .select("id, nome_responsavel, whatsapp, cidade, estado")
         .eq("owner_user_id", u.user.id)
         .maybeSingle();
       if (t) {
         setTenantId(t.id);
         setS1((v) => ({
           ...v,
-          nome_estabelecimento: t.nome_estabelecimento ?? "",
+          nome_responsavel: t.nome_responsavel ?? v.nome_responsavel,
           whatsapp: t.whatsapp ? maskPhone(t.whatsapp) : "",
           cidade: t.cidade ?? "",
           estado: t.estado ?? "",
@@ -146,8 +145,12 @@ function Onboarding() {
 
   async function saveStep1() {
     setError(null);
-    if (!isValidCpfCnpj(s1.cpf_cnpj)) {
-      setError("CPF ou CNPJ inválido.");
+    if (!s1.nome_responsavel.trim()) {
+      setError("Informe o nome do responsável.");
+      return;
+    }
+    if (!isValidCpf(s1.cpf_cnpj)) {
+      setError("CPF inválido.");
       return;
     }
     if (!isValidPhoneBR(s1.whatsapp)) {
@@ -168,6 +171,7 @@ function Onboarding() {
       if (!u.user) throw new Error("Sessão expirada");
       const payload = {
         ...s1,
+        nome_estabelecimento: s1.nome_responsavel.trim(),
         whatsapp: onlyDigits(s1.whatsapp),
         cpf_cnpj: onlyDigits(s1.cpf_cnpj),
         cep: onlyDigits(s1.cep),
@@ -359,15 +363,9 @@ function Onboarding() {
                 required
               />
               <Input
-                label="Nome do estabelecimento ou bolão"
-                value={s1.nome_estabelecimento}
-                onChange={(v) => setS1({ ...s1, nome_estabelecimento: v })}
-                required
-              />
-              <Input
-                label="CPF ou CNPJ"
+                label="CPF"
                 value={s1.cpf_cnpj}
-                onChange={(v) => setS1({ ...s1, cpf_cnpj: maskCpfCnpj(v) })}
+                onChange={(v) => setS1({ ...s1, cpf_cnpj: maskCpf(v) })}
                 placeholder="000.000.000-00"
                 inputMode="numeric"
                 required

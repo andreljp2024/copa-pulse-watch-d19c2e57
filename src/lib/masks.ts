@@ -10,6 +10,13 @@ export function maskPhone(v: string): string {
   return d.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, "($1) $2-$3");
 }
 
+export function maskCpf(v: string): string {
+  const d = onlyDigits(v).slice(0, 11);
+  return d.replace(/^(\d{0,3})(\d{0,3})(\d{0,3})(\d{0,2}).*/, (_, a, b, c, e) =>
+    [a, b && `.${b}`, c && `.${c}`, e && `-${e}`].filter(Boolean).join(""),
+  );
+}
+
 export function maskCpfCnpj(v: string): string {
   const d = onlyDigits(v).slice(0, 14);
   if (d.length <= 11) {
