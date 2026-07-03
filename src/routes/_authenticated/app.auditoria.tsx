@@ -196,7 +196,7 @@ function AuditoriaPage() {
                 {filtered.map((r) => (
                   <tr key={r.id} className="border-b border-border/40 hover:bg-accent/5">
                     <td className="py-2 px-2 whitespace-nowrap text-muted-foreground">
-                      {formatDateTimeBR(r.created_at)}
+                      {formatBRFull(r.created_at)}
                     </td>
                     <td className="py-2 px-2 truncate max-w-[220px]">
                       {r.actor_email ?? <span className="text-muted-foreground">sistema</span>}
