@@ -145,8 +145,12 @@ function Onboarding() {
 
   async function saveStep1() {
     setError(null);
-    if (!isValidCpfCnpj(s1.cpf_cnpj)) {
-      setError("CPF ou CNPJ inválido.");
+    if (!s1.nome_responsavel.trim()) {
+      setError("Informe o nome do responsável.");
+      return;
+    }
+    if (!isValidCpf(s1.cpf_cnpj)) {
+      setError("CPF inválido.");
       return;
     }
     if (!isValidPhoneBR(s1.whatsapp)) {
@@ -167,6 +171,7 @@ function Onboarding() {
       if (!u.user) throw new Error("Sessão expirada");
       const payload = {
         ...s1,
+        nome_estabelecimento: s1.nome_responsavel.trim(),
         whatsapp: onlyDigits(s1.whatsapp),
         cpf_cnpj: onlyDigits(s1.cpf_cnpj),
         cep: onlyDigits(s1.cep),
