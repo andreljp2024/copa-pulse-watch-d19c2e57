@@ -199,6 +199,13 @@ function BolaoConfigPage() {
         setSelectedMatchIds(ids);
         setInitialSelectedIds(ids);
       }
+      // Carrega dados do Pix (destino do recebimento)
+      const pixRes = await supabase
+        .from("tenant_pix_config")
+        .select("nome_recebedor, chave_pix, banco, tipo_chave_pix")
+        .eq("tenant_id", t.id)
+        .maybeSingle();
+      if (pixRes.data) setPixInfo(pixRes.data as any);
       await loadMatches();
     })();
   }, []);
