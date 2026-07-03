@@ -113,22 +113,27 @@ function Onboarding() {
 
   async function saveStep1() {
     setError(null);
-    if (!s1.nome_responsavel.trim()) {
-      setError("Informe o nome do responsável.");
-      return;
-    }
     if (!isValidCpf(s1.cpf_cnpj)) {
       setError("CPF inválido.");
-      return;
-    }
-    if (!isValidPhoneBR(s1.whatsapp)) {
-      setError("WhatsApp inválido — informe DDD + número.");
       return;
     }
     setLoading(true);
     try {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Sessão expirada");
+      const meta = (u.user.user_metadata ?? {}) as Record<string, string>;
+      const nome = (s1.nome_responsavel || meta.nome || meta.full_name || "").trim();
+      const whatsappDigits = onlyDigits(s1.whatsapp || meta.whatsapp || "");
+      if (!nome) {
+        setError("Nome não encontrado no cadastro. Contate o suporte.");
+        setLoading(false);
+        return;
+      }
+      if (!isValidPhoneBR(whatsappDigits)) {
+        setError("WhatsApp não encontrado no cadastro. Contate o suporte.");
+        setLoading(false);
+        return;
+      }
       const payload = {
         nome_responsavel: s1.nome_responsavel.trim(),
         nome_estabelecimento: s1.nome_responsavel.trim(),
