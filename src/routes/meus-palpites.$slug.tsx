@@ -169,6 +169,7 @@ function MeusPalpitesPage() {
 
         {searched && rows && rows.length > 0 && (
           <div className="space-y-4">
+            <PushToggle torcedor_id={rows[0].torcedor_id} bolao_id={rows[0].bolao_id} />
             {ganhadores.length > 0 ? (
               <div className="relative overflow-hidden rounded-2xl border border-accent/40 bg-gradient-gold p-6 shadow-gold">
                 <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/20 blur-2xl" />
