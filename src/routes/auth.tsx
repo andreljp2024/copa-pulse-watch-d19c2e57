@@ -105,6 +105,23 @@ function Page() {
       setError("Você precisa confirmar o termo antes de se cadastrar.");
       return;
     }
+    if (!birthDate) {
+      setError("Informe sua data de nascimento.");
+      return;
+    }
+    const dob = new Date(birthDate);
+    if (Number.isNaN(dob.getTime())) {
+      setError("Data de nascimento inválida.");
+      return;
+    }
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+    if (age < 18) {
+      setError("Você precisa ter no mínimo 18 anos para se cadastrar.");
+      return;
+    }
     if (password.length < 8) {
       setError("A senha deve ter ao menos 8 caracteres.");
       return;
