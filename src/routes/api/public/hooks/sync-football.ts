@@ -23,8 +23,11 @@ export const Route = createFileRoute("/api/public/hooks/sync-football")({
 
 
         try {
-          const { syncFootballData } = await import("@/lib/football-sync.server");
-          const result = await syncFootballData("cron:pg_cron");
+          // Estratégia unificada: worldcup26.ir primária, football-data.org
+          // fallback. Executar uma única API por ciclo evita duplicidade
+          // em `matches` (kickoff_at diverge entre as fontes).
+          const { syncMatchesUnified } = await import("@/lib/sync-with-fallback.server");
+          const result = await syncMatchesUnified("cron:pg_cron");
           return new Response(JSON.stringify({ ok: true, result }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
