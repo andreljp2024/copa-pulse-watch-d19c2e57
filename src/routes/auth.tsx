@@ -45,6 +45,7 @@ function Page() {
   const [whatsMasked, setWhatsMasked] = useState("");
   const [password, setPassword] = useState("");
   const [nome, setNome] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -104,6 +105,23 @@ function Page() {
       setError("Você precisa confirmar o termo antes de se cadastrar.");
       return;
     }
+    if (!birthDate) {
+      setError("Informe sua data de nascimento.");
+      return;
+    }
+    const dob = new Date(birthDate);
+    if (Number.isNaN(dob.getTime())) {
+      setError("Data de nascimento inválida.");
+      return;
+    }
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+    if (age < 18) {
+      setError("Você precisa ter no mínimo 18 anos para se cadastrar.");
+      return;
+    }
     if (password.length < 8) {
       setError("A senha deve ter ao menos 8 caracteres.");
       return;
@@ -120,7 +138,7 @@ function Page() {
         password,
         options: {
           emailRedirectTo: window.location.origin,
-          data: { full_name: nome, whatsapp: `55${digits}` },
+          data: { full_name: nome, whatsapp: `55${digits}`, birth_date: birthDate },
         },
       });
       if (error) throw error;
@@ -198,6 +216,19 @@ function Page() {
                     onChange={(e) => setNome(e.target.value)}
                     className="w-full h-11 rounded-lg border border-border bg-background px-3"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Data de nascimento</label>
+                  <input
+                    type="date"
+                    required
+                    value={birthDate}
+                    max={new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)}
+                    min="1900-01-01"
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    className="w-full h-11 rounded-lg border border-border bg-background px-3"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">É necessário ter no mínimo 18 anos.</p>
                 </div>
               </>
             )}
