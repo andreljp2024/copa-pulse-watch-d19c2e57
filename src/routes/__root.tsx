@@ -125,22 +125,6 @@ function RootShell({ children }: { children: ReactNode }) {
       <body suppressHydrationWarning>
         {children}
         <Scripts />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ("serviceWorker" in navigator) {
-                navigator.serviceWorker.getRegistrations()
-                  .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
-                  .catch(() => {});
-              }
-              if ("caches" in window) {
-                caches.keys()
-                  .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
-                  .catch(() => {});
-              }
-            `,
-          }}
-        />
       </body>
     </html>
   );
