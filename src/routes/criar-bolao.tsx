@@ -220,11 +220,6 @@ function LandingPage() {
               <p className="mt-1 text-sm text-muted-foreground">
                 Para bolões acima de {LIMITE_PALPITES_FREE} palpites, fale direto no WhatsApp.
               </p>
-              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                👍 O Dev é especialista em <strong>redes de computadores</strong> e
-                {" "}<strong>consultoria no segmento</strong>, atendendo o
-                {" "}<strong>mercado corporativo</strong>.
-              </p>
               <ul className="mt-4 flex-1 space-y-2 text-sm">
                 {[
                   "Limites maiores de palpites",
