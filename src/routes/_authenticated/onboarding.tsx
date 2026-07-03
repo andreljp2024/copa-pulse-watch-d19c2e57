@@ -11,23 +11,12 @@ import {
 } from "@/lib/masks";
 import { Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
-function isValidChavePix(tipo: string, chave: string): boolean {
-  const v = (chave || "").trim();
-  if (!v) return false;
-  if (tipo === "cpf") return onlyDigits(v).length === 11;
-  if (tipo === "cnpj") return onlyDigits(v).length === 14;
-  if (tipo === "telefone") return isValidPhoneBR(v);
-  if (tipo === "email") return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-  if (tipo === "aleatoria") return v.length >= 20;
-  return true;
-}
-
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({ meta: [{ title: "Configurar meu bolão" }] }),
   component: Onboarding,
 });
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3;
 
 function Onboarding() {
   const navigate = useNavigate();
@@ -42,17 +31,7 @@ function Onboarding() {
     cpf_cnpj: "",
     whatsapp: "",
   });
-  // Step 2
-  const [s2, setS2] = useState({
-    nome_recebedor: "",
-    tipo_chave_pix: "cpf",
-    chave_pix: "",
-    banco: "",
-    cidade: "",
-    valor_padrao_palpite: 10,
-    instrucoes_pagamento: "",
-  });
-  // Step 3
+  // Step 2 (WhatsApp)
   const [s3, setS3] = useState({
     numero_whatsapp: "",
     mensagem_novo_palpite: DEFAULT_TEMPLATES.novo_palpite,
@@ -60,7 +39,7 @@ function Onboarding() {
     mensagem_ganhador: DEFAULT_TEMPLATES.ganhador,
     mensagem_lembrete_pagamento: DEFAULT_TEMPLATES.lembrete_pagamento,
   });
-  // Step 4
+  // Step 3 (Bolão)
   const [s4, setS4] = useState({ nome: "", slug: "", descricao: "", valor_palpite: 10 });
 
   // Already onboarded? redirect
@@ -81,8 +60,7 @@ function Onboarding() {
           whatsapp: t.whatsapp ? maskPhone(t.whatsapp) : "",
         }));
         // Retomada inteligente: pula para o passo pendente
-        const [{ data: pix }, { data: wa }, { data: bo }] = await Promise.all([
-          supabase.from("tenant_pix_config").select("tenant_id").eq("tenant_id", t.id).maybeSingle(),
+        const [{ data: wa }, { data: bo }] = await Promise.all([
           supabase.from("tenant_whatsapp_config").select("tenant_id").eq("tenant_id", t.id).maybeSingle(),
           supabase.from("boloes").select("id").eq("tenant_id", t.id).limit(1),
         ]);
@@ -90,8 +68,7 @@ function Onboarding() {
           navigate({ to: "/app" });
           return;
         }
-        if (pix && wa) setStep(4);
-        else if (pix) setStep(3);
+        if (wa) setStep(3);
         else setStep(2);
       } else {
         // Pré-preencher com metadados do cadastro
@@ -163,39 +140,6 @@ function Onboarding() {
     }
   }
 
-  async function saveStep2() {
-    if (!tenantId) return;
-    setError(null);
-    if (!s2.nome_recebedor.trim()) {
-      setError("Informe o nome do recebedor.");
-      return;
-    }
-    if (!isValidChavePix(s2.tipo_chave_pix, s2.chave_pix)) {
-      setError("Chave Pix inválida para o tipo selecionado.");
-      return;
-    }
-    if (!(s2.valor_padrao_palpite > 0)) {
-      setError("Valor padrão do palpite deve ser maior que zero.");
-      return;
-    }
-    setLoading(true);
-    try {
-      const chave =
-        s2.tipo_chave_pix === "cpf" || s2.tipo_chave_pix === "cnpj" || s2.tipo_chave_pix === "telefone"
-          ? onlyDigits(s2.chave_pix)
-          : s2.chave_pix.trim();
-      const { error } = await supabase
-        .from("tenant_pix_config")
-        .upsert({ tenant_id: tenantId, ...s2, chave_pix: chave }, { onConflict: "tenant_id" });
-      if (error) throw error;
-      setStep(3);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Erro");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function saveStep3() {
     if (!tenantId) return;
     setError(null);
@@ -212,7 +156,7 @@ function Onboarding() {
           { onConflict: "tenant_id" },
         );
       if (error) throw error;
-      setStep(4);
+      setStep(3);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erro");
     } finally {
@@ -238,7 +182,6 @@ function Onboarding() {
     }
     setLoading(true);
     try {
-      // Checagem de unicidade do slug
       const { data: existing } = await supabase
         .from("boloes")
         .select("id")
@@ -265,9 +208,9 @@ function Onboarding() {
     }
   }
 
-  // Ao chegar no step 3, herda o WhatsApp do responsável (evita reentrada duplicada)
+  // Ao chegar no step 2, herda o WhatsApp do responsável (evita reentrada duplicada)
   useEffect(() => {
-    if (step === 3 && !s3.numero_whatsapp && s1.whatsapp) {
+    if (step === 2 && !s3.numero_whatsapp && s1.whatsapp) {
       setS3((v) => ({ ...v, numero_whatsapp: s1.whatsapp }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -279,9 +222,9 @@ function Onboarding() {
       <div className="mx-auto max-w-2xl px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-black">Configurar meu bolão</h1>
-          <p className="text-sm text-muted-foreground">Passo {step} de 4</p>
+          <p className="text-sm text-muted-foreground">Passo {step} de 3</p>
           <div className="mt-3 flex items-center gap-2">
-            {[1, 2, 3, 4].map((n) => (
+            {[1, 2, 3].map((n) => (
               <div key={n} className="flex flex-1 items-center gap-2">
                 <div
                   className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
@@ -295,7 +238,7 @@ function Onboarding() {
                 >
                   {n < step ? <Check className="h-3.5 w-3.5" /> : n}
                 </div>
-                {n < 4 && (
+                {n < 3 && (
                   <div className={`h-1 flex-1 rounded-full ${n < step ? "bg-pitch" : "bg-muted"}`} />
                 )}
               </div>
@@ -334,40 +277,6 @@ function Onboarding() {
             </Form>
           )}
           {step === 2 && (
-            <Form title="Configuração do Pix" onSubmit={saveStep2} loading={loading}>
-              <Input
-                label="Nome do recebedor"
-                value={s2.nome_recebedor}
-                onChange={(v) => setS2({ ...s2, nome_recebedor: v })}
-                required
-              />
-              <div className="grid grid-cols-2 gap-3">
-                <Input
-                  label="Banco"
-                  value={s2.banco}
-                  onChange={(v) => setS2({ ...s2, banco: v })}
-                />
-                <Input
-                  label="Cidade"
-                  value={s2.cidade}
-                  onChange={(v) => setS2({ ...s2, cidade: v })}
-                />
-              </div>
-              <Input
-                label="Valor padrão do palpite (R$)"
-                type="number"
-                value={String(s2.valor_padrao_palpite)}
-                onChange={(v) => setS2({ ...s2, valor_padrao_palpite: Number(v) })}
-              />
-              <Textarea
-                label="Instruções de pagamento (opcional)"
-                value={s2.instrucoes_pagamento}
-                onChange={(v) => setS2({ ...s2, instrucoes_pagamento: v })}
-                placeholder={`Ex.: Após o PIX, envie o comprovante no WhatsApp (XX) 9XXXX-XXXX.\nIdentifique o pagamento com seu nome completo e o nome do bolão.\nPalpites são confirmados em até 10 minutos após o envio do comprovante.`}
-              />
-            </Form>
-          )}
-          {step === 3 && (
             <Form title="Configuração do WhatsApp" onSubmit={saveStep3} loading={loading}>
               <Input
                 label="Número de WhatsApp para receber comprovantes"
@@ -407,7 +316,7 @@ function Onboarding() {
               />
             </Form>
           )}
-          {step === 4 && (
+          {step === 3 && (
             <Form title="Criar primeiro bolão" onSubmit={saveStep4} loading={loading}>
               <Input
                 label="Nome do bolão"
@@ -498,39 +407,35 @@ function Input(p: {
   label: string;
   value: string;
   onChange: (v: string) => void;
-  type?: string;
-  required?: boolean;
-  prefix?: string;
   placeholder?: string;
+  inputMode?: "text" | "numeric" | "tel" | "email";
+  required?: boolean;
+  type?: string;
+  prefix?: string;
   hint?: string;
-  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
 }) {
   return (
     <label className="block">
-      <span className="text-sm font-medium">
-        {p.label}
-        {p.required && <span className="text-red-500">*</span>}
-      </span>
-      <div className="mt-1 flex rounded-lg border border-border bg-background focus-within:ring-2 focus-within:ring-pitch/40">
+      <span className="text-sm font-medium">{p.label}</span>
+      <div className="mt-1 flex items-center rounded-lg border border-border bg-background focus-within:ring-2 focus-within:ring-pitch/30">
         {p.prefix && (
-          <span className="px-3 py-2 text-sm text-muted-foreground border-r border-border">
-            {p.prefix}
-          </span>
+          <span className="px-3 text-sm text-muted-foreground">{p.prefix}</span>
         )}
         <input
-          type={p.type ?? "text"}
-          required={p.required}
-          placeholder={p.placeholder}
-          inputMode={p.inputMode}
+          className="w-full bg-transparent px-3 py-2 text-sm outline-none"
           value={p.value}
           onChange={(e) => p.onChange(e.target.value)}
-          className="w-full bg-transparent px-3 py-2 text-sm outline-none"
+          placeholder={p.placeholder}
+          inputMode={p.inputMode}
+          required={p.required}
+          type={p.type}
         />
       </div>
       {p.hint && <span className="mt-1 block text-xs text-muted-foreground">{p.hint}</span>}
     </label>
   );
 }
+
 function Textarea(p: {
   label: string;
   value: string;
@@ -542,35 +447,12 @@ function Textarea(p: {
     <label className="block">
       <span className="text-sm font-medium">{p.label}</span>
       <textarea
-        rows={p.rows ?? 3}
+        className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pitch/30"
         value={p.value}
+        onChange={(e) => p.onChange(e.target.value)}
+        rows={p.rows ?? 4}
         placeholder={p.placeholder}
-        onChange={(e) => p.onChange(e.target.value)}
-        className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pitch/40"
       />
-    </label>
-  );
-}
-function Select(p: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: [string, string][];
-}) {
-  return (
-    <label className="block">
-      <span className="text-sm font-medium">{p.label}</span>
-      <select
-        value={p.value}
-        onChange={(e) => p.onChange(e.target.value)}
-        className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pitch/40"
-      >
-        {p.options.map(([v, l]) => (
-          <option key={v} value={v}>
-            {l}
-          </option>
-        ))}
-      </select>
     </label>
   );
 }
