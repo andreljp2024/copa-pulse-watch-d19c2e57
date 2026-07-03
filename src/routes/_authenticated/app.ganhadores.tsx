@@ -198,7 +198,7 @@ function GanhadoresPage() {
           tone="success"
         />
         <StatCard
-          label="Taxa admin"
+          label="Taxa de organização"
           value={brl(totalTaxa)}
           icon={<DollarSign className="h-4 w-4" />}
         />
