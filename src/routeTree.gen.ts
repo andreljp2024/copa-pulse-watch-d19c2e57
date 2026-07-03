@@ -40,6 +40,7 @@ import { Route as AuthenticatedAppGestoresRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppGanhadoresRouteImport } from './routes/_authenticated/app.ganhadores'
 import { Route as AuthenticatedAppContatosRouteImport } from './routes/_authenticated/app.contatos'
 import { Route as AuthenticatedAppBolaoRouteImport } from './routes/_authenticated/app.bolao'
+import { Route as AuthenticatedAppAuditoriaRouteImport } from './routes/_authenticated/app.auditoria'
 import { Route as ApiPublicHooksSyncFootballRouteImport } from './routes/api/public/hooks/sync-football'
 import { Route as ApiPublicHooksDispatchPushRouteImport } from './routes/api/public/hooks/dispatch-push'
 import { Route as ApiPublicHooksDispatchNotificationsRouteImport } from './routes/api/public/hooks/dispatch-notifications'
@@ -205,6 +206,12 @@ const AuthenticatedAppBolaoRoute = AuthenticatedAppBolaoRouteImport.update({
   path: '/bolao',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppAuditoriaRoute =
+  AuthenticatedAppAuditoriaRouteImport.update({
+    id: '/auditoria',
+    path: '/auditoria',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const ApiPublicHooksSyncFootballRoute =
   ApiPublicHooksSyncFootballRouteImport.update({
     id: '/api/public/hooks/sync-football',
@@ -243,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/meus-palpites/$slug': typeof MeusPalpitesSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
+  '/app/auditoria': typeof AuthenticatedAppAuditoriaRoute
   '/app/bolao': typeof AuthenticatedAppBolaoRoute
   '/app/contatos': typeof AuthenticatedAppContatosRoute
   '/app/ganhadores': typeof AuthenticatedAppGanhadoresRoute
@@ -277,6 +285,7 @@ export interface FileRoutesByTo {
   '/meus-palpites/$slug': typeof MeusPalpitesSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
+  '/app/auditoria': typeof AuthenticatedAppAuditoriaRoute
   '/app/bolao': typeof AuthenticatedAppBolaoRoute
   '/app/contatos': typeof AuthenticatedAppContatosRoute
   '/app/ganhadores': typeof AuthenticatedAppGanhadoresRoute
@@ -314,6 +323,7 @@ export interface FileRoutesById {
   '/meus-palpites/$slug': typeof MeusPalpitesSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
   '/selecoes/$id': typeof SelecoesIdRoute
+  '/_authenticated/app/auditoria': typeof AuthenticatedAppAuditoriaRoute
   '/_authenticated/app/bolao': typeof AuthenticatedAppBolaoRoute
   '/_authenticated/app/contatos': typeof AuthenticatedAppContatosRoute
   '/_authenticated/app/ganhadores': typeof AuthenticatedAppGanhadoresRoute
@@ -351,6 +361,7 @@ export interface FileRouteTypes {
     | '/meus-palpites/$slug'
     | '/partidas/$id'
     | '/selecoes/$id'
+    | '/app/auditoria'
     | '/app/bolao'
     | '/app/contatos'
     | '/app/ganhadores'
@@ -385,6 +396,7 @@ export interface FileRouteTypes {
     | '/meus-palpites/$slug'
     | '/partidas/$id'
     | '/selecoes/$id'
+    | '/app/auditoria'
     | '/app/bolao'
     | '/app/contatos'
     | '/app/ganhadores'
@@ -421,6 +433,7 @@ export interface FileRouteTypes {
     | '/meus-palpites/$slug'
     | '/partidas/$id'
     | '/selecoes/$id'
+    | '/_authenticated/app/auditoria'
     | '/_authenticated/app/bolao'
     | '/_authenticated/app/contatos'
     | '/_authenticated/app/ganhadores'
@@ -678,6 +691,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBolaoRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/auditoria': {
+      id: '/_authenticated/app/auditoria'
+      path: '/auditoria'
+      fullPath: '/app/auditoria'
+      preLoaderRoute: typeof AuthenticatedAppAuditoriaRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/api/public/hooks/sync-football': {
       id: '/api/public/hooks/sync-football'
       path: '/api/public/hooks/sync-football'
@@ -703,6 +723,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppAuditoriaRoute: typeof AuthenticatedAppAuditoriaRoute
   AuthenticatedAppBolaoRoute: typeof AuthenticatedAppBolaoRoute
   AuthenticatedAppContatosRoute: typeof AuthenticatedAppContatosRoute
   AuthenticatedAppGanhadoresRoute: typeof AuthenticatedAppGanhadoresRoute
@@ -716,6 +737,7 @@ interface AuthenticatedAppRouteChildren {
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppAuditoriaRoute: AuthenticatedAppAuditoriaRoute,
   AuthenticatedAppBolaoRoute: AuthenticatedAppBolaoRoute,
   AuthenticatedAppContatosRoute: AuthenticatedAppContatosRoute,
   AuthenticatedAppGanhadoresRoute: AuthenticatedAppGanhadoresRoute,
