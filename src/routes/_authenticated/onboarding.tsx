@@ -260,6 +260,13 @@ function Onboarding() {
     }
   }
 
+  // Ao chegar no step 3, herda o WhatsApp do responsável (evita reentrada duplicada)
+  useEffect(() => {
+    if (step === 3 && !s3.numero_whatsapp && s1.whatsapp) {
+      setS3((v) => ({ ...v, numero_whatsapp: s1.whatsapp }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
 
   return (
