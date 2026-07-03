@@ -104,9 +104,9 @@ function Onboarding() {
       }
       setS3((v) => ({
         ...v,
-        numero_whatsapp: u.user.user_metadata?.whatsapp
-          ? maskPhone(u.user.user_metadata.whatsapp)
-          : "",
+        numero_whatsapp:
+          v.numero_whatsapp ||
+          (u.user.user_metadata?.whatsapp ? maskPhone(u.user.user_metadata.whatsapp) : ""),
       }));
     })();
   }, [navigate]);
