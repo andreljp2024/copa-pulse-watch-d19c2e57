@@ -1,0 +1,1 @@
+ALTER TABLE public.boloes ALTER COLUMN percentual_admin SET DEFAULT 20;
