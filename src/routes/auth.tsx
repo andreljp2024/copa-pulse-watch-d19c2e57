@@ -317,6 +317,27 @@ function Page() {
           {info && <p className="text-sm text-emerald-600">{info}</p>}
         </div>
       </div>
+
+      <AlertDialog open={underageOpen} onOpenChange={setUnderageOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <span aria-hidden>⚠️🚫</span>
+              Você não pode estar aqui
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base leading-relaxed">
+              <span aria-hidden>🔞</span> Este aplicativo é <strong>exclusivo para maiores de 18 anos</strong>.
+              <br />
+              <span aria-hidden>👨‍👩‍👧</span> Fale com seu <strong>responsável</strong> antes de continuar.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setUnderageOpen(false)}>
+              Entendi
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppShell>
   );
 }
