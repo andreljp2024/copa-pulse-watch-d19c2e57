@@ -165,6 +165,10 @@ function Onboarding() {
       setError("Informe o número do endereço.");
       return;
     }
+    if (!isValidChavePix(s2.tipo_chave_pix, s2.chave_pix)) {
+      setError("Chave Pix inválida para o tipo selecionado.");
+      return;
+    }
     setLoading(true);
     try {
       const { data: u } = await supabase.auth.getUser();
