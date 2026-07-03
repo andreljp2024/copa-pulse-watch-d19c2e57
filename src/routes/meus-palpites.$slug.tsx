@@ -5,6 +5,7 @@ import { brl, onlyDigits } from "@/lib/saas";
 import { Search, Trophy, XCircle, Clock, CheckCircle2, Sparkles, Bell, BellOff } from "lucide-react";
 import { formatBR } from "@/lib/timezone";
 import { pushSupported, subscribePush, unsubscribePush } from "@/lib/push";
+import { ptTeamName } from "@/components/MatchCard";
 
 export const Route = createFileRoute("/meus-palpites/$slug")({
   component: MeusPalpitesPage,
@@ -47,7 +48,7 @@ function TeamBadge({ name, flag }: { name: string | null; flag: string | null })
           loading="lazy"
         />
       ) : null}
-      <span>{name ?? "?"}</span>
+      <span>{ptTeamName(name) || "?"}</span>
     </span>
   );
 }
