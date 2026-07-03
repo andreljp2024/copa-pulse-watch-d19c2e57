@@ -125,22 +125,6 @@ function RootShell({ children }: { children: ReactNode }) {
       <body suppressHydrationWarning>
         {children}
         <Scripts />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ("serviceWorker" in navigator) {
-                navigator.serviceWorker.getRegistrations()
-                  .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
-                  .catch(() => {});
-              }
-              if ("caches" in window) {
-                caches.keys()
-                  .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
-                  .catch(() => {});
-              }
-            `,
-          }}
-        />
       </body>
     </html>
   );
@@ -163,6 +147,11 @@ function RootComponent() {
     const saved = localStorage.getItem("copahub-theme");
     const isDark = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
     document.documentElement.classList.toggle("dark", isDark);
+  }, []);
+
+  // Registro do Service Worker (offline-first) — só em produção real.
+  useEffect(() => {
+    void import("@/lib/register-sw").then((m) => m.registerServiceWorker());
   }, []);
 
   return (
