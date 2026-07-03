@@ -616,6 +616,89 @@ export type Database = {
           },
         ]
       }
+      notification_queue: {
+        Row: {
+          bolao_id: string | null
+          created_at: string
+          id: string
+          mensagem: string
+          numero_whatsapp: string
+          palpite_id: string | null
+          scheduled_at: string
+          sent_at: string | null
+          status: string
+          tenant_id: string
+          tentativas: number
+          tipo: string
+          torcedor_id: string | null
+          ultimo_erro: string | null
+          updated_at: string
+        }
+        Insert: {
+          bolao_id?: string | null
+          created_at?: string
+          id?: string
+          mensagem: string
+          numero_whatsapp: string
+          palpite_id?: string | null
+          scheduled_at?: string
+          sent_at?: string | null
+          status?: string
+          tenant_id: string
+          tentativas?: number
+          tipo: string
+          torcedor_id?: string | null
+          ultimo_erro?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bolao_id?: string | null
+          created_at?: string
+          id?: string
+          mensagem?: string
+          numero_whatsapp?: string
+          palpite_id?: string | null
+          scheduled_at?: string
+          sent_at?: string | null
+          status?: string
+          tenant_id?: string
+          tentativas?: number
+          tipo?: string
+          torcedor_id?: string | null
+          ultimo_erro?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_queue_bolao_id_fkey"
+            columns: ["bolao_id"]
+            isOneToOne: false
+            referencedRelation: "boloes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_queue_palpite_id_fkey"
+            columns: ["palpite_id"]
+            isOneToOne: false
+            referencedRelation: "palpites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_queue_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_queue_torcedor_id_fkey"
+            columns: ["torcedor_id"]
+            isOneToOne: false
+            referencedRelation: "torcedores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string

@@ -38,6 +38,11 @@ type Stats = {
   ganhadores: number;
   taxa_admin: number;
   premio_torcedores: number;
+  taxa_conversao: number;
+  ticket_medio: number;
+  ltv_torcedor: number;
+  notif_pendentes: number;
+  notif_enviadas: number;
   bolao: {
     id: string;
     nome: string;
@@ -79,6 +84,11 @@ function Dashboard() {
           ganhadores: 0,
           taxa_admin: 0,
           premio_torcedores: 0,
+          taxa_conversao: 0,
+          ticket_medio: 0,
+          ltv_torcedor: 0,
+          notif_pendentes: 0,
+          notif_enviadas: 0,
           bolao: null,
           serie: [],
         });
@@ -93,7 +103,7 @@ function Dashboard() {
         .maybeSingle();
 
       const desde14 = new Date(Date.now() - 13 * 86400000).toISOString();
-      const [torCount, palTotal, palPagos, valoresPagos, ganCount, serieRows] =
+      const [torCount, palTotal, palPagos, valoresPagos, ganCount, serieRows, notifPend, notifSent] =
         await Promise.all([
           supabase
             .from("torcedores")
@@ -124,10 +134,21 @@ function Dashboard() {
             .eq("tenant_id", t.id)
             .gte("created_at", desde14)
             .limit(10000),
+          supabase
+            .from("notification_queue")
+            .select("id", { count: "exact", head: true })
+            .eq("tenant_id", t.id)
+            .in("status", ["pending", "sending"]),
+          supabase
+            .from("notification_queue")
+            .select("id", { count: "exact", head: true })
+            .eq("tenant_id", t.id)
+            .eq("status", "sent"),
         ]);
 
       const total = palTotal.count ?? 0;
       const pagos = palPagos.count ?? 0;
+      const torcedoresCount = torCount.count ?? 0;
       const arrecadado = (valoresPagos.data ?? []).reduce(
         (s, p) => s + Number(p.valor ?? 0),
         0,
@@ -135,6 +156,9 @@ function Dashboard() {
       const pct = Number((bo as { percentual_admin?: number } | null)?.percentual_admin ?? 30);
       const taxa_admin = arrecadado * (pct / 100);
       const premio_torcedores = arrecadado - taxa_admin;
+      const taxa_conversao = total > 0 ? (pagos / total) * 100 : 0;
+      const ticket_medio = pagos > 0 ? arrecadado / pagos : 0;
+      const ltv_torcedor = torcedoresCount > 0 ? arrecadado / torcedoresCount : 0;
 
       const buckets = new Map<string, number>();
       for (let i = 13; i >= 0; i--) {
@@ -147,7 +171,7 @@ function Dashboard() {
       }
 
       setStats({
-        torcedores: torCount.count ?? 0,
+        torcedores: torcedoresCount,
         palpites: total,
         pagos,
         pendentes: Math.max(0, total - pagos),
@@ -155,6 +179,11 @@ function Dashboard() {
         ganhadores: ganCount.count ?? 0,
         taxa_admin,
         premio_torcedores,
+        taxa_conversao,
+        ticket_medio,
+        ltv_torcedor,
+        notif_pendentes: notifPend.count ?? 0,
+        notif_enviadas: notifSent.count ?? 0,
         bolao: bo
           ? {
               id: bo.id,
@@ -246,6 +275,14 @@ function Dashboard() {
     { label: "Palpites totais", value: stats.palpites, icon: ListChecks },
     { label: "Palpites pagos", value: stats.pagos, icon: CheckCircle2 },
     { label: "Pendentes", value: stats.pendentes, icon: Clock },
+    {
+      label: "Taxa de conversão",
+      value: `${stats.taxa_conversao.toFixed(1)}%`,
+      icon: Sparkles,
+      hint: "Palpites pagos ÷ palpites totais",
+    },
+    { label: "Ticket médio", value: brl(stats.ticket_medio), icon: DollarSign, hint: "Arrecadado ÷ palpites pagos" },
+    { label: "LTV do torcedor", value: brl(stats.ltv_torcedor), icon: Users, hint: "Arrecadado ÷ nº torcedores" },
     { label: "Arrecadado", value: brl(stats.arrecadado), icon: DollarSign },
     {
       label: `Taxa admin (${stats.bolao?.percentual_admin ?? 30}%)`,
@@ -254,7 +291,13 @@ function Dashboard() {
     },
     { label: "Prêmio aos torcedores", value: brl(stats.premio_torcedores), icon: Trophy },
     { label: "Ganhadores", value: stats.ganhadores, icon: Trophy },
-  ];
+    {
+      label: "Notif. WhatsApp",
+      value: `${stats.notif_enviadas} enviadas · ${stats.notif_pendentes} na fila`,
+      icon: MessageCircle,
+      hint: "Envios automáticos via Evolution API",
+    },
+  ] as Array<{ label: string; value: string | number; icon: typeof Users; hint?: string }>;
 
   return (
     <div className="space-y-6">
@@ -340,7 +383,7 @@ function Dashboard() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map(({ label, value, icon: Icon }, i) => {
+        {cards.map(({ label, value, icon: Icon, hint }, i) => {
           const tones = ["from-pitch/25", "from-gold/25", "from-brand-blue/25", "from-destructive/25"];
           const tone = tones[i % tones.length];
           return (
@@ -355,6 +398,7 @@ function Dashboard() {
                 <Icon className="h-4 w-4 text-gold" />
               </div>
               <p className="mt-2 text-3xl font-black font-display">{value}</p>
+              {hint && <p className="mt-1 text-[11px] text-muted-foreground">{hint}</p>}
             </div>
           );
         })}
