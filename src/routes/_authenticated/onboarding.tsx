@@ -41,7 +41,6 @@ function Onboarding() {
   // Step 1
   const [s1, setS1] = useState({
     nome_responsavel: "",
-    nome_estabelecimento: "",
     cpf_cnpj: "",
     whatsapp: "",
     cep: "",
