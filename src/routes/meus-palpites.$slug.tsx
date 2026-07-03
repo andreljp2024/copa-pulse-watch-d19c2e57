@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, onlyDigits } from "@/lib/saas";
 import { Search, Trophy, XCircle, Clock, CheckCircle2, Sparkles } from "lucide-react";
+import { formatBR } from "@/lib/timezone";
 
 export const Route = createFileRoute("/meus-palpites/$slug")({
   component: MeusPalpitesPage,
