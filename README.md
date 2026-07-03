@@ -185,7 +185,17 @@ Executada via `supabase--linter` + revisão manual de `pg_proc`. Estado atual:
 
 ## 9. Deploy
 
-Ver [`DEPLOY.md`](./DEPLOY.md) para o guia completo (Lovable, GitHub, Coolify, self-hosting).
+- **Produção**: <https://bolao.ai.slz.br>
+- **Preview / Lovable**: <https://copa-pulse-watch.lovable.app>
+
+Fluxo resumido:
+
+1. Commits em `main` sincronizam automaticamente via integração Lovable ↔ GitHub.
+2. Publicar em produção: **Publish → Update** no editor Lovable.
+3. Domínio customizado `bolao.ai.slz.br` conectado em **Project Settings → Domains** (registro `A bolao.ai → 185.158.133.1` + `TXT _lovable.bolao.ai`).
+
+Guia completo: [`DEPLOY.md`](./DEPLOY.md) (Lovable, GitHub, Coolify, DNS, self-hosting).
+
 
 ---
 
