@@ -8,6 +8,7 @@ import { getDashboard } from "@/lib/copa.functions";
 import { Trophy, Goal, CalendarDays, Flame } from "lucide-react";
 import heroStadium from "@/assets/hero-stadium.jpg";
 import heroTrophy from "@/assets/hero-trophy.jpg";
+import trophyGold from "@/assets/trophy-gold.png";
 import sectionPitch from "@/assets/section-pitch.jpg";
 
 const dashboardOpts = queryOptions({
@@ -90,7 +91,7 @@ function Dashboard() {
                 />
                 Vai, Brasil! · Rumo ao Hexa 2026
               </div>
-              <h1 className="font-display text-4xl sm:text-6xl md:text-8xl lg:text-9xl leading-[0.9] uppercase text-white">
+              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl leading-[0.95] uppercase text-white break-words hyphens-auto">
                 Bolão dos <br />
                 <span className="text-gradient-samba">Amigos Brasileiros</span>
               </h1>
@@ -124,12 +125,15 @@ function Dashboard() {
                   className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--gold)/0.25),transparent_60%)] pointer-events-none"
                   aria-hidden="true"
                 />
-                <div className="relative flex h-40 w-40 sm:h-56 sm:w-56 items-center justify-center rounded-full bg-emerald-500/20 ring-4 ring-emerald-400/30 backdrop-blur-sm transition-transform duration-500 group-hover:scale-110">
+                <div className="relative flex h-48 w-48 sm:h-72 sm:w-72 items-center justify-center rounded-full bg-emerald-500/20 ring-4 ring-emerald-400/30 backdrop-blur-sm transition-transform duration-500 group-hover:scale-110">
                   <div className="absolute inset-2 rounded-full bg-emerald-600/40 ring-2 ring-emerald-300/40" aria-hidden="true" />
-                  <Trophy
-                    className="relative h-20 w-20 sm:h-28 sm:w-28 text-gold drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
-                    strokeWidth={1.5}
-                    aria-hidden="true"
+                  <img
+                    src={trophyGold}
+                    alt="Taça dourada"
+                    loading="lazy"
+                    width={1024}
+                    height={1024}
+                    className="relative h-40 w-40 sm:h-60 sm:w-60 object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
                   />
                 </div>
                 <h3 className="relative mt-6 font-display text-3xl sm:text-5xl leading-none text-center text-white">
