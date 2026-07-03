@@ -986,6 +986,33 @@ function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; va
   );
 }
 
+function SummaryItem({
+  icon,
+  label,
+  value,
+  hint,
+  highlight,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  hint?: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div className="rounded-xl border border-border/60 bg-background/40 p-3">
+      <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+        {icon}
+        {label}
+      </div>
+      <div className={`mt-1 truncate text-sm font-bold ${highlight ? "text-gold" : "text-foreground"}`}>
+        {value}
+      </div>
+      {hint && <div className="mt-0.5 truncate text-[11px] text-muted-foreground">{hint}</div>}
+    </div>
+  );
+}
+
 function Toggle({
   checked,
   onChange,
