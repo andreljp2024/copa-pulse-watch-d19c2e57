@@ -116,12 +116,22 @@ function Page() {
       setError("Você precisa confirmar o termo antes de se cadastrar.");
       return;
     }
-    if (!birthDate) {
-      setError("Informe sua data de nascimento.");
+    const dobDigits = birthDate.replace(/\D/g, "");
+    if (dobDigits.length !== 8) {
+      setError("Informe a data de nascimento no formato DD/MM/AAAA.");
       return;
     }
-    const dob = new Date(birthDate);
-    if (Number.isNaN(dob.getTime())) {
+    const dd = Number(dobDigits.slice(0, 2));
+    const mm = Number(dobDigits.slice(2, 4));
+    const yyyy = Number(dobDigits.slice(4, 8));
+    const dob = new Date(yyyy, mm - 1, dd);
+    if (
+      Number.isNaN(dob.getTime()) ||
+      dob.getDate() !== dd ||
+      dob.getMonth() !== mm - 1 ||
+      dob.getFullYear() !== yyyy ||
+      yyyy < 1900
+    ) {
       setError("Data de nascimento inválida.");
       return;
     }
