@@ -98,26 +98,14 @@ export const upsertTeam = createServerFn({ method: "POST" })
   });
 
 // ---------- Sync com fallback: worldcup26.ir → football-data.org ----------
+// Uma única API por execução para evitar linhas duplicadas em `matches`
+// (kickoff_at diverge entre as fontes).
 export const syncFromExternalApi = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    try {
-      const { syncWorldCup2026 } = await import("@/lib/worldcup26-sync.server");
-      const res = await syncWorldCup2026(context.userId);
-      return { ...res, source: "worldcup26.ir" as const };
-    } catch (primaryErr) {
-      const primaryMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
-      console.warn("[sync] worldcup26.ir falhou, tentando football-data.org:", primaryMsg);
-      try {
-        const { syncFootballData } = await import("@/lib/football-sync.server");
-        const res = await syncFootballData(context.userId);
-        return { ...res, source: "football-data.org" as const, fallback: true, primaryError: primaryMsg };
-      } catch (fallbackErr) {
-        const fbMsg = fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr);
-        throw new Error(`Ambas as APIs falharam. Principal: ${primaryMsg} | Fallback: ${fbMsg}`);
-      }
-    }
+    const { syncMatchesUnified } = await import("@/lib/sync-with-fallback.server");
+    return syncMatchesUnified(context.userId);
   });
 
 export const listSyncLogs = createServerFn({ method: "GET" })
