@@ -272,7 +272,7 @@ function GestoresInner() {
               const url =
                 typeof window !== "undefined"
                   ? `${window.location.origin}/criar-bolao`
-                  : "https://copa-pulse-watch.lovable.app/criar-bolao";
+                  : "https://bolao.ai.slz.br/criar-bolao";
               const msg =
                 `🏆⚽ *BOLÃO AI — RUMO AO HEXA* 🇧🇷💚💛\n` +
                 `━━━━━━━━━━━━━━━━━━━━\n\n` +
@@ -318,7 +318,7 @@ function GestoresInner() {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
-                    const origin = typeof window !== "undefined" ? window.location.origin : "https://copa-pulse-watch.lovable.app";
+                    const origin = typeof window !== "undefined" ? window.location.origin : "https://bolao.ai.slz.br";
                     const url = `${origin}/criar-bolao`;
                     const msg =
                       `🏆⚽ *BOLÃO AI — CONVITE ESPECIAL* 🇧🇷\n` +
