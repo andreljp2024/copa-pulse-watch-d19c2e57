@@ -48,6 +48,14 @@ function toSyntheticEmail(digitsSemDDI: string): string {
   return `55${digitsSemDDI}@${WA_EMAIL_DOMAIN}`;
 }
 
+/** Máscara DD/MM/AAAA sem autocompletar — usuário digita apenas números. */
+function maskDate(v: string): string {
+  const d = v.replace(/\D/g, "").slice(0, 8);
+  if (d.length <= 2) return d;
+  if (d.length <= 4) return `${d.slice(0, 2)}/${d.slice(2)}`;
+  return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`;
+}
+
 function Page() {
   const navigate = useNavigate();
   const signInSuperAdmin = useServerFn(signInSuperAdminByWhatsApp);
@@ -116,12 +124,22 @@ function Page() {
       setError("Você precisa confirmar o termo antes de se cadastrar.");
       return;
     }
-    if (!birthDate) {
-      setError("Informe sua data de nascimento.");
+    const dobDigits = birthDate.replace(/\D/g, "");
+    if (dobDigits.length !== 8) {
+      setError("Informe a data de nascimento no formato DD/MM/AAAA.");
       return;
     }
-    const dob = new Date(birthDate);
-    if (Number.isNaN(dob.getTime())) {
+    const dd = Number(dobDigits.slice(0, 2));
+    const mm = Number(dobDigits.slice(2, 4));
+    const yyyy = Number(dobDigits.slice(4, 8));
+    const dob = new Date(yyyy, mm - 1, dd);
+    if (
+      Number.isNaN(dob.getTime()) ||
+      dob.getDate() !== dd ||
+      dob.getMonth() !== mm - 1 ||
+      dob.getFullYear() !== yyyy ||
+      yyyy < 1900
+    ) {
       setError("Data de nascimento inválida.");
       return;
     }
@@ -153,7 +171,7 @@ function Page() {
         password,
         options: {
           emailRedirectTo: window.location.origin,
-          data: { full_name: nome, whatsapp: `55${digits}`, birth_date: birthDate },
+          data: { full_name: nome, whatsapp: `55${digits}`, birth_date: `${yyyy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}` },
         },
       });
       if (error) throw error;
@@ -235,13 +253,15 @@ function Page() {
                 <div>
                   <label className="block text-sm font-medium mb-1">Data de nascimento</label>
                   <input
-                    type="date"
+                    type="text"
                     required
+                    inputMode="numeric"
+                    autoComplete="off"
+                    placeholder="DD/MM/AAAA"
+                    maxLength={10}
                     value={birthDate}
-                    max={new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)}
-                    min="1900-01-01"
-                    onChange={(e) => setBirthDate(e.target.value)}
-                    className="w-full h-11 rounded-lg border border-border bg-background px-3"
+                    onChange={(e) => setBirthDate(maskDate(e.target.value))}
+                    className="w-full h-11 rounded-lg border border-border bg-background px-3 tracking-wider"
                   />
                   <p className="text-xs text-muted-foreground mt-1">É necessário ter no mínimo 18 anos.</p>
                 </div>
