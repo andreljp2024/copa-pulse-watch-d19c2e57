@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SelecoesRouteImport } from './routes/selecoes'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PlanosRouteImport } from './routes/planos'
@@ -45,6 +46,11 @@ import { Route as ApiPublicHooksSyncFootballRouteImport } from './routes/api/pub
 import { Route as ApiPublicHooksDispatchPushRouteImport } from './routes/api/public/hooks/dispatch-push'
 import { Route as ApiPublicHooksDispatchNotificationsRouteImport } from './routes/api/public/hooks/dispatch-notifications'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SelecoesRoute = SelecoesRouteImport.update({
   id: '/selecoes',
   path: '/selecoes',
@@ -243,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/planos': typeof PlanosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/selecoes': typeof SelecoesRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -279,6 +286,7 @@ export interface FileRoutesByTo {
   '/planos': typeof PlanosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/selecoes': typeof SelecoesRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/bolao/$slug': typeof BolaoSlugRouteWithChildren
@@ -316,6 +324,7 @@ export interface FileRoutesById {
   '/planos': typeof PlanosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/selecoes': typeof SelecoesRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -354,6 +363,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/reset-password'
     | '/selecoes'
+    | '/sitemap.xml'
     | '/admin'
     | '/app'
     | '/onboarding'
@@ -390,6 +400,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/reset-password'
     | '/selecoes'
+    | '/sitemap.xml'
     | '/admin'
     | '/onboarding'
     | '/bolao/$slug'
@@ -426,6 +437,7 @@ export interface FileRouteTypes {
     | '/planos'
     | '/reset-password'
     | '/selecoes'
+    | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/_authenticated/app'
     | '/_authenticated/onboarding'
@@ -464,6 +476,7 @@ export interface RootRouteChildren {
   PlanosRoute: typeof PlanosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SelecoesRoute: typeof SelecoesRouteWithChildren
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   BolaoSlugRoute: typeof BolaoSlugRouteWithChildren
   MeusPalpitesSlugRoute: typeof MeusPalpitesSlugRoute
   PartidasIdRoute: typeof PartidasIdRoute
@@ -474,6 +487,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/selecoes': {
       id: '/selecoes'
       path: '/selecoes'
@@ -815,6 +835,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlanosRoute: PlanosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SelecoesRoute: SelecoesRouteWithChildren,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   BolaoSlugRoute: BolaoSlugRouteWithChildren,
   MeusPalpitesSlugRoute: MeusPalpitesSlugRoute,
   PartidasIdRoute: PartidasIdRoute,

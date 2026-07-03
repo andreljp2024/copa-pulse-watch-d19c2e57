@@ -276,7 +276,8 @@ Configure todas as variáveis da seção [3](#3-variáveis-de-ambiente) no prove
 - [ ] Secrets configurados (`FOOTBALL_API_KEY`, etc.).
 - [ ] Provider Google OAuth configurado se houver login social.
 - [ ] Scan de segurança executado (**Project Settings → Security**).
-- [ ] Domínio customizado conectado (se aplicável).
+- [ ] Domínio de produção `bolao.ai.slz.br` conectado, marcado como Primary e SSL ativo.
+- [ ] `robots.txt` e `sitemap.xml` apontando para `https://bolao.ai.slz.br`.
 - [ ] Backup/export de dados antes de migrações destrutivas.
 
 ---
