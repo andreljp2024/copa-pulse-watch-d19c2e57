@@ -402,12 +402,21 @@ function PixConfigPage() {
           >
             <Field label="Instruções de pagamento">
               <textarea
-                rows={4}
+                rows={10}
                 value={form.instrucoes_pagamento}
                 onChange={(e) => setForm({ ...form, instrucoes_pagamento: e.target.value })}
-                className={inputCss}
-                placeholder="Ex.: Após o pagamento, envie o comprovante no WhatsApp para confirmação."
+                className={`${inputCss} font-mono text-xs whitespace-pre-wrap`}
+                placeholder={MODELO_INSTRUCOES}
               />
+              <div className="mt-2">
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, instrucoes_pagamento: MODELO_INSTRUCOES })}
+                  className="inline-flex items-center gap-1 rounded-md border border-gold/40 bg-gold/10 px-2.5 py-1 text-xs font-semibold text-gold hover:bg-gold/20"
+                >
+                  Usar modelo com emojis
+                </button>
+              </div>
             </Field>
             <Field label="WhatsApp do recebedor">
               <input
