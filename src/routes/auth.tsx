@@ -167,15 +167,36 @@ function Page() {
     }
     setLoading(true);
     try {
+      const birth = `${yyyy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
+      const signUpViaServer = async () => {
+        const session = await signUpOrganizer({
+          data: { whatsapp: `55${digits}`, password, nome, birth_date: birth },
+        });
+        const { error: setErr } = await supabase.auth.setSession(session);
+        if (setErr) throw setErr;
+      };
+
       const { error } = await supabase.auth.signUp({
         email: toSyntheticEmail(digits),
         password,
         options: {
           emailRedirectTo: window.location.origin,
-          data: { full_name: nome, whatsapp: `55${digits}`, birth_date: `${yyyy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}` },
+          data: { full_name: nome, whatsapp: `55${digits}`, birth_date: birth },
         },
       });
-      if (error) throw error;
+      if (error) {
+        const raw = `${error.code ?? ""} ${error.message ?? ""}`.toLowerCase();
+        if (
+          raw.includes("email_provider_disabled") ||
+          raw.includes("signups not allowed") ||
+          raw.includes("email logins are disabled")
+        ) {
+          await signUpViaServer();
+        } else {
+          throw error;
+        }
+      }
+
 
       const msg =
         `🆕 Novo organizador cadastrado no Bolão dos Amigos Brasileiros\n\n` +
