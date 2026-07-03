@@ -130,7 +130,11 @@ function Page() {
     const m = today.getMonth() - dob.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
     if (age < 18) {
-      setError("Você precisa ter no mínimo 18 anos para se cadastrar.");
+      setBirthDate("");
+      setUnderageOpen(true);
+      toast.error("⚠️ Cadastro bloqueado — menor de 18 anos", {
+        description: "🚫 Fale com seu responsável.",
+      });
       return;
     }
     if (password.length < 8) {
