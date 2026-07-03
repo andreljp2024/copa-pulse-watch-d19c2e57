@@ -91,9 +91,9 @@ function Dashboard() {
                 />
                 Vai, Brasil! · Rumo ao Hexa 2026
               </div>
-              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl leading-[0.95] uppercase text-white break-words hyphens-auto">
+              <h1 className="font-display uppercase text-white leading-[0.95] [text-wrap:balance] [font-size:clamp(2.25rem,6vw,5.5rem)]">
                 Bolão dos <br />
-                <span className="text-gradient-samba">Amigos Brasileiros</span>
+                <span className="text-gradient-samba whitespace-nowrap">Amigos Brasileiros</span>
               </h1>
               <p className="max-w-md text-sm sm:text-base md:text-lg leading-relaxed text-muted-foreground">
                 Acompanhe cada lance, simule resultados e dispute o topo do ranking no maior portal
@@ -116,7 +116,7 @@ function Dashboard() {
             </div>
 
             {/* Trophy hero card */}
-            <div className="h-[320px] sm:h-[500px]">
+            <div className="aspect-[4/5] sm:aspect-auto sm:h-[500px] w-full">
               <Link
                 to="/criar-bolao"
                 className="group relative overflow-hidden h-full w-full rounded-2xl bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-900 p-4 sm:p-6 flex flex-col items-center justify-center transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background shadow-2xl"
@@ -125,7 +125,7 @@ function Dashboard() {
                   className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--gold)/0.25),transparent_60%)] pointer-events-none"
                   aria-hidden="true"
                 />
-                <div className="relative flex h-48 w-48 sm:h-72 sm:w-72 items-center justify-center rounded-full bg-emerald-500/20 ring-4 ring-emerald-400/30 backdrop-blur-sm transition-transform duration-500 group-hover:scale-110">
+                <div className="relative flex aspect-square w-[55%] max-w-[18rem] items-center justify-center rounded-full bg-emerald-500/20 ring-4 ring-emerald-400/30 backdrop-blur-sm transition-transform duration-500 group-hover:scale-110">
                   <div className="absolute inset-2 rounded-full bg-emerald-600/40 ring-2 ring-emerald-300/40" aria-hidden="true" />
                   <img
                     src={trophyGold}
@@ -133,7 +133,7 @@ function Dashboard() {
                     loading="lazy"
                     width={1024}
                     height={1024}
-                    className="relative h-40 w-40 sm:h-60 sm:w-60 object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
+                    className="relative h-[85%] w-[85%] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
                   />
                 </div>
                 <h3 className="relative mt-6 font-display text-3xl sm:text-5xl leading-none text-center text-white">
