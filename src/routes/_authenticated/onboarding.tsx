@@ -264,13 +264,6 @@ function Onboarding() {
     }
   }
 
-  // Ao entrar no step 2, pré-preenche cidade a partir do endereço
-  useEffect(() => {
-    if (step === 2 && !s2.cidade && s1.cidade) {
-      setS2((v) => ({ ...v, cidade: s1.cidade }));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
 
 
   return (
