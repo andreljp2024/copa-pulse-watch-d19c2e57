@@ -26,8 +26,10 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
-        globIgnores: ["**/push-sw.js", "**/sw.js"],
+        // Evita precache de arquivos públicos que o deploy serve na raiz (/icon-512.png),
+        // mas que o Workbox tenta resolver como /client/icon-512.png em produção.
+        globPatterns: ["**/*.{js,css,html,woff2}"],
+        globIgnores: ["**/push-sw.js", "**/sw.js", "**/icon-*.png", "**/apple-touch-icon.png"],
         navigationPreload: true,
         importScripts: ["/push-sw.js"],
         runtimeCaching: [

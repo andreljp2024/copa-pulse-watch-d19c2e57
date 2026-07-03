@@ -10,8 +10,8 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: "/assets/bolaoai-icon-BWSdr3QL.png",
-      badge: "/assets/bolaoai-icon-BWSdr3QL.png",
+      icon: "/icon-192.png",
+      badge: "/icon-192.png",
       data: { url: data.url || "/" },
       vibrate: [100, 50, 100],
       tag: data.tag || "bolao-notif",
