@@ -284,6 +284,13 @@ export type Database = {
             foreignKeyName: "ganhadores_torcedor_id_fkey"
             columns: ["torcedor_id"]
             isOneToOne: false
+            referencedRelation: "fraud_signals"
+            referencedColumns: ["torcedor_id"]
+          },
+          {
+            foreignKeyName: "ganhadores_torcedor_id_fkey"
+            columns: ["torcedor_id"]
+            isOneToOne: false
             referencedRelation: "torcedores"
             referencedColumns: ["id"]
           },
@@ -694,6 +701,13 @@ export type Database = {
             foreignKeyName: "notification_queue_torcedor_id_fkey"
             columns: ["torcedor_id"]
             isOneToOne: false
+            referencedRelation: "fraud_signals"
+            referencedColumns: ["torcedor_id"]
+          },
+          {
+            foreignKeyName: "notification_queue_torcedor_id_fkey"
+            columns: ["torcedor_id"]
+            isOneToOne: false
             referencedRelation: "torcedores"
             referencedColumns: ["id"]
           },
@@ -793,6 +807,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "palpites_torcedor_id_fkey"
+            columns: ["torcedor_id"]
+            isOneToOne: false
+            referencedRelation: "fraud_signals"
+            referencedColumns: ["torcedor_id"]
           },
           {
             foreignKeyName: "palpites_torcedor_id_fkey"
@@ -914,6 +935,85 @@ export type Database = {
           display_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          bolao_id: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          last_used_at: string | null
+          p256dh: string
+          torcedor_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          auth: string
+          bolao_id?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          last_used_at?: string | null
+          p256dh: string
+          torcedor_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          auth?: string
+          bolao_id?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          last_used_at?: string | null
+          p256dh?: string
+          torcedor_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_bolao_id_fkey"
+            columns: ["bolao_id"]
+            isOneToOne: false
+            referencedRelation: "boloes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_torcedor_id_fkey"
+            columns: ["torcedor_id"]
+            isOneToOne: false
+            referencedRelation: "fraud_signals"
+            referencedColumns: ["torcedor_id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_torcedor_id_fkey"
+            columns: ["torcedor_id"]
+            isOneToOne: false
+            referencedRelation: "torcedores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rate_limits: {
+        Row: {
+          chave: string
+          created_at: string
+          escopo: string
+          id: number
+        }
+        Insert: {
+          chave: string
+          created_at?: string
+          escopo: string
+          id?: number
+        }
+        Update: {
+          chave?: string
+          created_at?: string
+          escopo?: string
+          id?: number
         }
         Relationships: []
       }
@@ -1243,6 +1343,7 @@ export type Database = {
       }
       torcedores: {
         Row: {
+          bloqueado: boolean
           bolao_id: string
           created_at: string
           id: string
@@ -1252,6 +1353,7 @@ export type Database = {
           whatsapp: string
         }
         Insert: {
+          bloqueado?: boolean
           bolao_id: string
           created_at?: string
           id?: string
@@ -1261,6 +1363,7 @@ export type Database = {
           whatsapp: string
         }
         Update: {
+          bloqueado?: boolean
           bolao_id?: string
           created_at?: string
           id?: string
@@ -1309,6 +1412,62 @@ export type Database = {
       }
     }
     Views: {
+      fraud_signals: {
+        Row: {
+          bloqueado: boolean | null
+          bolao_id: string | null
+          nome: string | null
+          pendentes: number | null
+          torcedor_id: string | null
+          total_palpites: number | null
+          ultimos_10min: number | null
+          whatsapp: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "torcedores_bolao_id_fkey"
+            columns: ["bolao_id"]
+            isOneToOne: false
+            referencedRelation: "boloes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mv_ranking_torcedores: {
+        Row: {
+          acertos_exatos: number | null
+          acertos_resultado: number | null
+          bolao_id: string | null
+          nome: string | null
+          pontos: number | null
+          refreshed_at: string | null
+          torcedor_id: string | null
+          total: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "palpites_bolao_id_fkey"
+            columns: ["bolao_id"]
+            isOneToOne: false
+            referencedRelation: "boloes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "palpites_torcedor_id_fkey"
+            columns: ["torcedor_id"]
+            isOneToOne: false
+            referencedRelation: "fraud_signals"
+            referencedColumns: ["torcedor_id"]
+          },
+          {
+            foreignKeyName: "palpites_torcedor_id_fkey"
+            columns: ["torcedor_id"]
+            isOneToOne: false
+            referencedRelation: "torcedores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       v_standings: {
         Row: {
           code: string | null
@@ -1371,6 +1530,15 @@ export type Database = {
         Args: { p_match_id: string }
         Returns: number
       }
+      check_rate_limit: {
+        Args: {
+          p_chave: string
+          p_escopo: string
+          p_janela_segundos: number
+          p_max: number
+        }
+        Returns: boolean
+      }
       consultar_palpites_por_whatsapp: {
         Args: { p_slug: string; p_whatsapp: string }
         Returns: {
@@ -1423,6 +1591,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      refresh_ranking: { Args: never; Returns: undefined }
       submit_palpite: {
         Args: {
           p_bolao_id: string
