@@ -79,12 +79,16 @@ function Onboarding() {
           whatsapp: meta.whatsapp ? maskPhone(meta.whatsapp) : v.whatsapp,
         }));
       }
+      const stripDDI = (raw: string) => {
+        const d = raw.replace(/\D+/g, "");
+        return d.startsWith("55") && d.length > 11 ? d.slice(2) : d;
+      };
       setS3((v) => ({
         ...v,
         numero_whatsapp:
           v.numero_whatsapp ||
-          (t?.whatsapp ? maskPhone(t.whatsapp) : "") ||
-          (u.user.user_metadata?.whatsapp ? maskPhone(u.user.user_metadata.whatsapp) : ""),
+          (t?.whatsapp ? maskPhone(stripDDI(t.whatsapp)) : "") ||
+          (u.user.user_metadata?.whatsapp ? maskPhone(stripDDI(u.user.user_metadata.whatsapp)) : ""),
       }));
     })();
   }, [navigate]);
