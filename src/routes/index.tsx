@@ -114,26 +114,11 @@ function Dashboard() {
               </div>
             </div>
 
-            {/* Bento grid */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 h-[320px] sm:h-[500px]">
-              <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-6 flex flex-col justify-between">
-                <div
-                  className="absolute -right-4 -top-4 h-32 w-32 rounded-full bg-gold/10 blur-3xl"
-                  aria-hidden="true"
-                />
-                <h3 className="font-display text-2xl sm:text-3xl text-gold">Jogos</h3>
-                <div>
-                  <p className="text-xl sm:text-3xl font-black italic uppercase tracking-tight">
-                    {data.live.length > 0 ? "AO VIVO" : "EM BREVE"}
-                  </p>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Acompanhe em tempo real
-                  </p>
-                </div>
-              </div>
+            {/* Trophy hero card */}
+            <div className="h-[320px] sm:h-[500px]">
               <Link
                 to="/criar-bolao"
-                className="group relative overflow-hidden row-span-2 rounded-2xl bg-gradient-gold p-4 sm:p-6 flex flex-col justify-end transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="group relative overflow-hidden h-full w-full rounded-2xl bg-gradient-gold p-4 sm:p-6 flex flex-col justify-end transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <img
                   src={heroTrophy}
@@ -149,25 +134,13 @@ function Dashboard() {
                   aria-hidden="true"
                 />
                 <h3 className="relative font-display text-4xl sm:text-6xl leading-none text-gold-foreground mb-3 sm:mb-4">
-                  TOP
+                  CRIE SEU
                   <br />
                   BOLÃO
                 </h3>
                 <p className="relative text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gold-foreground/80">
                   Prêmios exclusivos
                 </p>
-              </Link>
-
-              <Link
-                to="/grupos"
-                className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 flex flex-col justify-between transition-colors hover:border-gold/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-              >
-                <h3 className="font-display text-3xl text-foreground/50">Grupos</h3>
-                <div className="flex -space-x-2" aria-hidden="true">
-                  <div className="h-8 w-8 rounded-full bg-pitch border-2 border-card" />
-                  <div className="h-8 w-8 rounded-full bg-gold border-2 border-card" />
-                  <div className="h-8 w-8 rounded-full bg-live border-2 border-card" />
-                </div>
               </Link>
             </div>
           </div>
