@@ -1544,6 +1544,7 @@ export type Database = {
         Returns: {
           away_flag: string
           away_team: string
+          bolao_id: string
           codigo: number
           created_at: string
           ganhou: boolean
@@ -1557,6 +1558,7 @@ export type Database = {
           placar_a: number
           placar_b: number
           status_pagamento: string
+          torcedor_id: string
           valor: number
         }[]
       }
