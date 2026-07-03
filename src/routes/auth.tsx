@@ -6,6 +6,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { signInSuperAdminByWhatsApp } from "@/lib/auth.functions";
 import { friendlyError } from "@/lib/errors";
 import { Trophy } from "lucide-react";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Entrar — Bolão dos Amigos Brasileiros" }] }),
@@ -50,6 +60,7 @@ function Page() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [underageOpen, setUnderageOpen] = useState(false);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
@@ -119,7 +130,11 @@ function Page() {
     const m = today.getMonth() - dob.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
     if (age < 18) {
-      setError("Você precisa ter no mínimo 18 anos para se cadastrar.");
+      setBirthDate("");
+      setUnderageOpen(true);
+      toast.error("⚠️ Cadastro bloqueado — menor de 18 anos", {
+        description: "🚫 Fale com seu responsável.",
+      });
       return;
     }
     if (password.length < 8) {
@@ -302,6 +317,27 @@ function Page() {
           {info && <p className="text-sm text-emerald-600">{info}</p>}
         </div>
       </div>
+
+      <AlertDialog open={underageOpen} onOpenChange={setUnderageOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <span aria-hidden>⚠️🚫</span>
+              Você não pode estar aqui
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base leading-relaxed">
+              <span aria-hidden>🔞</span> Este aplicativo é <strong>exclusivo para maiores de 18 anos</strong>.
+              <br />
+              <span aria-hidden>👨‍👩‍👧</span> Fale com seu <strong>responsável</strong> antes de continuar.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setUnderageOpen(false)}>
+              Entendi
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppShell>
   );
 }
