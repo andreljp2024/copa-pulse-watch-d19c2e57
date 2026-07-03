@@ -101,7 +101,7 @@ export default defineConfig({
       "/client/icon-192.png": { redirect: "/icon-192.png" },
       "/client/icon-512.png": { redirect: "/icon-512.png" },
       "/client/apple-touch-icon.png": { redirect: "/apple-touch-icon.png" },
-      "/favicon.ico": { redirect: "/assets/bolaoai-icon-BWSdr3QL.png" },
+      "/favicon.ico": { redirect: "/icon-192.png" },
     },
   } as never,
 });
