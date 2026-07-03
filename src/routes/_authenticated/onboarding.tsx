@@ -11,7 +11,18 @@ import {
   isValidCpfCnpj,
   isValidPhoneBR,
 } from "@/lib/masks";
-import { Check, ChevronRight, Loader2, Search } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
+
+function isValidChavePix(tipo: string, chave: string): boolean {
+  const v = (chave || "").trim();
+  if (!v) return false;
+  if (tipo === "cpf") return onlyDigits(v).length === 11;
+  if (tipo === "cnpj") return onlyDigits(v).length === 14;
+  if (tipo === "telefone") return isValidPhoneBR(v);
+  if (tipo === "email") return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  if (tipo === "aleatoria") return v.length >= 20;
+  return true;
+}
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({ meta: [{ title: "Configurar meu bolão" }] }),
