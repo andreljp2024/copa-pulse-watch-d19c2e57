@@ -383,7 +383,7 @@ function Dashboard() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map(({ label, value, icon: Icon }, i) => {
+        {cards.map(({ label, value, icon: Icon, hint }, i) => {
           const tones = ["from-pitch/25", "from-gold/25", "from-brand-blue/25", "from-destructive/25"];
           const tone = tones[i % tones.length];
           return (
@@ -398,6 +398,7 @@ function Dashboard() {
                 <Icon className="h-4 w-4 text-gold" />
               </div>
               <p className="mt-2 text-3xl font-black font-display">{value}</p>
+              {hint && <p className="mt-1 text-[11px] text-muted-foreground">{hint}</p>}
             </div>
           );
         })}
