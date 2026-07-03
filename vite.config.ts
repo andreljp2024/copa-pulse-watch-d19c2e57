@@ -27,6 +27,7 @@ export default defineConfig({
         clientsClaim: true,
         skipWaiting: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
+        globIgnores: ["**/push-sw.js", "**/sw.js"],
         navigationPreload: true,
         importScripts: ["/push-sw.js"],
         runtimeCaching: [
