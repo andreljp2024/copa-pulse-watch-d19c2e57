@@ -275,6 +275,14 @@ function Dashboard() {
     { label: "Palpites totais", value: stats.palpites, icon: ListChecks },
     { label: "Palpites pagos", value: stats.pagos, icon: CheckCircle2 },
     { label: "Pendentes", value: stats.pendentes, icon: Clock },
+    {
+      label: "Taxa de conversão",
+      value: `${stats.taxa_conversao.toFixed(1)}%`,
+      icon: Sparkles,
+      hint: "Palpites pagos ÷ palpites totais",
+    },
+    { label: "Ticket médio", value: brl(stats.ticket_medio), icon: DollarSign, hint: "Arrecadado ÷ palpites pagos" },
+    { label: "LTV do torcedor", value: brl(stats.ltv_torcedor), icon: Users, hint: "Arrecadado ÷ nº torcedores" },
     { label: "Arrecadado", value: brl(stats.arrecadado), icon: DollarSign },
     {
       label: `Taxa admin (${stats.bolao?.percentual_admin ?? 30}%)`,
@@ -283,7 +291,13 @@ function Dashboard() {
     },
     { label: "Prêmio aos torcedores", value: brl(stats.premio_torcedores), icon: Trophy },
     { label: "Ganhadores", value: stats.ganhadores, icon: Trophy },
-  ];
+    {
+      label: "Notif. WhatsApp",
+      value: `${stats.notif_enviadas} enviadas · ${stats.notif_pendentes} na fila`,
+      icon: MessageCircle,
+      hint: "Envios automáticos via Evolution API",
+    },
+  ] as Array<{ label: string; value: string | number; icon: typeof Users; hint?: string }>;
 
   return (
     <div className="space-y-6">
