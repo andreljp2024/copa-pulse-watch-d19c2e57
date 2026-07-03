@@ -2,7 +2,7 @@
 
 // Contato do Dev responsável pelo Bolão AI (cortesia para torcedores brasileiros).
 // Ajuste este número (formato internacional, só dígitos) para o WhatsApp real do dev.
-export const DEV_WHATSAPP = "5511999999999";
+export const DEV_WHATSAPP = "5598986030534";
 export const DEV_NOME = "Dev do Bolão AI";
 export const LIMITE_PALPITES_FREE = 50;
 export const LIMITE_PALPITES_AVISO = 40;
