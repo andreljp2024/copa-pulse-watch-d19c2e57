@@ -103,7 +103,7 @@ function Dashboard() {
         .maybeSingle();
 
       const desde14 = new Date(Date.now() - 13 * 86400000).toISOString();
-      const [torCount, palTotal, palPagos, valoresPagos, ganCount, serieRows] =
+      const [torCount, palTotal, palPagos, valoresPagos, ganCount, serieRows, notifPend, notifSent] =
         await Promise.all([
           supabase
             .from("torcedores")
@@ -134,10 +134,21 @@ function Dashboard() {
             .eq("tenant_id", t.id)
             .gte("created_at", desde14)
             .limit(10000),
+          supabase
+            .from("notification_queue")
+            .select("id", { count: "exact", head: true })
+            .eq("tenant_id", t.id)
+            .in("status", ["pending", "sending"]),
+          supabase
+            .from("notification_queue")
+            .select("id", { count: "exact", head: true })
+            .eq("tenant_id", t.id)
+            .eq("status", "sent"),
         ]);
 
       const total = palTotal.count ?? 0;
       const pagos = palPagos.count ?? 0;
+      const torcedoresCount = torCount.count ?? 0;
       const arrecadado = (valoresPagos.data ?? []).reduce(
         (s, p) => s + Number(p.valor ?? 0),
         0,
@@ -145,6 +156,9 @@ function Dashboard() {
       const pct = Number((bo as { percentual_admin?: number } | null)?.percentual_admin ?? 30);
       const taxa_admin = arrecadado * (pct / 100);
       const premio_torcedores = arrecadado - taxa_admin;
+      const taxa_conversao = total > 0 ? (pagos / total) * 100 : 0;
+      const ticket_medio = pagos > 0 ? arrecadado / pagos : 0;
+      const ltv_torcedor = torcedoresCount > 0 ? arrecadado / torcedoresCount : 0;
 
       const buckets = new Map<string, number>();
       for (let i = 13; i >= 0; i--) {
@@ -157,7 +171,7 @@ function Dashboard() {
       }
 
       setStats({
-        torcedores: torCount.count ?? 0,
+        torcedores: torcedoresCount,
         palpites: total,
         pagos,
         pendentes: Math.max(0, total - pagos),
@@ -165,6 +179,11 @@ function Dashboard() {
         ganhadores: ganCount.count ?? 0,
         taxa_admin,
         premio_torcedores,
+        taxa_conversao,
+        ticket_medio,
+        ltv_torcedor,
+        notif_pendentes: notifPend.count ?? 0,
+        notif_enviadas: notifSent.count ?? 0,
         bolao: bo
           ? {
               id: bo.id,
