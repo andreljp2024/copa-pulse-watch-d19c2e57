@@ -138,7 +138,7 @@ function Page() {
         password,
         options: {
           emailRedirectTo: window.location.origin,
-          data: { full_name: nome, whatsapp: `55${digits}` },
+          data: { full_name: nome, whatsapp: `55${digits}`, birth_date: birthDate },
         },
       });
       if (error) throw error;
