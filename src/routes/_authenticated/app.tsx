@@ -70,7 +70,7 @@ function AppLayout() {
     queryFn: () => checkSuper(),
   });
   const nav: NavItem[] = superCheck?.isSuperAdmin
-    ? [...baseNav, { to: "/app/gestores", label: "Organizadores", icon: Shield }]
+    ? [...baseNav, ...superAdminNav, { to: "/app/gestores", label: "Organizadores", icon: Shield }]
     : baseNav;
   const currentLabel =
     nav.find((n) => (n.exact ? pathname === n.to : pathname.startsWith(n.to)))?.label ?? "Painel";
