@@ -59,6 +59,7 @@ function maskDate(v: string): string {
 function Page() {
   const navigate = useNavigate();
   const signInSuperAdmin = useServerFn(signInSuperAdminByWhatsApp);
+  const signUpOrganizer = useServerFn(signUpOrganizerByWhatsApp);
   const [mode, setMode] = useState<Mode>("login");
   const [whatsMasked, setWhatsMasked] = useState("");
   const [password, setPassword] = useState("");
