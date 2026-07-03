@@ -176,9 +176,34 @@
   h4,
   .font-display {
     font-family: var(--font-display);
-    letter-spacing: -0.015em;
-    line-height: 1.08;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    font-weight: 800;
+    text-wrap: balance;
+  }
+  h1 {
+    font-size: clamp(1.75rem, 2.2vw + 1rem, 2.75rem);
+  }
+  h2 {
+    font-size: clamp(1.375rem, 1.2vw + 1rem, 1.875rem);
     font-weight: 700;
+  }
+  h3 {
+    font-size: clamp(1.125rem, 0.6vw + 1rem, 1.375rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  small,
+  .text-xs {
+    letter-spacing: 0.005em;
   }
   ::selection {
     background: var(--brand-yellow);
