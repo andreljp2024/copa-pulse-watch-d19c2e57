@@ -11,7 +11,18 @@ import {
   isValidCpfCnpj,
   isValidPhoneBR,
 } from "@/lib/masks";
-import { Check, ChevronRight, Loader2, Search } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
+
+function isValidChavePix(tipo: string, chave: string): boolean {
+  const v = (chave || "").trim();
+  if (!v) return false;
+  if (tipo === "cpf") return onlyDigits(v).length === 11;
+  if (tipo === "cnpj") return onlyDigits(v).length === 14;
+  if (tipo === "telefone") return isValidPhoneBR(v);
+  if (tipo === "email") return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  if (tipo === "aleatoria") return v.length >= 20;
+  return true;
+}
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({ meta: [{ title: "Configurar meu bolão" }] }),
@@ -98,18 +109,38 @@ function Onboarding() {
         setS1((v) => ({
           ...v,
           nome_estabelecimento: t.nome_estabelecimento ?? "",
-          whatsapp: t.whatsapp ?? "",
+          whatsapp: t.whatsapp ? maskPhone(t.whatsapp) : "",
           cidade: t.cidade ?? "",
           estado: t.estado ?? "",
         }));
-        const { data: bo } = await supabase
-          .from("boloes")
-          .select("id")
-          .eq("tenant_id", t.id)
-          .limit(1);
-        if (bo && bo.length > 0) navigate({ to: "/app" });
+        // Retomada inteligente: pula para o passo pendente
+        const [{ data: pix }, { data: wa }, { data: bo }] = await Promise.all([
+          supabase.from("tenant_pix_config").select("tenant_id").eq("tenant_id", t.id).maybeSingle(),
+          supabase.from("tenant_whatsapp_config").select("tenant_id").eq("tenant_id", t.id).maybeSingle(),
+          supabase.from("boloes").select("id").eq("tenant_id", t.id).limit(1),
+        ]);
+        if (bo && bo.length > 0) {
+          navigate({ to: "/app" });
+          return;
+        }
+        if (pix && wa) setStep(4);
+        else if (pix) setStep(3);
+        else setStep(2);
+      } else {
+        // Pré-preencher com metadados do cadastro
+        const meta = (u.user.user_metadata ?? {}) as Record<string, string>;
+        setS1((v) => ({
+          ...v,
+          nome_responsavel: meta.nome ?? meta.full_name ?? v.nome_responsavel,
+          whatsapp: meta.whatsapp ? maskPhone(meta.whatsapp) : v.whatsapp,
+        }));
       }
-      setS3((v) => ({ ...v, numero_whatsapp: u.user.user_metadata?.whatsapp ?? "" }));
+      setS3((v) => ({
+        ...v,
+        numero_whatsapp: u.user.user_metadata?.whatsapp
+          ? maskPhone(u.user.user_metadata.whatsapp)
+          : "",
+      }));
     })();
   }, [navigate]);
 
@@ -166,12 +197,28 @@ function Onboarding() {
 
   async function saveStep2() {
     if (!tenantId) return;
-    setLoading(true);
     setError(null);
+    if (!s2.nome_recebedor.trim()) {
+      setError("Informe o nome do recebedor.");
+      return;
+    }
+    if (!isValidChavePix(s2.tipo_chave_pix, s2.chave_pix)) {
+      setError("Chave Pix inválida para o tipo selecionado.");
+      return;
+    }
+    if (!(s2.valor_padrao_palpite > 0)) {
+      setError("Valor padrão do palpite deve ser maior que zero.");
+      return;
+    }
+    setLoading(true);
     try {
+      const chave =
+        s2.tipo_chave_pix === "cpf" || s2.tipo_chave_pix === "cnpj" || s2.tipo_chave_pix === "telefone"
+          ? onlyDigits(s2.chave_pix)
+          : s2.chave_pix.trim();
       const { error } = await supabase
         .from("tenant_pix_config")
-        .upsert({ tenant_id: tenantId, ...s2 }, { onConflict: "tenant_id" });
+        .upsert({ tenant_id: tenantId, ...s2, chave_pix: chave }, { onConflict: "tenant_id" });
       if (error) throw error;
       setStep(3);
     } catch (e) {
@@ -183,8 +230,12 @@ function Onboarding() {
 
   async function saveStep3() {
     if (!tenantId) return;
-    setLoading(true);
     setError(null);
+    if (!isValidPhoneBR(s3.numero_whatsapp)) {
+      setError("Número de WhatsApp inválido.");
+      return;
+    }
+    setLoading(true);
     try {
       const { error } = await supabase
         .from("tenant_whatsapp_config")
@@ -203,13 +254,36 @@ function Onboarding() {
 
   async function saveStep4() {
     if (!tenantId) return;
-    setLoading(true);
     setError(null);
+    if (!s4.nome.trim()) {
+      setError("Informe o nome do bolão.");
+      return;
+    }
+    const slug = slugify(s4.slug || s4.nome);
+    if (slug.length < 3) {
+      setError("Slug inválido — use ao menos 3 caracteres.");
+      return;
+    }
+    if (!(s4.valor_palpite > 0)) {
+      setError("Valor do palpite deve ser maior que zero.");
+      return;
+    }
+    setLoading(true);
     try {
-      const slug = s4.slug || slugify(s4.nome);
+      // Checagem de unicidade do slug
+      const { data: existing } = await supabase
+        .from("boloes")
+        .select("id")
+        .eq("slug", slug)
+        .limit(1);
+      if (existing && existing.length > 0) {
+        setError("Este slug já está em uso. Escolha outro.");
+        setLoading(false);
+        return;
+      }
       const { error } = await supabase.from("boloes").insert({
         tenant_id: tenantId,
-        nome: s4.nome,
+        nome: s4.nome.trim(),
         slug,
         descricao: s4.descricao,
         valor_palpite: s4.valor_palpite,
@@ -223,21 +297,53 @@ function Onboarding() {
     }
   }
 
+  // Ao entrar no step 2, pré-preenche cidade a partir do endereço
+  useEffect(() => {
+    if (step === 2 && !s2.cidade && s1.cidade) {
+      setS2((v) => ({ ...v, cidade: s1.cidade }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+
   return (
     <div className="min-h-screen bg-muted/20 py-10">
       <div className="mx-auto max-w-2xl px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-black">Configurar meu bolão</h1>
           <p className="text-sm text-muted-foreground">Passo {step} de 4</p>
-          <div className="mt-3 flex gap-1">
+          <div className="mt-3 flex items-center gap-2">
             {[1, 2, 3, 4].map((n) => (
-              <div
-                key={n}
-                className={`h-2 flex-1 rounded-full ${n <= step ? "bg-pitch" : "bg-muted"}`}
-              />
+              <div key={n} className="flex flex-1 items-center gap-2">
+                <div
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                    n < step
+                      ? "bg-pitch text-primary-foreground"
+                      : n === step
+                        ? "bg-pitch text-primary-foreground ring-2 ring-pitch/30"
+                        : "bg-muted text-muted-foreground"
+                  }`}
+                  aria-current={n === step ? "step" : undefined}
+                >
+                  {n < step ? <Check className="h-3.5 w-3.5" /> : n}
+                </div>
+                {n < 4 && (
+                  <div className={`h-1 flex-1 rounded-full ${n < step ? "bg-pitch" : "bg-muted"}`} />
+                )}
+              </div>
             ))}
           </div>
+          {step > 1 && (
+            <button
+              type="button"
+              onClick={() => setStep((s) => (Math.max(1, s - 1) as Step))}
+              className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              <ChevronLeft className="h-4 w-4" /> Voltar ao passo anterior
+            </button>
+          )}
         </div>
+
 
         <div className="rounded-2xl border border-border bg-card p-6">
           {step === 1 && (
