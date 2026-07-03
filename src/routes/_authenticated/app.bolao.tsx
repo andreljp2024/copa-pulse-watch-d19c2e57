@@ -922,7 +922,7 @@ function BolaoConfigPage() {
             )}
             <button
               onClick={() => save()}
-              disabled={saving || !dirty}
+              disabled={saving}
               className="inline-flex h-9 items-center gap-2 rounded-full bg-pitch px-4 text-sm font-semibold text-primary-foreground disabled:opacity-60"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}{" "}
