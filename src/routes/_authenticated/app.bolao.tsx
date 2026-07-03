@@ -424,6 +424,83 @@ function BolaoConfigPage() {
         </div>
       </div>
 
+      {/* RESUMO DO BOLÃO */}
+      <div className="rounded-2xl border border-gold/30 bg-gradient-card p-5 shadow-card">
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <div className="flex items-center gap-2">
+            <Trophy className="h-4 w-4 text-gold" />
+            <h2 className="font-display text-base font-bold">Resumo do bolão</h2>
+          </div>
+          {!pixInfo && (
+            <Link to="/app/pix" className="inline-flex items-center gap-1 text-xs font-semibold text-gold hover:underline">
+              Configurar Pix <ChevronRight className="h-3 w-3" />
+            </Link>
+          )}
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <SummaryItem label="Nome" value={form.nome || "—"} icon={<Trophy className="h-3.5 w-3.5" />} />
+          <SummaryItem
+            label="Valor do palpite"
+            value={`R$ ${Number(form.valor_palpite || 0).toFixed(2).replace(".", ",")}`}
+            icon={<DollarSign className="h-3.5 w-3.5" />}
+            highlight
+          />
+          <SummaryItem
+            label="Comissão organizador"
+            value={`${Number(form.percentual_admin || 0)}%`}
+            hint={`Prêmio: ${100 - Number(form.percentual_admin || 0)}%`}
+            icon={<Megaphone className="h-3.5 w-3.5" />}
+          />
+          <SummaryItem
+            label="Pix recebedor"
+            value={pixInfo?.nome_recebedor || "Não configurado"}
+            hint={pixInfo ? `${(pixInfo.tipo_chave_pix ?? "").toUpperCase()} • ${pixInfo.chave_pix}` : "Configure em Pix"}
+            icon={<DollarSign className="h-3.5 w-3.5" />}
+          />
+        </div>
+
+        {shareUrl && (
+          <div className="mt-4 flex flex-col gap-2 rounded-xl border border-border/60 bg-background/40 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                Link para compartilhar
+              </div>
+              <div className="mt-0.5 truncate text-sm font-semibold text-foreground">
+                {shareUrl.replace(/^https?:\/\//, "")}
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={copyShare}
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-card text-xs font-semibold hover:border-gold/40 transition-colors"
+              >
+                {copied ? <Check className="h-3.5 w-3.5 text-pitch" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied ? "Copiado" : "Copiar"}
+              </button>
+              <button
+                type="button"
+                onClick={shareWhatsApp}
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-gradient-gold text-[color:var(--gold-foreground)] text-xs font-black shadow-gold"
+              >
+                <Share2 className="h-3.5 w-3.5" /> WhatsApp
+              </button>
+              <a
+                href={shareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-card text-xs font-semibold hover:border-gold/40 transition-colors"
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> Abrir
+              </a>
+            </div>
+          </div>
+        )}
+      </div>
+
+
+
       {/* CHECKLIST DE PRONTIDÃO */}
       {!ready && (
         <div className="rounded-2xl border border-gold/30 bg-card/60 p-4 backdrop-blur shadow-card">
