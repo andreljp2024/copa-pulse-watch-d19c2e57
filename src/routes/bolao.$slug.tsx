@@ -533,7 +533,7 @@ function PublicBolao() {
                     {away?.flag_url && <img src={away.flag_url} alt="" className="h-5 w-7 object-cover rounded" />}
                     {m.kickoff_at && (
                       <span className="hidden sm:inline ml-3 text-[11px] text-muted-foreground">
-                        {format(new Date(m.kickoff_at), "dd/MM HH:mm", { locale: ptBR })}
+                        {formatBR(m.kickoff_at, "dd/MM HH:mm")}
                       </span>
                     )}
                   </div>
