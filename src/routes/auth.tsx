@@ -48,6 +48,14 @@ function toSyntheticEmail(digitsSemDDI: string): string {
   return `55${digitsSemDDI}@${WA_EMAIL_DOMAIN}`;
 }
 
+/** Máscara DD/MM/AAAA sem autocompletar — usuário digita apenas números. */
+function maskDate(v: string): string {
+  const d = v.replace(/\D/g, "").slice(0, 8);
+  if (d.length <= 2) return d;
+  if (d.length <= 4) return `${d.slice(0, 2)}/${d.slice(2)}`;
+  return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`;
+}
+
 function Page() {
   const navigate = useNavigate();
   const signInSuperAdmin = useServerFn(signInSuperAdminByWhatsApp);
