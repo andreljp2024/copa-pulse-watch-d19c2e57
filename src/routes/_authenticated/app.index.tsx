@@ -132,7 +132,7 @@ function Dashboard() {
       const torcedoresCount = Number(row?.total_torcedores ?? 0);
       const arrecadado = Number(row?.receita_paga ?? 0);
       const ganhadoresCount = Number(row?.total_ganhadores ?? 0);
-      const pct = Number((bo as { percentual_admin?: number } | null)?.percentual_admin ?? 30);
+      const pct = Number((bo as { percentual_admin?: number } | null)?.percentual_admin ?? 20);
       const taxa_admin = arrecadado * (pct / 100);
       const premio_torcedores = arrecadado - taxa_admin;
       const taxa_conversao = total > 0 ? (pagos / total) * 100 : 0;
