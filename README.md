@@ -148,15 +148,34 @@ supabase/migrations/              SQL versionado
 - `FOOTBALL_API_KEY` — football-data.org (fallback)
 - `CRON_SECRET` — protege endpoint de sync
 - `LOVABLE_API_KEY` — AI Gateway
+- `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` — Web Push
 
 **Cliente** (`import.meta.env`):
 - `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`
 
 ---
 
-## 6. Convenções
+## 7. Auditoria de segurança (jul/2026)
 
-- **Datas**: sempre `formatBR(date)` de `src/lib/timezone.ts`.
+Executada via `supabase--linter` + revisão manual de `pg_proc`. Estado atual:
+
+| Item | Status |
+| ---- | ------ |
+| RLS em todas as tabelas `public` | ✅ |
+| `EXECUTE` de `anon` apenas em RPCs públicas explícitas | ✅ |
+| Materialized views bloqueadas na Data API | ✅ |
+| Service role apenas em `.server.ts` (lazy import) | ✅ |
+| Auth 100% server-side (`requireSupabaseAuth`) | ✅ |
+| Rate limiting em `submit_palpite` (10/min por WhatsApp) | ✅ |
+| Auditoria com `before`/`after` JSONB em ações sensíveis | ✅ |
+| Extensões em `public` (warn cosmético `pg_cron`/`pg_net`) | ⚠️ aceitável |
+| Triggers `SECURITY DEFINER` sinalizados pelo linter | ⚠️ falso-positivo (só executam via trigger) |
+
+---
+
+## 8. Convenções
+
+- **Datas**: sempre `formatBR*` de `src/lib/timezone.ts`.
 - **Server functions**: `.functions.ts` importáveis pelo cliente; `.server.ts` somente pelo servidor.
 - **Migrations**: todo `CREATE TABLE` em `public` deve trazer `GRANT` + `ENABLE RLS` + `CREATE POLICY` na mesma migração.
 - **Estilo**: fundos amarelos/dourados usam `text-black` (contraste). Tokens semânticos em `styles.css`.
@@ -164,13 +183,15 @@ supabase/migrations/              SQL versionado
 
 ---
 
-## 7. Deploy
+## 9. Deploy
 
 Ver [`DEPLOY.md`](./DEPLOY.md) para o guia completo (Lovable, GitHub, Coolify, self-hosting).
 
 ---
 
-## 8. Super Admin
+## 10. Super Admin
 
 - Email exclusivo: **andreljp@gmail.com** (atribuição via `assign_default_roles_on_confirm`).
 - Demais usuários confirmados recebem `tenant_admin` automaticamente.
+- Ações privilegiadas: liberar plano ilimitado, suspender organizadores, bloquear torcedores, ler auditoria global.
+
