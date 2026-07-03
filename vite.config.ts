@@ -26,8 +26,10 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
-        globIgnores: ["**/push-sw.js", "**/sw.js"],
+        // Evita precache de arquivos públicos que o deploy serve na raiz (/icon-512.png),
+        // mas que o Workbox tenta resolver como /client/icon-512.png em produção.
+        globPatterns: ["**/*.{js,css,html,woff2}"],
+        globIgnores: ["**/push-sw.js", "**/sw.js", "**/icon-*.png", "**/apple-touch-icon.png"],
         navigationPreload: true,
         importScripts: ["/push-sw.js"],
         runtimeCaching: [
@@ -96,7 +98,10 @@ export default defineConfig({
       "/realtime/**": { proxy: "http://kong:8000/realtime/**" },
       "/evolution/**": { proxy: "http://evo-crm-evolution-api:8080/**" },
       "/sw.js": { headers: { "cache-control": "no-store, no-cache, must-revalidate, max-age=0" } },
-      "/favicon.ico": { redirect: "/assets/bolaoai-icon-BWSdr3QL.png" },
+      "/client/icon-192.png": { redirect: "/icon-192.png" },
+      "/client/icon-512.png": { redirect: "/icon-512.png" },
+      "/client/apple-touch-icon.png": { redirect: "/apple-touch-icon.png" },
+      "/favicon.ico": { redirect: "/icon-192.png" },
     },
   } as never,
 });

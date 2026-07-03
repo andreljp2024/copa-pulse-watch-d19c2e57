@@ -12,6 +12,8 @@ export function friendlyError(
   // Auth (Supabase)
   if (raw.includes("invalid login credentials")) return "E-mail ou senha incorretos.";
   if (raw.includes("email not confirmed")) return "Confirme seu e-mail antes de entrar.";
+  if (raw.includes("email_provider_disabled") || raw.includes("email logins are disabled"))
+    return "Login por WhatsApp e senha ainda está desativado no backend. Ative Email/Senha nas configurações de autenticação.";
   if (raw.includes("user already registered")) return "Este e-mail já está cadastrado. Faça login.";
   if (raw.includes("password should be at least"))
     return "A senha precisa ter ao menos 6 caracteres.";
