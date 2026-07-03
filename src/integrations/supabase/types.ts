@@ -99,6 +99,48 @@ export type Database = {
           },
         ]
       }
+      audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_user_id: string | null
+          after: Json | null
+          before: Json | null
+          created_at: string
+          entity: string
+          entity_id: string | null
+          id: string
+          meta: Json | null
+          tenant_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_user_id?: string | null
+          after?: Json | null
+          before?: Json | null
+          created_at?: string
+          entity: string
+          entity_id?: string | null
+          id?: string
+          meta?: Json | null
+          tenant_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_user_id?: string | null
+          after?: Json | null
+          before?: Json | null
+          created_at?: string
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          meta?: Json | null
+          tenant_id?: string | null
+        }
+        Relationships: []
+      }
       bolao_matches: {
         Row: {
           bolao_id: string
@@ -1637,6 +1679,7 @@ export type Database = {
         }[]
       }
       current_tenant_id: { Args: never; Returns: string }
+      export_bolao: { Args: { p_bolao_id: string }; Returns: Json }
       get_bolao_public_payment: {
         Args: { p_slug: string }
         Returns: {
@@ -1691,6 +1734,28 @@ export type Database = {
         }
         Returns: boolean
       }
+      list_audit_log: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: {
+          action: string
+          actor_email: string | null
+          actor_user_id: string | null
+          after: Json | null
+          before: Json | null
+          created_at: string
+          entity: string
+          entity_id: string | null
+          id: string
+          meta: Json | null
+          tenant_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "audit_log"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       list_fraud_signals: {
         Args: never
         Returns: {
@@ -1704,6 +1769,16 @@ export type Database = {
           ultimos_10min: number
           whatsapp: string
         }[]
+      }
+      log_audit_event: {
+        Args: {
+          p_action: string
+          p_entity: string
+          p_entity_id?: string
+          p_meta?: Json
+          p_tenant_id: string
+        }
+        Returns: undefined
       }
       refresh_dashboard_organizador: { Args: never; Returns: undefined }
       refresh_ranking: { Args: never; Returns: undefined }

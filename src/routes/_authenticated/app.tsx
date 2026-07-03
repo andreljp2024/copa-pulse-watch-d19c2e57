@@ -18,6 +18,7 @@ import {
   X,
   Shield,
   HelpCircle,
+  FileText,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -35,6 +36,7 @@ type NavItem = {
     | "/app/palpites"
     | "/app/ganhadores"
     | "/app/seguranca"
+    | "/app/auditoria"
     | "/app/gestores";
   label: string;
   icon: typeof LayoutDashboard;
@@ -50,6 +52,7 @@ const baseNav: NavItem[] = [
   { to: "/app/palpites", label: "Palpites", icon: ListChecks },
   { to: "/app/ganhadores", label: "Ganhadores", icon: Trophy },
   { to: "/app/seguranca", label: "Segurança", icon: Shield },
+  { to: "/app/auditoria", label: "Auditoria", icon: FileText },
   { to: "/ajuda" as "/app", label: "Ajuda", icon: HelpCircle },
 ];
 
