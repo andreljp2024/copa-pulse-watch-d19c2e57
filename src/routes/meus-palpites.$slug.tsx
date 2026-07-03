@@ -52,6 +52,48 @@ function TeamBadge({ name, flag }: { name: string | null; flag: string | null })
   );
 }
 
+function PushToggle({ torcedor_id, bolao_id }: { torcedor_id: string; bolao_id: string }) {
+  const [enabled, setEnabled] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const supported = pushSupported();
+
+  useEffect(() => {
+    if (!supported) return;
+    navigator.serviceWorker.ready
+      .then((r) => r.pushManager.getSubscription())
+      .then((s) => setEnabled(!!s));
+  }, [supported]);
+
+  if (!supported) return null;
+
+  async function toggle() {
+    setBusy(true);
+    try {
+      if (enabled) {
+        await unsubscribePush();
+        setEnabled(false);
+      } else {
+        const ok = await subscribePush({ torcedor_id, bolao_id });
+        setEnabled(ok);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      disabled={busy}
+      className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-accent/30 bg-card/60 backdrop-blur px-4 py-3 text-sm font-semibold hover:bg-card/80 transition-colors disabled:opacity-50"
+    >
+      {enabled ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+      {enabled ? "Desativar notificações" : "Ativar notificações no celular"}
+    </button>
+  );
+}
+
 function MeusPalpitesPage() {
   const { slug } = Route.useParams();
   const [whatsapp, setWhatsapp] = useState("");
