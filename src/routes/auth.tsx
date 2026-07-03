@@ -45,6 +45,7 @@ function Page() {
   const [whatsMasked, setWhatsMasked] = useState("");
   const [password, setPassword] = useState("");
   const [nome, setNome] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
