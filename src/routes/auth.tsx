@@ -217,6 +217,19 @@ function Page() {
                     className="w-full h-11 rounded-lg border border-border bg-background px-3"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Data de nascimento</label>
+                  <input
+                    type="date"
+                    required
+                    value={birthDate}
+                    max={new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)}
+                    min="1900-01-01"
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    className="w-full h-11 rounded-lg border border-border bg-background px-3"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">É necessário ter no mínimo 18 anos.</p>
+                </div>
               </>
             )}
 
