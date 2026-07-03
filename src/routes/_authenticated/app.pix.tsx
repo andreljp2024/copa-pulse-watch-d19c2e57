@@ -146,7 +146,7 @@ function PixConfigPage() {
             banco: pixRes.data.banco ?? "",
             cidade: pixRes.data.cidade ?? "",
             valor_padrao_palpite: Number(pixRes.data.valor_padrao_palpite ?? 10),
-            instrucoes_pagamento: pixRes.data.instrucoes_pagamento ?? "",
+            instrucoes_pagamento: pixRes.data.instrucoes_pagamento ?? MODELO_INSTRUCOES,
             numero_recebedor_whatsapp: maskPhone(pixRes.data.numero_recebedor_whatsapp ?? ""),
           });
         } else {
