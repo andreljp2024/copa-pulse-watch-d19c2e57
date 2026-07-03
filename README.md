@@ -1,0 +1,142 @@
+# Bolão SaaS — Rumo ao Hexa
+
+Plataforma multi-tenant para organização de bolões da Copa do Mundo com apuração automática de ganhadores, integração com API-Football e pagamentos via Pix + WhatsApp.
+
+> Comunicação, código e documentação em pt-BR. Fuso horário padrão: **America/Sao_Paulo (UTC-3)**.
+
+---
+
+## 1. Stack
+
+| Camada          | Tecnologia                                                       |
+| --------------- | ---------------------------------------------------------------- |
+| Frontend        | React 19 · TanStack Start v1 · Vite 7 · Tailwind v4 · shadcn/ui  |
+| Server Runtime  | `createServerFn` (`@tanstack/react-start`) em Cloudflare Workers |
+| Backend / DB    | Lovable Cloud (Postgres + RLS + Realtime)                        |
+| IA              | Lovable AI Gateway                                                |
+| APIs externas   | worldcup26.ir (primária) → football-data.org (fallback)          |
+| Mensageria      | WhatsApp via `wa.me` links + Evolution API (opcional)             |
+
+---
+
+## 2. Estrutura do projeto
+
+```text
+src/
+├── routes/
+│   ├── __root.tsx                Layout raiz (head, providers, auth listener)
+│   ├── index.tsx                 Landing pública
+│   ├── auth.tsx                  Login/cadastro
+│   ├── criar-bolao.tsx           Landing de aquisição (planos)
+│   ├── bolao.$slug.tsx           Página pública do bolão
+│   ├── meus-palpites.$slug.tsx   Consulta pública por WhatsApp
+│   ├── _authenticated/           Área logada (gate ssr:false gerenciado)
+│   │   ├── app.tsx               Dashboard
+│   │   ├── onboarding.tsx        Wizard multi-step (CPF + Pix)
+│   │   ├── app.palpites.tsx      Gestão de palpites
+│   │   ├── app.ganhadores.tsx    Ganhadores e prêmios
+│   │   ├── app.torcedores.tsx    Base de torcedores
+│   │   └── app.organizadores.tsx Super Admin
+│   └── api/public/               Endpoints públicos (webhooks/cron)
+│       └── hooks/sync-football.ts
+├── lib/
+│   ├── *.functions.ts            Server functions (RPC)
+│   ├── *.server.ts               Helpers exclusivos do servidor
+│   ├── sync-with-fallback.server.ts  Estratégia de fonte única + fallback
+│   ├── timezone.ts               Helpers UTC-3 (`formatBR`)
+│   ├── masks.ts                  Máscaras CPF, WhatsApp, Pix
+│   └── saas.ts                   Templates de mensagens WhatsApp
+├── integrations/supabase/        Clientes auto-gerados (não editar)
+└── styles.css                    Tokens semânticos (tema Hexa)
+
+supabase/migrations/              SQL versionado
+```
+
+---
+
+## 3. Módulos
+
+### 3.1 Palpites (`app.palpites.tsx`)
+- Bandeiras das seleções, data/hora do jogo e do palpite em UTC-3.
+- Máscaras de WhatsApp, reativação de palpites cancelados, exportação CSV com BOM.
+- Coluna "Palpite" (antigo protocolo) alinhada ao placar apurado.
+
+### 3.2 Ganhadores (`app.ganhadores.tsx`)
+- Apuração **automática** via triggers no banco (`tg_apurar_ganhadores` em `matches` e `tg_apurar_ganhador_palpite` em `palpites`).
+- Função `apurar_ganhadores_para_match(uuid)` idempotente.
+- Exportação CSV em BRL e disparo de mensagens de premiação via WhatsApp.
+
+### 3.3 Dashboard (`app.tsx`)
+- Contagens exatas para grandes volumes, cálculos financeiros corrigidos.
+- Gráficos Sparkline por dia (UTC-3) com skeletons de carregamento.
+
+### 3.4 Torcedores (`app.torcedores.tsx`)
+- Data de cadastro = `min(created_at)` dos palpites do torcedor.
+- Colunas simplificadas.
+
+### 3.5 Onboarding (`onboarding.tsx`)
+- Passo 1: CPF + Chave Pix (validação imediata, nome do estabelecimento derivado).
+- Passo 2: detalhes complementares e WhatsApp.
+- Passo 3: bolão + slug.
+- Retomada inteligente, indicador de progresso, botão "Voltar".
+
+### 3.6 Organizadores — Super Admin (`app.organizadores.tsx`)
+- Gestão de papéis, suspensão de acesso, recuperação de senha, divulgação WhatsApp.
+- Botão "Liberar" migra o tenant para plano ilimitado.
+
+### 3.7 Planos
+- **Grátis**: 50 palpites (enforcement via trigger `enforce_palpite_limit`).
+- **Consulte o Dev**: ilimitado, ativado manualmente pelo Super Admin.
+
+### 3.8 Sincronização de jogos
+- Fonte primária **worldcup26.ir**; fallback automático para **football-data.org**.
+- Deduplicação garantida por `sync-with-fallback.server.ts` — sem duplicidade em `matches`.
+- Cron público em `/api/public/hooks/sync-football` protegido por `CRON_SECRET`.
+
+---
+
+## 4. Segurança
+
+- **RLS habilitada** em todas as tabelas de `public`. Políticas escopadas por `auth.uid()` + `has_role()`.
+- **Roles em tabela separada** (`user_roles` + enum `app_role`) — nunca no perfil.
+- Função `has_role(_user_id, _role)` `SECURITY DEFINER` para evitar recursão em políticas.
+- RPCs públicos (`submit_palpite`, `consultar_palpites_por_whatsapp`, `get_bolao_public_payment`, `get_bolao_ranking`) são `SECURITY DEFINER` e validam internamente slug, status e prazos.
+- `SUPABASE_SERVICE_ROLE_KEY` é lido **apenas** dentro de `.server.ts` via `await import(...)` em handlers — nunca no bundle do cliente.
+- Auth exclusivamente server-side (`requireSupabaseAuth` middleware). Zero verificação de role no client.
+- Fuso horário centralizado em `src/lib/timezone.ts` — usar sempre `formatBR`.
+
+---
+
+## 5. Variáveis de ambiente
+
+**Servidor** (`process.env`):
+- `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+- `FOOTBALL_API_KEY` — football-data.org (fallback)
+- `CRON_SECRET` — protege endpoint de sync
+- `LOVABLE_API_KEY` — AI Gateway
+
+**Cliente** (`import.meta.env`):
+- `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`
+
+---
+
+## 6. Convenções
+
+- **Datas**: sempre `formatBR(date)` de `src/lib/timezone.ts`.
+- **Server functions**: `.functions.ts` importáveis pelo cliente; `.server.ts` somente pelo servidor.
+- **Migrations**: todo `CREATE TABLE` em `public` deve trazer `GRANT` + `ENABLE RLS` + `CREATE POLICY` na mesma migração.
+- **Estilo**: fundos amarelos/dourados usam `text-black` (contraste). Tokens semânticos em `styles.css`.
+- **Mensagens WhatsApp**: templates em `src/lib/saas.ts` com variáveis dinâmicas (`{{bandeira_a}}`, `{{valor}}`, etc.).
+
+---
+
+## 7. Deploy
+
+Ver [`DEPLOY.md`](./DEPLOY.md) para o guia completo (Lovable, GitHub, Coolify, self-hosting).
+
+---
+
+## 8. Super Admin
+
+- Email exclusivo: **andreljp@gmail.com** (atribuição via `assign_default_roles_on_confirm`).
+- Demais usuários confirmados recebem `tenant_admin` automaticamente.
