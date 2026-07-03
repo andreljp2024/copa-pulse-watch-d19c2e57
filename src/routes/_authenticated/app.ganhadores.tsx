@@ -295,7 +295,7 @@ function BolaoCard({ g }: { g: GanhadoresBolaoGroup }) {
               Arrecadado: <strong className="text-foreground">{brl(g.arrecadado)}</strong>
             </span>
             <span>
-              Taxa ({g.percentual_admin}%):{" "}
+              Taxa de organização ({g.percentual_admin}%):{" "}
               <strong className="text-foreground">{brl(g.taxa_admin)}</strong>
             </span>
             <span>
