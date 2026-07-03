@@ -34,6 +34,7 @@ type NavItem = {
     | "/app/torcedores"
     | "/app/palpites"
     | "/app/ganhadores"
+    | "/app/seguranca"
     | "/app/gestores";
   label: string;
   icon: typeof LayoutDashboard;
@@ -48,6 +49,7 @@ const baseNav: NavItem[] = [
   { to: "/app/torcedores", label: "Torcedores", icon: Users },
   { to: "/app/palpites", label: "Palpites", icon: ListChecks },
   { to: "/app/ganhadores", label: "Ganhadores", icon: Trophy },
+  { to: "/app/seguranca", label: "Segurança", icon: Shield },
   { to: "/ajuda" as "/app", label: "Ajuda", icon: HelpCircle },
 ];
 
