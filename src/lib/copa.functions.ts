@@ -35,10 +35,22 @@ export const getDashboard = createServerFn({ method: "GET" }).handler(async () =
     return empty;
   }
   const now = new Date().toISOString();
+  // Fallback: considera "ao vivo" partidas cujo kickoff já ocorreu (últimas ~2h30)
+  // e que ainda não foram marcadas como finalizadas — cobre janela em que a sync
+  // ainda não atualizou o status para 'live'.
+  const liveWindowStart = new Date(Date.now() - 150 * 60_000).toISOString();
   try {
-    const [liveData, upcoming, recent, standings, scorers, teamsC, matchesC, stadiumsC] =
+    const [liveExplicit, liveFallback, upcoming, recent, standings, scorers, teamsC, matchesC, stadiumsC] =
       await Promise.all([
         sb.from("matches").select(MATCH_SELECT).eq("status", "live").order("kickoff_at").then((r) => (r.error ? [] : r.data)),
+        sb
+          .from("matches")
+          .select(MATCH_SELECT)
+          .in("status", ["scheduled", "live"])
+          .lte("kickoff_at", now)
+          .gte("kickoff_at", liveWindowStart)
+          .order("kickoff_at")
+          .then((r) => (r.error ? [] : r.data)),
         sb
           .from("matches")
           .select(MATCH_SELECT)
@@ -54,7 +66,13 @@ export const getDashboard = createServerFn({ method: "GET" }).handler(async () =
         sb.from("matches").select("id", { count: "exact", head: true }).then((r) => r.count ?? 0),
         sb.from("stadiums").select("id", { count: "exact", head: true }).then((r) => r.count ?? 0),
       ]);
-    const live = liveData ?? [];
+    // Une explícitos + fallback deduplicando por id, preservando ordem
+    const seen = new Set<string>();
+    const live = [...(liveExplicit ?? []), ...(liveFallback ?? [])].filter((m: any) => {
+      if (seen.has(m.id)) return false;
+      seen.add(m.id);
+      return true;
+    });
     return {
       live,
       upcoming: upcoming ?? [],
