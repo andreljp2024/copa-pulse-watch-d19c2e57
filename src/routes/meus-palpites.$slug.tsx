@@ -2,8 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { brl, onlyDigits } from "@/lib/saas";
-import { Search, Trophy, XCircle, Clock, CheckCircle2, Sparkles } from "lucide-react";
+import { Search, Trophy, XCircle, Clock, CheckCircle2, Sparkles, Bell, BellOff } from "lucide-react";
 import { formatBR } from "@/lib/timezone";
+import { pushSupported, subscribePush, unsubscribePush } from "@/lib/push";
 
 export const Route = createFileRoute("/meus-palpites/$slug")({
   component: MeusPalpitesPage,
@@ -15,6 +16,8 @@ export const Route = createFileRoute("/meus-palpites/$slug")({
 });
 
 type Row = {
+  torcedor_id: string;
+  bolao_id: string;
   codigo: number;
   nome_torcedor: string;
   palpite_a: number;
@@ -46,6 +49,48 @@ function TeamBadge({ name, flag }: { name: string | null; flag: string | null })
       ) : null}
       <span>{name ?? "?"}</span>
     </span>
+  );
+}
+
+function PushToggle({ torcedor_id, bolao_id }: { torcedor_id: string; bolao_id: string }) {
+  const [enabled, setEnabled] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const supported = pushSupported();
+
+  useEffect(() => {
+    if (!supported) return;
+    navigator.serviceWorker.ready
+      .then((r) => r.pushManager.getSubscription())
+      .then((s) => setEnabled(!!s));
+  }, [supported]);
+
+  if (!supported) return null;
+
+  async function toggle() {
+    setBusy(true);
+    try {
+      if (enabled) {
+        await unsubscribePush();
+        setEnabled(false);
+      } else {
+        const ok = await subscribePush({ torcedor_id, bolao_id });
+        setEnabled(ok);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      disabled={busy}
+      className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-accent/30 bg-card/60 backdrop-blur px-4 py-3 text-sm font-semibold hover:bg-card/80 transition-colors disabled:opacity-50"
+    >
+      {enabled ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+      {enabled ? "Desativar notificações" : "Ativar notificações no celular"}
+    </button>
   );
 }
 
@@ -166,6 +211,7 @@ function MeusPalpitesPage() {
 
         {searched && rows && rows.length > 0 && (
           <div className="space-y-4">
+            <PushToggle torcedor_id={rows[0].torcedor_id} bolao_id={rows[0].bolao_id} />
             {ganhadores.length > 0 ? (
               <div className="relative overflow-hidden rounded-2xl border border-accent/40 bg-gradient-gold p-6 shadow-gold">
                 <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/20 blur-2xl" />

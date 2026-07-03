@@ -28,6 +28,7 @@ export default defineConfig({
         skipWaiting: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
         navigationPreload: true,
+        importScripts: ["/push-sw.js"],
         runtimeCaching: [
           // HTML de rotas: NetworkFirst com timeout curto → fallback ao cache offline
           {

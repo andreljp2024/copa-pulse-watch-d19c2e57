@@ -40,6 +40,7 @@ import { Route as AuthenticatedAppGanhadoresRouteImport } from './routes/_authen
 import { Route as AuthenticatedAppContatosRouteImport } from './routes/_authenticated/app.contatos'
 import { Route as AuthenticatedAppBolaoRouteImport } from './routes/_authenticated/app.bolao'
 import { Route as ApiPublicHooksSyncFootballRouteImport } from './routes/api/public/hooks/sync-football'
+import { Route as ApiPublicHooksDispatchPushRouteImport } from './routes/api/public/hooks/dispatch-push'
 import { Route as ApiPublicHooksDispatchNotificationsRouteImport } from './routes/api/public/hooks/dispatch-notifications'
 
 const SelecoesRoute = SelecoesRouteImport.update({
@@ -203,6 +204,12 @@ const ApiPublicHooksSyncFootballRoute =
     path: '/api/public/hooks/sync-football',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksDispatchPushRoute =
+  ApiPublicHooksDispatchPushRouteImport.update({
+    id: '/api/public/hooks/dispatch-push',
+    path: '/api/public/hooks/dispatch-push',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksDispatchNotificationsRoute =
   ApiPublicHooksDispatchNotificationsRouteImport.update({
     id: '/api/public/hooks/dispatch-notifications',
@@ -241,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/api/public/hooks/dispatch-notifications': typeof ApiPublicHooksDispatchNotificationsRoute
+  '/api/public/hooks/dispatch-push': typeof ApiPublicHooksDispatchPushRoute
   '/api/public/hooks/sync-football': typeof ApiPublicHooksSyncFootballRoute
 }
 export interface FileRoutesByTo {
@@ -273,6 +281,7 @@ export interface FileRoutesByTo {
   '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/api/public/hooks/dispatch-notifications': typeof ApiPublicHooksDispatchNotificationsRoute
+  '/api/public/hooks/dispatch-push': typeof ApiPublicHooksDispatchPushRoute
   '/api/public/hooks/sync-football': typeof ApiPublicHooksSyncFootballRoute
 }
 export interface FileRoutesById {
@@ -308,6 +317,7 @@ export interface FileRoutesById {
   '/bolao/$slug/ranking': typeof BolaoSlugRankingRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/api/public/hooks/dispatch-notifications': typeof ApiPublicHooksDispatchNotificationsRoute
+  '/api/public/hooks/dispatch-push': typeof ApiPublicHooksDispatchPushRoute
   '/api/public/hooks/sync-football': typeof ApiPublicHooksSyncFootballRoute
 }
 export interface FileRouteTypes {
@@ -343,6 +353,7 @@ export interface FileRouteTypes {
     | '/bolao/$slug/ranking'
     | '/app/'
     | '/api/public/hooks/dispatch-notifications'
+    | '/api/public/hooks/dispatch-push'
     | '/api/public/hooks/sync-football'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -375,6 +386,7 @@ export interface FileRouteTypes {
     | '/bolao/$slug/ranking'
     | '/app'
     | '/api/public/hooks/dispatch-notifications'
+    | '/api/public/hooks/dispatch-push'
     | '/api/public/hooks/sync-football'
   id:
     | '__root__'
@@ -409,6 +421,7 @@ export interface FileRouteTypes {
     | '/bolao/$slug/ranking'
     | '/_authenticated/app/'
     | '/api/public/hooks/dispatch-notifications'
+    | '/api/public/hooks/dispatch-push'
     | '/api/public/hooks/sync-football'
   fileRoutesById: FileRoutesById
 }
@@ -429,6 +442,7 @@ export interface RootRouteChildren {
   MeusPalpitesSlugRoute: typeof MeusPalpitesSlugRoute
   PartidasIdRoute: typeof PartidasIdRoute
   ApiPublicHooksDispatchNotificationsRoute: typeof ApiPublicHooksDispatchNotificationsRoute
+  ApiPublicHooksDispatchPushRoute: typeof ApiPublicHooksDispatchPushRoute
   ApiPublicHooksSyncFootballRoute: typeof ApiPublicHooksSyncFootballRoute
 }
 
@@ -651,6 +665,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksSyncFootballRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/dispatch-push': {
+      id: '/api/public/hooks/dispatch-push'
+      path: '/api/public/hooks/dispatch-push'
+      fullPath: '/api/public/hooks/dispatch-push'
+      preLoaderRoute: typeof ApiPublicHooksDispatchPushRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/dispatch-notifications': {
       id: '/api/public/hooks/dispatch-notifications'
       path: '/api/public/hooks/dispatch-notifications'
@@ -755,6 +776,7 @@ const rootRouteChildren: RootRouteChildren = {
   PartidasIdRoute: PartidasIdRoute,
   ApiPublicHooksDispatchNotificationsRoute:
     ApiPublicHooksDispatchNotificationsRoute,
+  ApiPublicHooksDispatchPushRoute: ApiPublicHooksDispatchPushRoute,
   ApiPublicHooksSyncFootballRoute: ApiPublicHooksSyncFootballRoute,
 }
 export const routeTree = rootRouteImport
