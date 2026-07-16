@@ -48,7 +48,7 @@ const bolaoPublicOpts = (slug: string) =>
       const { data: bolao, error } = await supabase
         .from("boloes")
         .select(
-          "id, nome, slug, descricao, regras, valor_palpite, status, logo_url, cor_primaria, cor_secundaria, permitir_ranking_publico, permitir_ganhadores_publico, data_limite_palpite, created_at, updated_at",
+          "id, nome, slug, descricao, regras, valor_palpite, status, logo_url, cor_primaria, cor_secundaria, permitir_ranking_publico, permitir_ganhadores_publico, data_limite_palpite, created_at, updated_at, percentual_admin",
         )
         .eq("slug", slug)
         .eq("status", "active")
@@ -135,8 +135,7 @@ export const Route = createFileRoute("/bolao/$slug")({
     context.queryClient.ensureQueryData(bolaoPublicOpts(params.slug)),
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [] };
-    const next =
-      loaderData.matches.find((m) => m.status !== "finished") ?? null;
+    const next = loaderData.matches.find((m) => m.status !== "finished") ?? null;
     const home = next ? loaderData.teams.get(next.home_team_id ?? "") : undefined;
     const away = next ? loaderData.teams.get(next.away_team_id ?? "") : undefined;
     const confronto = home && away ? `${ptTeamName(home.name)} x ${ptTeamName(away.name)}` : "";
@@ -316,9 +315,11 @@ function PublicBolao() {
   }, [matches, nowSafe]);
 
   // Prêmio estimado é calculado POR JOGO (o jogo em destaque), não pelo bolão inteiro.
+  // Respeita o percentual_admin do bolão (fatia do organizador), igual ao backend.
+  const pctAdmin = Number(bolao.percentual_admin ?? 20);
   const palpitesJogoDestaque = featured ? (palpitesPorJogo.get(featured.id) ?? 0) : 0;
   const arrecadado = palpitesJogoDestaque * valorUnit;
-  const premioEstimado = arrecadado * 0.9;
+  const premioEstimado = arrecadado * (1 - pctAdmin / 100);
 
   const palpiteAberto = useMemo(() => {
     if (!bolao.data_limite_palpite) return true;
@@ -532,7 +533,7 @@ function PublicBolao() {
           </div>
           <div className="mt-1 text-xs text-muted-foreground">
             Arrecadação do jogo: <strong className="text-foreground">{brl(arrecadado)}</strong> ·{" "}
-            {palpitesJogoDestaque} palpite(s) pago(s) neste jogo · 90% para premiação
+            {palpitesJogoDestaque} palpite(s) pago(s) neste jogo · {100 - pctAdmin}% para premiação
           </div>
         </div>
         <div className="rounded-2xl border border-border bg-card p-5 card-elevated">
