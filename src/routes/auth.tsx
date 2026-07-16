@@ -3,7 +3,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
-import { signInSuperAdminByWhatsApp, signUpOrganizerByWhatsApp } from "@/lib/auth.functions";
+import {
+  signInSuperAdminByWhatsApp,
+  signUpOrganizerByWhatsApp,
+  requestPasswordResetByWhatsApp,
+} from "@/lib/auth.functions";
 import { friendlyError } from "@/lib/errors";
 import { Trophy } from "lucide-react";
 import { toast } from "sonner";
@@ -60,6 +64,7 @@ function Page() {
   const navigate = useNavigate();
   const signInSuperAdmin = useServerFn(signInSuperAdminByWhatsApp);
   const signUpOrganizer = useServerFn(signUpOrganizerByWhatsApp);
+  const requestReset = useServerFn(requestPasswordResetByWhatsApp);
   const [mode, setMode] = useState<Mode>("login");
   const [whatsMasked, setWhatsMasked] = useState("");
   const [password, setPassword] = useState("");
@@ -183,7 +188,6 @@ function Page() {
       const { error: setSessionError } = await supabase.auth.setSession(session);
       if (setSessionError) throw setSessionError;
 
-
       const msg =
         `🆕 Novo organizador cadastrado no Bolão dos Amigos Brasileiros\n\n` +
         `👤 Nome: ${nome}\n` +
@@ -195,6 +199,30 @@ function Page() {
       setInfo("Cadastro concluído! Você será redirecionado ao painel.");
     } catch (err) {
       setError(friendlyError(err, "Falha ao cadastrar organizador."));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleReset(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setInfo(null);
+    const digits = onlyDigits(whatsMasked);
+    if (digits.length < 10) {
+      setError("Informe seu WhatsApp com DDD para recuperar a senha.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { action_link, whatsapp } = await requestReset({ data: { whatsapp: `55${digits}` } });
+      const url = `https://wa.me/${whatsapp}?text=${encodeURIComponent(
+        `🔑 Redefina sua senha do Bolão dos Amigos Brasileiros abrindo este link:\n\n${action_link}`,
+      )}`;
+      window.open(url, "_blank", "noopener,noreferrer");
+      setInfo("Link de recuperação gerado! Abrimos o WhatsApp para você enviar a si mesmo.");
+    } catch (err) {
+      setError(friendlyError(err, "Não foi possível gerar o link de recuperação."));
     } finally {
       setLoading(false);
     }
@@ -218,7 +246,11 @@ function Page() {
         <div className="grid grid-cols-2 gap-2 mb-4">
           <button
             type="button"
-            onClick={() => { setMode("login"); setError(null); setInfo(null); }}
+            onClick={() => {
+              setMode("login");
+              setError(null);
+              setInfo(null);
+            }}
             className={`h-10 rounded-lg font-bold transition ${
               mode === "login" ? "bg-pitch text-primary-foreground" : "bg-muted text-foreground/70"
             }`}
@@ -227,7 +259,11 @@ function Page() {
           </button>
           <button
             type="button"
-            onClick={() => { setMode("signup"); setError(null); setInfo(null); }}
+            onClick={() => {
+              setMode("signup");
+              setError(null);
+              setInfo(null);
+            }}
             className={`h-10 rounded-lg font-bold transition ${
               mode === "signup" ? "bg-pitch text-primary-foreground" : "bg-muted text-foreground/70"
             }`}
@@ -245,7 +281,8 @@ function Page() {
                   <p>
                     Ao me cadastrar como organizador, confirmo que sou{" "}
                     <strong>maior de 18 anos</strong>. O <strong>PIX pessoal</strong> serve apenas
-                    para organizar palpites entre amigos — <strong>não é aposta e não visa lucro</strong>.
+                    para organizar palpites entre amigos —{" "}
+                    <strong>não é aposta e não visa lucro</strong>.
                   </p>
                 </div>
                 <div>
@@ -271,7 +308,9 @@ function Page() {
                     onChange={(e) => setBirthDate(maskDate(e.target.value))}
                     className="w-full h-11 rounded-lg border border-border bg-background px-3 tracking-wider"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">É necessário ter no mínimo 18 anos.</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    É necessário ter no mínimo 18 anos.
+                  </p>
                 </div>
               </>
             )}
@@ -293,7 +332,9 @@ function Page() {
                   className="flex-1 h-11 bg-background px-3 outline-none"
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">DDD + número. O DDI 55 já está incluso.</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                DDD + número. O DDI 55 já está incluso.
+              </p>
             </div>
 
             <div>
@@ -303,6 +344,7 @@ function Page() {
               <input
                 type="password"
                 required
+                autoComplete={mode === "signup" ? "new-password" : "current-password"}
                 minLength={mode === "signup" ? 8 : undefined}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -315,7 +357,10 @@ function Page() {
                 <input
                   type="checkbox"
                   checked={accepted}
-                  onChange={(e) => { setAccepted(e.target.checked); setError(null); }}
+                  onChange={(e) => {
+                    setAccepted(e.target.checked);
+                    setError(null);
+                  }}
                   className="mt-1 h-5 w-5 accent-pitch"
                 />
                 <span className="text-sm">
@@ -330,9 +375,24 @@ function Page() {
               className="w-full h-12 rounded-lg bg-pitch text-primary-foreground font-bold hover:opacity-90 disabled:opacity-40 transition"
             >
               {loading
-                ? (mode === "login" ? "Entrando…" : "Cadastrando…")
-                : (mode === "login" ? "Entrar" : "Cadastrar e avisar administrador")}
+                ? mode === "login"
+                  ? "Entrando…"
+                  : "Cadastrando…"
+                : mode === "login"
+                  ? "Entrar"
+                  : "Cadastrar e avisar administrador"}
             </button>
+
+            {mode === "login" && (
+              <button
+                type="button"
+                onClick={handleReset}
+                disabled={loading}
+                className="w-full h-9 rounded-lg text-sm font-semibold text-pitch hover:underline disabled:opacity-40 transition"
+              >
+                Esqueci minha senha
+              </button>
+            )}
 
             {mode === "signup" && (
               <p className="text-xs text-muted-foreground text-center">
@@ -354,15 +414,15 @@ function Page() {
               Você não pode estar aqui
             </AlertDialogTitle>
             <AlertDialogDescription className="text-base leading-relaxed">
-              <span aria-hidden>🔞</span> Este aplicativo é <strong>exclusivo para maiores de 18 anos</strong>.
+              <span aria-hidden>🔞</span> Este aplicativo é{" "}
+              <strong>exclusivo para maiores de 18 anos</strong>.
               <br />
-              <span aria-hidden>👨‍👩‍👧</span> Fale com seu <strong>responsável</strong> antes de continuar.
+              <span aria-hidden>👨‍👩‍👧</span> Fale com seu <strong>responsável</strong> antes de
+              continuar.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setUnderageOpen(false)}>
-              Entendi
-            </AlertDialogAction>
+            <AlertDialogAction onClick={() => setUnderageOpen(false)}>Entendi</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
