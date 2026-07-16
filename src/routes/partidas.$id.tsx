@@ -5,6 +5,7 @@ import { TeamBadge } from "@/components/MatchCard";
 import { getMatch } from "@/lib/copa.functions";
 import { Goal, Square, ArrowLeftRight, MapPin, User } from "lucide-react";
 import { formatBRFull } from "@/lib/timezone";
+import { SITE, ogMeta, canonicalMeta, jsonLd } from "@/lib/seo";
 
 const opts = (id: string) =>
   queryOptions({ queryKey: ["match", id], queryFn: () => getMatch({ data: { id } }) });
@@ -12,6 +13,74 @@ const opts = (id: string) =>
 export const Route = createFileRoute("/partidas/$id")({
   loader: ({ context, params }) => {
     context.queryClient.ensureQueryData(opts(params.id));
+  },
+  head: ({ loaderData, params }) => {
+    const m = (loaderData as any)?.match as any;
+    if (!m) {
+      return {
+        meta: [
+          { title: "Partida não encontrada — Bolão AI" },
+          ...ogMeta({
+            title: "Partida não encontrada — Bolão AI",
+            description: "A partida solicitada não foi encontrada.",
+            url: `/partidas/${params.id}`,
+          }),
+          canonicalMeta(`/partidas/${params.id}`),
+        ],
+      };
+    }
+    const home = m.home ?? { name: "A definir" };
+    const away = m.away ?? { name: "A definir" };
+    const title = `${home.name} x ${away.name} — Bolão AI`;
+    const desc = `Acompanhe ${home.name} x ${away.name}${
+      m.kickoff_at ? ` em ${formatBRFull(m.kickoff_at)}` : ""
+    }. Placar, escalações e estatísticas da Copa 2026.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        ...ogMeta({ title, description: desc, url: `/partidas/${params.id}` }),
+        canonicalMeta(`/partidas/${params.id}`),
+      ],
+      scripts: [
+        jsonLd({
+          "@context": "https://schema.org",
+          "@type": "SportsEvent",
+          name: `${home.name} x ${away.name}`,
+          description: desc,
+          startDate: m.kickoff_at,
+          eventStatus:
+            m.status === "finished"
+              ? "https://schema.org/EventCompleted"
+              : "https://schema.org/EventScheduled",
+          inLanguage: "pt-BR",
+          ...(m.stadium?.name ? { location: { "@type": "Place", name: m.stadium.name } } : {}),
+          competitor: [
+            { "@type": "SportsTeam", name: home.name },
+            { "@type": "SportsTeam", name: away.name },
+          ],
+        }),
+        jsonLd({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Início", item: SITE.domain },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "Calendário",
+              item: `${SITE.domain}/calendario`,
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: `${home.name} x ${away.name}`,
+              item: `${SITE.domain}/partidas/${params.id}`,
+            },
+          ],
+        }),
+      ],
+    };
   },
   component: Page,
   notFoundComponent: () => (
@@ -41,8 +110,9 @@ function Page() {
   const m = data.match as any;
   const isLive = m.status === "live";
   const showScore = m.status === "finished" || isLive;
-  const home = m.home,
-    away = m.away;
+  const EMPTY_TEAM = { id: "", name: "A definir", code: "TBD", flag_url: null, coach_name: null };
+  const home = m.home ?? EMPTY_TEAM;
+  const away = m.away ?? EMPTY_TEAM;
   const homeStats = data.stats.find((s: any) => s.team_id === home.id);
   const awayStats = data.stats.find((s: any) => s.team_id === away.id);
 

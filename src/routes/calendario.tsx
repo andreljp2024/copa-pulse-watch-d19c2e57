@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { MatchCard } from "@/components/MatchCard";
 import { listMatches } from "@/lib/copa.functions";
+import { SITE, ogMeta, canonicalMeta, jsonLd } from "@/lib/seo";
 
 const opts = queryOptions({ queryKey: ["matches"], queryFn: () => listMatches() });
 
@@ -15,6 +16,35 @@ export const Route = createFileRoute("/calendario")({
         name: "description",
         content: "Todas as partidas da Copa com filtros por status, grupo e fase.",
       },
+      ...ogMeta({
+        title: "Calendário — Bolão AI",
+        description: "Todas as partidas da Copa com filtros por status, grupo e fase.",
+        url: "/calendario",
+      }),
+      canonicalMeta("/calendario"),
+    ],
+    scripts: [
+      jsonLd({
+        "@context": "https://schema.org",
+        "@type": "SportsTournament",
+        name: "Copa do Mundo 2026",
+        url: `${SITE.domain}/calendario`,
+        inLanguage: "pt-BR",
+        eventStatus: "https://schema.org/EventScheduled",
+      }),
+      jsonLd({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Início", item: SITE.domain },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Calendário",
+            item: `${SITE.domain}/calendario`,
+          },
+        ],
+      }),
     ],
   }),
   loader: ({ context }) => {
@@ -43,9 +73,9 @@ function Page() {
       if (search) {
         const s = search.toLowerCase();
         if (
-          !m.home?.name.toLowerCase().includes(s) &&
-          !m.away?.name.toLowerCase().includes(s) &&
-          !m.stadium?.name.toLowerCase().includes(s)
+          !m.home?.name?.toLowerCase().includes(s) &&
+          !m.away?.name?.toLowerCase().includes(s) &&
+          !m.stadium?.name?.toLowerCase().includes(s)
         )
           return false;
       }

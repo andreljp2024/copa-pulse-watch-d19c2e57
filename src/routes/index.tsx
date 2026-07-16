@@ -3,6 +3,7 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { AppShell } from "@/components/AppShell";
 import { MatchCard, TeamBadge } from "@/components/MatchCard";
+import { SITE, ogMeta, canonicalMeta, jsonLd } from "@/lib/seo";
 import { StandingsTable } from "@/components/StandingsTable";
 import { getDashboard } from "@/lib/copa.functions";
 import { Trophy, Goal, CalendarDays, Flame } from "lucide-react";
@@ -22,14 +23,31 @@ const dashboardOpts = queryOptions({
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Bolão AI — Painel da Copa do Mundo" },
+      { title: SITE.titleTemplate("Painel da Copa do Mundo") },
       {
         name: "description",
         content:
           "Resumo da Copa: jogos ao vivo, próximos jogos, resultados, classificação e artilheiros.",
       },
-      { property: "og:title", content: "Bolão AI — Painel da Copa do Mundo" },
-      { property: "og:description", content: "Tudo da Copa em um só lugar." },
+      ...ogMeta({
+        title: SITE.titleTemplate("Painel da Copa do Mundo"),
+        description:
+          "Resumo da Copa: jogos ao vivo, próximos jogos, resultados, classificação e artilheiros.",
+        url: "/",
+      }),
+      canonicalMeta("/"),
+    ],
+    scripts: [
+      jsonLd({
+        "@context": "https://schema.org",
+        "@type": "SportsTournament",
+        name: "Copa do Mundo 2026",
+        description:
+          "Acompanhe a Copa do Mundo 2026: tabela, calendário, resultados e estatísticas no Bolão AI.",
+        url: SITE.domain,
+        eventStatus: "https://schema.org/EventScheduled",
+        inLanguage: "pt-BR",
+      }),
     ],
   }),
   loader: ({ context }) => {
@@ -233,7 +251,9 @@ function Dashboard() {
                   key={gid}
                   className="rounded-xl border border-border bg-card p-4 card-elevated"
                 >
-                  <h3 className="text-sm font-black uppercase text-pitch mb-2">Grupo</h3>
+                  <h3 className="text-sm font-black uppercase text-pitch mb-2">
+                    Grupo {rows[0]?.group?.name ?? ""}
+                  </h3>
                   <StandingsTable rows={rows as any} />
                 </div>
               ))}

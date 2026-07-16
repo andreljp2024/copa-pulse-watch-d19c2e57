@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
 
+# Áreas autenticadas/logadas — defesa contra indexação acidental
+Disallow: /app
+Disallow: /admin
+Disallow: /onboarding
+Disallow: /auth
+
 Sitemap: https://bolao.ai.slz.br/sitemap.xml

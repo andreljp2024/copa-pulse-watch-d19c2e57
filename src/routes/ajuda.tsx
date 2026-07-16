@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
+import { ogMeta, canonicalMeta, jsonLd } from "@/lib/seo";
 import {
   MessageCircle,
   UserPlus,
@@ -15,8 +16,33 @@ import {
   BookOpen,
 } from "lucide-react";
 
+const helpTitle = "Ajuda — Bolão AI";
+const helpDesc =
+  "Tire dúvidas sobre como criar e gerenciar seu bolão da Copa do Mundo: cadastro, palpites, PIX, pontuação e ranking.";
+
 export const Route = createFileRoute("/ajuda")({
-  head: () => ({ meta: [{ title: "Ajuda — Bolão AI" }] }),
+  head: () => ({
+    meta: [
+      { title: helpTitle },
+      { name: "description", content: helpDesc },
+      ...ogMeta({ title: helpTitle, description: helpDesc, url: "/ajuda" }),
+      canonicalMeta("/ajuda"),
+    ],
+    scripts: [
+      jsonLd({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: FAQ.map((f) => ({
+          "@type": "Question",
+          name: f.title,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: f.steps.join(" "),
+          },
+        })),
+      }),
+    ],
+  }),
   component: HelpPage,
 });
 

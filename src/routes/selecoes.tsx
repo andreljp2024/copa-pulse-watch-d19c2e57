@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { AppShell } from "@/components/AppShell";
 import { TeamBadge } from "@/components/MatchCard";
 import { listTeams } from "@/lib/copa.functions";
+import { SITE, ogMeta, canonicalMeta, jsonLd } from "@/lib/seo";
 
 const opts = queryOptions({ queryKey: ["teams"], queryFn: () => listTeams() });
 
@@ -12,6 +13,27 @@ export const Route = createFileRoute("/selecoes")({
     meta: [
       { title: "Seleções — Bolão AI" },
       { name: "description", content: "Todas as seleções da Copa do Mundo." },
+      ...ogMeta({
+        title: "Seleções — Bolão AI",
+        description: "Todas as seleções da Copa do Mundo.",
+        url: "/selecoes",
+      }),
+      canonicalMeta("/selecoes"),
+    ],
+    scripts: [
+      jsonLd({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Início", item: SITE.domain },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Seleções",
+            item: `${SITE.domain}/selecoes`,
+          },
+        ],
+      }),
     ],
   }),
   loader: ({ context }) => {
@@ -31,7 +53,7 @@ function Page() {
     return data.filter((t: any) => {
       if (t.code === "TBD") return false;
       if (grupo !== "Todos" && t.group?.name !== grupo) return false;
-      if (busca && !t.name.toLowerCase().includes(busca.toLowerCase())) return false;
+      if (busca && !(t.name ?? "").toLowerCase().includes(busca.toLowerCase())) return false;
       return true;
     });
   }, [data, grupo, busca]);
