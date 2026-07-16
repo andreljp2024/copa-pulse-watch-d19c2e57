@@ -56,16 +56,25 @@ const bolaoPublicOpts = (slug: string) =>
       if (error) throw error;
       if (!bolao) throw notFound();
 
-      const [bm, t, pay, pc] = await Promise.all([
+      const [bm, t, pay, palpitesRes] = await Promise.all([
         supabase.from("bolao_matches").select("match_id").eq("bolao_id", bolao.id),
         supabase.from("teams").select("id, name, code, flag_url"),
         supabase.rpc("get_bolao_public_payment", { p_slug: slug }),
         supabase
           .from("palpites")
-          .select("id", { count: "exact", head: true })
+          .select("id, match_id")
           .eq("bolao_id", bolao.id)
           .eq("status_pagamento", "pago"),
       ]);
+
+      // Contagem de palpites PAGOS por jogo (prêmio estimado é calculado por jogo)
+      const palpitesPorJogo = new Map<string, number>();
+      let totalPalpites = 0;
+      for (const p of (palpitesRes.data ?? []) as Array<{ match_id: string | null }>) {
+        if (!p.match_id) continue;
+        palpitesPorJogo.set(p.match_id, (palpitesPorJogo.get(p.match_id) ?? 0) + 1);
+        totalPalpites += 1;
+      }
 
       const matchIds = (bm.data ?? []).map((r: { match_id: string }) => r.match_id);
       let matchesData: Match[] = [];
@@ -114,7 +123,8 @@ const bolaoPublicOpts = (slug: string) =>
                 payRow.mensagem_novo_palpite ?? "Olá! Gostaria de confirmar meu palpite no bolão.",
             }
           : null,
-        totalPalpites: pc.count ?? 0,
+        totalPalpites,
+        palpitesPorJogo,
       };
     },
     staleTime: 30_000,
@@ -125,13 +135,8 @@ export const Route = createFileRoute("/bolao/$slug")({
     context.queryClient.ensureQueryData(bolaoPublicOpts(params.slug)),
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [] };
-    const now = Date.now() - 3 * 3600_000;
     const next =
-      loaderData.matches.find(
-        (m) => m.status !== "finished" && m.kickoff_at && new Date(m.kickoff_at).getTime() > now,
-      ) ??
-      loaderData.matches.find((m) => m.status !== "finished") ??
-      null;
+      loaderData.matches.find((m) => m.status !== "finished") ?? null;
     const home = next ? loaderData.teams.get(next.home_team_id ?? "") : undefined;
     const away = next ? loaderData.teams.get(next.away_team_id ?? "") : undefined;
     const confronto = home && away ? `${ptTeamName(home.name)} x ${ptTeamName(away.name)}` : "";
@@ -199,7 +204,7 @@ export const Route = createFileRoute("/bolao/$slug")({
 function PublicBolao() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(bolaoPublicOpts(slug));
-  const { bolao, matches, teams, pix, wa, totalPalpites } = data;
+  const { bolao, matches, teams, pix, wa, totalPalpites, palpitesPorJogo } = data;
   const [selected, setSelected] = useState<Match | null>(null);
   const [step, setStep] = useState<"identidade" | "palpites">("identidade");
   const [form, setForm] = useState({ nome: "", whatsapp: "" });
@@ -244,8 +249,6 @@ function PublicBolao() {
   });
 
   const valorUnit = Number(bolao.valor_palpite) || 0;
-  const arrecadado = totalPalpites * valorUnit;
-  const premioEstimado = arrecadado * 0.9;
 
   const openMatches = useMemo(() => {
     const now = nowSafe;
@@ -311,6 +314,11 @@ function PublicBolao() {
       null
     );
   }, [matches, nowSafe]);
+
+  // Prêmio estimado é calculado POR JOGO (o jogo em destaque), não pelo bolão inteiro.
+  const palpitesJogoDestaque = featured ? (palpitesPorJogo.get(featured.id) ?? 0) : 0;
+  const arrecadado = palpitesJogoDestaque * valorUnit;
+  const premioEstimado = arrecadado * 0.9;
 
   const palpiteAberto = useMemo(() => {
     if (!bolao.data_limite_palpite) return true;
@@ -523,8 +531,8 @@ function PublicBolao() {
             {brl(premioEstimado)}
           </div>
           <div className="mt-1 text-xs text-muted-foreground">
-            Arrecadação atual: <strong className="text-foreground">{brl(arrecadado)}</strong> ·{" "}
-            {totalPalpites} palpite(s) pago(s) · 90% para premiação
+            Arrecadação do jogo: <strong className="text-foreground">{brl(arrecadado)}</strong> ·{" "}
+            {palpitesJogoDestaque} palpite(s) pago(s) neste jogo · 90% para premiação
           </div>
         </div>
         <div className="rounded-2xl border border-border bg-card p-5 card-elevated">
