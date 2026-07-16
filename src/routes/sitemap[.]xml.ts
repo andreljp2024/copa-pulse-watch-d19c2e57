@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
+import { SITE } from "@/lib/seo";
 
-const BASE_URL = "https://bolao.ai.slz.br";
+const BASE_URL = SITE.domain;
 
 interface SitemapEntry {
   path: string;

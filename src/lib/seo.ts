@@ -22,8 +22,8 @@ export type MetaEntry =
   | { httpEquiv: string; content: string }
   | { itemProp: string; content: string };
 
-export function canonicalMeta(pathname: string): MetaEntry {
-  return { name: "canonical", content: absoluteUrl(pathname) } as unknown as MetaEntry;
+export function canonicalLink(pathname: string): { rel: string; href: string } {
+  return { rel: "canonical", href: absoluteUrl(pathname) };
 }
 
 export function robotsMeta(content = "index, follow"): MetaEntry {

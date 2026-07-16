@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
-import { ogMeta, canonicalMeta, jsonLd } from "@/lib/seo";
+import { ogMeta, canonicalLink, jsonLd } from "@/lib/seo";
 import {
   MessageCircle,
   UserPlus,
@@ -26,8 +26,8 @@ export const Route = createFileRoute("/ajuda")({
       { title: helpTitle },
       { name: "description", content: helpDesc },
       ...ogMeta({ title: helpTitle, description: helpDesc, url: "/ajuda" }),
-      canonicalMeta("/ajuda"),
     ],
+    links: [canonicalLink("/ajuda")],
     scripts: [
       jsonLd({
         "@context": "https://schema.org",

@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { AppShell } from "@/components/AppShell";
 import { TeamBadge } from "@/components/MatchCard";
 import { listTeams } from "@/lib/copa.functions";
-import { SITE, ogMeta, canonicalMeta, jsonLd } from "@/lib/seo";
+import { SITE, ogMeta, canonicalLink, jsonLd } from "@/lib/seo";
 
 const opts = queryOptions({ queryKey: ["teams"], queryFn: () => listTeams() });
 
@@ -18,8 +18,8 @@ export const Route = createFileRoute("/selecoes")({
         description: "Todas as seleções da Copa do Mundo.",
         url: "/selecoes",
       }),
-      canonicalMeta("/selecoes"),
     ],
+    links: [canonicalLink("/selecoes")],
     scripts: [
       jsonLd({
         "@context": "https://schema.org",

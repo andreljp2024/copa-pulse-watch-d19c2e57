@@ -13,7 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppShell } from "../components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
-import { SITE, absoluteUrl, ogMeta, canonicalMeta, jsonLd } from "@/lib/seo";
+import { SITE, absoluteUrl, ogMeta, canonicalLink, jsonLd } from "@/lib/seo";
 
 export const homeDescription = SITE.description;
 
@@ -72,14 +72,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: SITE.titleTemplate("Acompanhe a Copa do Mundo") },
       { name: "description", content: homeDescription },
       { name: "application-name", content: SITE.name },
+      { name: "robots", content: "index, follow" },
       ...ogMeta({
         title: SITE.titleTemplate("Acompanhe a Copa do Mundo"),
         description: homeDescription,
         url: "/",
       }),
-      canonicalMeta("/"),
     ],
     links: [
+      canonicalLink("/"),
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "icon", type: "image/png", href: "/icon-192.png" },

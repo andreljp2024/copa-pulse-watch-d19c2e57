@@ -5,7 +5,7 @@ import { TeamBadge } from "@/components/MatchCard";
 import { getMatch } from "@/lib/copa.functions";
 import { Goal, Square, ArrowLeftRight, MapPin, User } from "lucide-react";
 import { formatBRFull } from "@/lib/timezone";
-import { SITE, ogMeta, canonicalMeta, jsonLd } from "@/lib/seo";
+import { SITE, ogMeta, canonicalLink, jsonLd } from "@/lib/seo";
 
 const opts = (id: string) =>
   queryOptions({ queryKey: ["match", id], queryFn: () => getMatch({ data: { id } }) });
@@ -25,8 +25,8 @@ export const Route = createFileRoute("/partidas/$id")({
             description: "A partida solicitada não foi encontrada.",
             url: `/partidas/${params.id}`,
           }),
-          canonicalMeta(`/partidas/${params.id}`),
         ],
+        links: [canonicalLink(`/partidas/${params.id}`)],
       };
     }
     const home = m.home ?? { name: "A definir" };
@@ -40,8 +40,8 @@ export const Route = createFileRoute("/partidas/$id")({
         { title },
         { name: "description", content: desc },
         ...ogMeta({ title, description: desc, url: `/partidas/${params.id}` }),
-        canonicalMeta(`/partidas/${params.id}`),
       ],
+      links: [canonicalLink(`/partidas/${params.id}`)],
       scripts: [
         jsonLd({
           "@context": "https://schema.org",

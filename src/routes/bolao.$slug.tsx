@@ -27,7 +27,7 @@ import {
   Coins,
 } from "lucide-react";
 import { formatBR } from "@/lib/timezone";
-import { SITE, ogMeta, canonicalMeta, jsonLd } from "@/lib/seo";
+import { SITE, ogMeta, canonicalLink, jsonLd } from "@/lib/seo";
 
 type Match = {
   id: string;
@@ -171,8 +171,8 @@ export const Route = createFileRoute("/bolao/$slug")({
           image: loaderData.bolao.logo_url ?? undefined,
           url: `/bolao/${loaderData.bolao.slug}`,
         }),
-        canonicalMeta(`/bolao/${loaderData.bolao.slug}`),
       ],
+      links: [canonicalLink(`/bolao/${loaderData.bolao.slug}`)],
       scripts: nextEvent ? [jsonLd(nextEvent as unknown as Record<string, unknown>)] : [],
     };
   },

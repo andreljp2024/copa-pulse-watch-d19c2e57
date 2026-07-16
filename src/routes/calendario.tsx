@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { MatchCard } from "@/components/MatchCard";
 import { listMatches } from "@/lib/copa.functions";
-import { SITE, ogMeta, canonicalMeta, jsonLd } from "@/lib/seo";
+import { SITE, ogMeta, canonicalLink, jsonLd } from "@/lib/seo";
 
 const opts = queryOptions({ queryKey: ["matches"], queryFn: () => listMatches() });
 
@@ -21,8 +21,8 @@ export const Route = createFileRoute("/calendario")({
         description: "Todas as partidas da Copa com filtros por status, grupo e fase.",
         url: "/calendario",
       }),
-      canonicalMeta("/calendario"),
     ],
+    links: [canonicalLink("/calendario")],
     scripts: [
       jsonLd({
         "@context": "https://schema.org",

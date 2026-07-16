@@ -3,7 +3,7 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { AppShell } from "@/components/AppShell";
 import { MatchCard, TeamBadge } from "@/components/MatchCard";
-import { SITE, ogMeta, canonicalMeta, jsonLd } from "@/lib/seo";
+import { SITE, ogMeta, canonicalLink, jsonLd } from "@/lib/seo";
 import { StandingsTable } from "@/components/StandingsTable";
 import { getDashboard } from "@/lib/copa.functions";
 import { Trophy, Goal, CalendarDays, Flame } from "lucide-react";
@@ -35,8 +35,8 @@ export const Route = createFileRoute("/")({
           "Resumo da Copa: jogos ao vivo, próximos jogos, resultados, classificação e artilheiros.",
         url: "/",
       }),
-      canonicalMeta("/"),
     ],
+    links: [canonicalLink("/")],
     scripts: [
       jsonLd({
         "@context": "https://schema.org",
