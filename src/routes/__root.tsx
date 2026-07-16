@@ -91,8 +91,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&family=Barlow+Condensed:wght@600;700;800;900&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap",
       },
-    ],
-    scripts: [
       jsonLd({
         "@context": "https://schema.org",
         "@type": "WebSite",

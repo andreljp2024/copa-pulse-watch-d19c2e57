@@ -35,9 +35,6 @@ export const Route = createFileRoute("/")({
           "Resumo da Copa: jogos ao vivo, próximos jogos, resultados, classificação e artilheiros.",
         url: "/",
       }),
-    ],
-    links: [canonicalLink("/")],
-    scripts: [
       jsonLd({
         "@context": "https://schema.org",
         "@type": "SportsTournament",
@@ -49,6 +46,7 @@ export const Route = createFileRoute("/")({
         inLanguage: "pt-BR",
       }),
     ],
+    links: [canonicalLink("/")],
   }),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(dashboardOpts);

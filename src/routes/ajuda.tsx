@@ -26,9 +26,6 @@ export const Route = createFileRoute("/ajuda")({
       { title: helpTitle },
       { name: "description", content: helpDesc },
       ...ogMeta({ title: helpTitle, description: helpDesc, url: "/ajuda" }),
-    ],
-    links: [canonicalLink("/ajuda")],
-    scripts: [
       jsonLd({
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -42,6 +39,7 @@ export const Route = createFileRoute("/ajuda")({
         })),
       }),
     ],
+    links: [canonicalLink("/ajuda")],
   }),
   component: HelpPage,
 });

@@ -40,9 +40,6 @@ export const Route = createFileRoute("/partidas/$id")({
         { title },
         { name: "description", content: desc },
         ...ogMeta({ title, description: desc, url: `/partidas/${params.id}` }),
-      ],
-      links: [canonicalLink(`/partidas/${params.id}`)],
-      scripts: [
         jsonLd({
           "@context": "https://schema.org",
           "@type": "SportsEvent",
@@ -80,6 +77,7 @@ export const Route = createFileRoute("/partidas/$id")({
           ],
         }),
       ],
+      links: [canonicalLink(`/partidas/${params.id}`)],
     };
   },
   component: Page,

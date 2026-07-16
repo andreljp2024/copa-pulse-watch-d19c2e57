@@ -18,9 +18,6 @@ export const Route = createFileRoute("/selecoes")({
         description: "Todas as seleções da Copa do Mundo.",
         url: "/selecoes",
       }),
-    ],
-    links: [canonicalLink("/selecoes")],
-    scripts: [
       jsonLd({
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -35,6 +32,7 @@ export const Route = createFileRoute("/selecoes")({
         ],
       }),
     ],
+    links: [canonicalLink("/selecoes")],
   }),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(opts);

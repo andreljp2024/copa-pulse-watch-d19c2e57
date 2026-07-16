@@ -171,9 +171,9 @@ export const Route = createFileRoute("/bolao/$slug")({
           image: loaderData.bolao.logo_url ?? undefined,
           url: `/bolao/${loaderData.bolao.slug}`,
         }),
+        ...(nextEvent ? [jsonLd(nextEvent as unknown as Record<string, unknown>)] : []),
       ],
       links: [canonicalLink(`/bolao/${loaderData.bolao.slug}`)],
-      scripts: nextEvent ? [jsonLd(nextEvent as unknown as Record<string, unknown>)] : [],
     };
   },
   component: PublicBolao,

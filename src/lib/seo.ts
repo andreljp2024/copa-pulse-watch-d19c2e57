@@ -65,11 +65,10 @@ export function ogMeta(opts: {
   return metas;
 }
 
-export type JsonLdScript = React.JSX.IntrinsicElements["script"];
-
-export function jsonLd(data: Record<string, unknown>): JsonLdScript {
-  return {
-    type: "application/ld+json",
-    dangerouslySetInnerHTML: { __html: JSON.stringify(data) },
-  } as JsonLdScript;
+// No TanStack Router, JSON-LD é emitido como uma entrada de `meta` com a
+// chave especial "script:ld+json" (o headContentUtils serializa para
+// <script type="application/ld+json">). Não usar o array `scripts` do head,
+// que é reservado para <script> de execução.
+export function jsonLd(data: Record<string, unknown>): MetaEntry {
+  return { "script:ld+json": data } as unknown as MetaEntry;
 }

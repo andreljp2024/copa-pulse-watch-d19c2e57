@@ -21,9 +21,6 @@ export const Route = createFileRoute("/calendario")({
         description: "Todas as partidas da Copa com filtros por status, grupo e fase.",
         url: "/calendario",
       }),
-    ],
-    links: [canonicalLink("/calendario")],
-    scripts: [
       jsonLd({
         "@context": "https://schema.org",
         "@type": "SportsTournament",
@@ -46,6 +43,7 @@ export const Route = createFileRoute("/calendario")({
         ],
       }),
     ],
+    links: [canonicalLink("/calendario")],
   }),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(opts);
