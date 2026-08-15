@@ -10,6 +10,7 @@
  * API de contingência: A arquitetura deverá permitir integração futura com outra fonte,
  * como football-data.org, para fixtures, resultados e classificações.
  */
+// corrija: Alguns serviços estão pausados porque este espaço de trabalho está sem créditos.
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useMemo } from "react";
