@@ -33,6 +33,7 @@ const saveBolaoSchema = z.object({
     .finite("Percentual admin inválido")
     .min(0, "Percentual admin mínimo é 0")
     .max(100, "Percentual admin máximo é 100"),
+  tipo_palpite: z.enum(["placar", "1x2", "ou_15", "ou_25"]).default("placar"),
   permitir_ranking_publico: z.boolean(),
   permitir_ganhadores_publico: z.boolean(),
   data_limite_palpite: z.string().nullable().optional(),
@@ -107,7 +108,8 @@ export const saveBolao = createServerFn({ method: "POST" })
           permitir_ranking_publico: data.permitir_ranking_publico,
           permitir_ganhadores_publico: data.permitir_ganhadores_publico,
           data_limite_palpite: data.data_limite_palpite ?? null,
-        })
+          tipo_palpite: data.tipo_palpite as any,
+        } as any)
         .eq("id", data.bolao_id);
       if (updErr) return { ok: false, message: "Erro ao atualizar bolão: " + updErr.message };
 

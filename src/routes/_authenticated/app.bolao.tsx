@@ -77,6 +77,7 @@ function BolaoConfigPage() {
     regras: "",
     valor_palpite: 10,
     percentual_admin: 20,
+    tipo_palpite: "placar" as "placar" | "1x2" | "ou_15" | "ou_25",
     permitir_ranking_publico: true,
     permitir_ganhadores_publico: true,
     data_limite_palpite: "",
@@ -185,6 +186,7 @@ function BolaoConfigPage() {
           regras: b.regras ?? "",
           valor_palpite: Number(b.valor_palpite),
           percentual_admin: Number((b as any).percentual_admin ?? 20),
+          tipo_palpite: (b as any).tipo_palpite ?? "placar",
           permitir_ranking_publico: b.permitir_ranking_publico,
           permitir_ganhadores_publico: b.permitir_ganhadores_publico,
           data_limite_palpite: b.data_limite_palpite ? toDatetimeLocalBR(b.data_limite_palpite) : "",
@@ -230,6 +232,7 @@ function BolaoConfigPage() {
           regras: form.regras,
           valor_palpite: form.valor_palpite,
           percentual_admin: form.percentual_admin,
+          tipo_palpite: form.tipo_palpite,
           permitir_ranking_publico: form.permitir_ranking_publico,
           permitir_ganhadores_publico: form.permitir_ganhadores_publico,
           data_limite_palpite: form.data_limite_palpite
@@ -700,7 +703,24 @@ function BolaoConfigPage() {
             </div>
           </Card>
 
-          <Card title="4. Visibilidade pública">
+          <Card title="4. Estilo de Palpite" desc="Escolha como os torcedores devem palpitar.">
+            <Field label="Tipo de Palpite">
+              <select
+                value={form.tipo_palpite}
+                onChange={(e) =>
+                  setForm({ ...form, tipo_palpite: e.target.value as any })
+                }
+                className={inputCss}
+              >
+                <option value="placar">Placar Exato (Ex: 2 x 1)</option>
+                <option value="1x2">1X2 (Vitória Casa, Empate, Vitória Fora)</option>
+                <option value="ou_15">Over/Under 1.5 Gols</option>
+                <option value="ou_25">Over/Under 2.5 Gols</option>
+              </select>
+            </Field>
+          </Card>
+
+          <Card title="5. Visibilidade pública">
             <div className="space-y-2">
               <Toggle
                 checked={form.permitir_ranking_publico}
