@@ -7,11 +7,13 @@ import bolaoIcon from "@/assets/bolaoai-icon.png";
 
 const nav = [
   { to: "/", label: "Início" },
-  { to: "/catalogo", label: "Cestas" },
-  { to: "/categorias", label: "Categorias" },
+  { to: "/selecoes", label: "Seleções" },
+  { to: "/grupos", label: "Grupos" },
+  { to: "/calendario", label: "Calendário" },
+  { to: "/mata-mata", label: "Mata-mata" },
+  { to: "/estatisticas", label: "Estatísticas" },
   { to: "/ajuda", label: "Ajuda" },
 ] as const;
-
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
