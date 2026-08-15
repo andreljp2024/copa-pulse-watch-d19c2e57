@@ -190,20 +190,25 @@ export const getMatch = createServerFn({ method: "GET" })
     };
   });
 
-export const listTopScorers = createServerFn({ method: "GET" }).handler(async () => {
-  const sb = publicClient();
-  const res = await sb.from("v_top_scorers").select("*").limit(50);
-  return unwrap(res, "listTopScorers");
-});
+export const listTopScorers = createServerFn({ method: "GET" }).handler(() =>
+  safeList(async () => {
+    const sb = publicClient();
+    const res = await sb.from("v_top_scorers").select("*").limit(50);
+    return unwrap(res, "listTopScorers");
+  }, "listTopScorers"),
+);
 
-export const listKnockoutMatches = createServerFn({ method: "GET" }).handler(async () => {
-  const sb = publicClient();
-  const res = await sb
-    .from("matches")
-    .select(
-      "*, home:home_team_id(id,name,code,flag_url), away:away_team_id(id,name,code,flag_url), stadium:stadium_id(name,city), phase",
-    )
-    .neq("phase", "group")
-    .order("kickoff_at");
-  return unwrap(res, "listKnockoutMatches");
-});
+export const listKnockoutMatches = createServerFn({ method: "GET" }).handler(() =>
+  safeList(async () => {
+    const sb = publicClient();
+    const res = await sb
+      .from("matches")
+      .select(
+        "*, home:home_team_id(id,name,code,flag_url), away:away_team_id(id,name,code,flag_url), stadium:stadium_id(name,city), phase",
+      )
+      .neq("phase", "group")
+      .order("kickoff_at");
+    return unwrap(res, "listKnockoutMatches");
+  }, "listKnockoutMatches"),
+);
+
