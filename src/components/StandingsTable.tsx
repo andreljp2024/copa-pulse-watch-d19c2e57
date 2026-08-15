@@ -56,11 +56,7 @@ export function StandingsTable({ rows, highlightTop = 2 }: { rows: Row[]; highli
                   </span>
                 </td>
                 <td className="py-2">
-                  <Link
-                    to="/selecoes/$id"
-                    params={{ id: r.team_id }}
-                    className="hover:underline flex items-center gap-2"
-                  >
+                  <div className="flex items-center gap-2">
                     <TeamBadge
                       team={{ name: r.name, code: r.code, flag_url: r.flag_url }}
                       size="sm"
@@ -68,7 +64,8 @@ export function StandingsTable({ rows, highlightTop = 2 }: { rows: Row[]; highli
                     />
                     {isClassified && <span className="text-xs text-green-600 font-bold">✅</span>}
                     {isEliminated && <span className="text-xs text-red-500">❌</span>}
-                  </Link>
+                  </div>
+
                 </td>
                 <td className="text-center tabular-nums">{r.played}</td>
                 <td className="text-center tabular-nums">{r.wins}</td>
