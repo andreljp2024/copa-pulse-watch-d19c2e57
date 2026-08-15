@@ -8,7 +8,7 @@ import { SITE, ogMeta, canonicalLink, jsonLd } from "@/lib/seo";
 
 const opts = queryOptions({ queryKey: ["teams"], queryFn: () => listTeams() });
 
-export const Route = createFileRoute("/times")({
+export const Route = createFileRoute("/selecoes")({
   head: () => ({
     meta: [
       { title: "Times — Bolão AI" },
