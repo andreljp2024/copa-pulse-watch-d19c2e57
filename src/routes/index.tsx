@@ -250,7 +250,7 @@ function Dashboard() {
                   className="rounded-xl border border-border bg-card p-4 card-elevated"
                 >
                   <h3 className="text-sm font-black uppercase text-pitch mb-2">
-                    Grupo {rows[0]?.group?.name ?? ""}
+                    Grupo {data.groups.find((g) => g.id === gid)?.name ?? ""}
                   </h3>
                   <StandingsTable rows={rows as any} />
                 </div>

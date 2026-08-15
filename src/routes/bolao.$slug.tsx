@@ -410,7 +410,6 @@ function PublicBolao() {
         particleCount: 120,
         spread: 80,
         origin: { y: 0.6 },
-        useWorker: false,
         disableForReducedMotion: true,
       });
     } catch (err) {

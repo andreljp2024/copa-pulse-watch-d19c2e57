@@ -25,6 +25,7 @@ export const getDashboard = createServerFn({ method: "GET" }).handler(async () =
     upcoming: [],
     recent: [],
     standings: [],
+    groups: [],
     topScorers: [],
     stats: { teams: 0, matches: 0, stadiums: 0 },
   };
@@ -40,7 +41,7 @@ export const getDashboard = createServerFn({ method: "GET" }).handler(async () =
   // ainda não atualizou o status para 'live'.
   const liveWindowStart = new Date(Date.now() - 150 * 60_000).toISOString();
   try {
-    const [liveExplicit, liveFallback, upcoming, recent, standings, scorers, teamsC, matchesC, stadiumsC] =
+    const [liveExplicit, liveFallback, upcoming, recent, standings, groups, scorers, teamsC, matchesC, stadiumsC] =
       await Promise.all([
         sb.from("matches").select(MATCH_SELECT).eq("status", "live").order("kickoff_at").then((r) => (r.error ? [] : r.data)),
         sb
@@ -61,6 +62,7 @@ export const getDashboard = createServerFn({ method: "GET" }).handler(async () =
           .then((r) => (r.error ? [] : r.data)),
         sb.from("matches").select(MATCH_SELECT).eq("status", "finished").order("kickoff_at", { ascending: false }).limit(6).then((r) => (r.error ? [] : r.data)),
         sb.from("v_standings").select("*").then((r) => (r.error ? [] : r.data)),
+        sb.from("groups").select("id, name").order("name").then((r) => (r.error ? [] : r.data)),
         sb.from("v_top_scorers").select("*").limit(8).then((r) => (r.error ? [] : r.data)),
         sb.from("teams").select("id", { count: "exact", head: true }).then((r) => r.count ?? 0),
         sb.from("matches").select("id", { count: "exact", head: true }).then((r) => r.count ?? 0),
@@ -78,6 +80,7 @@ export const getDashboard = createServerFn({ method: "GET" }).handler(async () =
       upcoming: upcoming ?? [],
       recent: recent ?? [],
       standings: standings ?? [],
+      groups: groups ?? [],
       topScorers: scorers ?? [],
       stats: { teams: teamsC, matches: matchesC, stadiums: stadiumsC },
     };
