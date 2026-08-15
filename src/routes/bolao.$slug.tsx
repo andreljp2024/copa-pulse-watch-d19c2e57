@@ -48,7 +48,7 @@ const bolaoPublicOpts = (slug: string) =>
       const { data: bolao, error } = await supabase
         .from("boloes")
         .select(
-          "id, nome, slug, descricao, regras, valor_palpite, status, logo_url, cor_primaria, cor_secundaria, permitir_ranking_publico, permitir_ganhadores_publico, data_limite_palpite, created_at, updated_at, percentual_admin",
+          "id, nome, slug, descricao, regras, valor_palpite, status, logo_url, cor_primaria, cor_secundaria, permitir_ranking_publico, permitir_ganhadores_publico, data_limite_palpite, created_at, updated_at, percentual_admin, tipo_palpite",
         )
         .eq("slug", slug)
         .eq("status", "active")
