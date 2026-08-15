@@ -160,3 +160,33 @@ export const signUpOrganizerByWhatsApp = createServerFn({ method: "POST" })
       refresh_token: verified.session.refresh_token,
     };
   });
+const resetSchema = z.object({ whatsapp: z.string().min(10) });
+
+export const requestPasswordResetByWhatsApp = createServerFn({ method: "POST" })
+  .inputValidator((data) => resetSchema.parse(data))
+  .handler(async ({ data }) => {
+    const whatsapp = normalizeWhatsApp(data.whatsapp);
+    if (whatsapp.length < 12) throw new Error("WhatsApp inválido.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: allowed, error: rateError } = await supabaseAdmin.rpc("check_rate_limit", {
+      p_chave: whatsapp,
+      p_escopo: "reset_password_whatsapp",
+      p_max: 3,
+      p_janela_segundos: 600,
+    });
+    if (rateError) throw new Error("Falha ao validar solicitação.");
+    if (!allowed) throw new Error("Muitas tentativas. Aguarde alguns minutos.");
+
+    const email = `${whatsapp}@${WA_EMAIL_DOMAIN}`;
+    const { data: link, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: "recovery",
+      email,
+    });
+    if (linkError || !link.properties?.action_link) {
+      throw new Error("Não foi possível gerar o link de recuperação.");
+    }
+
+    return { action_link: link.properties.action_link, whatsapp };
+  });
