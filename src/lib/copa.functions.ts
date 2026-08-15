@@ -131,27 +131,35 @@ export const getTeam = createServerFn({ method: "GET" })
   });
 
 export const listGroups = createServerFn({ method: "GET" }).handler(async () => {
-  const sb = publicClient();
-  const [groups, standings] = await Promise.all([
-    sb.from("groups").select("*").order("name"),
-    sb.from("v_standings").select("*"),
-  ]);
-  return {
-    groups: unwrap(groups, "listGroups.groups"),
-    standings: unwrap(standings, "listGroups.standings"),
-  };
+  try {
+    const sb = publicClient();
+    const [groups, standings] = await Promise.all([
+      sb.from("groups").select("*").order("name"),
+      sb.from("v_standings").select("*"),
+    ]);
+    return {
+      groups: unwrap(groups, "listGroups.groups"),
+      standings: unwrap(standings, "listGroups.standings"),
+    };
+  } catch (e) {
+    console.error("[listGroups]", e instanceof Error ? e.message : e);
+    return { groups: [], standings: [] };
+  }
 });
 
-export const listMatches = createServerFn({ method: "GET" }).handler(async () => {
-  const sb = publicClient();
-  const res = await sb
-    .from("matches")
-    .select(
-      "*, home:home_team_id(id,name,code,flag_url), away:away_team_id(id,name,code,flag_url), group:group_id(name), stadium:stadium_id(name,city)",
-    )
-    .order("kickoff_at");
-  return unwrap(res, "listMatches");
-});
+export const listMatches = createServerFn({ method: "GET" }).handler(() =>
+  safeList(async () => {
+    const sb = publicClient();
+    const res = await sb
+      .from("matches")
+      .select(
+        "*, home:home_team_id(id,name,code,flag_url), away:away_team_id(id,name,code,flag_url), group:group_id(name), stadium:stadium_id(name,city)",
+      )
+      .order("kickoff_at");
+    return unwrap(res, "listMatches");
+  }, "listMatches"),
+);
+
 
 export const getMatch = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
