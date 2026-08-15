@@ -288,7 +288,7 @@ function Dashboard() {
         <div className="relative flex flex-wrap items-end justify-between gap-4">
           <div className="space-y-2">
             <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-background/40 px-3 py-1 text-xs font-semibold text-gold backdrop-blur">
-              <Shield className="h-3.5 w-3.5" /> Rumo ao Hexa 🇧🇷
+              <Shield className="h-3.5 w-3.5" /> Paixão Nacional 🇧🇷
             </span>
             <h1 className="font-display text-3xl sm:text-4xl font-black tracking-tight">
               Painel do <span className="text-gradient-gold">organizador</span>

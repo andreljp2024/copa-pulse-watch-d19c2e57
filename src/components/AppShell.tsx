@@ -7,7 +7,7 @@ import bolaoIcon from "@/assets/bolaoai-icon.png";
 
 const nav = [
   { to: "/", label: "Início" },
-  { to: "/selecoes", label: "Seleções" },
+  { to: "/selecoes", label: "Times" },
   { to: "/grupos", label: "Grupos" },
   { to: "/calendario", label: "Calendário" },
   { to: "/mata-mata", label: "Mata-mata" },
@@ -65,7 +65,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main className="flex-1">{children}</main>
         <footer className="border-t border-border mt-12">
           <div className="mx-auto max-w-7xl px-4 py-6 text-sm text-muted-foreground flex flex-wrap items-center justify-between gap-2">
-            <span>© Bolão AI — Acompanhe a Copa do Mundo em tempo real.</span>
+            <span>© Bolão AI — Acompanhe o futebol em tempo real.</span>
             <span className="text-xs">Estrutura pronta para integração com API externa.</span>
           </div>
         </footer>
@@ -183,7 +183,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="flex-1">{children}</main>
       <footer className="border-t border-border mt-12">
         <div className="mx-auto max-w-7xl px-4 py-6 text-sm text-muted-foreground flex flex-wrap items-center justify-between gap-2">
-          <span>© Bolão AI — Acompanhe a Copa do Mundo em tempo real.</span>
+          <span>© Bolão AI — Acompanhe o futebol em tempo real.</span>
           <span className="text-xs">Estrutura pronta para integração com API externa.</span>
         </div>
       </footer>

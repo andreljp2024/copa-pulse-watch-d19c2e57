@@ -23,24 +23,24 @@ const dashboardOpts = queryOptions({
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: SITE.titleTemplate("Painel da Copa do Mundo") },
+      { title: SITE.titleTemplate("Bolão de Futebol Brasileiro") },
       {
         name: "description",
         content:
-          "Resumo da Copa: jogos ao vivo, próximos jogos, resultados, classificação e artilheiros.",
+          "Resultados ao vivo, próximos jogos, classificação e artilheiros do futebol brasileiro.",
       },
       ...ogMeta({
-        title: SITE.titleTemplate("Painel da Copa do Mundo"),
+        title: SITE.titleTemplate("Bolão de Futebol Brasileiro"),
         description:
-          "Resumo da Copa: jogos ao vivo, próximos jogos, resultados, classificação e artilheiros.",
+          "Acompanhe o futebol brasileiro: tabela, calendário, resultados e estatísticas no Bolão AI.",
         url: "/",
       }),
       jsonLd({
         "@context": "https://schema.org",
         "@type": "SportsTournament",
-        name: "Copa do Mundo 2026",
+        name: "Futebol Brasileiro",
         description:
-          "Acompanhe a Copa do Mundo 2026: tabela, calendário, resultados e estatísticas no Bolão AI.",
+          "Acompanhe o futebol brasileiro: tabela, calendário, resultados e estatísticas no Bolão AI.",
         url: SITE.domain,
         eventStatus: "https://schema.org/EventScheduled",
         inLanguage: "pt-BR",
@@ -105,7 +105,7 @@ function Dashboard() {
                   className="h-2 w-2 rounded-full bg-gradient-samba animate-pulse"
                   aria-hidden="true"
                 />
-                Vai, Brasil! · Rumo ao Hexa 2026
+                Vai, Jogão! · Rumo à Vitória 2026
               </div>
               <h1 className="font-display uppercase text-white leading-[0.95] [text-wrap:balance] [font-size:clamp(2.25rem,6vw,5.5rem)]">
                 BOLÃO DOS <br />
@@ -113,7 +113,7 @@ function Dashboard() {
               </h1>
               <p className="max-w-md text-sm sm:text-base md:text-lg leading-relaxed text-muted-foreground">
                 Acompanhe cada lance, simule resultados e dispute o topo do ranking no maior portal
-                da Copa do Mundo 2026.
+                de palpites de futebol.
               </p>
               <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-2">
                 <Link
@@ -162,7 +162,7 @@ function Dashboard() {
           {/* Stats bar */}
           <div className="mt-10 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 py-6 sm:py-10 border-y border-border">
             {[
-              { v: String(data.stats.teams), l: "Seleções" },
+              { v: String(data.stats.teams), l: "Clubes" },
               { v: String(data.stats.matches), l: "Partidas" },
               { v: String(data.stats.stadiums), l: "Cidades Sede" },
               {
