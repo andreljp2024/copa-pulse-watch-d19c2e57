@@ -935,8 +935,9 @@ function BolaoConfigPage() {
       <p className="text-xs text-muted-foreground">
         Torcedores palpitam na{" "}
         <Link
-          to="/bolao/$slug"
+          to="/cesta/$slug"
           params={{ slug: form.slug || "_" }}
+
           className="text-pitch font-semibold hover:underline"
         >
           página pública

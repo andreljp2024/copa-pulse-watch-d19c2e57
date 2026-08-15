@@ -349,8 +349,9 @@ function Dashboard() {
               <Copy className="h-4 w-4" /> {copied ? "Copiado!" : "Copiar"}
             </button>
             <Link
-              to="/bolao/$slug"
+              to="/cesta/$slug"
               params={{ slug: stats.bolao.slug }}
+
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-card"
