@@ -56,7 +56,7 @@ const SUGESTAO_REGRAS = `📜 *REGRAS DO BOLÃO* 🏆⚽
 
 🔞 *5. Participação*
 👤 Apenas maiores de *+18 anos*.
-🚫 Bolão AI *não é bets* — é cortesia entre amigos rumo ao *Hexa* 🇧🇷.`;
+🚫 Bolão AI *não é bets* — é cortesia entre amigos rumo à *Vitória* 🇧🇷.`;
 
 type Match = {
   id: string;
