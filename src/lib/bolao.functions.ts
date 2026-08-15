@@ -109,7 +109,7 @@ export const saveBolao = createServerFn({ method: "POST" })
           permitir_ganhadores_publico: data.permitir_ganhadores_publico,
           data_limite_palpite: data.data_limite_palpite ?? null,
           tipo_palpite: data.tipo_palpite as any,
-        })
+        } as any)
         .eq("id", data.bolao_id);
       if (updErr) return { ok: false, message: "Erro ao atualizar bolão: " + updErr.message };
 
