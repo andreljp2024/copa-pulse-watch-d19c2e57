@@ -1,0 +1,289 @@
+import { createFileRoute, notFound } from "@tanstack/react-router";
+import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { AppShell } from "@/components/AppShell";
+import { TeamBadge } from "@/components/MatchCard";
+import { getMatch } from "@/lib/copa.functions";
+import { Goal, Square, ArrowLeftRight, MapPin, User } from "lucide-react";
+import { formatBRFull } from "@/lib/timezone";
+import { SITE, ogMeta, canonicalLink, jsonLd } from "@/lib/seo";
+
+const opts = (id: string) =>
+  queryOptions({ queryKey: ["match", id], queryFn: () => getMatch({ data: { id } }) });
+
+export const Route = createFileRoute("/partidas/$id")({
+  loader: ({ context, params }) => {
+    context.queryClient.ensureQueryData(opts(params.id));
+  },
+  head: ({ loaderData, params }) => {
+    const m = (loaderData as any)?.match as any;
+    if (!m) {
+      return {
+        meta: [
+          { title: "Partida não encontrada — Bolão AI" },
+          ...ogMeta({
+            title: "Partida não encontrada — Bolão AI",
+            description: "A partida solicitada não foi encontrada.",
+            url: `/partidas/${params.id}`,
+          }),
+        ],
+        links: [canonicalLink(`/partidas/${params.id}`)],
+      };
+    }
+    const home = m.home ?? { name: "A definir" };
+    const away = m.away ?? { name: "A definir" };
+    const title = `${home.name} x ${away.name} — Bolão AI`;
+    const desc = `Acompanhe ${home.name} x ${away.name}${
+      m.kickoff_at ? ` em ${formatBRFull(m.kickoff_at)}` : ""
+    }. Placar, escalações e estatísticas da Copa 2026.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        ...ogMeta({ title, description: desc, url: `/partidas/${params.id}` }),
+        jsonLd({
+          "@context": "https://schema.org",
+          "@type": "SportsEvent",
+          name: `${home.name} x ${away.name}`,
+          description: desc,
+          startDate: m.kickoff_at,
+          eventStatus:
+            m.status === "finished"
+              ? "https://schema.org/EventCompleted"
+              : "https://schema.org/EventScheduled",
+          inLanguage: "pt-BR",
+          ...(m.stadium?.name ? { location: { "@type": "Place", name: m.stadium.name } } : {}),
+          competitor: [
+            { "@type": "SportsTeam", name: home.name },
+            { "@type": "SportsTeam", name: away.name },
+          ],
+        }),
+        jsonLd({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Início", item: SITE.domain },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "Calendário",
+              item: `${SITE.domain}/calendario`,
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: `${home.name} x ${away.name}`,
+              item: `${SITE.domain}/partidas/${params.id}`,
+            },
+          ],
+        }),
+      ],
+      links: [canonicalLink(`/partidas/${params.id}`)],
+    };
+  },
+  component: Page,
+  notFoundComponent: () => (
+    <AppShell>
+      <div className="mx-auto max-w-7xl px-4 py-16 text-center">Partida não encontrada.</div>
+    </AppShell>
+  ),
+});
+
+const eventIcon = (t: string) =>
+  t === "goal" || t === "penalty" ? (
+    <Goal className="h-4 w-4 text-pitch" />
+  ) : t === "yellow_card" ? (
+    <Square className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+  ) : t === "red_card" ? (
+    <Square className="h-4 w-4 text-red-600 fill-red-600" />
+  ) : t === "substitution" ? (
+    <ArrowLeftRight className="h-4 w-4 text-muted-foreground" />
+  ) : (
+    <Goal className="h-4 w-4 text-muted-foreground" />
+  );
+
+function Page() {
+  const { id } = Route.useParams();
+  const { data } = useSuspenseQuery(opts(id));
+  if (!data.match) throw notFound();
+  const m = data.match as any;
+  const isLive = m.status === "live";
+  const showScore = m.status === "finished" || isLive;
+  const EMPTY_TEAM = { id: "", name: "A definir", code: "TBD", flag_url: null, coach_name: null };
+  const home = m.home ?? EMPTY_TEAM;
+  const away = m.away ?? EMPTY_TEAM;
+  const homeStats = data.stats.find((s: any) => s.team_id === home.id);
+  const awayStats = data.stats.find((s: any) => s.team_id === away.id);
+
+  return (
+    <AppShell>
+      <div className="bg-hero text-white">
+        <div className="mx-auto max-w-5xl px-4 py-6 sm:py-10">
+          <div className="flex items-center justify-between gap-2 text-[10px] sm:text-xs font-semibold uppercase text-white/80">
+            <span className="truncate">
+              {m.phase === "group"
+                ? `Fase de grupos${m.group?.name ? ` • Grupo ${m.group.name}` : ""}`
+                : m.phase}
+            </span>
+            {isLive && (
+              <span className="inline-flex shrink-0 items-center gap-1.5 px-2 py-1 rounded-full bg-live text-white">
+                <span className="live-dot h-2 w-2 rounded-full bg-white" /> AO VIVO
+              </span>
+            )}
+          </div>
+          <div className="mt-4 sm:mt-6 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:gap-4">
+            <div className="text-center sm:text-right min-w-0">
+              {home.flag_url && (
+                <img
+                  src={home.flag_url}
+                  alt={home.name}
+                  className="mx-auto sm:ml-auto sm:mr-0 h-10 w-14 sm:h-16 sm:w-24 object-cover rounded-md ring-2 ring-white/30"
+                />
+              )}
+              <div className="mt-2 text-sm sm:text-2xl font-black text-white truncate">
+                {home.name}
+              </div>
+              <div className="text-[10px] sm:text-xs text-white/70 truncate">
+                Técnico: {home.coach_name ?? "—"}
+              </div>
+            </div>
+            <div className="text-3xl sm:text-7xl font-black tabular-nums text-center text-white px-1">
+              {showScore ? (
+                `${m.home_score} : ${m.away_score}`
+              ) : (
+                <span className="text-lg sm:text-2xl text-white">vs</span>
+              )}
+            </div>
+            <div className="text-center sm:text-left min-w-0">
+              {away.flag_url && (
+                <img
+                  src={away.flag_url}
+                  alt={away.name}
+                  className="mx-auto sm:mr-auto sm:ml-0 h-10 w-14 sm:h-16 sm:w-24 object-cover rounded-md ring-2 ring-white/30"
+                />
+              )}
+              <div className="mt-2 text-sm sm:text-2xl font-black text-white truncate">
+                {away.name}
+              </div>
+              <div className="text-[10px] sm:text-xs text-white/70 truncate">
+                Técnico: {away.coach_name ?? "—"}
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 sm:mt-6 flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-6 gap-y-2 text-xs sm:text-sm text-white/85">
+            <span suppressHydrationWarning>{formatBRFull(m.kickoff_at)}</span>
+            {m.stadium && (
+              <span className="inline-flex items-center gap-1">
+                <MapPin className="h-3.5 w-3.5" />
+                {m.stadium.name}
+                {m.stadium.city ? `, ${m.stadium.city}` : ""}
+              </span>
+            )}
+            {m.referee?.name && (
+              <span className="inline-flex items-center gap-1">
+                <User className="h-3.5 w-3.5" />
+                {m.referee.name}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-5xl px-4 py-10 grid gap-8 md:grid-cols-2">
+        <section>
+          <h2 className="text-xl font-black mb-4">Linha do tempo</h2>
+          {data.events.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Sem eventos registrados.</p>
+          ) : (
+            <ol className="space-y-3">
+              {data.events.map((e: any) => (
+                <li
+                  key={e.id}
+                  className="flex items-start gap-3 rounded-lg border border-border bg-card p-3"
+                >
+                  <span className="grid h-8 w-8 place-items-center rounded-full bg-muted text-xs font-bold tabular-nums">
+                    {e.minute}'
+                  </span>
+                  <div className="mt-0.5">{eventIcon(e.type)}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold">
+                      {e.player?.name ?? e.description ?? e.type}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{e.team?.name}</div>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
+        <section>
+          <h2 className="text-xl font-black mb-4">Estatísticas</h2>
+          {!homeStats && !awayStats ? (
+            <p className="text-sm text-muted-foreground">Estatísticas indisponíveis.</p>
+          ) : (
+            <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+              {[
+                ["possession", "Posse de bola (%)"],
+                ["shots", "Finalizações"],
+                ["shots_on_target", "No gol"],
+                ["corners", "Escanteios"],
+                ["fouls", "Faltas"],
+                ["offsides", "Impedimentos"],
+                ["passes_accurate", "Passes certos"],
+                ["saves", "Defesas"],
+              ].map(([k, l]) => (
+                <StatRow
+                  key={k}
+                  label={l}
+                  home={(homeStats as any)?.[k]}
+                  away={(awayStats as any)?.[k]}
+                />
+              ))}
+            </div>
+          )}
+          {m.attendance && (
+            <p className="mt-4 text-sm text-muted-foreground">
+              Público:{" "}
+              <span className="font-semibold text-foreground">
+                {m.attendance.toLocaleString("pt-BR")}
+              </span>
+            </p>
+          )}
+        </section>
+      </div>
+    </AppShell>
+  );
+}
+
+function StatRow({
+  label,
+  home,
+  away,
+}: {
+  label: string;
+  home?: number | null;
+  away?: number | null;
+}) {
+  return (
+    <div>
+      <div className="flex justify-between text-xs font-semibold">
+        <span className="tabular-nums">{home ?? "—"}</span>
+        <span className="text-muted-foreground">{label}</span>
+        <span className="tabular-nums">{away ?? "—"}</span>
+      </div>
+      <div className="mt-1 flex h-2 gap-1">
+        <div className="flex-1 bg-muted rounded overflow-hidden flex justify-end">
+          <div className="h-full bg-pitch" style={{ width: `${pct(home, away)}%` }} />
+        </div>
+        <div className="flex-1 bg-muted rounded overflow-hidden">
+          <div className="h-full bg-gold" style={{ width: `${pct(away, home)}%` }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+function pct(a?: number | null, b?: number | null) {
+  const x = a ?? 0,
+    y = b ?? 0;
+  const total = x + y;
+  return total ? Math.round((x / total) * 100) : 0;
+}
