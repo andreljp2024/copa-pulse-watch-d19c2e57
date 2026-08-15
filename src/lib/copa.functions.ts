@@ -19,6 +19,17 @@ function unwrap<T>(res: { data: T | null; error: { message: string } | null }, l
   return res.data ?? ([] as unknown as T);
 }
 
+// Backend indisponível/pausado não deve derrubar a página (SSR em branco).
+async function safeList<T>(fn: () => Promise<T[]>, label: string): Promise<T[]> {
+  try {
+    return await fn();
+  } catch (e) {
+    console.error(`[${label}]`, e instanceof Error ? e.message : e);
+    return [];
+  }
+}
+
+
 export const getDashboard = createServerFn({ method: "GET" }).handler(async () => {
   const empty = {
     live: [],
