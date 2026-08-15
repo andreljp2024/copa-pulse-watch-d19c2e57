@@ -23,7 +23,7 @@ export const Route = createFileRoute("/api/public/hooks/sync-football")({
 
 
         try {
-          // Estratégia unificada: worldcup26.ir primária, football-data.org
+          // Estratégia unificada: football-data.org (Brasileirão)
           // fallback. Executar uma única API por ciclo evita duplicidade
           // em `matches` (kickoff_at diverge entre as fontes).
           const { syncMatchesUnified } = await import("@/lib/sync-with-fallback.server");
