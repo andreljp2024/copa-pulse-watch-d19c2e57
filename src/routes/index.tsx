@@ -1,3 +1,15 @@
+/**
+ * 6. Fonte de dados esportivos
+ *
+ * API principal: Utilizar uma API de futebol com plano gratuito, preferencialmente
+ * API-Football/API-Sports, mantendo a integração isolada em backend.
+ *
+ * A API deverá alimentar: fixtures, times, competições, classificação, H2H,
+ * eventos, estatísticas, resultados, previsões e odds.
+ *
+ * API de contingência: A arquitetura deverá permitir integração futura com outra fonte,
+ * como football-data.org, para fixtures, resultados e classificações.
+ */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useMemo } from "react";
