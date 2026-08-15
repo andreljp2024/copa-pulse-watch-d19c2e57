@@ -77,6 +77,7 @@ function BolaoConfigPage() {
     regras: "",
     valor_palpite: 10,
     percentual_admin: 20,
+    tipo_palpite: "placar" as "placar" | "1x2" | "ou_15" | "ou_25",
     permitir_ranking_publico: true,
     permitir_ganhadores_publico: true,
     data_limite_palpite: "",
