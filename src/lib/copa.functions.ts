@@ -100,11 +100,14 @@ export const getDashboard = createServerFn({ method: "GET" }).handler(async () =
   }
 });
 
-export const listTeams = createServerFn({ method: "GET" }).handler(async () => {
-  const sb = publicClient();
-  const res = await sb.from("teams").select("*, group:group_id(name)").order("name");
-  return unwrap(res, "listTeams");
-});
+export const listTeams = createServerFn({ method: "GET" }).handler(() =>
+  safeList(async () => {
+    const sb = publicClient();
+    const res = await sb.from("teams").select("*, group:group_id(name)").order("name");
+    return unwrap(res, "listTeams");
+  }, "listTeams"),
+);
+
 
 export const getTeam = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
