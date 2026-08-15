@@ -112,18 +112,8 @@ export function TeamBadge({
       <span className="truncate font-semibold">{displayName}</span>
     </div>
   );
-  if (linkable && team.id) {
-    return (
-      <Link
-        to="/selecoes/$id"
-        params={{ id: team.id }}
-        className="hover:opacity-80 transition-opacity"
-      >
-        {content}
-      </Link>
-    );
-  }
   return content;
+
 }
 
 type MatchLike = {
@@ -141,11 +131,8 @@ export const MatchCard = memo(function MatchCard({ m }: { m: MatchLike }) {
   const isLive = m.status === "live";
   const isFinished = m.status === "finished";
   return (
-    <Link
-      to="/partidas/$id"
-      params={{ id: m.id }}
-      className="block rounded-xl border border-border bg-card p-4 card-elevated hover:border-pitch/40 transition-colors"
-    >
+    <div className="block rounded-xl border border-border bg-card p-4 card-elevated transition-colors">
+
       <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
         <span suppressHydrationWarning>{formatBRShort(m.kickoff_at)}</span>
         {isLive && (

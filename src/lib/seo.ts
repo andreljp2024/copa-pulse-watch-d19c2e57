@@ -1,11 +1,11 @@
 export const SITE = {
-  name: "Bolão AI",
+  name: "CestaFácil",
   domain: "https://bolao.ai.slz.br",
-  titleTemplate: (t: string) => `${t} — Bolão AI`,
+  titleTemplate: (t: string) => `${t} — CestaFácil`,
   description:
-    "Tabela, calendário, resultados, seleções e estatísticas da Copa do Mundo em tempo real. Crie e gerencie seu bolão entre amigos.",
+    "CestaFácil: Qualidade, economia e cuidado para sua família. Cestas básicas, kits de alimentos e planos recorrentes com entrega rápida.",
   ogImage: "/og-image.png",
-  twitter: "@bolaoai",
+  twitter: "@cestafacil",
   locale: "pt_BR",
 } as const;
 
