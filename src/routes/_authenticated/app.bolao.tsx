@@ -56,7 +56,7 @@ const SUGESTAO_REGRAS = `📜 *REGRAS DO BOLÃO* 🏆⚽
 
 🔞 *5. Participação*
 👤 Apenas maiores de *+18 anos*.
-🚫 Bolão AI *não é bets* — é cortesia entre amigos rumo ao *Hexa* 🇧🇷.`;
+🚫 Bolão AI *não é bets* — é cortesia entre amigos rumo à *Vitória* 🇧🇷.`;
 
 type Match = {
   id: string;
@@ -138,7 +138,7 @@ function BolaoConfigPage() {
         source?: string;
       };
       toast.success(
-        `Sincronizado (${res.source ?? "api"}): ${res.matches_upserted ?? 0} jogos, ${res.teams_upserted ?? 0} seleções`,
+        `Sincronizado (${res.source ?? "api"}): ${res.matches_upserted ?? 0} jogos, ${res.teams_upserted ?? 0} times`,
       );
       await loadMatches();
     } catch (err) {
@@ -322,7 +322,7 @@ function BolaoConfigPage() {
     });
     const isUm = sel.length === 1;
     return [
-      `🏆🇧🇷 *${form.nome || "Bolão da Copa 2026"}* 🇧🇷🏆`,
+      `🏆🇧🇷 *${form.nome || "Bolão de Futebol"}* 🇧🇷🏆`,
       `🔥 O maior bolão entre amigos vai rolar — bora participar? 🤝⚽`,
       ``,
       isUm ? `🎯 Palpite pra este jogão:` : `🎯 Palpite nesses jogaços:`,

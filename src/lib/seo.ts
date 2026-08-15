@@ -3,7 +3,7 @@ export const SITE = {
   domain: "https://bolao.ai.slz.br",
   titleTemplate: (t: string) => `${t} — Bolão AI`,
   description:
-    "Tabela, calendário, resultados, seleções e estatísticas da Copa do Mundo em tempo real. Crie e gerencie seu bolão entre amigos.",
+    "Tabela, calendário, resultados, times e estatísticas do futebol brasileiro em tempo real. Crie e gerencie seu bolão de futebol.",
   ogImage: "/og-image.png",
   twitter: "@bolaoai",
   locale: "pt_BR",
