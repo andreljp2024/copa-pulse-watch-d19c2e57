@@ -5,7 +5,9 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const FD_BASE = "https://api.football-data.org/v4";
-const FD_COMPETITION = process.env.FOOTBALL_COMPETITION ?? "WC";
+// Competição padrão: Campeonato Brasileiro Série A (football-data.org → "BSA").
+// Pode ser sobrescrita por FOOTBALL_COMPETITION (ex.: "BSA", "CDB", "CLI").
+const FD_COMPETITION = process.env.FOOTBALL_COMPETITION ?? "BSA";
 
 interface FDTeam {
   id: number;
@@ -133,7 +135,7 @@ export async function syncFootballData(triggeredBy: string): Promise<SyncResult>
       summary.teams_upserted = teamRows.length;
     }
 
-    // Garantir que exista uma seleção placeholder "A definir" (código TBD)
+    // Garantir que exista uma time placeholder "A definir" (código TBD)
     // usada nos confrontos de mata-mata ainda não decididos.
     await sb
       .from("teams")
@@ -250,7 +252,7 @@ export async function syncFootballData(triggeredBy: string): Promise<SyncResult>
       console.warn("Scorers sync failed (non-fatal):", msg);
     }
 
-    const message = `Sync OK: ${summary.teams_upserted} seleções, ${summary.matches_upserted} jogos, ${summary.scorers_upserted} artilheiros.`;
+    const message = `Sync OK: ${summary.teams_upserted} times, ${summary.matches_upserted} jogos, ${summary.scorers_upserted} artilheiros.`;
     await sb.from("api_sync_logs").insert({
       source: "football-data",
       action: "sync_all",

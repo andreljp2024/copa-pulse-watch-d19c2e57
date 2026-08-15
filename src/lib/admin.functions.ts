@@ -97,7 +97,7 @@ export const upsertTeam = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-// ---------- Sync com fallback: worldcup26.ir → football-data.org ----------
+// ---------- Sync de clubes brasileiros: football-data.org (BSA) ----------
 // Uma única API por execução para evitar linhas duplicadas em `matches`
 // (kickoff_at diverge entre as fontes).
 export const syncFromExternalApi = createServerFn({ method: "POST" })

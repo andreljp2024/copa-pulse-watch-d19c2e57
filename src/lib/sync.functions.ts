@@ -3,7 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /**
  * Sincroniza jogos/seleções da API externa usando uma única estratégia
- * (worldcup26.ir primária, football-data.org fallback). Executar apenas
+ * (football-data.org, competição BSA). Executar apenas
  * uma API por vez evita duplicidade de linhas em `matches`, já que cada
  * fonte gera `kickoff_at` com timezones diferentes.
  */
