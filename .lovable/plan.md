@@ -1,45 +1,40 @@
-## Problema
+# Plan: Adaptação para Gestão e Venda de Cestas Básicas (CestaFácil)
 
-Hoje todo bolão de um tenant mostra **todos** os jogos da base no link público. O gestor não consegue agendar um bolão para uma rodada específica nem ter links diferentes apontando para conjuntos distintos de jogos. O criativo do hero usa um “próximo jogo qualquer” em vez das seleções realmente agendadas.
+O projeto será migrado de um sistema de Bolão de Futebol para uma plataforma completa de gestão e venda de cestas básicas, kits de alimentos e planos recorrentes, conforme o PRD "CestaFácil". A transição focará em converter as entidades esportivas (jogos, palpites, seleções) em entidades comerciais (pedidos, produtos, cestas).
 
-## Solução
+## User Review Required
 
-Tornar a seleção de jogos parte do bolão (persistida) e fazer o link público (e o criativo do hero) ler somente esses jogos. O gestor poderá ter vários bolões (cada um com seu slug e sua rodada de jogos).
+> [!IMPORTANT]
+> Esta é uma mudança estrutural profunda. O sistema deixará de ser um bolão de futebol para se tornar um e-commerce de cestas básicas. Toda a lógica de "jogos" e "ranking" será substituída por "catálogo" e "estoque".
 
-### 1. Banco — tabela `bolao_matches`
+## Mudanças Estruturais
 
-Migration criando join table:
+### 1. Banco de Dados (Supabase)
+- **Produtos e Cestas**: Criar tabelas para `produtos`, `cestas`, `cesta_itens` (composição) e `categorias`.
+- **Estoque**: Tabela para controle de saldo e movimentações de produtos.
+- **Pedidos**: Migrar o conceito de `palpites` para `pedidos`, incluindo status de entrega (`em_separacao`, `saiu_para_entrega`, etc.).
+- **Clientes**: A tabela de `torcedores` será renomeada ou adaptada para `clientes`, com campos de endereço e histórico.
+- **Assinaturas**: Tabela para planos recorrentes de alimentação.
 
-- `bolao_matches(bolao_id uuid, match_id uuid, created_at)` com PK composta, FKs para `boloes(id)` e `matches(id)` com `ON DELETE CASCADE`.
-- GRANT padrão (`authenticated` CRUD, `service_role` ALL, `anon` apenas SELECT — leitura pública faz parte do link compartilhável).
-- RLS:
-  - `SELECT` público: `EXISTS (boloes b WHERE b.id = bolao_id AND b.status='active')`.
-  - `INSERT/UPDATE/DELETE`: só o dono do tenant do bolão (`current_tenant_id() = b.tenant_id`) ou `super_admin`.
-- Ajustar `submit_palpite(...)` para exigir que `match_id` pertença ao bolão (se houver vínculos cadastrados); se a tabela estiver vazia para aquele bolão, manter o comportamento atual (compatível).
+### 2. Backend (Server Functions)
+- **Gestão de Pedidos**: Fluxo de checkout, cálculo de frete e integração com gateway Pix (substituindo o fluxo manual de confirmação de palpite).
+- **Controle de Produção**: Lógica para montagem de cestas baseada nos itens disponíveis.
+- **Notificações**: Adaptar a fila de WhatsApp para enviar status do pedido (Pedido Recebido -> Pago -> Entregue).
 
-### 2. Admin — `src/routes/_authenticated/app.bolao.tsx`
+### 3. Frontend (UI/UX)
+- **Catálogo Público**: Substituir o dashboard de jogos por uma vitrine de cestas em destaque.
+- **Monte sua Cesta**: Nova interface interativa para personalização de itens (substituições e adições).
+- **Painel Administrativo**:
+    - **Dashboard**: KPIs de vendas, estoque baixo e entregas do dia.
+    - **Gestão de Produtos**: CRUD completo de itens e kits.
+    - **Logística**: Tela para organização de rotas e status de separação.
 
-- Carregar `bolao_matches` ao abrir o bolão e popular `selectedMatchIds`.
-- Botão **Salvar** passa a persistir o conjunto (`delete` + `insert` em transação client-side: apaga removidos, insere adicionados).
-- Reorganizar a aba **Config**: bloco “Jogos deste bolão” com a lista de jogos futuros e checkbox; resumo (“X jogos selecionados”).
-- Permitir **criar novo bolão** (já existe estrutura; expor botão “Novo bolão” se ainda não houver) para que o gestor tenha mais de um link.
+## Detalhes Técnicos
+- **PWA**: Manter e reforçar a capacidade offline para entregadores consultarem rotas.
+- **SEO**: Atualizar metadados para termos relacionados a "cesta básica", "entrega de alimentos" e "kits mensais".
+- **Temas**: Migrar as cores "Brasil Moderno" para uma paleta focada em alimentação e frescor (ex: Verdes, laranjas e tons terrosos).
 
-### 3. Público — `src/routes/bolao.$slug.tsx`
-
-- No `queryFn`, buscar primeiro os `match_id`s em `bolao_matches` para o bolão; se houver, filtrar `matches` por esses IDs. Se a lista estiver vazia (bolão antigo), manter fallback atual.
-- `featured` passa a ser calculado dentro desse subconjunto (mostra o próximo jogo agendado **do bolão**).
-- Hero/criativo: quando há um `featured`, exibir bandeiras + nomes (em PT-BR via `ptTeamName`) das duas seleções com placar previsto/scoreboard, em vez do bloco genérico “Vai, Brasil”. Mantém estética samba/dourada.
-- og:image / og:title incluem nomes das seleções do próximo jogo (`Brasil x Argentina — {nome do bolão}`) para o preview do link no WhatsApp refletir o confronto.
-
-### 4. Detalhes técnicos
-
-- Reaproveitar `ptTeamName` para nomes nas metatags e no hero.
-- `FeaturedMatchCard` permanece, mas recebe sempre o jogo do bolão (não do global).
-- Nada muda em rotas autenticadas além do `app.bolao.tsx`.
-- Sem mudança de business logic em palpites além da validação de pertencimento dentro de `submit_palpite`.
-
-## Arquivos
-
-- `supabase/migrations/<novo>.sql` — tabela `bolao_matches`, GRANTs, RLS, update em `submit_palpite`.
-- `src/routes/_authenticated/app.bolao.tsx` — carregar/salvar vínculos, UI de seleção de jogos do bolão, criar novo bolão.
-- `src/routes/bolao.$slug.tsx` — filtrar matches pelo vínculo, ajustar hero/criativo e metatags por seleções.
+## Próximos Passos
+1. **Migrations**: Definir o novo esquema SQL de produtos e pedidos.
+2. **Landing Page**: Refatorar `src/routes/index.tsx` para o novo catálogo.
+3. **Admin**: Adaptar a sidebar e módulos para a nova realidade comercial.
