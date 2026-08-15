@@ -18,7 +18,7 @@ const CONFED_PT: Record<string, string> = {
   OFC: "Oceania (OFC)",
 };
 
-export const Route = createFileRoute("/selecoes/$id")({
+export const Route = createFileRoute("/times/$id")({
   loader: ({ context, params }) => {
     context.queryClient.ensureQueryData(opts(params.id));
   },
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/selecoes/$id")({
   notFoundComponent: () => (
     <AppShell>
       <div className="mx-auto max-w-7xl px-4 py-16 text-center">
-        <p>Seleção não encontrada.</p>
+        <p>Time não encontrado.</p>
       </div>
     </AppShell>
   ),
