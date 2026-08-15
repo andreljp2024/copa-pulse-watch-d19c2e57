@@ -22,7 +22,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TimesChar42idRouteImport } from './routes/times.*id'
+import { Route as TimesIdRouteImport } from './routes/times.$id'
 import { Route as PartidasIdRouteImport } from './routes/partidas.$id'
 import { Route as MeusPalpitesSlugRouteImport } from './routes/meus-palpites.$slug'
 import { Route as BolaoSlugRouteImport } from './routes/bolao.$slug'
@@ -110,9 +110,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TimesChar42idRoute = TimesChar42idRouteImport.update({
-  id: '/*id',
-  path: '/*id',
+const TimesIdRoute = TimesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
   getParentRoute: () => TimesRoute,
 } as any)
 const PartidasIdRoute = PartidasIdRouteImport.update({
@@ -256,7 +256,7 @@ export interface FileRoutesByFullPath {
   '/bolao/$slug': typeof BolaoSlugRouteWithChildren
   '/meus-palpites/$slug': typeof MeusPalpitesSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
-  '/times/*id': typeof TimesChar42idRoute
+  '/times/$id': typeof TimesIdRoute
   '/app/auditoria': typeof AuthenticatedAppAuditoriaRoute
   '/app/bolao': typeof AuthenticatedAppBolaoRoute
   '/app/contatos': typeof AuthenticatedAppContatosRoute
@@ -292,7 +292,7 @@ export interface FileRoutesByTo {
   '/bolao/$slug': typeof BolaoSlugRouteWithChildren
   '/meus-palpites/$slug': typeof MeusPalpitesSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
-  '/times/*id': typeof TimesChar42idRoute
+  '/times/$id': typeof TimesIdRoute
   '/app/auditoria': typeof AuthenticatedAppAuditoriaRoute
   '/app/bolao': typeof AuthenticatedAppBolaoRoute
   '/app/contatos': typeof AuthenticatedAppContatosRoute
@@ -331,7 +331,7 @@ export interface FileRoutesById {
   '/bolao/$slug': typeof BolaoSlugRouteWithChildren
   '/meus-palpites/$slug': typeof MeusPalpitesSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
-  '/times/*id': typeof TimesChar42idRoute
+  '/times/$id': typeof TimesIdRoute
   '/_authenticated/app/auditoria': typeof AuthenticatedAppAuditoriaRoute
   '/_authenticated/app/bolao': typeof AuthenticatedAppBolaoRoute
   '/_authenticated/app/contatos': typeof AuthenticatedAppContatosRoute
@@ -370,7 +370,7 @@ export interface FileRouteTypes {
     | '/bolao/$slug'
     | '/meus-palpites/$slug'
     | '/partidas/$id'
-    | '/times/*id'
+    | '/times/$id'
     | '/app/auditoria'
     | '/app/bolao'
     | '/app/contatos'
@@ -406,7 +406,7 @@ export interface FileRouteTypes {
     | '/bolao/$slug'
     | '/meus-palpites/$slug'
     | '/partidas/$id'
-    | '/times/*id'
+    | '/times/$id'
     | '/app/auditoria'
     | '/app/bolao'
     | '/app/contatos'
@@ -444,7 +444,7 @@ export interface FileRouteTypes {
     | '/bolao/$slug'
     | '/meus-palpites/$slug'
     | '/partidas/$id'
-    | '/times/*id'
+    | '/times/$id'
     | '/_authenticated/app/auditoria'
     | '/_authenticated/app/bolao'
     | '/_authenticated/app/contatos'
@@ -578,11 +578,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/times/*id': {
-      id: '/times/*id'
-      path: '/*id'
-      fullPath: '/times/*id'
-      preLoaderRoute: typeof TimesChar42idRouteImport
+    '/times/$id': {
+      id: '/times/$id'
+      path: '/$id'
+      fullPath: '/times/$id'
+      preLoaderRoute: typeof TimesIdRouteImport
       parentRoute: typeof TimesRoute
     }
     '/partidas/$id': {
@@ -799,11 +799,11 @@ const AuthRouteChildren: AuthRouteChildren = {
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface TimesRouteChildren {
-  TimesChar42idRoute: typeof TimesChar42idRoute
+  TimesIdRoute: typeof TimesIdRoute
 }
 
 const TimesRouteChildren: TimesRouteChildren = {
-  TimesChar42idRoute: TimesChar42idRoute,
+  TimesIdRoute: TimesIdRoute,
 }
 
 const TimesRouteWithChildren = TimesRoute._addFileChildren(TimesRouteChildren)
