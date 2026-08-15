@@ -11,7 +11,7 @@ export const Route = createFileRoute("/mata-mata")({
   head: () => ({
     meta: [
       { title: "Mata-mata — Bolão AI" },
-      { name: "description", content: "Chaveamento do mata-mata da Copa do Mundo 2026." },
+      { name: "description", content: "Chaveamento do mata-mata dos campeonatos brasileiros 2026." },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(opts),
@@ -69,7 +69,7 @@ function Page() {
       <div className="mx-auto max-w-7xl px-4 py-10">
         <h1 className="text-3xl sm:text-4xl font-black tracking-tight">Mata-mata</h1>
         <p className="mt-2 text-muted-foreground">
-          Chaveamento da fase eliminatória — Copa do Mundo 2026 (48 seleções).
+          Chaveamento da fase eliminatória — Futebol Brasileiro 2026.
         </p>
         <div className="mt-8 overflow-x-auto">
           <div className="flex gap-6 min-w-[800px]">
@@ -100,8 +100,8 @@ function Page() {
           </div>
         </div>
         <div className="mt-8 inline-flex items-center gap-2 text-sm text-muted-foreground">
-          <Trophy className="h-4 w-4 text-gold" /> Os confrontos são gerados quando as partidas de
-          grupo forem finalizadas.
+          <Trophy className="h-4 w-4 text-gold" /> Os confrontos são gerados quando as partidas da rodada
+          forem finalizadas.
         </div>
       </div>
     </AppShell>

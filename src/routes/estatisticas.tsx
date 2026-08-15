@@ -10,7 +10,7 @@ export const Route = createFileRoute("/estatisticas")({
   head: () => ({
     meta: [
       { title: "Estatísticas — Bolão AI" },
-      { name: "description", content: "Artilharia e estatísticas da Copa do Mundo." },
+      { name: "description", content: "Artilharia e estatísticas do futebol brasileiro." },
     ],
   }),
   loader: ({ context }) => {

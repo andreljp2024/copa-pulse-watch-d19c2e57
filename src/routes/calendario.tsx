@@ -14,17 +14,17 @@ export const Route = createFileRoute("/calendario")({
       { title: "Calendário — Bolão AI" },
       {
         name: "description",
-        content: "Todas as partidas da Copa com filtros por status, grupo e fase.",
+        content: "Todas as partidas dos campeonatos brasileiros com filtros por status, grupo e fase.",
       },
       ...ogMeta({
         title: "Calendário — Bolão AI",
-        description: "Todas as partidas da Copa com filtros por status, grupo e fase.",
+        description: "Todas as partidas dos campeonatos brasileiros com filtros por status, grupo e fase.",
         url: "/calendario",
       }),
       jsonLd({
         "@context": "https://schema.org",
         "@type": "SportsTournament",
-        name: "Copa do Mundo 2026",
+        name: "Futebol Brasileiro 2026",
         url: `${SITE.domain}/calendario`,
         inLanguage: "pt-BR",
         eventStatus: "https://schema.org/EventScheduled",

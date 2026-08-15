@@ -7,7 +7,7 @@ import bolaoIcon from "@/assets/bolaoai-icon.png";
 
 const nav = [
   { to: "/", label: "Início" },
-  { to: "/selecoes", label: "Times" },
+  { to: "/times", label: "Times" },
   { to: "/grupos", label: "Grupos" },
   { to: "/calendario", label: "Calendário" },
   { to: "/mata-mata", label: "Mata-mata" },

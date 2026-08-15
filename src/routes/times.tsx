@@ -8,15 +8,15 @@ import { SITE, ogMeta, canonicalLink, jsonLd } from "@/lib/seo";
 
 const opts = queryOptions({ queryKey: ["teams"], queryFn: () => listTeams() });
 
-export const Route = createFileRoute("/times")({
+export const Route = createFileRoute("/selecoes")({
   head: () => ({
     meta: [
-      { title: "Times — Bolão AI" },
-      { name: "description", content: "Todos os times dos campeonatos brasileiros." },
+      { title: "Seleções — Bolão AI" },
+      { name: "description", content: "Todas as seleções da Copa do Mundo." },
       ...ogMeta({
-        title: "Times — Bolão AI",
-        description: "Todos os times dos campeonatos brasileiros.",
-        url: "/times",
+        title: "Seleções — Bolão AI",
+        description: "Todas as seleções da Copa do Mundo.",
+        url: "/selecoes",
       }),
       jsonLd({
         "@context": "https://schema.org",
@@ -26,13 +26,13 @@ export const Route = createFileRoute("/times")({
           {
             "@type": "ListItem",
             position: 2,
-            name: "Times",
-            item: `${SITE.domain}/times`,
+            name: "Seleções",
+            item: `${SITE.domain}/selecoes`,
           },
         ],
       }),
     ],
-    links: [canonicalLink("/times")],
+    links: [canonicalLink("/selecoes")],
   }),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(opts);
@@ -59,9 +59,9 @@ function Page() {
   return (
     <AppShell>
       <div className="mx-auto max-w-7xl px-4 py-10">
-        <h1 className="text-3xl sm:text-4xl font-black tracking-tight">Times</h1>
+        <h1 className="text-3xl sm:text-4xl font-black tracking-tight">Seleções</h1>
         <p className="mt-2 text-muted-foreground">
-          {filtered.length} de {data.filter((t: any) => t.code !== "TBD").length} times
+          {filtered.length} de {data.filter((t: any) => t.code !== "TBD").length} seleções
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3 items-center">
@@ -79,7 +79,7 @@ function Page() {
           <input
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar time…"
+            placeholder="Buscar seleção…"
             className="h-10 flex-1 min-w-[150px] rounded-lg border border-border bg-card px-3 text-sm"
           />
         </div>
@@ -88,7 +88,7 @@ function Page() {
           {filtered.map((t: any) => (
             <Link
               key={t.id}
-              to="/times/$id"
+              to="/selecoes/$id"
               params={{ id: t.id }}
               className="group rounded-xl border border-border bg-card p-4 card-elevated hover:border-pitch/40 transition-colors"
             >
@@ -108,7 +108,7 @@ function Page() {
                   </span>
                 </div>
                 <div>
-                  <span className="block text-[10px] uppercase">Fundação / Info</span>
+                  <span className="block text-[10px] uppercase">Ranking FIFA</span>
                   <span className="text-foreground font-semibold">{t.fifa_rank ?? "—"}</span>
                 </div>
               </div>
@@ -117,7 +117,7 @@ function Page() {
         </div>
         {filtered.length === 0 && (
           <p className="mt-12 text-center text-sm text-muted-foreground">
-            Nenhum time encontrado.
+            Nenhuma seleção encontrada.
           </p>
         )}
       </div>

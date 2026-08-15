@@ -115,7 +115,7 @@ export function TeamBadge({
   if (linkable && team.id) {
     return (
       <Link
-        to="/selecoes/$id"
+        to="/times/$id"
         params={{ id: team.id }}
         className="hover:opacity-80 transition-opacity"
       >

@@ -141,7 +141,7 @@ export const Route = createFileRoute("/bolao/$slug")({
     const confronto = home && away ? `${ptTeamName(home.name)} x ${ptTeamName(away.name)}` : "";
     const title = confronto
       ? `${confronto} — ${loaderData.bolao.nome}`
-      : `${loaderData.bolao.nome} — Bolão Copa 2026`;
+      : `${loaderData.bolao.nome} — Bolão Futebol Brasileiro`;
     const desc = confronto
       ? `Palpite em ${confronto} e concorra no ${loaderData.bolao.nome}.`
       : (loaderData.bolao.descricao ?? `Participe do ${loaderData.bolao.nome}.`);
