@@ -45,16 +45,17 @@ const bolaoPublicOpts = (slug: string) =>
   queryOptions({
     queryKey: ["bolao", slug, "public"],
     queryFn: async () => {
-      const { data: bolao, error } = await supabase
+      const { data: bolaoRes, error } = await supabase
         .from("boloes")
         .select(
-          "id, nome, slug, descricao, regras, valor_palpite, status, logo_url, cor_primaria, cor_secundaria, permitir_ranking_publico, permitir_ganhadores_publico, data_limite_palpite, created_at, updated_at, percentual_admin",
+          "*",
         )
         .eq("slug", slug)
         .eq("status", "active")
         .maybeSingle();
       if (error) throw error;
-      if (!bolao) throw notFound();
+      if (!bolaoRes) throw notFound();
+      const bolao = bolaoRes as any;
 
       const [bm, t, pay, palpitesRes] = await Promise.all([
         supabase.from("bolao_matches").select("match_id").eq("bolao_id", bolao.id),
@@ -208,7 +209,7 @@ function PublicBolao() {
   const [step, setStep] = useState<"identidade" | "palpites">("identidade");
   const [form, setForm] = useState({ nome: "", whatsapp: "" });
   const [items, setItems] = useState<
-    Array<{ match_id: string; palpite_a: string; palpite_b: string }>
+    Array<{ match_id: string; palpite_a: string; palpite_b: string; palpite_simples?: string }>
   >([]);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{
@@ -370,6 +371,7 @@ function PublicBolao() {
           p_match_id: it.match_id,
           p_palpite_a: Number(it.palpite_a) || 0,
           p_palpite_b: Number(it.palpite_b) || 0,
+          p_palpite_simples: it.palpite_simples || null,
         });
         if (rErr) throw rErr;
         const protocolo =
