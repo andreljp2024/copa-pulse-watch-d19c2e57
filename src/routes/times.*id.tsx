@@ -18,7 +18,7 @@ const CONFED_PT: Record<string, string> = {
   OFC: "Oceania (OFC)",
 };
 
-export const Route = createFileRoute("/selecoes/$id")({
+export const Route = createFileRoute("/times/*id")({
   loader: ({ context, params }) => {
     context.queryClient.ensureQueryData(opts(params.id));
   },

@@ -22,7 +22,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SelecoesIdRouteImport } from './routes/selecoes.$id'
+import { Route as TimesChar42idRouteImport } from './routes/times.*id'
 import { Route as PartidasIdRouteImport } from './routes/partidas.$id'
 import { Route as MeusPalpitesSlugRouteImport } from './routes/meus-palpites.$slug'
 import { Route as BolaoSlugRouteImport } from './routes/bolao.$slug'
@@ -110,10 +110,10 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SelecoesIdRoute = SelecoesIdRouteImport.update({
-  id: '/selecoes/$id',
-  path: '/selecoes/$id',
-  getParentRoute: () => rootRouteImport,
+const TimesChar42idRoute = TimesChar42idRouteImport.update({
+  id: '/*id',
+  path: '/*id',
+  getParentRoute: () => TimesRoute,
 } as any)
 const PartidasIdRoute = PartidasIdRouteImport.update({
   id: '/partidas/$id',
@@ -249,14 +249,14 @@ export interface FileRoutesByFullPath {
   '/planos': typeof PlanosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/times': typeof TimesRoute
+  '/times': typeof TimesRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/bolao/$slug': typeof BolaoSlugRouteWithChildren
   '/meus-palpites/$slug': typeof MeusPalpitesSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
-  '/selecoes/$id': typeof SelecoesIdRoute
+  '/times/*id': typeof TimesChar42idRoute
   '/app/auditoria': typeof AuthenticatedAppAuditoriaRoute
   '/app/bolao': typeof AuthenticatedAppBolaoRoute
   '/app/contatos': typeof AuthenticatedAppContatosRoute
@@ -286,13 +286,13 @@ export interface FileRoutesByTo {
   '/planos': typeof PlanosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/times': typeof TimesRoute
+  '/times': typeof TimesRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/bolao/$slug': typeof BolaoSlugRouteWithChildren
   '/meus-palpites/$slug': typeof MeusPalpitesSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
-  '/selecoes/$id': typeof SelecoesIdRoute
+  '/times/*id': typeof TimesChar42idRoute
   '/app/auditoria': typeof AuthenticatedAppAuditoriaRoute
   '/app/bolao': typeof AuthenticatedAppBolaoRoute
   '/app/contatos': typeof AuthenticatedAppContatosRoute
@@ -324,14 +324,14 @@ export interface FileRoutesById {
   '/planos': typeof PlanosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/times': typeof TimesRoute
+  '/times': typeof TimesRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/bolao/$slug': typeof BolaoSlugRouteWithChildren
   '/meus-palpites/$slug': typeof MeusPalpitesSlugRoute
   '/partidas/$id': typeof PartidasIdRoute
-  '/selecoes/$id': typeof SelecoesIdRoute
+  '/times/*id': typeof TimesChar42idRoute
   '/_authenticated/app/auditoria': typeof AuthenticatedAppAuditoriaRoute
   '/_authenticated/app/bolao': typeof AuthenticatedAppBolaoRoute
   '/_authenticated/app/contatos': typeof AuthenticatedAppContatosRoute
@@ -370,7 +370,7 @@ export interface FileRouteTypes {
     | '/bolao/$slug'
     | '/meus-palpites/$slug'
     | '/partidas/$id'
-    | '/selecoes/$id'
+    | '/times/*id'
     | '/app/auditoria'
     | '/app/bolao'
     | '/app/contatos'
@@ -406,7 +406,7 @@ export interface FileRouteTypes {
     | '/bolao/$slug'
     | '/meus-palpites/$slug'
     | '/partidas/$id'
-    | '/selecoes/$id'
+    | '/times/*id'
     | '/app/auditoria'
     | '/app/bolao'
     | '/app/contatos'
@@ -444,7 +444,7 @@ export interface FileRouteTypes {
     | '/bolao/$slug'
     | '/meus-palpites/$slug'
     | '/partidas/$id'
-    | '/selecoes/$id'
+    | '/times/*id'
     | '/_authenticated/app/auditoria'
     | '/_authenticated/app/bolao'
     | '/_authenticated/app/contatos'
@@ -476,11 +476,10 @@ export interface RootRouteChildren {
   PlanosRoute: typeof PlanosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  TimesRoute: typeof TimesRoute
+  TimesRoute: typeof TimesRouteWithChildren
   BolaoSlugRoute: typeof BolaoSlugRouteWithChildren
   MeusPalpitesSlugRoute: typeof MeusPalpitesSlugRoute
   PartidasIdRoute: typeof PartidasIdRoute
-  SelecoesIdRoute: typeof SelecoesIdRoute
   ApiPublicHooksDispatchNotificationsRoute: typeof ApiPublicHooksDispatchNotificationsRoute
   ApiPublicHooksDispatchPushRoute: typeof ApiPublicHooksDispatchPushRoute
   ApiPublicHooksSyncFootballRoute: typeof ApiPublicHooksSyncFootballRoute
@@ -579,12 +578,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/selecoes/$id': {
-      id: '/selecoes/$id'
-      path: '/selecoes/$id'
-      fullPath: '/selecoes/$id'
-      preLoaderRoute: typeof SelecoesIdRouteImport
-      parentRoute: typeof rootRouteImport
+    '/times/*id': {
+      id: '/times/*id'
+      path: '/*id'
+      fullPath: '/times/*id'
+      preLoaderRoute: typeof TimesChar42idRouteImport
+      parentRoute: typeof TimesRoute
     }
     '/partidas/$id': {
       id: '/partidas/$id'
@@ -799,6 +798,16 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
+interface TimesRouteChildren {
+  TimesChar42idRoute: typeof TimesChar42idRoute
+}
+
+const TimesRouteChildren: TimesRouteChildren = {
+  TimesChar42idRoute: TimesChar42idRoute,
+}
+
+const TimesRouteWithChildren = TimesRoute._addFileChildren(TimesRouteChildren)
+
 interface BolaoSlugRouteChildren {
   BolaoSlugRankingRoute: typeof BolaoSlugRankingRoute
 }
@@ -824,11 +833,10 @@ const rootRouteChildren: RootRouteChildren = {
   PlanosRoute: PlanosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  TimesRoute: TimesRoute,
+  TimesRoute: TimesRouteWithChildren,
   BolaoSlugRoute: BolaoSlugRouteWithChildren,
   MeusPalpitesSlugRoute: MeusPalpitesSlugRoute,
   PartidasIdRoute: PartidasIdRoute,
-  SelecoesIdRoute: SelecoesIdRoute,
   ApiPublicHooksDispatchNotificationsRoute:
     ApiPublicHooksDispatchNotificationsRoute,
   ApiPublicHooksDispatchPushRoute: ApiPublicHooksDispatchPushRoute,
