@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TimesRouteImport } from './routes/times'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SelecoesRouteImport } from './routes/selecoes'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as MataMataRouteImport } from './routes/mata-mata'
@@ -55,11 +54,6 @@ const TimesRoute = TimesRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SelecoesRoute = SelecoesRouteImport.update({
-  id: '/selecoes',
-  path: '/selecoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -117,9 +111,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const SelecoesIdRoute = SelecoesIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => SelecoesRoute,
+  id: '/selecoes/$id',
+  path: '/selecoes/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PartidasIdRoute = PartidasIdRouteImport.update({
   id: '/partidas/$id',
@@ -254,7 +248,6 @@ export interface FileRoutesByFullPath {
   '/mata-mata': typeof MataMataRoute
   '/planos': typeof PlanosRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/selecoes': typeof SelecoesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/times': typeof TimesRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -292,7 +285,6 @@ export interface FileRoutesByTo {
   '/mata-mata': typeof MataMataRoute
   '/planos': typeof PlanosRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/selecoes': typeof SelecoesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/times': typeof TimesRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -331,7 +323,6 @@ export interface FileRoutesById {
   '/mata-mata': typeof MataMataRoute
   '/planos': typeof PlanosRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/selecoes': typeof SelecoesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/times': typeof TimesRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -371,7 +362,6 @@ export interface FileRouteTypes {
     | '/mata-mata'
     | '/planos'
     | '/reset-password'
-    | '/selecoes'
     | '/sitemap.xml'
     | '/times'
     | '/admin'
@@ -409,7 +399,6 @@ export interface FileRouteTypes {
     | '/mata-mata'
     | '/planos'
     | '/reset-password'
-    | '/selecoes'
     | '/sitemap.xml'
     | '/times'
     | '/admin'
@@ -447,7 +436,6 @@ export interface FileRouteTypes {
     | '/mata-mata'
     | '/planos'
     | '/reset-password'
-    | '/selecoes'
     | '/sitemap.xml'
     | '/times'
     | '/_authenticated/admin'
@@ -487,12 +475,12 @@ export interface RootRouteChildren {
   MataMataRoute: typeof MataMataRoute
   PlanosRoute: typeof PlanosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  SelecoesRoute: typeof SelecoesRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TimesRoute: typeof TimesRoute
   BolaoSlugRoute: typeof BolaoSlugRouteWithChildren
   MeusPalpitesSlugRoute: typeof MeusPalpitesSlugRoute
   PartidasIdRoute: typeof PartidasIdRoute
+  SelecoesIdRoute: typeof SelecoesIdRoute
   ApiPublicHooksDispatchNotificationsRoute: typeof ApiPublicHooksDispatchNotificationsRoute
   ApiPublicHooksDispatchPushRoute: typeof ApiPublicHooksDispatchPushRoute
   ApiPublicHooksSyncFootballRoute: typeof ApiPublicHooksSyncFootballRoute
@@ -512,13 +500,6 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/selecoes': {
-      id: '/selecoes'
-      path: '/selecoes'
-      fullPath: '/selecoes'
-      preLoaderRoute: typeof SelecoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -600,10 +581,10 @@ declare module '@tanstack/react-router' {
     }
     '/selecoes/$id': {
       id: '/selecoes/$id'
-      path: '/$id'
+      path: '/selecoes/$id'
       fullPath: '/selecoes/$id'
       preLoaderRoute: typeof SelecoesIdRouteImport
-      parentRoute: typeof SelecoesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/partidas/$id': {
       id: '/partidas/$id'
@@ -818,18 +799,6 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
-interface SelecoesRouteChildren {
-  SelecoesIdRoute: typeof SelecoesIdRoute
-}
-
-const SelecoesRouteChildren: SelecoesRouteChildren = {
-  SelecoesIdRoute: SelecoesIdRoute,
-}
-
-const SelecoesRouteWithChildren = SelecoesRoute._addFileChildren(
-  SelecoesRouteChildren,
-)
-
 interface BolaoSlugRouteChildren {
   BolaoSlugRankingRoute: typeof BolaoSlugRankingRoute
 }
@@ -854,12 +823,12 @@ const rootRouteChildren: RootRouteChildren = {
   MataMataRoute: MataMataRoute,
   PlanosRoute: PlanosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  SelecoesRoute: SelecoesRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TimesRoute: TimesRoute,
   BolaoSlugRoute: BolaoSlugRouteWithChildren,
   MeusPalpitesSlugRoute: MeusPalpitesSlugRoute,
   PartidasIdRoute: PartidasIdRoute,
+  SelecoesIdRoute: SelecoesIdRoute,
   ApiPublicHooksDispatchNotificationsRoute:
     ApiPublicHooksDispatchNotificationsRoute,
   ApiPublicHooksDispatchPushRoute: ApiPublicHooksDispatchPushRoute,
