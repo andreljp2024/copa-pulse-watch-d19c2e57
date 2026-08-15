@@ -174,6 +174,6 @@ export const MatchCard = memo(function MatchCard({ m }: { m: MatchLike }) {
           {m.stadium.city ? ` • ${m.stadium.city}` : ""}
         </div>
       )}
-    </Link>
+    </div>
   );
 });
