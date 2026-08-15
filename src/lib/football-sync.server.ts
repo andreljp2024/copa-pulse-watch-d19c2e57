@@ -5,7 +5,9 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const FD_BASE = "https://api.football-data.org/v4";
-const FD_COMPETITION = process.env.FOOTBALL_COMPETITION ?? "WC";
+// Competição padrão: Campeonato Brasileiro Série A (football-data.org → "BSA").
+// Pode ser sobrescrita por FOOTBALL_COMPETITION (ex.: "BSA", "CDB", "CLI").
+const FD_COMPETITION = process.env.FOOTBALL_COMPETITION ?? "BSA";
 
 interface FDTeam {
   id: number;

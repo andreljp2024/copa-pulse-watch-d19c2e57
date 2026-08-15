@@ -1,14 +1,18 @@
-// Estratégia única de sincronização: worldcup26.ir como fonte primária,
-// football-data.org apenas como fallback quando a primária falhar.
+// Estratégia única de sincronização (futebol de clubes brasileiros).
+// Fonte primária: football-data.org (competição padrão BSA — Brasileirão Série A).
+// A arquitetura mantém um slot de contingência para uma segunda fonte
+// (ex.: API-Football/API-Sports) sem alterar os consumidores.
 // Executar UMA API por vez evita linhas duplicadas em `matches`
 // (kickoff_at difere entre as fontes → colidiria com o UPSERT
 // (home_team_id, away_team_id, kickoff_at)).
+
+export type SyncSource = "football-data.org" | "api-football";
 
 export type UnifiedSyncResult = {
   ok: boolean;
   status: "success" | "error" | "skipped";
   message: string;
-  source: "worldcup26.ir" | "football-data.org";
+  source: SyncSource;
   fallback?: boolean;
   primaryError?: string;
   summary?: Record<string, number>;
@@ -16,22 +20,18 @@ export type UnifiedSyncResult = {
 
 export async function syncMatchesUnified(triggeredBy: string): Promise<UnifiedSyncResult> {
   try {
-    const { syncWorldCup2026 } = await import("@/lib/worldcup26-sync.server");
-    const res = await syncWorldCup2026(triggeredBy);
-    if (res.ok) {
-      return { ...res, source: "worldcup26.ir" };
-    }
-    throw new Error(res.message);
-  } catch (primaryErr) {
-    const primaryMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
-    console.warn("[sync] worldcup26.ir falhou, usando football-data.org:", primaryMsg);
     const { syncFootballData } = await import("@/lib/football-sync.server");
     const res = await syncFootballData(triggeredBy);
+    return { ...res, source: "football-data.org" };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[sync] football-data.org falhou:", message);
     return {
-      ...res,
+      ok: false,
+      status: "error",
+      message: `Falha na sincronização: ${message}`,
       source: "football-data.org",
-      fallback: true,
-      primaryError: primaryMsg,
+      primaryError: message,
     };
   }
 }
