@@ -1,330 +1,196 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { useMemo } from "react";
 import { AppShell } from "@/components/AppShell";
-import { MatchCard, TeamBadge } from "@/components/MatchCard";
 import { SITE, ogMeta, canonicalLink, jsonLd } from "@/lib/seo";
-import { StandingsTable } from "@/components/StandingsTable";
-import { getDashboard } from "@/lib/copa.functions";
-import { Trophy, Goal, CalendarDays, Flame } from "lucide-react";
-import heroStadium from "@/assets/hero-stadium.jpg";
-import heroTrophy from "@/assets/hero-trophy.jpg";
-import trophyGold from "@/assets/trophy-gold.png";
-import sectionPitch from "@/assets/section-pitch.jpg";
+import { getCatalog } from "@/lib/ecommerce.functions";
+import { ShoppingBasket, Truck, ShieldCheck, Heart, ArrowRight, Package } from "lucide-react";
 
-const dashboardOpts = queryOptions({
-  queryKey: ["dashboard"],
-  queryFn: () => getDashboard(),
-  refetchInterval: 30_000,
-  refetchIntervalInBackground: false,
-  staleTime: 15_000,
+const catalogOpts = queryOptions({
+  queryKey: ["catalog"],
+  queryFn: () => getCatalog(),
+  refetchInterval: 60_000,
+  staleTime: 30_000,
 });
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: SITE.titleTemplate("Painel da Copa do Mundo") },
+      { title: SITE.titleTemplate("Cestas Básicas e Kits de Alimentos") },
       {
         name: "description",
-        content:
-          "Resumo da Copa: jogos ao vivo, próximos jogos, resultados, classificação e artilheiros.",
+        content: SITE.description,
       },
       ...ogMeta({
-        title: SITE.titleTemplate("Painel da Copa do Mundo"),
-        description:
-          "Resumo da Copa: jogos ao vivo, próximos jogos, resultados, classificação e artilheiros.",
+        title: SITE.titleTemplate("Cestas Básicas e Kits de Alimentos"),
+        description: SITE.description,
         url: "/",
       }),
       jsonLd({
         "@context": "https://schema.org",
-        "@type": "SportsTournament",
-        name: "Copa do Mundo 2026",
-        description:
-          "Acompanhe a Copa do Mundo 2026: tabela, calendário, resultados e estatísticas no Bolão AI.",
+        "@type": "Store",
+        name: "CestaFácil",
+        description: SITE.description,
         url: SITE.domain,
-        eventStatus: "https://schema.org/EventScheduled",
         inLanguage: "pt-BR",
       }),
     ],
     links: [canonicalLink("/")],
   }),
   loader: ({ context }) => {
-    context.queryClient.ensureQueryData(dashboardOpts);
+    context.queryClient.ensureQueryData(catalogOpts);
   },
-  component: Dashboard,
+  component: LandingPage,
 });
 
-function Dashboard() {
-  const { data } = useSuspenseQuery(dashboardOpts);
-  const firstTwoGroups = useMemo(() => {
-    const groupsMap = new Map<string, typeof data.standings>();
-    for (const row of data.standings) {
-      if (!row.group_id) continue;
-      const arr = groupsMap.get(row.group_id) ?? [];
-      arr.push(row);
-      groupsMap.set(row.group_id, arr);
-    }
-    return [...groupsMap.entries()].slice(0, 2);
-  }, [data.standings]);
+function LandingPage() {
+  const { data } = useSuspenseQuery(catalogOpts);
 
   return (
     <AppShell>
-      <section className="relative overflow-hidden bg-hero grain">
-        <img
-          src={heroStadium}
-          alt=""
-          aria-hidden="true"
-          width={1920}
-          height={1280}
-          className="absolute inset-0 h-full w-full object-cover opacity-70 pointer-events-none select-none"
-        />
-        {/* Conic samba glow */}
-        <div
-          aria-hidden="true"
-          className="absolute -top-40 -right-40 h-[36rem] w-[36rem] rounded-full opacity-30 blur-3xl animate-spin-slow pointer-events-none"
-          style={{ backgroundImage: "var(--gradient-conic-gold)" }}
-        />
-        <div
-          className="absolute inset-0 opacity-10 pointer-events-none"
-          style={{
-            backgroundImage: "radial-gradient(circle at 2px 2px, var(--gold) 1px, transparent 0)",
-            backgroundSize: "40px 40px",
-          }}
-          aria-hidden="true"
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/55 to-background pointer-events-none"
-          aria-hidden="true"
-        />
-
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12 lg:py-24">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <div className="space-y-5 sm:space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gradient-samba/10 px-3 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gold backdrop-blur">
-                <span
-                  className="h-2 w-2 rounded-full bg-gradient-samba animate-pulse"
-                  aria-hidden="true"
-                />
-                Vai, Brasil! · Rumo ao Hexa 2026
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-hero grain pt-20 pb-16 lg:pt-32 lg:pb-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-primary backdrop-blur-md">
+                <Heart className="h-3.5 w-3.5 fill-primary" />
+                Cuidado para sua família
               </div>
-              <h1 className="font-display uppercase text-white leading-[0.95] [text-wrap:balance] [font-size:clamp(2.25rem,6vw,5.5rem)]">
-                BOLÃO DOS <br />
-                <span className="text-gradient-samba whitespace-nowrap">AMIGOS</span>
+              
+              <h1 className="font-display uppercase text-white leading-[0.95] [font-size:clamp(2.5rem,7vw,5rem)]">
+                QUALIDADE & <br />
+                <span className="text-gradient-gold">ECONOMIA</span>
               </h1>
-              <p className="max-w-md text-sm sm:text-base md:text-lg leading-relaxed text-muted-foreground">
-                Acompanhe cada lance, simule resultados e dispute o topo do ranking no maior portal
-                da Copa do Mundo 2026.
+              
+              <p className="max-w-xl text-lg md:text-xl leading-relaxed text-muted-foreground">
+                Cestas básicas completas e kits de alimentação direto na sua porta. 
+                Economize tempo e dinheiro com produtos selecionados.
               </p>
-              <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-2">
-                <Link
-                  to="/criar-bolao"
-                  className="inline-flex h-12 items-center justify-center rounded-sm bg-gradient-gold px-6 sm:px-8 text-sm font-black uppercase tracking-tight text-gold-foreground shadow-gold transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  Criar Meu Bolão
-                </Link>
-                <Link
-                  to="/calendario"
-                  className="inline-flex h-12 items-center justify-center rounded-sm border border-border bg-card/40 px-6 sm:px-8 text-sm font-black uppercase tracking-tight text-foreground backdrop-blur transition-colors hover:bg-card/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-                >
-                  <CalendarDays className="mr-2 h-4 w-4" aria-hidden="true" /> Ver Calendário
-                </Link>
-              </div>
-            </div>
 
-            {/* Trophy hero card */}
-            <div className="aspect-[4/5] sm:aspect-auto sm:h-[500px] w-full">
-              <Link
-                to="/criar-bolao"
-                className="group relative h-full w-full rounded-2xl flex flex-col items-center justify-center transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                <div className="relative flex aspect-square w-[70%] max-w-[22rem] items-center justify-center transition-transform duration-500 group-hover:scale-110">
-                  <img
-                    src={trophyGold}
-                    alt="Taça dourada"
-                    loading="lazy"
-                    width={1024}
-                    height={1024}
-                    className="relative h-full w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
-                  />
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  to="/catalogo"
+                  className="inline-flex h-14 items-center justify-center rounded-xl bg-gradient-gold px-10 text-base font-black uppercase tracking-tight text-gold-foreground shadow-gold transition-all hover:scale-105 active:scale-95"
+                >
+                  Ver Catálogo
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+                <Link
+                  to="/"
+                  className="inline-flex h-14 items-center justify-center rounded-xl border border-border bg-card/40 px-10 text-base font-black uppercase tracking-tight text-foreground backdrop-blur transition-colors hover:bg-card/60"
+                >
+                  Monte a Sua
+                </Link>
+
+              </div>
+
+              <div className="flex items-center gap-6 pt-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-primary" />
+                  Entrega Grátis*
                 </div>
-                <h3 className="relative mt-6 font-display text-3xl sm:text-5xl leading-none text-center text-white">
-                  CRIE SEU
-                  <br />
-                  BOLÃO
-                </h3>
-                <p className="relative mt-3 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-emerald-100/80">
-                  JUNTE SEUS AMIGOS E VENHA TORCER.
-                </p>
-              </Link>
-            </div>
-          </div>
-
-          {/* Stats bar */}
-          <div className="mt-10 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 py-6 sm:py-10 border-y border-border">
-            {[
-              { v: String(data.stats.teams), l: "Seleções" },
-              { v: String(data.stats.matches), l: "Partidas" },
-              { v: String(data.stats.stadiums), l: "Cidades Sede" },
-              {
-                v: String(data.live.length),
-                l: "Ao Vivo Agora",
-              },
-            ].map((s) => (
-              <div key={s.l} className="text-center">
-                <p className="font-display text-3xl sm:text-4xl md:text-5xl text-gold">{s.v}</p>
-                <p className="mt-1 text-[10px] sm:text-xs uppercase tracking-widest text-muted-foreground">
-                  {s.l}
-                </p>
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-primary" />
+                  Garantia de Qualidade
+                </div>
               </div>
-            ))}
+            </div>
+
+            <div className="relative hidden lg:block">
+              <div className="absolute -inset-4 bg-primary/20 blur-3xl rounded-full opacity-50 animate-pulse" />
+              <div className="relative rounded-3xl overflow-hidden border border-border bg-card shadow-2xl p-6 aspect-square flex items-center justify-center">
+                 <ShoppingBasket className="w-64 h-64 text-primary/20 absolute" />
+                 <div className="text-center relative">
+                    <Package className="w-24 h-24 text-primary mx-auto mb-6" />
+                    <h3 className="text-4xl font-display uppercase">Cesta Premium</h3>
+                    <p className="text-gold text-2xl font-black mt-2">R$ 289,90</p>
+                    <div className="mt-6 flex flex-wrap justify-center gap-2">
+                      <span className="px-3 py-1 bg-muted rounded-full text-xs font-bold uppercase">58 Itens</span>
+                      <span className="px-3 py-1 bg-muted rounded-full text-xs font-bold uppercase">Família Grande</span>
+                    </div>
+                 </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <div
-        className="relative"
-        style={{
-          backgroundImage: `linear-gradient(to bottom, hsl(var(--background)) 0%, hsl(var(--background)/0.92) 30%, hsl(var(--background)/0.92) 70%, hsl(var(--background)) 100%), url(${sectionPitch})`,
-          backgroundSize: "cover, 1200px auto",
-          backgroundPosition: "center, center top",
-          backgroundAttachment: "scroll, fixed",
-          backgroundRepeat: "no-repeat, repeat-y",
-        }}
-      >
-      <div className="mx-auto max-w-7xl px-4 py-10 space-y-12">
-        {data.live.length > 0 && (
-          <section>
-            <SectionTitle icon={<Flame className="h-5 w-5 text-live" />}>
-              Ao vivo agora
-            </SectionTitle>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {data.live.map((m: any) => (
-                <MatchCard key={m.id} m={m} />
-              ))}
+      {/* Featured Cestas */}
+      <section className="py-20 bg-background">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+              <h2 className="font-display text-4xl uppercase mb-4">Nossas Cestas</h2>
+              <p className="text-muted-foreground text-lg">Opções que se adaptam à sua necessidade e bolso.</p>
             </div>
-          </section>
-        )}
-
-        <section>
-          <SectionTitle
-            icon={<CalendarDays className="h-5 w-5 text-pitch" />}
-            action={
-              <Link to="/calendario" className="text-sm font-semibold text-pitch hover:underline">
-                Ver todos →
-              </Link>
-            }
-          >
-            Próximos jogos
-          </SectionTitle>
-          {data.upcoming.length === 0 ? (
-            <Empty text="Sem jogos agendados no momento." />
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {data.upcoming.map((m: any) => (
-                <MatchCard key={m.id} m={m} />
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section>
-          <SectionTitle icon={<Goal className="h-5 w-5 text-pitch" />}>
-            Últimos resultados
-          </SectionTitle>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {data.recent.map((m: any) => (
-              <MatchCard key={m.id} m={m} />
-            ))}
-          </div>
-        </section>
-
-        <section className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
-            <SectionTitle icon={<Trophy className="h-5 w-5 text-gold" />}>
-              Classificação dos grupos
-            </SectionTitle>
-            <div className="grid gap-4 md:grid-cols-2">
-              {firstTwoGroups.map(([gid, rows]) => (
-                <div
-                  key={gid}
-                  className="rounded-xl border border-border bg-card p-4 card-elevated"
-                >
-                  <h3 className="text-sm font-black uppercase text-pitch mb-2">
-                    Grupo {data.groups.find((g) => g.id === gid)?.name ?? ""}
-                  </h3>
-                  <StandingsTable rows={rows as any} />
-                </div>
-              ))}
-            </div>
-            <Link
-              to="/grupos"
-              className="inline-block text-sm font-semibold text-pitch hover:underline"
-            >
-              Ver todos os grupos →
+            <Link to="/catalogo" className="text-primary font-bold flex items-center gap-2 hover:underline">
+              Ver todas as opções <ArrowRight className="h-4 w-4" />
             </Link>
+
           </div>
-          <div>
-            <SectionTitle icon={<Goal className="h-5 w-5 text-gold" />}>Artilheiros</SectionTitle>
-            <div className="rounded-xl border border-border bg-card p-4 card-elevated">
-              {data.topScorers.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Sem gols registrados ainda.</p>
-              ) : (
-                <ol className="space-y-2">
-                  {data.topScorers.map((s: any, i: number) => (
-                    <li key={s.player_id} className="flex items-center gap-3">
-                      <span
-                        className={`grid h-7 w-7 place-items-center rounded-full text-xs font-bold ${i === 0 ? "bg-gold text-accent-foreground" : "bg-muted"}`}
-                      >
-                        {i + 1}
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {data.cestas.length === 0 ? (
+              <div className="col-span-full py-20 text-center border border-dashed rounded-3xl">
+                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Em breve, novas cestas disponíveis.</p>
+              </div>
+            ) : (
+              data.cestas.map((cesta: any) => (
+                <div key={cesta.id} className="group rounded-3xl border border-border bg-card overflow-hidden hover:border-primary/50 transition-all card-elevated">
+                  <div className="aspect-[4/3] bg-muted relative flex items-center justify-center overflow-hidden">
+                    {cesta.foto_url ? (
+                      <img src={cesta.foto_url} alt={cesta.nome} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500" />
+                    ) : (
+                      <ShoppingBasket className="h-20 w-20 text-muted-foreground/30" />
+                    )}
+                    <div className="absolute top-4 left-4">
+                       <span className="px-3 py-1 bg-primary text-primary-foreground text-[10px] font-black uppercase rounded-full tracking-tighter">
+                          Destaque
+                       </span>
+                    </div>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <h3 className="text-2xl font-display uppercase">{cesta.nome}</h3>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{cesta.descricao}</p>
+                    <div className="flex items-center justify-between pt-2">
+                      <span className="text-2xl font-black text-white">
+                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cesta.preco_base)}
                       </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-semibold truncate">{s.name}</div>
-                        <div className="text-xs text-muted-foreground truncate">{s.team_name}</div>
-                      </div>
-                      <TeamBadge
-                        team={{ name: s.team_name, code: s.team_code, flag_url: s.flag_url }}
-                        size="sm"
-                        className="hidden sm:flex"
-                      />
-                      <span className="text-lg font-black tabular-nums text-pitch">{s.goals}</span>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </div>
+                      <Link 
+                        to="/cesta/$slug"
+                        params={{ slug: cesta.slug }}
+                        className="h-10 px-5 rounded-lg bg-secondary text-secondary-foreground text-xs font-bold uppercase flex items-center hover:bg-primary hover:text-primary-foreground transition-colors"
+                      >
+                        Detalhes
+                      </Link>
+
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
+
+      {/* Stats bar */}
+      <div className="bg-card border-y border-border py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 grid grid-cols-2 md:grid-cols-3 gap-8">
+          <div className="text-center">
+            <p className="font-stats text-5xl text-primary">{data.stats.items}</p>
+            <p className="mt-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">Produtos Ativos</p>
+          </div>
+          <div className="text-center border-x border-border/50">
+            <p className="font-stats text-5xl text-primary">{data.stats.orders}</p>
+            <p className="mt-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">Pedidos Entregues</p>
+          </div>
+          <div className="text-center">
+            <p className="font-stats text-5xl text-primary">{data.stats.stores}</p>
+            <p className="mt-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">Unidades Parceiras</p>
+          </div>
+        </div>
       </div>
     </AppShell>
-  );
-}
-
-function SectionTitle({
-  icon,
-  children,
-  action,
-}: {
-  icon: React.ReactNode;
-  children: React.ReactNode;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div className="mb-6 flex items-end justify-between gap-2 border-b border-border/60 pb-3">
-      <h2 className="font-display text-2xl sm:text-3xl uppercase tracking-wide flex items-center gap-3">
-        <span className="inline-block h-6 w-1 bg-gradient-gold rounded-sm" aria-hidden="true" />
-        {icon}
-        {children}
-      </h2>
-      {action}
-    </div>
-  );
-}
-
-function Empty({ text }: { text: string }) {
-  return (
-    <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-      {text}
-    </div>
   );
 }
