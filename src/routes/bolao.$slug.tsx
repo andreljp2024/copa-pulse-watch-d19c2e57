@@ -345,6 +345,22 @@ function PublicBolao() {
   async function submitPalpite(e: React.FormEvent) {
     e.preventDefault();
     if (items.length === 0) return;
+    
+    // Validação conforme o tipo de palpite
+    for (const it of items) {
+      if (bolao.tipo_palpite === "placar") {
+        if (!it.palpite_a || !it.palpite_b) {
+          alert("Preencha todos os placares.");
+          return;
+        }
+      } else {
+        if (!it.palpite_simples) {
+          alert("Selecione uma opção para todos os palpites.");
+          return;
+        }
+      }
+    }
+
     if (!pix) {
       alert(
         "Configuração PIX não encontrada. O organizador precisa configurar a chave PIX antes de aceitar palpites.",
