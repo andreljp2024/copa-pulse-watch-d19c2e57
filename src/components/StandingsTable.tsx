@@ -28,7 +28,7 @@ export function StandingsTable({ rows, highlightTop = 2 }: { rows: Row[]; highli
         <thead className="text-xs uppercase text-muted-foreground">
           <tr className="border-b border-border">
             <th className="text-left py-2 pl-3">#</th>
-            <th className="text-left py-2">Seleção</th>
+            <th className="text-left py-2">Time</th>
             <th className="text-center py-2">J</th>
             <th className="text-center py-2">V</th>
             <th className="text-center py-2">E</th>
@@ -57,7 +57,7 @@ export function StandingsTable({ rows, highlightTop = 2 }: { rows: Row[]; highli
                 </td>
                 <td className="py-2">
                   <Link
-                    to="/selecoes/$id"
+                    to="/times/$id"
                     params={{ id: r.team_id }}
                     className="hover:underline flex items-center gap-2"
                   >

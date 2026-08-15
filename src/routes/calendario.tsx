@@ -118,7 +118,7 @@ function Page() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar seleção ou estádio…"
+            placeholder="Buscar time ou estádio…"
             className="h-10 flex-1 min-w-[180px] rounded-lg border border-border bg-card px-3 text-sm"
           />
         </div>

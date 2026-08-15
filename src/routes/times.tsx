@@ -88,7 +88,7 @@ function Page() {
           {filtered.map((t: any) => (
             <Link
               key={t.id}
-              to="/selecoes/$id"
+              to="/times/$id"
               params={{ id: t.id }}
               className="group rounded-xl border border-border bg-card p-4 card-elevated hover:border-pitch/40 transition-colors"
             >
