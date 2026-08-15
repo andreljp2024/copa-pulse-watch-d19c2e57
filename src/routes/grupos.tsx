@@ -12,7 +12,7 @@ export const Route = createFileRoute("/grupos")({
       { title: "Grupos — Bolão AI" },
       {
         name: "description",
-        content: "Classificação atualizada de todos os grupos da Copa do Mundo.",
+        content: "Classificação atualizada dos times nos campeonatos brasileiros.",
       },
     ],
   }),
@@ -41,7 +41,7 @@ function Page() {
                   <StandingsTable rows={rows as any} />
                 ) : (
                   <p className="text-sm text-muted-foreground py-6 text-center">
-                    Sem seleções neste grupo.
+                    Sem times neste grupo.
                   </p>
                 )}
               </div>

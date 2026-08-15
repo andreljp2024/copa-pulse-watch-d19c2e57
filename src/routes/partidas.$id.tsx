@@ -34,7 +34,7 @@ export const Route = createFileRoute("/partidas/$id")({
     const title = `${home.name} x ${away.name} — Bolão AI`;
     const desc = `Acompanhe ${home.name} x ${away.name}${
       m.kickoff_at ? ` em ${formatBRFull(m.kickoff_at)}` : ""
-    }. Placar, escalações e estatísticas da Copa 2026.`;
+    }. Placar, escalações e estatísticas do Futebol Brasileiro 2026.`;
     return {
       meta: [
         { title },

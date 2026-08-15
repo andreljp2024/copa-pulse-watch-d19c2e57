@@ -1,4 +1,4 @@
-import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { AppShell } from "@/components/AppShell";
@@ -18,7 +18,7 @@ const CONFED_PT: Record<string, string> = {
   OFC: "Oceania (OFC)",
 };
 
-export const Route = createFileRoute("/selecoes/$id")({
+export const Route = createFileRoute("/times/$id")({
   loader: ({ context, params }) => {
     context.queryClient.ensureQueryData(opts(params.id));
   },
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/selecoes/$id")({
   notFoundComponent: () => (
     <AppShell>
       <div className="mx-auto max-w-7xl px-4 py-16 text-center">
-        <p>Seleção não encontrada.</p>
+        <p>Time não encontrado.</p>
       </div>
     </AppShell>
   ),
@@ -90,7 +90,7 @@ function Page() {
                 <span className="font-semibold text-primary-foreground">{t.coach_name ?? "—"}</span>
               </span>
               <span>
-                Ranking FIFA:{" "}
+                Informação:{" "}
                 <span className="font-semibold text-primary-foreground">{t.fifa_rank ?? "—"}</span>
               </span>
               {stats.j > 0 && (
